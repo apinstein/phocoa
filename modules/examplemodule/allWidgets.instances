@@ -1,0 +1,18 @@
+<?php
+
+$__instances = array(
+	'form' => array('class' => 'WFForm', 'children' => array(
+	'tabs' => array('class' => 'WFTabView', 'children' => array()),
+	'selectedFields' => array('class' => 'WFSelectionCheckbox', 'children' => array()),
+	'lotsOFields' => array('class' => 'WFDynamic', 'children' => array()),
+	'textfield' => array('class' => 'WFTextField', 'children' => array()),
+	'selectOne' => array('class' => 'WFSelect', 'children' => array()),
+	'selectMultiple' => array('class' => 'WFSelect', 'children' => array()),
+	'multiCheckbox2' => array('class' => 'WFCheckbox', 'children' => array()),
+	'multiCheckbox1' => array('class' => 'WFCheckbox', 'children' => array()),
+	'singleCheckbox' => array('class' => 'WFCheckbox', 'children' => array()),
+	'textarea' => array('class' => 'WFTextArea', 'children' => array()),
+	'action1' => array('class' => 'WFSubmit', 'children' => array()),
+	'showSelection' => array('class' => 'WFSubmit', 'children' => array()),)),
+);
+?>

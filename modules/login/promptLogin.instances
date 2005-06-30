@@ -1,0 +1,10 @@
+<?php
+
+$__instances = array(
+	'loginForm' => array('class' => 'WFForm', 'children' => array(
+	'continueURL' => array('class' => 'WFHidden', 'children' => array()),
+	'password' => array('class' => 'WFPassword', 'children' => array()),
+	'login' => array('class' => 'WFSubmit', 'children' => array()),
+	'username' => array('class' => 'WFTextField', 'children' => array()),)),
+);
+?>

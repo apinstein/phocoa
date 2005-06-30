@@ -1,0 +1,81 @@
+<?xml version="1.0"?> 
+<!-- NOTE:: All paths should leave off trailing slash!!! -->
+<project name="phocoa" default="newproject" basedir=".">
+    <!-- Set up tasks -->
+
+    <!-- Targets -->
+    <target name="prepare" description="Set up all directories and shared properties, etc." >
+        <property name="phocoa.basedir" value="${project.basedir}/.." /> 
+        <echo message="PHOCOA framework base dir at: ${phocoa.basedir}" />
+    </target>
+
+    <target name="httpdconf" description="Output the Include statement to include a project's httpd.conf file.">
+        <echo message="Make sure your httpd.conf file contains the line: Include ${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/conf/httpd.conf" />
+    </target>
+
+    <target name="newproject" description="Create a new project workspace." depends="prepare"> 
+        <!-- Gather information -->
+        <input propertyname="phocoa.project.name">Enter the name of the new project:</input>
+        <input propertyname="phocoa.project.container">Enter the path to create the new project in:</input>
+        <input propertyname="phocoa.project.servername" defaultValue="localhost">Enter the name of the server (ie dns name) that will host this application:</input>
+        <input propertyname="phocoa.project.serverip" defaultValue="127.0.0.1">Enter the IP of the server that will host this application:</input>
+        <input propertyname="phocoa.project.serverport" defaultValue="80">Enter the PORT of the server that will host this application:</input>
+
+        <echo msg="Creating a template for new project in ${phocoa.project.container}/${phocoa.project.name}" /> 
+
+        <!-- Create a reasonable directory structure -->
+        <mkdir dir="${phocoa.project.container}" />
+        <mkdir dir="${phocoa.project.container}/${phocoa.project.name}" />
+        <mkdir dir="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}" />
+        <mkdir dir="${phocoa.project.container}/${phocoa.project.name}/log" />
+        <chmod file="${phocoa.project.container}/${phocoa.project.name}/log" mode="777" /> 
+        <mkdir dir="${phocoa.project.container}/${phocoa.project.name}/runtime" />
+        <chmod file="${phocoa.project.container}/${phocoa.project.name}/runtime" mode="777" /> 
+        <mkdir dir="${phocoa.project.container}/${phocoa.project.name}/runtime/smarty/templates_c" />
+        <chmod file="${phocoa.project.container}/${phocoa.project.name}/runtime/smarty/templates_c" mode="777" /> 
+
+        <!-- Copy all default files to the new project directory. -->
+        <copy toDir="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/">
+            <fileset dir="${phocoa.basedir}">
+                <include name="classes/**" />
+                <include name="modules/**" />
+                <include name="skins/**" />
+                <include name="wwwroot/**" />
+            </fileset>
+        </copy>
+
+        <!-- Set up conf files -->
+        <copy toDir="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/">
+            <fileset dir="${phocoa.basedir}">
+                <include name="conf/**" />
+            </fileset>
+            <filterchain>
+                <replacetokens begintoken="##" endtoken="##">
+                    <token key="PHOCOA_BASE_DIR" value="${phocoa.basedir}" />
+                    <token key="PHOCOA_APP_CONTAINER_DIR" value="${phocoa.project.container}/${phocoa.project.name}" />
+                    <token key="PHOCOA_APP_DIR" value="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}" />
+                    <token key="SERVER_NAME" value="${phocoa.project.servername}" />
+                    <token key="SERVER_IP" value="${phocoa.project.serverip}" />
+                    <token key="SERVER_PORT" value="${phocoa.project.serverport}" />
+                </replacetokens>
+            </filterchain>
+        </copy>
+
+        <!-- Remind the user to set up the apache config properly. -->
+        <phingcall target="httpdconf" />
+    </target> 
+
+    <!-- maybe we should have another phing build file for PHOCOA-DEV purposes with this target and others like regressions tests, etc. -->
+    <!-- Set up tasks -->
+    <taskdef name="build-pear-package" classname="tasks.BuildPearPackage" />
+    <!-- The ouput package.xml of this task seems to fail, maybe try PearPackageTask -->
+    <target name="buildpearpackage" depends="prepare" description="Build a PEAR package of .PHOCOA."> 
+        <echo msg="Building PEAR package..." /> 
+        <build-pear-package 
+            packageFileDir="${project.basedir}/data"
+            baseFilesDir="${project.basedir}/.."
+        />
+        <echo msg="PEAR package.xml file is built in ${project.basedir}/data/package.xml" /> 
+    </target> 
+
+</project>

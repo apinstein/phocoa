@@ -1,0 +1,847 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
+<package version="1.0">
+  <name>PHOCOA</name>
+  <summary>The PHOCOA Web Application Framework for PHP.</summary>
+  <description>The PHOCOA Web Application Framework for PHP. An event-driven, component-based web framework based on Apple's Cocoa paradigm. With PHOCOA you can quickly develop robust database-driven web applications.</description>
+  <maintainers>
+    <maintainer>
+      <user>apinstein</user>
+      <name>Alan Pinstein</name>
+      <email>apinstein@mac.com</email>
+      <role>lead</role>
+    </maintainer>
+  </maintainers>
+  <release>
+    <version>0.5</version>
+    <date>2005-06-13</date>
+    <license>PHP License</license>
+    <state>alpha</state>
+    <notes>Preview release.</notes>
+    <filelist>
+      <dir baseinstalldir="phocoa" name="/">
+       <dir name="conf">
+        <file role="data" name="httpd.conf"/>
+        <file role="data" name="webapp.conf"/>
+       </dir> <!-- conf -->
+       <dir name="framework">
+        <file role="php" name="bootstrap.php"/>
+        <file role="php" name="createView.php"/>
+        <file role="data" name="README"/>
+        <file role="php" name="showBindings.php"/>
+        <file role="php" name="WFArrayController.php"/>
+        <file role="php" name="WFBinding.php"/>
+        <file role="php" name="WFError.php"/>
+        <file role="php" name="WFExecptionReporting.php"/>
+        <file role="php" name="WFKeyValueBindingCreation.php"/>
+        <file role="php" name="WFKeyValueCoding.php"/>
+        <file role="php" name="WFLog.php"/>
+        <file role="php" name="WFModule.php"/>
+        <file role="php" name="WFObject.php"/>
+        <file role="php" name="WFObjectController.php"/>
+        <file role="php" name="WFPage.php"/>
+        <file role="php" name="WFPageRendering.php"/>
+        <file role="php" name="WFRequestController.php"/>
+        <file role="php" name="WFSession.php"/>
+        <file role="php" name="WFSkin.php"/>
+        <file role="php" name="WFSmarty.php"/>
+        <file role="php" name="WFWebApplication.php"/>
+        <file role="php" name="WFWebApplicationDelegate.php"/>
+        <dir name="test">
+         <file role="php" name="KeyValueCodingTest.php"/>
+         <file role="php" name="TestObjects.php"/>
+         <file role="php" name="WFArrayControllerTest.php"/>
+        </dir> <!-- framework/test -->
+        <dir name="ValueTransformers">
+         <file role="php" name="WFIsEmptyTransformer.php"/>
+         <file role="php" name="WFIsNotEmptyTransformer.php"/>
+         <file role="php" name="WFNegateBooleanTransformer.php"/>
+         <file role="php" name="WFValueTransformer.php"/>
+        </dir> <!-- framework/ValueTransformers -->
+        <dir name="widgets">
+         <file role="php" name="WFCheckbox.php"/>
+         <file role="php" name="WFDynamic.php"/>
+         <file role="php" name="WFForm.php"/>
+         <file role="php" name="WFFormatter.php"/>
+         <file role="php" name="WFHidden.php"/>
+         <file role="php" name="WFImage.php"/>
+         <file role="php" name="WFLabel.php"/>
+         <file role="php" name="WFModuleView.php"/>
+         <file role="php" name="WFSelect.php"/>
+         <file role="php" name="WFSelectionCheckbox.php"/>
+         <file role="php" name="WFSubmit.php"/>
+         <file role="php" name="WFTabView.php"/>
+         <file role="php" name="WFTextArea.php"/>
+         <file role="php" name="WFTextField.php"/>
+         <file role="php" name="WFUpload.php"/>
+         <file role="php" name="WFView.php"/>
+         <file role="php" name="WFWidget.php"/>
+         <file role="php" name="WFWidgets.php"/>
+        </dir> <!-- framework/widgets -->
+       </dir> <!-- framework -->
+       <dir name="phpdocs">
+        <file role="doc" name="blank.html"/>
+        <file role="doc" name="classtrees_default.html"/>
+        <file role="doc" name="classtrees_framework-base.html"/>
+        <file role="doc" name="classtrees_framework.html"/>
+        <file role="doc" name="classtrees_framwork-base.html"/>
+        <file role="doc" name="classtrees_KeyValue.html"/>
+        <file role="doc" name="classtrees_KeyValueCoding.html"/>
+        <file role="doc" name="classtrees_showcase.html"/>
+        <file role="doc" name="classtrees_UI.html"/>
+        <file role="doc" name="classtrees_webappframework.html"/>
+        <file role="doc" name="classtrees_WebApplication.html"/>
+        <file role="doc" name="classtrees_webframework.html"/>
+        <file role="doc" name="elementindex.html"/>
+        <file role="doc" name="elementindex_default.html"/>
+        <file role="doc" name="elementindex_framework-base.html"/>
+        <file role="doc" name="elementindex_framework.html"/>
+        <file role="doc" name="elementindex_framwork-base.html"/>
+        <file role="doc" name="elementindex_KeyValue.html"/>
+        <file role="doc" name="elementindex_KeyValueCoding.html"/>
+        <file role="doc" name="elementindex_showcase.html"/>
+        <file role="doc" name="elementindex_UI.html"/>
+        <file role="doc" name="elementindex_webappframework.html"/>
+        <file role="doc" name="elementindex_WebApplication.html"/>
+        <file role="doc" name="elementindex_webframework.html"/>
+        <file role="doc" name="errors.html"/>
+        <file role="doc" name="index.html"/>
+        <file role="doc" name="li_default.html"/>
+        <file role="doc" name="li_framework-base.html"/>
+        <file role="doc" name="li_framework.html"/>
+        <file role="doc" name="li_framwork-base.html"/>
+        <file role="doc" name="li_KeyValue.html"/>
+        <file role="doc" name="li_KeyValueCoding.html"/>
+        <file role="doc" name="li_showcase.html"/>
+        <file role="doc" name="li_UI.html"/>
+        <file role="doc" name="li_webappframework.html"/>
+        <file role="doc" name="li_WebApplication.html"/>
+        <file role="doc" name="li_webframework.html"/>
+        <file role="doc" name="packages.html"/>
+        <file role="doc" name="ric_README.html"/>
+        <file role="doc" name="todolist.html"/>
+        <dir name="default">
+         <file role="doc" name="KeyValueCodingTest.html"/>
+         <file role="doc" name="MyWebApplicationDelegate.html"/>
+         <file role="doc" name="MyWebsiteSkinDelegate.html"/>
+         <file role="doc" name="WFArrayControllerTest.html"/>
+         <file role="doc" name="WFKeyValueObserving.html"/>
+         <file role="doc" name="WFSessionDelegate.html"/>
+         <file role="doc" name="_bootstrap_php.html"/>
+         <file role="doc" name="_classes_MyWebApplicationDelegate_php.html"/>
+         <file role="doc" name="_conf_ttimobile-conf_php.html"/>
+         <file role="doc" name="_createView_php.html"/>
+         <file role="doc" name="_framework_bootstrap_php.html"/>
+         <file role="doc" name="_framework_createView_php.html"/>
+         <file role="doc" name="_framework_showBindings_php.html"/>
+         <file role="doc" name="_framework_test_KeyValueCodingTest_php.html"/>
+         <file role="doc" name="_framework_test_TestObjects_php.html"/>
+         <file role="doc" name="_framework_test_WFArrayControllerTest_php.html"/>
+         <file role="doc" name="_framework_WFExecptionReporting_php.html"/>
+         <file role="doc" name="_framework_WFLog_php.html"/>
+         <file role="doc" name="_framework_WFRequestController_php.html"/>
+         <file role="doc" name="_framework_WFSession_php.html"/>
+         <file role="doc" name="_framework_WFWebApplication_php.html"/>
+         <file role="doc" name="_framework_widgets_WFCheckbox_php.html"/>
+         <file role="doc" name="_framework_widgets_WFForm_php.html"/>
+         <file role="doc" name="_framework_widgets_WFWidgets_php.html"/>
+         <file role="doc" name="_modules_dbedit_dbedit_php.html"/>
+         <file role="doc" name="_modules_examplemodule_examplemodule_php.html"/>
+         <file role="doc" name="_modules_examplemodule_testclass_php.html"/>
+         <file role="doc" name="_modules_phpinfo_phpinfo_php.html"/>
+         <file role="doc" name="_modules_skininfo_skininfo_php.html"/>
+         <file role="doc" name="_modules_tti_admin_tti_admin_php.html"/>
+         <file role="doc" name="_MyWebApplicationDelegate_php.html"/>
+         <file role="doc" name="_propel-build_conf_ttimobile-conf_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%0A^0A7^0A71FDDD%%main_css_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%0C^0C0^0C07EFFF%%skinDetails_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%0F^0F6^0F625FA3%%app_error_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%08^087^087D864A%%template_raw_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%1E^1E3^1E36A1B6%%head_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%3E^3E3^3E304620%%template_normal_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%5B^5B9^5B95C674%%showSkinInfo_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%5D^5D8^5D8F4597%%successfulDelete_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%5F^5FF^5FF0F14D%%searchProduct_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%6F^6FD^6FD6D826%%cancelDelete_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%7D^7D2^7D257BF5%%editObjectSuccess_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%7D^7D8^7D822AF9%%deleteProduct_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%8A^8A1^8A1EB8CE%%main_css_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%8A^8A8^8A8BB077%%main_css_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%10^10B^10B67CBA%%viewProduct_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%10^10E^10E6DD94%%examplePage_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%10^108^1089BDF3%%debug_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%11^118^118232B8%%dspSkinCSS_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%16^164^1645E422%%template_normal_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%17^17B^17BB9A32%%app_error_log_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%25^25B^25B3EB1F%%viewProduct_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%26^263^26318285%%dspDatamap_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%27^27E^27EE7E7C%%template_raw_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%34^34E^34E6B2C3%%editRow_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%34^340^340F778A%%editObject_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%37^378^378A79B6%%dspWebPage_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%48^483^483D2576%%dspConfirmDeleteProduct_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%54^54E^54ED3EFA%%dspWebPage2_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%60^608^608226A9%%head_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%61^612^61258C31%%successfulDelete_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%61^619^61904592%%debug_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%67^67B^67B0DDAA%%template_normal_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%68^68A^68A96DD8%%app_error_user_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%73^73C^73C44D76%%viewTableData_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%77^77B^77BA9E99%%template_normal_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%80^803^803CA756%%dspProducts_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%84^840^84047246%%editProduct_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%89^892^892341A3%%template_normal_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%91^914^91448A67%%noSelection_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%93^931^93120262%%editObject_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%A4^A44^A4411DC2%%noSelection_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%B4^B4F^B4FC10B3%%framework%3Ahtml_quickform_dynamic_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%B8^B83^B832CC9C%%app_error_developer_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%C0^C09^C09951B7%%deleteProduct_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%C2^C21^C2166ECE%%productList_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%C5^C53^C5318CA7%%example_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%C9^C95^C95F8AD6%%cancelDelete_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%D0^D01^D011154F%%formExampleResult_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%E2^E2E^E2EB8A03%%searchProduct_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%F7^F71^F713F96B%%productList_tpl_php.html"/>
+         <file role="doc" name="_runtime_smarty_templates_c_%%F9^F9D^F9DEF67F%%formExample_tpl_php.html"/>
+         <file role="doc" name="_showBindings_php.html"/>
+         <file role="doc" name="_skins_default_defaultSkinManifestDelegate_php.html"/>
+         <file role="doc" name="_skins_exampleskin2_exampleskin2SkinManifestDelegate_php.html"/>
+         <file role="doc" name="_skins_tti_public_tti_publicSkinManifestDelegate_php.html"/>
+         <file role="doc" name="_smarty_plugins_block_WFForm_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFCheckbox_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFHidden_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFLabel_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFSelect_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFShowErrors_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFSkinCSS_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFSubmit_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFTextArea_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFTextField_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFUpload_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFURL_php.html"/>
+         <file role="doc" name="_smarty_plugins_resource_framework_php.html"/>
+         <file role="doc" name="_test_KeyValueCodingTest_php.html"/>
+         <file role="doc" name="_test_kvctest_php.html"/>
+         <file role="doc" name="_test_TestObjects_php.html"/>
+         <file role="doc" name="_test_WFArrayControllerTest_php.html"/>
+         <file role="doc" name="_WFExecptionReporting_php.html"/>
+         <file role="doc" name="_WFLog_php.html"/>
+         <file role="doc" name="_WFRequestController_php.html"/>
+         <file role="doc" name="_WFSession_php.html"/>
+         <file role="doc" name="_WFWebApplication_php.html"/>
+         <file role="doc" name="_widgets_WFCheckbox_php.html"/>
+         <file role="doc" name="_widgets_WFForm_php.html"/>
+         <file role="doc" name="_widgets_WFHidden_php.html"/>
+         <file role="doc" name="_widgets_WFLabel_php.html"/>
+         <file role="doc" name="_widgets_WFMatrix_php.html"/>
+         <file role="doc" name="_widgets_WFSelect_php.html"/>
+         <file role="doc" name="_widgets_WFSubmit_php.html"/>
+         <file role="doc" name="_widgets_WFTextArea_php.html"/>
+         <file role="doc" name="_widgets_WFTextField_php.html"/>
+         <file role="doc" name="_widgets_WFWidgets_php.html"/>
+         <file role="doc" name="_wwwroot_index_php.html"/>
+        </dir> <!-- phpdocs/default -->
+        <dir name="framework">
+         <file role="doc" name="Car.html"/>
+         <file role="doc" name="Person.html"/>
+         <file role="doc" name="PersonID.html"/>
+         <file role="doc" name="WFArrayController.html"/>
+         <file role="doc" name="WFBindingSetup.html"/>
+         <file role="doc" name="WFError.html"/>
+         <file role="doc" name="WFExceptionReporting.html"/>
+         <file role="doc" name="WFLog.html"/>
+         <file role="doc" name="WFMainSession.html"/>
+         <file role="doc" name="WFObject.html"/>
+         <file role="doc" name="WFObjectController.html"/>
+         <file role="doc" name="WFRequestController.html"/>
+         <file role="doc" name="WFWebApplication.html"/>
+         <file role="doc" name="_framework_WFArrayController_php.html"/>
+         <file role="doc" name="_framework_WFError_php.html"/>
+         <file role="doc" name="_framework_WFObjectController_php.html"/>
+         <file role="doc" name="_framework_WFObject_php.html"/>
+         <file role="doc" name="_WFArrayController_php.html"/>
+         <file role="doc" name="_WFError_php.html"/>
+         <file role="doc" name="_WFObjectController_php.html"/>
+         <file role="doc" name="_WFObject_php.html"/>
+         <dir name="Error">
+          <file role="doc" name="WFError.html"/>
+          <file role="doc" name="WFExceptionReporting.html"/>
+         </dir> <!-- phpdocs/framework/Error -->
+         <dir name="Log">
+          <file role="doc" name="WFLog.html"/>
+         </dir> <!-- phpdocs/framework/Log -->
+        </dir> <!-- phpdocs/framework -->
+        <dir name="framework-base">
+         <file role="doc" name="Person.html"/>
+         <file role="doc" name="PersonID.html"/>
+         <file role="doc" name="WFKeyValueObserving.html"/>
+         <file role="doc" name="WFObject.html"/>
+         <file role="doc" name="WFSessionDelegate.html"/>
+         <file role="doc" name="_block_WFForm_php.html"/>
+         <file role="doc" name="_bootstrap_php.html"/>
+         <file role="doc" name="_createView_php.html"/>
+         <file role="doc" name="_framework_bootstrap_php.html"/>
+         <file role="doc" name="_framework_createView_php.html"/>
+         <file role="doc" name="_framework_WFObject_php.html"/>
+         <file role="doc" name="_function_WFCheckbox_php.html"/>
+         <file role="doc" name="_function_WFDynamic_php.html"/>
+         <file role="doc" name="_function_WFHidden_php.html"/>
+         <file role="doc" name="_function_WFImage_php.html"/>
+         <file role="doc" name="_function_WFLabel_php.html"/>
+         <file role="doc" name="_function_WFModuleView_php.html"/>
+         <file role="doc" name="_function_WFSelectionCheckbox_php.html"/>
+         <file role="doc" name="_function_WFSelect_php.html"/>
+         <file role="doc" name="_function_WFShowErrors_php.html"/>
+         <file role="doc" name="_function_WFSkinCSS_php.html"/>
+         <file role="doc" name="_function_WFSubmit_php.html"/>
+         <file role="doc" name="_function_WFTextArea_php.html"/>
+         <file role="doc" name="_function_WFTextField_php.html"/>
+         <file role="doc" name="_function_WFUpload_php.html"/>
+         <file role="doc" name="_function_WFURL_php.html"/>
+         <file role="doc" name="_resource_framework_php.html"/>
+         <file role="doc" name="_showBindings_php.html"/>
+         <file role="doc" name="_smarty_plugins_block_WFForm_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFCheckbox_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFDynamic_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFHidden_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFImage_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFLabel_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFModuleView_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFSelectionCheckbox_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFSelect_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFShowErrors_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFSkinCSS_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFSubmit_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFTextArea_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFTextField_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFUpload_php.html"/>
+         <file role="doc" name="_smarty_plugins_function_WFURL_php.html"/>
+         <file role="doc" name="_smarty_plugins_resource_framework_php.html"/>
+         <file role="doc" name="_WFExecptionReporting_php.html"/>
+         <file role="doc" name="_WFLog_php.html"/>
+         <file role="doc" name="_WFObject_php.html"/>
+         <file role="doc" name="_WFRequestController_php.html"/>
+         <file role="doc" name="_WFSession_php.html"/>
+         <file role="doc" name="_WFWebApplication_php.html"/>
+         <file role="doc" name="_widgets_WFForm_php.html"/>
+         <file role="doc" name="_widgets_WFWidgets_php.html"/>
+         <dir name="BaseObject">
+          <file role="doc" name="WFObject.html"/>
+          <file role="doc" name="_WFObject_php.html"/>
+         </dir> <!-- phpdocs/framework-base/BaseObject -->
+         <dir name="Error">
+          <file role="doc" name="WFError.html"/>
+          <file role="doc" name="WFExceptionReporting.html"/>
+          <file role="doc" name="_framework_WFError_php.html"/>
+          <file role="doc" name="_framework_WFExecptionReporting_php.html"/>
+          <file role="doc" name="_WFError_php.html"/>
+          <file role="doc" name="_WFExecptionReporting_php.html"/>
+         </dir> <!-- phpdocs/framework-base/Error -->
+         <dir name="Log">
+          <file role="doc" name="WFLog.html"/>
+          <file role="doc" name="_framework_WFLog_php.html"/>
+          <file role="doc" name="_WFLog_php.html"/>
+         </dir> <!-- phpdocs/framework-base/Log -->
+         <dir name="skin">
+          <file role="doc" name="WFSkin.html"/>
+          <file role="doc" name="WFSkinDelegate.html"/>
+          <file role="doc" name="WFSkinManifestDelegate.html"/>
+          <file role="doc" name="_framework_WFSkin_php.html"/>
+          <file role="doc" name="_function_WFSkinModuleView_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFSkinCSS_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFSkinModuleView_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFURL_php.html"/>
+          <file role="doc" name="_WFSkin_php.html"/>
+         </dir> <!-- phpdocs/framework-base/skin -->
+         <dir name="UI">
+          <file role="doc" name="_smarty_plugins_resource_framework_php.html"/>
+         </dir> <!-- phpdocs/framework-base/UI -->
+        </dir> <!-- phpdocs/framework-base -->
+        <dir name="framwork-base">
+         <dir name="BaseObject">
+          <file role="doc" name="WFObject.html"/>
+          <file role="doc" name="_WFObject_php.html"/>
+         </dir> <!-- phpdocs/framwork-base/BaseObject -->
+         <dir name="Error">
+          <file role="doc" name="WFError.html"/>
+          <file role="doc" name="WFExceptionReporting.html"/>
+         </dir> <!-- phpdocs/framwork-base/Error -->
+         <dir name="Log">
+          <file role="doc" name="WFLog.html"/>
+         </dir> <!-- phpdocs/framwork-base/Log -->
+         <dir name="skin">
+          <file role="doc" name="WFSkinManifestDelegate.html"/>
+         </dir> <!-- phpdocs/framwork-base/skin -->
+        </dir> <!-- phpdocs/framwork-base -->
+        <dir name="KeyValue">
+         <file role="doc" name="WFKeyValueCoding.html"/>
+         <file role="doc" name="_WFKeyValueCoding_php.html"/>
+        </dir> <!-- phpdocs/KeyValue -->
+        <dir name="KeyValueCoding">
+         <file role="doc" name="WFKeyValueCoding.html"/>
+         <file role="doc" name="_framework_WFKeyValueCoding_php.html"/>
+         <file role="doc" name="_WFKeyValueCoding_php.html"/>
+         <dir name="bindings">
+          <file role="doc" name="WFBinding.html"/>
+          <file role="doc" name="WFBindingSetup.html"/>
+          <file role="doc" name="WFKeyValueBindingCreation.html"/>
+          <file role="doc" name="WFKeyValueObserving.html"/>
+          <file role="doc" name="_framework_WFBinding_php.html"/>
+          <file role="doc" name="_framework_WFKeyValueBindingCreation_php.html"/>
+          <file role="doc" name="_WFBinding_php.html"/>
+          <file role="doc" name="_WFKeyValueBindingCreation_php.html"/>
+         </dir> <!-- phpdocs/KeyValueCoding/bindings -->
+         <dir name="ControllerLayer">
+          <file role="doc" name="WFArrayController.html"/>
+          <file role="doc" name="WFObjectController.html"/>
+          <file role="doc" name="_framework_WFArrayController_php.html"/>
+          <file role="doc" name="_framework_WFObjectController_php.html"/>
+          <file role="doc" name="_WFArrayController_php.html"/>
+          <file role="doc" name="_WFObjectController_php.html"/>
+         </dir> <!-- phpdocs/KeyValueCoding/ControllerLayer -->
+         <dir name="ValueTransformers">
+          <file role="doc" name="WFIsEmptyTransformer.html"/>
+          <file role="doc" name="WFIsNotEmptyTransformer.html"/>
+          <file role="doc" name="WFNegateBooleanTransformer.html"/>
+          <file role="doc" name="WFValueTransformer.html"/>
+          <file role="doc" name="_framework_ValueTransformers_WFIsEmptyTransformer_php.html"/>
+          <file role="doc" name="_framework_ValueTransformers_WFIsNotEmptyTransformer_php.html"/>
+          <file role="doc" name="_framework_ValueTransformers_WFNegateBooleanTransformer_php.html"/>
+          <file role="doc" name="_framework_ValueTransformers_WFValueTransformer_php.html"/>
+          <file role="doc" name="_ValueTransformers_WFIsEmptyTransformer_php.html"/>
+          <file role="doc" name="_ValueTransformers_WFIsNotEmptyTransformer_php.html"/>
+          <file role="doc" name="_ValueTransformers_WFNegateBooleanTransformer_php.html"/>
+          <file role="doc" name="_ValueTransformers_WFValueTransformer_php.html"/>
+          <file role="doc" name="_WFNegateBooleanTransformer_php.html"/>
+          <file role="doc" name="_WFValueTransformer_php.html"/>
+         </dir> <!-- phpdocs/KeyValueCoding/ValueTransformers -->
+        </dir> <!-- phpdocs/KeyValueCoding -->
+        <dir name="media">
+         <file role="doc" name="banner.css"/>
+         <file role="doc" name="stylesheet.css"/>
+         <dir name="images">
+          <file role="doc" name="AbstractClass.png"/>
+          <file role="doc" name="AbstractClass_logo.png"/>
+          <file role="doc" name="AbstractMethod.png"/>
+          <file role="doc" name="AbstractPrivateClass.png"/>
+          <file role="doc" name="AbstractPrivateClass_logo.png"/>
+          <file role="doc" name="AbstractPrivateMethod.png"/>
+          <file role="doc" name="blank.png"/>
+          <file role="doc" name="Class.gif"/>
+          <file role="doc" name="Class.png"/>
+          <file role="doc" name="classFolder.gif"/>
+          <file role="doc" name="class_folder.png"/>
+          <file role="doc" name="Class_logo.png"/>
+          <file role="doc" name="Constant.gif"/>
+          <file role="doc" name="Constant.png"/>
+          <file role="doc" name="Constants.gif"/>
+          <file role="doc" name="Constructor.gif"/>
+          <file role="doc" name="Constructor.png"/>
+          <file role="doc" name="Destructor.gif"/>
+          <file role="doc" name="Destructor.png"/>
+          <file role="doc" name="Disk.gif"/>
+          <file role="doc" name="empty.png"/>
+          <file role="doc" name="error.gif"/>
+          <file role="doc" name="file.png"/>
+          <file role="doc" name="folder.png"/>
+          <file role="doc" name="FolderClosed.gif"/>
+          <file role="doc" name="foldericon.png"/>
+          <file role="doc" name="FolderOpened.gif"/>
+          <file role="doc" name="Function.png"/>
+          <file role="doc" name="Functions.gif"/>
+          <file role="doc" name="function_folder.png"/>
+          <file role="doc" name="GhostClass.gif"/>
+          <file role="doc" name="Global.png"/>
+          <file role="doc" name="I.png"/>
+          <file role="doc" name="Index.png"/>
+          <file role="doc" name="L.png"/>
+          <file role="doc" name="Lminus.png"/>
+          <file role="doc" name="Lplus.png"/>
+          <file role="doc" name="Method.png"/>
+          <file role="doc" name="minus.gif"/>
+          <file role="doc" name="msgError.gif"/>
+          <file role="doc" name="msgFatalError.gif"/>
+          <file role="doc" name="msgHint.gif"/>
+          <file role="doc" name="msgInformation.gif"/>
+          <file role="doc" name="msgWarning.gif"/>
+          <file role="doc" name="next_button.png"/>
+          <file role="doc" name="next_button_disabled.png"/>
+          <file role="doc" name="openfoldericon.png"/>
+          <file role="doc" name="package.png"/>
+          <file role="doc" name="package_folder.png"/>
+          <file role="doc" name="Page.png"/>
+          <file role="doc" name="Page_logo.png"/>
+          <file role="doc" name="plus.gif"/>
+          <file role="doc" name="previous_button.png"/>
+          <file role="doc" name="previous_button_disabled.png"/>
+          <file role="doc" name="PrivateClass.png"/>
+          <file role="doc" name="PrivateClass_logo.png"/>
+          <file role="doc" name="PrivateDataMember.gif"/>
+          <file role="doc" name="PrivateMethod.gif"/>
+          <file role="doc" name="PrivateMethod.png"/>
+          <file role="doc" name="PrivateProperty.gif"/>
+          <file role="doc" name="PrivateVariable.png"/>
+          <file role="doc" name="private_class_logo.png"/>
+          <file role="doc" name="ProtectedDataMember.gif"/>
+          <file role="doc" name="ProtectedMethod.gif"/>
+          <file role="doc" name="ProtectedProperty.gif"/>
+          <file role="doc" name="PublicDataMember.gif"/>
+          <file role="doc" name="PublicMethod.gif"/>
+          <file role="doc" name="PublicProperty.gif"/>
+          <file role="doc" name="spacer.gif"/>
+          <file role="doc" name="T.png"/>
+          <file role="doc" name="Tminus.png"/>
+          <file role="doc" name="Tplus.png"/>
+          <file role="doc" name="tutorial.png"/>
+          <file role="doc" name="tutorial_folder.png"/>
+          <file role="doc" name="Types.gif"/>
+          <file role="doc" name="up_button.png"/>
+          <file role="doc" name="Variable.gif"/>
+          <file role="doc" name="Variable.png"/>
+          <file role="doc" name="Vars.gif"/>
+         </dir> <!-- phpdocs/media/images -->
+         <dir name="lib">
+          <file role="doc" name="classTree.js"/>
+          <file role="doc" name="tab.webfx.css"/>
+          <file role="doc" name="tabpane.js"/>
+          <file role="doc" name="ua.js"/>
+         </dir> <!-- phpdocs/media/lib -->
+        </dir> <!-- phpdocs/media -->
+        <dir name="showcase">
+         <file role="doc" name="WFSmarty.html"/>
+        </dir> <!-- phpdocs/showcase -->
+        <dir name="UI">
+         <file role="doc" name="_framework_widgets_WFWidgets_php.html"/>
+         <file role="doc" name="_widgets_WFWidgets_php.html"/>
+         <dir name="Bindings">
+          <file role="doc" name="_framework_showBindings_php.html"/>
+          <file role="doc" name="_showBindings_php.html"/>
+         </dir> <!-- phpdocs/UI/Bindings -->
+         <dir name="Formatters">
+          <file role="doc" name="WFFormatter.html"/>
+          <file role="doc" name="WFNumberFormatter.html"/>
+          <file role="doc" name="WFSQLDateFormatter.html"/>
+          <file role="doc" name="WFUNIXDateFormatter.html"/>
+          <file role="doc" name="_framework_widgets_WFFormatter_php.html"/>
+          <file role="doc" name="_widgets_WFFormatter_php.html"/>
+         </dir> <!-- phpdocs/UI/Formatters -->
+         <dir name="PageController">
+          <file role="doc" name="WFPage.html"/>
+          <file role="doc" name="_framework_WFPage_php.html"/>
+          <file role="doc" name="_WFPage_php.html"/>
+         </dir> <!-- phpdocs/UI/PageController -->
+         <dir name="Template">
+          <file role="doc" name="WFPageRendering.html"/>
+          <file role="doc" name="WFSmarty.html"/>
+          <file role="doc" name="_framework_WFPageRendering_php.html"/>
+          <file role="doc" name="_framework_WFSmarty_php.html"/>
+          <file role="doc" name="_function_WFSkinCSS_php.html"/>
+          <file role="doc" name="_function_WFSkinModuleView_php.html"/>
+          <file role="doc" name="_function_WFURL_php.html"/>
+          <file role="doc" name="_plugins_function_WFSkinCSS_php.html"/>
+          <file role="doc" name="_plugins_function_WFSkinModuleView_php.html"/>
+          <file role="doc" name="_plugins_function_WFURL_php.html"/>
+          <file role="doc" name="_plugins_resource_framework_php.html"/>
+          <file role="doc" name="_resource_framework_php.html"/>
+          <file role="doc" name="_WFPageRendering_php.html"/>
+          <file role="doc" name="_WFSmarty_php.html"/>
+         </dir> <!-- phpdocs/UI/Template -->
+         <dir name="Views">
+          <file role="doc" name="WFView.html"/>
+          <file role="doc" name="_framework_widgets_WFView_php.html"/>
+          <file role="doc" name="_widgets_WFView_php.html"/>
+         </dir> <!-- phpdocs/UI/Views -->
+         <dir name="Widgets">
+          <file role="doc" name="WFCheckbox.html"/>
+          <file role="doc" name="WFDynamic.html"/>
+          <file role="doc" name="WFForm.html"/>
+          <file role="doc" name="WFHidden.html"/>
+          <file role="doc" name="WFImage.html"/>
+          <file role="doc" name="WFLabel.html"/>
+          <file role="doc" name="WFMatrix.html"/>
+          <file role="doc" name="WFModuleView.html"/>
+          <file role="doc" name="WFSelect.html"/>
+          <file role="doc" name="WFSelectionCheckbox.html"/>
+          <file role="doc" name="WFSubmit.html"/>
+          <file role="doc" name="WFTabContent.html"/>
+          <file role="doc" name="WFTabView.html"/>
+          <file role="doc" name="WFTextArea.html"/>
+          <file role="doc" name="WFTextField.html"/>
+          <file role="doc" name="WFUpload.html"/>
+          <file role="doc" name="WFWidget.html"/>
+          <file role="doc" name="_block_WFForm_php.html"/>
+          <file role="doc" name="_framework_widgets_WFCheckbox_php.html"/>
+          <file role="doc" name="_framework_widgets_WFDynamic_php.html"/>
+          <file role="doc" name="_framework_widgets_WFForm_php.html"/>
+          <file role="doc" name="_framework_widgets_WFHidden_php.html"/>
+          <file role="doc" name="_framework_widgets_WFImage_php.html"/>
+          <file role="doc" name="_framework_widgets_WFLabel_php.html"/>
+          <file role="doc" name="_framework_widgets_WFModuleView_php.html"/>
+          <file role="doc" name="_framework_widgets_WFSelectionCheckbox_php.html"/>
+          <file role="doc" name="_framework_widgets_WFSelect_php.html"/>
+          <file role="doc" name="_framework_widgets_WFSubmit_php.html"/>
+          <file role="doc" name="_framework_widgets_WFTabView_php.html"/>
+          <file role="doc" name="_framework_widgets_WFTextArea_php.html"/>
+          <file role="doc" name="_framework_widgets_WFTextField_php.html"/>
+          <file role="doc" name="_framework_widgets_WFUpload_php.html"/>
+          <file role="doc" name="_framework_widgets_WFWidget_php.html"/>
+          <file role="doc" name="_function_WFCheckbox_php.html"/>
+          <file role="doc" name="_function_WFDynamic_php.html"/>
+          <file role="doc" name="_function_WFHidden_php.html"/>
+          <file role="doc" name="_function_WFImage_php.html"/>
+          <file role="doc" name="_function_WFLabel_php.html"/>
+          <file role="doc" name="_function_WFModuleView_php.html"/>
+          <file role="doc" name="_function_WFSelectionCheckbox_php.html"/>
+          <file role="doc" name="_function_WFSelect_php.html"/>
+          <file role="doc" name="_function_WFShowErrors_php.html"/>
+          <file role="doc" name="_function_WFSubmit_php.html"/>
+          <file role="doc" name="_function_WFTextArea_php.html"/>
+          <file role="doc" name="_function_WFTextField_php.html"/>
+          <file role="doc" name="_function_WFUpload_php.html"/>
+          <file role="doc" name="_plugins_block_WFForm_php.html"/>
+          <file role="doc" name="_plugins_function_WFCheckbox_php.html"/>
+          <file role="doc" name="_plugins_function_WFDynamic_php.html"/>
+          <file role="doc" name="_plugins_function_WFHidden_php.html"/>
+          <file role="doc" name="_plugins_function_WFImage_php.html"/>
+          <file role="doc" name="_plugins_function_WFLabel_php.html"/>
+          <file role="doc" name="_plugins_function_WFModuleView_php.html"/>
+          <file role="doc" name="_plugins_function_WFSelectionCheckbox_php.html"/>
+          <file role="doc" name="_plugins_function_WFSelect_php.html"/>
+          <file role="doc" name="_plugins_function_WFShowErrors_php.html"/>
+          <file role="doc" name="_plugins_function_WFSubmit_php.html"/>
+          <file role="doc" name="_plugins_function_WFTextArea_php.html"/>
+          <file role="doc" name="_plugins_function_WFTextField_php.html"/>
+          <file role="doc" name="_plugins_function_WFUpload_php.html"/>
+          <file role="doc" name="_smarty_plugins_block_WFForm_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFCheckbox_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFDynamic_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFHidden_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFImage_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFLabel_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFModuleView_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFSelectionCheckbox_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFSelect_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFShowErrors_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFSubmit_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFTextArea_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFTextField_php.html"/>
+          <file role="doc" name="_smarty_plugins_function_WFUpload_php.html"/>
+          <file role="doc" name="_widgets_WFCheckbox_php.html"/>
+          <file role="doc" name="_widgets_WFDynamic_php.html"/>
+          <file role="doc" name="_widgets_WFForm_php.html"/>
+          <file role="doc" name="_widgets_WFHidden_php.html"/>
+          <file role="doc" name="_widgets_WFImage_php.html"/>
+          <file role="doc" name="_widgets_WFLabel_php.html"/>
+          <file role="doc" name="_widgets_WFMatrix_php.html"/>
+          <file role="doc" name="_widgets_WFModuleView_php.html"/>
+          <file role="doc" name="_widgets_WFSelectionCheckbox_php.html"/>
+          <file role="doc" name="_widgets_WFSelect_php.html"/>
+          <file role="doc" name="_widgets_WFSubmit_php.html"/>
+          <file role="doc" name="_widgets_WFTextArea_php.html"/>
+          <file role="doc" name="_widgets_WFTextField_php.html"/>
+          <file role="doc" name="_widgets_WFUpload_php.html"/>
+          <file role="doc" name="_widgets_WFWidget_php.html"/>
+         </dir> <!-- phpdocs/UI/Widgets -->
+        </dir> <!-- phpdocs/UI -->
+        <dir name="webappframework">
+         <dir name="config">
+          <file role="doc" name="WFWebApplicationDelegate.html"/>
+          <file role="doc" name="_framework_WFWebApplicationDelegate_php.html"/>
+          <file role="doc" name="_WFWebApplicationDelegate_php.html"/>
+         </dir> <!-- phpdocs/webappframework/config -->
+        </dir> <!-- phpdocs/webappframework -->
+        <dir name="WebApplication">
+         <file role="doc" name="WFRequestController.html"/>
+         <file role="doc" name="WFWebApplication.html"/>
+         <file role="doc" name="_framework_WFRequestController_php.html"/>
+         <file role="doc" name="_framework_WFWebApplication_php.html"/>
+         <file role="doc" name="_WFRequestController_php.html"/>
+         <file role="doc" name="_WFWebApplication_php.html"/>
+         <dir name="BaseObject">
+          <file role="doc" name="WFRequestController.html"/>
+          <file role="doc" name="WFWebApplication.html"/>
+         </dir> <!-- phpdocs/WebApplication/BaseObject -->
+         <dir name="Delegate">
+          <file role="doc" name="WFWebApplicationDelegate.html"/>
+          <file role="doc" name="_framework_WFWebApplicationDelegate_php.html"/>
+          <file role="doc" name="_WFWebApplicationDelegate_php.html"/>
+         </dir> <!-- phpdocs/WebApplication/Delegate -->
+         <dir name="Module">
+          <file role="doc" name="MyModule.html"/>
+          <file role="doc" name="tutorial_Module.pkg.html"/>
+          <file role="doc" name="WFModule.html"/>
+          <file role="doc" name="WFModuleInvocation.html"/>
+          <file role="doc" name="_framework_WFModule_php.html"/>
+          <file role="doc" name="_WFModule_php.html"/>
+         </dir> <!-- phpdocs/WebApplication/Module -->
+         <dir name="Session">
+          <file role="doc" name="WFMainSession.html"/>
+          <file role="doc" name="WFSessionDelegate.html"/>
+          <file role="doc" name="_framework_WFSession_php.html"/>
+          <file role="doc" name="_WFSession_php.html"/>
+         </dir> <!-- phpdocs/WebApplication/Session -->
+        </dir> <!-- phpdocs/WebApplication -->
+        <dir name="webframework">
+         <dir name="bindings">
+          <file role="doc" name="WFBinding.html"/>
+          <file role="doc" name="WFBindingSetup.html"/>
+          <file role="doc" name="WFCheckbox.html"/>
+          <file role="doc" name="WFForm.html"/>
+          <file role="doc" name="WFHidden.html"/>
+          <file role="doc" name="WFKeyValueBindingCreation.html"/>
+          <file role="doc" name="WFLabel.html"/>
+          <file role="doc" name="WFMatrix.html"/>
+          <file role="doc" name="WFSelect.html"/>
+          <file role="doc" name="WFSubmit.html"/>
+          <file role="doc" name="WFTextArea.html"/>
+          <file role="doc" name="WFTextField.html"/>
+          <file role="doc" name="WFWidget.html"/>
+          <file role="doc" name="_framework_WFBinding_php.html"/>
+          <file role="doc" name="_framework_WFKeyValueBindingCreation_php.html"/>
+          <file role="doc" name="_framework_widgets_WFWidget_php.html"/>
+          <file role="doc" name="_WFBinding_php.html"/>
+          <file role="doc" name="_WFKeyValueBindingCreation_php.html"/>
+          <file role="doc" name="_widgets_WFWidget_php.html"/>
+         </dir> <!-- phpdocs/webframework/bindings -->
+         <dir name="kvcoding">
+          <file role="doc" name="WFKeyValueCoding.html"/>
+          <file role="doc" name="_framework_WFKeyValueCoding_php.html"/>
+          <file role="doc" name="_WFKeyValueCoding_php.html"/>
+         </dir> <!-- phpdocs/webframework/kvcoding -->
+         <dir name="module">
+          <file role="doc" name="dbedit.html"/>
+          <file role="doc" name="examplemodule.html"/>
+          <file role="doc" name="MyModule.html"/>
+          <file role="doc" name="phpinfo.html"/>
+          <file role="doc" name="skininfo.html"/>
+          <file role="doc" name="tti_admin.html"/>
+          <file role="doc" name="WFModule.html"/>
+          <file role="doc" name="_framework_WFModule_php.html"/>
+          <file role="doc" name="_WFModule_php.html"/>
+         </dir> <!-- phpdocs/webframework/module -->
+         <dir name="page">
+          <file role="doc" name="WFPage.html"/>
+          <file role="doc" name="_framework_WFPage_php.html"/>
+          <file role="doc" name="_WFPage_php.html"/>
+         </dir> <!-- phpdocs/webframework/page -->
+         <dir name="skin">
+          <file role="doc" name="css.html"/>
+          <file role="doc" name="defaultDelegate.html"/>
+          <file role="doc" name="exampleskin2Delegate.html"/>
+          <file role="doc" name="tti_publicDelegate.html"/>
+          <file role="doc" name="WFSkin.html"/>
+          <file role="doc" name="WFSkinDelegate.html"/>
+          <file role="doc" name="WFSkinManifestDelegate.html"/>
+          <file role="doc" name="_framework_WFSkin_php.html"/>
+          <file role="doc" name="_modules_css_css_php.html"/>
+          <file role="doc" name="_WFSkin_php.html"/>
+         </dir> <!-- phpdocs/webframework/skin -->
+         <dir name="ValueTransformers">
+          <file role="doc" name="WFNegateBooleanTransformer.html"/>
+          <file role="doc" name="WFValueTransformer.html"/>
+          <file role="doc" name="_framework_WFNegateBooleanTransformer_php.html"/>
+          <file role="doc" name="_framework_WFValueTransformer_php.html"/>
+          <file role="doc" name="_WFNegateBooleanTransformer_php.html"/>
+          <file role="doc" name="_WFValueTransformer_php.html"/>
+         </dir> <!-- phpdocs/webframework/ValueTransformers -->
+         <dir name="view">
+          <file role="doc" name="WFCheckbox.html"/>
+          <file role="doc" name="WFDynamic.html"/>
+          <file role="doc" name="WFHidden.html"/>
+          <file role="doc" name="WFLabel.html"/>
+          <file role="doc" name="WFMatrix.html"/>
+          <file role="doc" name="WFPageRendering.html"/>
+          <file role="doc" name="WFSelect.html"/>
+          <file role="doc" name="WFSmarty.html"/>
+          <file role="doc" name="WFSubmit.html"/>
+          <file role="doc" name="WFTextArea.html"/>
+          <file role="doc" name="WFTextField.html"/>
+          <file role="doc" name="WFUpload.html"/>
+          <file role="doc" name="_framework_WFPageRendering_php.html"/>
+          <file role="doc" name="_framework_WFSmarty_php.html"/>
+          <file role="doc" name="_framework_widgets_WFDynamic_php.html"/>
+          <file role="doc" name="_framework_widgets_WFHidden_php.html"/>
+          <file role="doc" name="_framework_widgets_WFLabel_php.html"/>
+          <file role="doc" name="_framework_widgets_WFMatrix_php.html"/>
+          <file role="doc" name="_framework_widgets_WFSelect_php.html"/>
+          <file role="doc" name="_framework_widgets_WFSubmit_php.html"/>
+          <file role="doc" name="_framework_widgets_WFTextArea_php.html"/>
+          <file role="doc" name="_framework_widgets_WFTextField_php.html"/>
+          <file role="doc" name="_framework_widgets_WFUpload_php.html"/>
+          <file role="doc" name="_WFPageRendering_php.html"/>
+          <file role="doc" name="_WFSmarty_php.html"/>
+          <file role="doc" name="_widgets_WFCheckbox_php.html"/>
+          <file role="doc" name="_widgets_WFDynamic_php.html"/>
+          <file role="doc" name="_widgets_WFHidden_php.html"/>
+          <file role="doc" name="_widgets_WFLabel_php.html"/>
+          <file role="doc" name="_widgets_WFMatrix_php.html"/>
+          <file role="doc" name="_widgets_WFSelect_php.html"/>
+          <file role="doc" name="_widgets_WFSubmit_php.html"/>
+          <file role="doc" name="_widgets_WFTextArea_php.html"/>
+          <file role="doc" name="_widgets_WFTextField_php.html"/>
+          <file role="doc" name="_widgets_WFUpload_php.html"/>
+         </dir> <!-- phpdocs/webframework/view -->
+        </dir> <!-- phpdocs/webframework -->
+       </dir> <!-- phpdocs -->
+       <dir name="skins">
+        <dir name="simple">
+         <file role="php" name="simple_SkinDelegate.php"/>
+         <dir name="simple1">
+          <file role="php" name="simple1_SkinManifestDelegate.php"/>
+          <file role="data" name="template_normal.tpl"/>
+         </dir> <!-- skins/simple/simple1 -->
+         <dir name="simple2">
+          <file role="data" name="main.css"/>
+          <file role="php" name="simple2_SkinManifestDelegate.php"/>
+          <file role="data" name="template_normal.tpl"/>
+         </dir> <!-- skins/simple/simple2 -->
+        </dir> <!-- skins/simple -->
+       </dir> <!-- skins -->
+       <dir name="smarty">
+        <dir name="plugins">
+         <file role="php" name="block.WFForm.php"/>
+         <file role="php" name="function.WFCheckbox.php"/>
+         <file role="php" name="function.WFDynamic.php"/>
+         <file role="php" name="function.WFHidden.php"/>
+         <file role="php" name="function.WFImage.php"/>
+         <file role="php" name="function.WFLabel.php"/>
+         <file role="php" name="function.WFModuleView.php"/>
+         <file role="php" name="function.WFSelect.php"/>
+         <file role="php" name="function.WFSelectionCheckbox.php"/>
+         <file role="php" name="function.WFShowErrors.php"/>
+         <file role="php" name="function.WFSkinCSS.php"/>
+         <file role="php" name="function.WFSkinModuleView.php"/>
+         <file role="php" name="function.WFSubmit.php"/>
+         <file role="php" name="function.WFTabView.php"/>
+         <file role="php" name="function.WFTextArea.php"/>
+         <file role="php" name="function.WFTextField.php"/>
+         <file role="php" name="function.WFUpload.php"/>
+         <file role="php" name="function.WFURL.php"/>
+         <file role="php" name="resource.framework.php"/>
+        </dir> <!-- smarty/plugins -->
+        <dir name="templates">
+         <file role="data" name="app_error_developer.tpl"/>
+         <file role="data" name="app_error_log.tpl"/>
+         <file role="data" name="app_error_user.tpl"/>
+         <file role="data" name="form_error.tpl"/>
+         <file role="data" name="head.tpl"/>
+         <file role="data" name="onepage_tabs.tpl"/>
+         <file role="data" name="template_raw.tpl"/>
+        </dir> <!-- smarty/templates -->
+       </dir> <!-- smarty -->
+       <file role="php" name="buildPearPackage.php"/>
+       <file role="data" name="tags"/>
+      </dir> <!-- / -->
+    </filelist>
+  </release>
+  <changelog>
+    <release>
+      <version>0.5</version>
+      <date>2005-06-13</date>
+      <license>PHP License</license>
+      <state>alpha</state>
+      <notes>Preview release.</notes>
+    </release>
+  </changelog>
+</package>

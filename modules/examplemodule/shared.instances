@@ -1,0 +1,10 @@
+<?php
+
+$__instances = array(
+	'person' => 'person',
+	'creationDTSFormatter' => 'WFUnixDateFormatter',
+	'selectMultipleValuesArrayController' => 'WFArrayController',
+	'selectedPeople' => 'WFArrayController',
+	'people' => 'WFArrayController',
+);
+?>

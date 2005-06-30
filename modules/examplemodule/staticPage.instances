@@ -1,0 +1,14 @@
+<?php
+
+$__instances = array(
+	'emailView' => array('class' => 'WFModuleView', 'children' => array()),
+	'form' => array('class' => 'WFForm', 'children' => array(
+	'name' => array('class' => 'WFTextField', 'children' => array()),
+	'creationDTS' => array('class' => 'WFTextField', 'children' => array()),
+	'selectOne' => array('class' => 'WFSelect', 'children' => array()),
+	'selectMultiple' => array('class' => 'WFSelect', 'children' => array()),
+	'textarea' => array('class' => 'WFTextArea', 'children' => array()),
+	'action1' => array('class' => 'WFSubmit', 'children' => array()),
+	'action2' => array('class' => 'WFSubmit', 'children' => array()),)),
+);
+?>

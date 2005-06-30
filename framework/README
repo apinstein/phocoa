@@ -1,0 +1,125 @@
+README for the Cocoa-Style PHP Framework (PHOCO)
+
+TODO
+
+WFCheckboxGroup - WFDynamic subclass to manage checkbox GROUPS.
+WFRadio - WFDynamic subclass to manage RADIOs.
+WFState -- idea for a simple widget to help stuff state in a form. Would simply serialize passed data and put it into a hidden var...
+WFTabView -- rename to WFTabbedFormPanel? It must be in a form, and uses restoreState() from WFWidget, so this would make sense... also, remove "non-onepage" mode as we'll use a WFTabbedNavigationView for that.
+
+WFSession - still needs to be designed. The current design sucks.
+
+DOCUMENTATION:: API GUIDE:: SELF-DOCUMENTING CODE WIHT PHPDOCUMENTOR
+We use PHPDOC (included in Pear) to document the code: http://manual.phpdoc.org/HTMLframesConverter/default/
+
+Each file should have the following at the top:
+
+/* vim: set expandtab tabstop=4 shiftwidth=4: */
+/**
+ * @package KeyValueCoding
+ * @subpackage Bindings
+ * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
+ * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
+ * @author Alan Pinstein <apinstein@mac.com>                        
+ */
+
+The Package should be the section of the framework that you're working on. The default is framework-base, so use that if it's something basic.
+Here are the top-level packages so far (no spaces allowed)
+framework-base
+KeyValueCoding
+UI
+WebApplication
+
+Subpackages are just for useful navigation within the packages. Do what makes sense, but start with Captial SubPackage Names!
+
+DOCUMENTATION:: USER GUIDE:: SELF-DOCUMENTING CODE WITH PHPDOCUMENTOR
+DocBook Format. See http://opensource.bureau-cornavin.com/crash-course/ or http://www.docbook.org/tdg5/en/html/docbook.html
+Edit with XMLMind's XXE WYSIWYG Editor.
+
+BUILD SYSTEM:
+Phing. Idea is to use Phing to do everything in the system from initial setup of a new framework-based web application to showing bindings info to creating .instances files from .tpl files.
+
+CONVENTIONS
+
+CLASS NAMES
+WF<ClassName>
+
+WF = "Web Framework"
+
+FUNCTION NAMING - use title case, start with lowercase
+sampleFunctionName()
+
+This naming convention is purposely different from the php naming convention so that you can easily tell the difference between framework functions and php functions.
+
+INTERFACES / PROTOCOLS
+Our web framework uses many techniques similar to Apple's Cocoa environment. One of the is the use of PROTOCOLS, both FORMAL and INFORMAL. In PHP, the FORMAL protocols are defined / implemented as PHP5 interfaces. INFORMAL protocols (protocols where not ALL methods must be implemented, common for delegates) are defined as PHP interfaces, but in implemention, you only add the methods, you do not do "implements WFBlahProtocol".
+
+Informal protocols for delegates are typically defined (basically for documentation purposes) as PHP classes ending in Delegate. For instance, WFWebApplicationDelegate.
+
+INCLUDES
+All script files should start with:
+
+require_once '../relative-path-to/conf/webapp.conf';
+
+This one include will set up the PHP include_path so that all remaining includes can be done as relative to the root directory of the project. This is true for CLI scripts as well.
+
+----------------------------------
+
+Generating tags files from the source: (BTW these are all good candiates for the PHING build system!)
+cd to webframework
+ctags -R
+
+Generating PHPDoc
+cd to webframework
+phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" -o HTML:frames:default --ignore test/ -d framework -f "smarty/plugins/*" -f "conf/webapp.conf"
+
+Tarballing up the framework (for backup purposes until we get it in a VCS):
+from above phocoa directory:
+tar -zvcf ~/phocoa_`date +"%Y-%m-%d-%H-%M-%S-$$"`.tgz phocoa/
+tar -zvcf ~/ttimobile_webapp_`date +"%Y-%m-%d-%H-%M-%S-$$"`.tgz www_app/
+
+PROPEL
+We no longer use the creole target, which reverse-engineers a DB and creates schema.xml. Now that we have the schema set, all changes should be made by hand to schema.xml
+and propel regenerated from that.
+
+-> Need to complete build setup so that it builds into our target directories. MOSTLY DONE I THINK; should double-check all pieces.
+    - propel classes
+    - 
+-> Need to rename the sequences to propel-compatible convention: table_seq (not table_pkCol_seq). Use the "id-method-parameter" tag to set this sequence name.
+    <table name="mytable">
+      <id-method-parameter value="mytable_id_seq" />
+    </table>
+
+ERROR HANDLING
+Should we have a WFException class? This class would have the following properties:
+- errorActions (LOG, EMAIL)
+- severity (WARN, FATAL)
+Methods:
+handleException($e)
+  if LOG, LOG error
+  if EMAIL, email error
+  if FATAL, display error and halt execution
+    - display error on development, display nice page on production
+  if WARNING, procede (of course client can re-throw)
+
+** maybe the LOG/EMAIL thing should be a site-wide config?
+
+GENERAL
+Convert to PHP5 conventions... enable E_STRICT and clean up everything!
+
+USERLAND
+For several things need a userland solution so that framework can be updated independently and harmlessly from main application.
+--> templates (ie errors, dynamic smarty template, page not found, etc)
+--> modules (maybe a contrib directory will include all bundled ones? system will check modules first, then check APP/contrib/modules to allow overriding?)
+
+FRAMEWORK ARCHITECTURE
+- Need to decide about full-path-widget-ids (ie myForm.name vs name so we can have form-based namespaces) NO just make them all unique.
+- Procedural View stuff
+    -> need LIST and GRID objects --> Will be handled by WFDynamic
+    -> need BOX and TABS and Stuff? yeah! WFView Subclasses
+- Need to complete shared.instances stuff
+
+LIST OF DIFFERENCES FROM COCOA, for helping people who know Cocoa.
+1) NSControl / NSCell - These are used heavily in Cocoa to handle the UI. All NSControls are NSView subclasses, which adds lots of overhead. Cocoa also has NSCell classes which handle a lot of the events and drawing. Since we don't have to deal with complex UI event handling (ie mouse tracking, etc), we have only NSControls for the UI.
+2) Bindings - We don't implement KVO (Key-Value Observing) because we aren't a real-time interactive system. HTTP requests and forms essentially "batch" changes and then repaint the entire screen. So instead of having everything real-time, we simply use bindings ONCE on the way in (to restore the WFRequestView) and once on the way out (so the UI controls can "grab" their proper values).
+3) WFFormatters. Our formatters are linked in with the same error mechanism as the validators. In Cocoa, the formatters run in a real-time UI environment, and they can literally stop bad data from being entered. For us, they're more of a convenience item for display and validating well-known data types.

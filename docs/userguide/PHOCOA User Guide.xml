@@ -1,0 +1,1131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
+<book>
+  <title>PHOCOA User Guide</title>
+
+  <chapter>
+    <title>Introduction to PHOCOA</title>
+
+    <section>
+      <title>Overview</title>
+
+      <para>PHOCOA is an object-oriented, event-driven, componentized, MVC
+      (model-view-controller) web application framework based on Apple's Cocoa
+      architecture.</para>
+
+      <para>PHOCOA's primary intent is to make developing web applications in
+      PHP easier, faster, and with fewer bugs. The framework handles most of
+      the "dirty work" of programming by removing the need to write much glue
+      code for data binding (moving data between the model layer and view
+      layer of your application), validation, error handling, request
+      processing, etc. Most of your time will be spent designing your GUI and
+      writing application-specific logic rather than dealing with form data,
+      database calls, etc.</para>
+    </section>
+
+    <section>
+      <title>External Technologies</title>
+
+      <para>PHOCOA relies on several technologies to work its magic:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>PHP 5 - programming language</para>
+        </listitem>
+
+        <listitem>
+          <para>Smarty - user interface / presentation layer</para>
+        </listitem>
+
+        <listitem>
+          <para>Propel - database abstraction / model layer</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>PHOCOA itself provides the controller layer of the MVC
+      architecture.</para>
+    </section>
+
+    <section>
+      <title>PHOCOA Technologies</title>
+
+      <para>PHOCOA itself contributes several technologies to the
+      framework.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Request Controller - handles automatically handing off web
+          requests to various custom "modules" that will implement the
+          application's logic.</para>
+        </listitem>
+
+        <listitem>
+          <para>Page Controller - handles initializing, displaying, and
+          maintaining state of UI objects.</para>
+        </listitem>
+
+        <listitem>
+          <para>Bindings - provides the ability to "bind" UI objects to data
+          objects and thereby elimintate the need to write glue code to move
+          data between the model and the view layers.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </chapter>
+
+  <chapter>
+    <title>Motivation</title>
+
+    <section>
+      <title>Classic Problems of Web Development, and How PHOCOA Solves
+      Them</title>
+
+      <para>Developing web applications presents a variety of challenges.
+      Listed below are a number of classic web development architectural
+      problems, and how PHOCOA provides solutions.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Separation of Data, Presentation, and Glue layers of the
+          code.</para>
+
+          <para>Presentation templates should be clearly separated from other
+          code, allowing designers to easily edit the look and feel without
+          breaking the appilcation or dealing with business logic.</para>
+
+          <para>Data model code should represent only the pure data model of
+          your system, and have no code related to UI.</para>
+
+          <para>Glue code links the model layer to the view layer. Glue code
+          is typically the code for each "web page". It loads up the right
+          data and view pieces for that page, and links the two
+          together.</para>
+
+          <para><emphasis>This problem is typically solved with a MVC
+          design.</emphasis></para>
+
+          <para>PHOCOA uses a MVC architecture as part of its
+          framework.</para>
+
+          <para>PHOCOA has some flexibility in the model layer, but we
+          recommend Propel for model objects that are stored in an RDBMS. Of
+          course, not all of your model objects will be persisted, and you can
+          write your own classes as well. You can use other persistence
+          solutions as well, but this may break some of the functionality of
+          the framework.</para>
+
+          <para>For the presentation layer, PHOCOA uses a template system to
+          separate the presentation layer from the Model and Controller
+          layers. PHOCOA uses the Smarty template engine, but it is possible
+          that the system could be extended to use other template
+          engines.</para>
+
+          <para>PHOCOA's controller layer is proprietary, and is one of the
+          most powerful parts of the framework. The PHOCOA controller layer
+          includes a Front Controller mechanism for dispatching requests,
+          automatic state-maintenance of form data, a formalized data
+          validation mechanism, and a bindings layer. All of these items will
+          be discussed in more detail below, but have the net effect of
+          drastically reducing the amount of code you have to write.</para>
+        </listitem>
+
+        <listitem>
+          <para>Persistence / Retrieval of Model objects to a database.</para>
+
+          <para>Model objects should be accessible through a single interface
+          and easily retrieved and persisted. Typically this means saving
+          complex relational model data in a RDBMS, as well as querying the DB
+          and restoring model state.</para>
+
+          <para><emphasis>This problem is typically solved by
+          Object-Relational mapping tools.</emphasis></para>
+
+          <para>PHOCOA currently uses a modified version of Propel to provide
+          object persistence. The modification that is made is simply to make
+          the Propel BaseObject subclass the PHOCOA framework's base object,
+          WFObject. This allows Propel objects to provide the requisite
+          interfaces for integrating with PHOCOA.</para>
+        </listitem>
+
+        <listitem>
+          <para>"Skinning" - having an overall look and feel for a site that
+          is easily switched out. Also, having different look &amp; feel for
+          different parts of a site. Also, getting data into the HEAD section
+          of the page.</para>
+
+          <para>All web sites have graphics that are used for every page. We
+          call this a "skin". Some sites allow different themes of a single
+          skin, and others use different skins for different parts of the
+          site.</para>
+
+          <para><emphasis>This problem is typically solved with include files
+          and logic to switch between files.</emphasis></para>
+
+          <para>PHOCOA has a complete infrastructure for skinning built into
+          the framework. A web application can have an unlimited number of
+          skin setups for different parts of the site. Additionally, each of
+          these skin setups can have an unlimited number of skins with an
+          unlimited number of sub-themes.</para>
+
+          <para>The undlerlying skin mechanism also allows you to easily
+          customize HEAD information such as title and meta tags.</para>
+        </listitem>
+
+        <listitem>
+          <para>Maintaining state of a form between requests.</para>
+
+          <para>A nice web application will keep track of all of the data the
+          user has entered into the form. In the case that the form's action
+          cannot be completed due to validation or other error, the form will
+          need to be re-displayed, and it sure is nice if it looks the same as
+          when the user pressed "Submit".</para>
+
+          <para><emphasis>This problem is typically solved by a lot of glue
+          code, or with tools like HTML_QuickForm or
+          patForms.</emphasis></para>
+
+          <para>PHOCOA provides a complete UI state-maintainance mechanism. A
+          full set of widgets are provided that represent all HTML input
+          types. Each widget automatically maintains its own state. It is also
+          possible to create custom widgets to promote re-use of complex
+          widgets such as color pickers, date pickers, etc.</para>
+        </listitem>
+
+        <listitem>
+          <para>Centralized dispatch architecture.</para>
+
+          <para>Web applications typically have many "actions" that can be
+          performed by the user. Developers need a way to easily determine
+          which action was requested, and a way to dispatch this action to the
+          correct handler.</para>
+
+          <para><emphasis>This problem is typically solved with a Front
+          Controller pattern.</emphasis></para>
+
+          <para>PHOCOA implements a Front Controller that locates "modules" in
+          unlimited folder structure. PHOCOA also allows your modules to
+          access PATH INFO data to promote friendly-URL use.</para>
+
+          <para>PHOCOA is an event-driven architecture as well, automatically
+          dispatching control to your action handlers in response to FORM
+          submissions.</para>
+        </listitem>
+
+        <listitem>
+          <para>Request variable normalization</para>
+
+          <para>Web applications should take care to prevent XSS (cross-site
+          scripting) attacks caused by user manipulation of the request
+          data.</para>
+
+          <para><emphasis>This problem is typically solved by writing code to
+          filter all incoming data to make sure that it's valid and
+          meaningful.</emphasis></para>
+
+          <para>PHOCOA's UI state management only responds to manifested FORM
+          parameters, reducing XSS attacks.</para>
+        </listitem>
+
+        <listitem>
+          <para>Data validation</para>
+
+          <para>Data input to a web application, whether via Path Info or Form
+          Submission, needs to be propagated to the model and validated.
+          Ideally, you should be able to detect multiple problems at the same
+          time to make the site easier to use. The errors must then of course
+          be shown to the user.</para>
+
+          <para><emphasis>This problem is typically solved by a number of
+          methods: pre-validating data, integrated validation code in model
+          components, etc.</emphasis></para>
+
+          <para>PHOCOA provides a complete solution for data validation. A
+          concept called Key-Value Coding provides a common infrastructure for
+          writing validation methods on any object. Beyond that, the PHOCOA
+          infrastructure provides a centralized location to track all errors
+          in a single request. PHOCOA also provides an easy way to display
+          these errors in the UI. You can list all errors as well as errors
+          for each individual widget.</para>
+        </listitem>
+
+        <listitem>
+          <para>Web Application Configuration and Deployment</para>
+
+          <para>There are many settings that are application-wide and need to
+          be accessible by all parts of the application. This global data can
+          be broken down into two types of data: data that is the same whether
+          the application is running on a Production or Development server,
+          and data that is always needed globally, but changes based on the
+          Production/Development status.</para>
+
+          <para><emphasis>Typically this problem is solved by include
+          files.</emphasis></para>
+
+          <para>PHOCOA configuration handles both of these situations.
+          Application-specific configuration is typically handled by the
+          WFWebApplication object via callbacks, and Deployment-specific
+          configuration is handled via a conf file.</para>
+        </listitem>
+
+        <listitem>
+          <para>Session Management</para>
+
+          <para>Sometimes web applications need to keep state across multiple
+          requests that is linked to a user's session.</para>
+
+          <para><emphasis>This problem is typically solved using PHP's Session
+          API.</emphasis></para>
+
+          <para>PHOCOA doesn't yet provide any session infrastructure.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </chapter>
+
+  <chapter>
+    <title>Getting Started With PHOCOA Programming</title>
+
+    <para>PHOCOA has a very large set of technologies. Because it is based on
+    Cocoa (Apple's development infrastructure), if you are a Cocoa programmer
+    things will make a lot of sense to you. If you are not familar with Cocoa,
+    there is a bit of a learning curve.</para>
+
+    <para>Instead of starting off by explaining all of the concepts and
+    technologies, we will first walk you through a simple application to show
+    you how easy the finished product is. You will be much more motivated to
+    learn the concepts when you realize how much time PHOCOA can save
+    you.</para>
+
+    <para>This chapter will walk you through the development of a simple
+    "Hello, World" application that shows off all of the basic concepts. We
+    will explain each concept as simlpy as possible for the example.</para>
+
+    <section>
+      <title>Installation and Configuration</title>
+
+      <para>The PHOCOA framework is contained in its own directory. Your
+      PHOCOA-based web application will live in its own directory, separate
+      from the framework code. This makes it easy to keep the two separated
+      for purposes of backup, upgrading, etc.</para>
+
+      <bridgehead>PHOCOA Directory Structure</bridgehead>
+
+      <para>First let's install the PHOCOA framework. Unpack the PHOCOA
+      tarball. The directory structure looks like:</para>
+
+      <screen>$ ls -l phocoa/
+total 540
+drwxrwxr-x   2 apinstein apinstein   4096 May 31 11:21 conf
+drwxrwxr-x   5 apinstein ttimobile   4096 May 31 19:54 framework
+drwxrwxr-x   7 apinstein apinstein   4096 Jun  1 10:33 modules
+drwxrwxr-x  14 apinstein ttimobile   4096 May 28 16:25 phpdocs
+drwxrwxr-x   3 apinstein apinstein   4096 May 31 10:14 skins
+drwxrwxr-x   4 apinstein ttimobile   4096 Apr 14 17:56 smarty
+-rw-rw-r--   1 apinstein ttimobile 518069 May 31 10:00 tags
+drwxrwxr-x   3 apinstein apinstein   4096 Jun  1 10:32 wwwroot</screen>
+
+      <para>The conf directory contains default versions of all configuraiton
+      files. These will be copied to your application's conf directory during
+      install.</para>
+
+      <para>The framework directory contains most of the framework's
+      code.</para>
+
+      <para>The modules directory contains modules that are used by the core
+      framework, or are bundled with the framework. These will be copied to
+      your application's modules directory during install.</para>
+
+      <para>The phpdocs directory contains a complete PHPDoc API reference for
+      the framework. Once you have PHOCOA installed, this can be reached from
+      http://your-server.com/docs.</para>
+
+      <para>The skins directory contains bundled skins. This is just a single
+      skin, so that your application has some skin when it starts. These will
+      be copied to your application's skins directory during install. </para>
+
+      <para>The smarty directory is where templates and plugins used by the
+      framework go.</para>
+
+      <para>The wwwroot directory is the public wwwroot. This wwwroot contains
+      the bootstrapping code for a PHOCOA application and a directory for all
+      public www documents. This will be copied to your application's wwwroot
+      directory on install.</para>
+
+      <bridgehead>Application Directory Structure</bridgehead>
+
+      <para>Now let's set up your PHOCOA-based application.</para>
+
+      <note>
+        <para>There is currently no script to automatically generate a new
+        application project for PHOCOA. For now, there is a "PHOCOA EMPTY
+        PROJECT" archive that you can use.</para>
+      </note>
+
+      <para>Unpack the empty PHOCOA project. We will assume now that the name
+      of the folder containing your PHOCOA-based web application is
+      <emphasis>webapp</emphasis>.</para>
+
+      <para>Now let's have a look at the directory structure.</para>
+
+      <screen>$ ls -l webapp/
+total 20
+drwxrwxr-x  3 apinstein ttimobile 4096 May 31 07:35 classes
+drwxrwxr-x  2 apinstein ttimobile 4096 May 31 11:12 conf
+drwxrwsr-x  9 apache    ttimobile 4096 May 30 15:53 modules
+drwxrwxr-x  5 apinstein ttimobile 4096 May 30 18:14 skins
+drwxrwxr-x  3 apinstein ttimobile 4096 May 31 09:00 wwwroot</screen>
+
+      <para>The classes directory is where all of your classes go. These are
+      classes specific to your application.</para>
+
+      <para>The conf directory contains all configuraiton files.</para>
+
+      <para>The modules directory is where all components go. These components
+      are the building blocks of your application and include both entire
+      pages and sub-components.</para>
+
+      <para>The skins directory is where all skins go.</para>
+
+      <para>The wwwroot directory is a public wwwroot that contains the front
+      controller for the PHOCOA project. All public documents (i.e. the
+      tradiditional public www root) go in wwwroot/www/.</para>
+
+      <bridgehead>Initial Configuration</bridgehead>
+
+      <para>First thing to do is configure the framework.</para>
+
+      <screen>$ ls -l webapp/conf                                                                                                                                 alanpinstein@g5:~/dev/sandbox
+total 24
+-rw-r--r--   1 alanpins  staff  1272 May 18 14:24 httpd.conf
+-rw-r--r--   1 alanpins  staff  1561 May 18 12:58 webapp.conf</screen>
+
+      <para>The httpd.conf file is the apache configuration for the framework.
+      You should customize it to match your domain and path to where you put
+      PHOCOA. Make sure that you update all places where paths exist,
+      including the AliasMatch directives, the various log directives, and the
+      WebDAV setup (optional). We assume that you are familiar with apache
+      setup.</para>
+
+      <note>
+        <para>WebDAV can be useful when working on an application remotely.
+        Since PHOCOA includes a Mac OS X application to graphically manage
+        some configuration files, using WebDAV enables you to use the PHOCOA
+        Builder Application on your computer, but working on a PHOCOA
+        application directory on a remote computer. For this reason, you need
+        only share the "modules" directory of your webapp.</para>
+      </note>
+
+      <para>Then, include your application's httpd configuration file in your
+      main httpd.conf like so:</para>
+
+      <programlisting>Include /path/to/webapp/conf/httpd.conf</programlisting>
+
+      <para>Now restart apache.</para>
+
+      <para>Next up is the PHOCOA conf file. Open up webapp.conf. Read through
+      it, setting up each directive as explained by the comments.</para>
+
+      <para>At this point, you should be able to access the site via the web.
+      You should be able to access the application via
+      http://servername/.</para>
+
+      <para>Now, we can move on to the tutorial!</para>
+    </section>
+
+    <section>
+      <title>Module / Page Component Architecture</title>
+
+      <bridgehead>Modules</bridgehead>
+
+      <para>The basic unit of work in a PHOCOA application is the module. A
+      module is a collection of views and code related to a single function.
+      It is conceptually the same as a single PHP file in a traditional PHP
+      application. There may be multiple actions, web pages, etc, but it's all
+      stored in one file.</para>
+
+      <para>Each PHOCOA module is a single PHP file that contains a single
+      WFModule subclass. This subclass will have specially named functions
+      that you create to set up pages and respond to user actions.</para>
+
+      <para>Because each module has multiple pages, actions, etc., each module
+      in PHOCOA is essentially a reusable web component. The components can be
+      used one-at-a-time to build complete pages, or you can composite modules
+      together to create complex layouts and behaviors.</para>
+
+      <para>Modules are invoked via an <property>invocationPath</property>
+      which looks like
+      <property>path/to/module/pageName/param1/param2</property>. Obviously
+      this looks a lot like a URL. When you go to a URL of a PHOCOA
+      application, the request controller parses out the
+      <property>invocationPath</property> from the URL and executes the
+      module. Modules that include other modules simply supply the
+      <property>invocationPath</property> directly.</para>
+
+      <bridgehead>Pages</bridgehead>
+
+      <para>Each module can contain an arbitrary number of pages. A page is
+      simply a single web view that a user can see. You can think of it as a
+      web page, a view, a screen, whatever works for you. For instance, you
+      may have one view that is an input form, and another view that is used
+      for telling the user the form's action succeeded.</para>
+
+      <bridgehead>Actions</bridgehead>
+
+      <para>Each page has a number of actions. Actions are trigger by the user
+      submitting a form. When the user submits a form, PHOCOA will hand off
+      control to an action handler in your module where you can respond to the
+      action.</para>
+
+      <para>It should be noted that not all requests have actions. It is
+      possible to just load a page in a module WITHOUT an action. In this
+      case, the module can display the default page, or could look in the
+      parameters passed to it to find information used to load default data
+      into the page.</para>
+    </section>
+
+    <section>
+      <title>Building "Hello, World!"</title>
+
+      <para>Let's put PHOCOA to work with a simple example. We start out by
+      creating a new module, "helloworld". To do this, create a new directory
+      inside the "modules" folder named "helloworld". Then, inside this
+      directory, create "helloworld.php":</para>
+
+      <para><programlisting>class helloworld extends WFModule
+{
+    /**
+      * Tell system which page to show if none specified. 
+      */ 
+     function defaultPage()
+     {
+         return 'helloWorld';
+     }
+}</programlisting></para>
+
+      <para>WFModule is an abstract class, requiring a "defautPage()" method.
+      This method simply tells the system what page to load if none is
+      specified.</para>
+
+      <para>Next, let's create the helloWorld page.</para>
+
+      <para>Each page in PHOCOA has three parts. The .tpl file (the HTML
+      Smarty template), the .instances file (contains a list of all WFView
+      instances used in the template), and the .config file (contains the
+      configuration of the WFView instances declared in the .instances file).
+      PHOCOA needs a list of all UI instances used in the view so that it can
+      work its magic in maintaining state, etc. The .config file is used to
+      configure each widget, for instance by specifying labels, sizes,
+      formatters, and other attributes. The .config file is also used to set
+      up Bindings, which is how PHOCOA links UI widget data to your model.
+      Don't worry about these details for now, though; we'll explain further
+      as we go along.</para>
+
+      <important>
+        <para>In the following examples, the contents of .instances and
+        .config files will be shown. These files are PHP files and need to
+        have the PHP tags: <code>&lt;?php ... ?&gt;</code> surrounding any PHP
+        code you see, but for brevity they have been left out.</para>
+      </important>
+
+      <para>PHOCOA includes a helper script to create a new page and its
+      helper files for you. CD to the helloworld directory and run the
+      following command:</para>
+
+      <para><screen>$ php /path/to/phocoa/framework/createView.php helloWorld 
+Writing helloWorld.tpl 
+Writing helloWorld.instances 
+Writing helloWorld.config 
+Done! 
+$ ls -1 
+helloWorld.config 
+helloWorld.instances 
+helloworld.php 
+helloWorld.tpl </screen></para>
+
+      <para>The script will automatically create the .tpl, .instances, and
+      .config file, ready for you to edit. Now, edit the helloWorld.tpl file
+      with a classic message:</para>
+
+      <para><programlisting>Hello, World! </programlisting></para>
+
+      <para>That's all that's needed to make a simple web page in PHOCOA.
+      Simply load up the URL for this page: http://localhost/webapp/helloworld
+      and you should see your message!</para>
+    </section>
+
+    <section>
+      <title>Forms</title>
+
+      <para>Now, let's add a simple form to our example. In the helloWorld.tpl
+      file, add a form:</para>
+
+      <programlisting>
+        {WFForm id="form"} 
+        Email: {WFTextField id="email"} 
+        {WFSubmit id="submit"} 
+        {/WFForm} 
+      </programlisting>
+
+      <para>Now we need to declare these three widgets in the .instances
+      file.</para>
+
+      <para><tip>
+          <para>If you're using Mac OS X Tiger, you can use the PHOCOA Builder
+          application to manage the .instances and .config files
+          graphically.<screenshot>
+              <screeninfo>PHOCOA Builder</screeninfo>
+
+              <mediaobject>
+                <imageobject>
+                  <imagedata fileref="PHOCOA%20Builder.png" />
+                </imageobject>
+              </mediaobject>
+            </screenshot></para>
+        </tip>The end result should be that the helloWorld.instances file
+      looks like:</para>
+
+      <programlisting>
+        $__instances = array( 
+            'form' =&gt; array('class' =&gt; 'WFForm', 'children' =&gt; array( 
+                'submit' =&gt; array('class' =&gt; 'WFSubmit', 'children' =&gt; array()), 
+                'email' =&gt; array('class' =&gt; 'WFTextField', 'children' =&gt; array()),
+                )
+            )
+        ); 
+      </programlisting>
+
+      <para>The format of the .instances file is a PHP associative array, with
+      the first level of keys being the instance ID. The instance ID is the
+      unique ID for this page for the given instance. Then, for each instance,
+      you must declare the class, and optionally children. As you can see
+      above, WFForm is a container widget that contains other widgets. You can
+      tell this because the {WFForm} tag in the .tpl file has a closing
+      tag.</para>
+
+      <para>When PHOCOA processes the .instances file, it will create an
+      instance of the given class for the given ID. The rest of the system
+      then can interact with the widgets by ID. In code, you can access a
+      widget with:</para>
+
+      <programlisting> $myTextField = $page-&gt;outlet('MyTextFieldInstanceID');</programlisting>
+
+      <para>So, what action gets run when the user submits this form? The
+      action methods are simply specially named methods of the WFModule
+      subclass. Here's the prototype:</para>
+
+      <para><function>&lt;pageName&gt;_&lt;actionID&gt;_Action($requestPage)</function></para>
+
+      <para>So, we now need to define a function in our WFModule subclass to
+      run when the submit button is clicked. Add this to the helloworld.php
+      file:</para>
+
+      <programlisting> function helloWorld_submit_Action($page) {} </programlisting>
+
+      <para>For now, our action method won't do anything. However, we have to
+      declare it or the framework will throw an exception.</para>
+
+      <para>So, now load the page again and you should see a form. Enter in
+      some data and press the submit button. You will notice that the form
+      will be re-displayed with the data you entered still there. This is a
+      simplified example of PHOCOA's state-maintenance capabilities. Any form
+      elements that are added will automatically have their state maintained.
+      All HTML form elements are available.</para>
+    </section>
+
+    <section>
+      <title>Data</title>
+
+      <para>While it's somewhat interesting to see the form maintain its
+      state, it's not particularly useful on its own. Typically a form
+      submission will need to do something, and typically that will involve
+      moving the data from the form to an object, validating the data, and
+      eventually performing an action. Sometimes, you'll also need to format
+      the data in a more human-readable way than it is stored, for instance,
+      timestamps.</para>
+
+      <para>To extend our example and really explore PHOCOA, we're going to
+      build a classic web application, a form-to-email page.</para>
+
+      <para>First, let's define our new class, ExampleEmail. Normally each
+      class is stored in its own file, but for simplicity, we'll just put our
+      ExampleEmail class in helloworld.php. Add the following:</para>
+
+      <programlisting>
+        class ExampleEmail extends WFObject 
+        { 
+             protected $toEmail; 
+             protected $subject; 
+             protected $message;
+            
+             function send()
+             {
+                 $sent = mail( $this-&gt;toEmail, $this-&gt;subject,
+                 $this-&gt;message );
+                 return $sent;
+             }
+        } 
+      </programlisting>
+
+      <para>Now, of course, we also need a bigger form, so edit
+      helloWorld.tpl:</para>
+
+      <programlisting>
+        {WFForm id="form"} 
+             Email: {WFTextField id="email"}&lt;br /&gt;
+             Subject: {WFTextField id="subject"}&lt;br /&gt;
+             Message: {WFTextArea id="message"}&lt;br /&gt;
+             {WFSubmit id="submit"} 
+        {/WFForm} 
+      </programlisting>
+
+      <para>Since we've added components to the page, we need to declare them
+      in the helloWorld.instances file, which should now look like:</para>
+
+      <programlisting>$__instances = array(
+                'form' =&gt; array('class' =&gt; 'WFForm', 'children' =&gt; array(
+                      'subject' =&gt; array('class' =&gt; 'WFTextField', 'children' =&gt; array()),
+                      'message' =&gt; array('class' =&gt; 'WFTextArea', 'children' =&gt; array()),
+                      'submit' =&gt; array('class' =&gt; 'WFSubmit', 'children' =&gt; array()),
+                      'email' =&gt; array('class' =&gt; 'WFTextField', 'children' =&gt; array()),
+                      )
+                 ),
+              );</programlisting>
+
+      <para>Now, of course we need to link the form elements to our new
+      ExampleEmail class. This is where PHOCOA starts to get really
+      interesting. You won't have to write ANY code to make this
+      happen!</para>
+
+      <para>First off, we will need an instance of the ExampleEmail class,
+      right? Well, just like there is the helloWorld.instances file, there is
+      also a mechanism for instantiating objects for the module. You can
+      create a shared.instances file, and configure those instances with a
+      shared.config file. All instances declared in shared.instances will be
+      created automatically when your module is initialized.</para>
+
+      <para>So, let's set up an ExampleEmail instance! Create a file called
+      shared.instances, and enter the following:</para>
+
+      <programlisting>$__instances = array( 'email' =&gt; 'ExampleEmail',); </programlisting>
+
+      <para>Of course, once again if you're on Mac OS X Tiger, you can use
+      PHOCOA Builder to create a shared instance.</para>
+
+      <para>Now we are guaranteed to have an instance of ExampleEmail set up
+      as an instance variable of our helloworld class.</para>
+
+      <para>Next up, we need to link the form elements to the members of our
+      ExampleEmail class. For this, we need to introduce a concept called
+      Bindings. Bindings are a way to link the property of one class to the
+      property of another class.</para>
+
+      <para><tip>
+          <para>If you're familiar with COCOA, these work very similarly to
+          bindings in Cocoa, with the small difference that in PHOCOA the
+          bindings are not implemented with a real-time observer pattern.
+          Since PHP is stateless, we decided to simply push values from
+          bindings once at the beginning of the request cycle, and pull values
+          from bindings once at the end of the request cycle, just before
+          rendering.</para>
+        </tip></para>
+
+      <para>So, to set up the bindings we're going to edit the
+      helloWorld.config file, to the following:</para>
+
+      <para><programlisting>$__config = array(
+              'subject' =&gt; array(
+                  'bindings' =&gt; array(
+                      'value' =&gt; array(
+                          'instanceID' =&gt; 'email',
+                          'controllerKey' =&gt; '',
+                          'modelKeyPath' =&gt; 'subject',
+                          ),
+                      ),
+                  ),
+              'message' =&gt; array(
+                  'bindings' =&gt; array(
+                      'value' =&gt; array(
+                          'instanceID' =&gt; 'email',
+                          'controllerKey' =&gt; '',
+                          'modelKeyPath' =&gt; 'message',
+                          ),
+                      ),
+                  ),
+              'email' =&gt; array(
+                  'bindings' =&gt; array(
+                      'value' =&gt; array(
+                          'instanceID' =&gt; 'email',
+                          'controllerKey' =&gt; '',
+                          'modelKeyPath' =&gt; 'toEmail',
+                          ),
+                      ),
+                  ),
+              ); </programlisting></para>
+
+      <para>Once again, if you're using PHOCOA Builder, you can do this
+      graphically.</para>
+
+      <para>To explain what's happening here, let's look at subject first. We
+      create a 'bindings' key for 'subject', and declare that we want to bind
+      the "value" property of the "subject" instance (which is a WFTextField).
+      We want to bind the "value" property to the "email" instance variable of
+      our helloworld class, and we want to link it to the "subject" property
+      of the "email" instance. For now, don't worry about the
+      controllerKey.</para>
+
+      <para>What is a modelKeyPath? Let's introduce another concept that we
+      call Key-Value Coding. This again will be familiar to Cocoa developers.
+      Basically, the idea is that classes have a number of properties (their
+      members / instance variables). Key-Value Coding provides a generic
+      mechanism for accessing or mutating these members. The following generic
+      functions:</para>
+
+      <para><programlisting>function valueForKey($key);
+function setValueForKey($value, $key);</programlisting></para>
+
+      <para>provide access to get/set any properties of classes derived from
+      WFObject. If you'll remember, our ExampleEmail class extends WFObject,
+      and this is why.</para>
+
+      <para>So, we can call:</para>
+
+      <para><programlisting>$email-&gt;setValueForKey('Test Message', 'subject')</programlisting></para>
+
+      <para>and this will update the subject of our exampleEmail class. The
+      binding that we've just configured will now do this for you
+      automatically. It will also take its value from the email instance, if
+      there is one. The same is also true for the <property>message</property>
+      and <property>email</property> fields.</para>
+
+      <para>The <function>valueForKey</function> /
+      <function>setValueForKey</function> functions try a variety of
+      approaches to access the property's data. First, they will use accessors
+      with a particular naming convention: <function>&lt;key&gt;()</function>
+      and <function>set&lt;Key&gt;()</function> where &lt;key&gt; is the
+      property name. For instance, <function>emailTo()</function> would be
+      used as the accessor for the <property>emailTo</property> member, and
+      <function>setEmailTo($value)</function> for the mutator. If these
+      specially named accessors are not available, the system will try to
+      access the member directly.</para>
+
+      <para>One last thing before we try it out. Of course, we need to have
+      our action handler call the send() method on our email instance when the
+      form is submitted, right? So, modify the action handler to the
+      following:</para>
+
+      <programlisting>function helloWorld_submit_Action($page)
+{
+    $this-&gt;email-&gt;send();
+}</programlisting>
+
+      <para>As mentioned previously, because of the setup we did in
+      shared.instances, we're guaranteed to have an instance variable in our
+      helloworld class populated with an ExampleEmail instance. So we need
+      only to tell it to send!</para>
+
+      <para>Your mailer should work now. Try it out by sending an email to
+      yourself. Assuming your mailer setup for PHP is correct, you should get
+      an email!</para>
+    </section>
+
+    <section>
+      <title>Responding With a Different Page</title>
+
+      <para>At the end of the last section, we had a working mailer. However,
+      the UI didn't change when the user submitted the form. Probably we'll
+      want to display a "success" message when the mail is sent. Let's walk
+      through the steps to display a different page as a response to an
+      action.</para>
+
+      <para>First, let's create the success page. Use the handy createView
+      script again to create a page named "emailSuccess", then edit the
+      template to look like this:</para>
+
+      <programlisting>&lt;p&gt;Successfully sent email!&lt;/p&gt;
+To: {WFLabel id="email"}&lt;br /&gt; 
+Subject: {WFLabel id="subject"}&lt;br /&gt; 
+Message: {WFLabel id="message"}</programlisting>
+
+      <para>Now, set up the emailSuccess.instances:</para>
+
+      <para><programlisting>$__instances = array(
+              'message' =&gt; array('class' =&gt; 'WFLabel', 'children' =&gt; array()),
+              'subject' =&gt; array('class' =&gt; 'WFLabel', 'children' =&gt; array()),
+              'email' =&gt; array('class' =&gt; 'WFLabel', 'children' =&gt; array()),
+          ); </programlisting></para>
+
+      <para>and emailSuccess.config:</para>
+
+      <programlisting>
+$__config = array(
+        'message' =&gt; array(
+                'bindings' =&gt; array(
+                        'value' =&gt; array(
+                                'instanceID' =&gt; 'email',
+                                'controllerKey' =&gt; '',
+                                'modelKeyPath' =&gt; 'message',
+                        ),
+                ),
+        ),
+        'subject' =&gt; array(
+                'bindings' =&gt; array(
+                        'value' =&gt; array(
+                                'instanceID' =&gt; 'email',
+                                'controllerKey' =&gt; '',
+                                'modelKeyPath' =&gt; 'subject',
+                        ),
+                ),
+        ),
+        'email' =&gt; array(
+                'bindings' =&gt; array(
+                        'value' =&gt; array(
+                                'instanceID' =&gt; 'email',
+                                'controllerKey' =&gt; '',
+                                'modelKeyPath' =&gt; 'toEmail',
+                        ),
+                ),
+        ),
+);
+      </programlisting>
+
+      <para>Now, in the our action handler, we want to show the success page
+      if the email was sent, so we add a line to set up the reponse page to
+      use:</para>
+
+      <programlisting>function helloWorld_submit_Action($page)
+{
+    $this-&gt;email-&gt;send();
+    $this-&gt;setupResponsePage('emailSuccess');
+}</programlisting>
+
+      <para>Try submitting the email form again. This time, you should see the
+      success page you've just created.</para>
+    </section>
+
+    <section>
+      <title>Validating data</title>
+
+      <para>Let's add some validation to our email class. For instance, let's
+      say that we require a properly-formatted email address, and the subject
+      cannot be blank. Of course, we'll also want to show the errors to the
+      user. How to accomplish this with PHOCOA?</para>
+
+      <para>It's time once again to introduce another concept: Key-Value
+      Validation. Similar to Key-Value coding, the Key-Value Validation
+      mechanism looks for specially-named functions of your class, with the
+      following prototype:</para>
+
+      <para><programlisting>boolean validate&lt;Key&gt;(&amp;$value, &amp;$edited, &amp;$errors)</programlisting></para>
+
+      <para>It is very important to notice the pass-by-reference used on all
+      three parameters.</para>
+
+      <para>So, we can implement our two validators by adding following code
+      to ExampleEmail:</para>
+
+      <programlisting>
+    function validateToEmail(&amp;$value, &amp;$edited, &amp;$errors)
+    {
+        $value = trim($value);
+        $edited = true;
+        if (preg_match("/[A-z0-9._-]+@[A-z0-9-]+\.[A-z0-9-\.]*[A-z]+$/", $value) == 1) return true;
+
+        $errors[] = new WFError("The email you entered is not a properly formatted email address.");
+        return false;
+    }
+
+    function validateSubject(&amp;$value, &amp;$edited, &amp;$errors)
+    {   
+        $value = trim($value);
+        $edited = true;
+        if ($value != '') return true;
+
+        $errors[] = new WFError("The subject cannot be blank.");
+        return false;
+    }
+</programlisting>
+
+      <para>Validators in PHOCOA are a bit different than some validation
+      mechanisms. Validators are called BEFORE the actual value is set, by the
+      Bindings system, as a pre-flight mechanism. Doing it this way prevents
+      invalid data from ever being in the class.</para>
+
+      <para>The validators can also do normalization of the data. Since the
+      value is passed by reference, you can normalize the data in any
+      appropriate way. If you do alter the data, be sure to set edited to
+      true.</para>
+
+      <para>Notice also that the errors parameter is an array. This allows you
+      to specify multiple errors during validation.</para>
+
+      <para>Now that we can detect errors, we'll want to display the errors to
+      the user as well, so let's edit the helloWorld.tpl file:</para>
+
+      <programlisting>
+{WFShowErrors}
+
+{WFForm id="form"}
+    Email: {WFTextField id="email"}&lt;br /&gt; {WFShowErrors id="email"}
+    Subject: {WFTextField id="subject"}&lt;br /&gt; {WFShowErrors id="subject"}
+    Message: {WFTextArea id="message"}&lt;br /&gt;
+    {WFSubmit id="submit"}
+{/WFForm}
+      </programlisting>
+
+      <para>You'll notice the addition of several {WFShowErrors} tags. This is
+      a special function that looks up the errors generated by the specified
+      widget ID and dislpays them. If no id is specified, all errors will be
+      displayed.</para>
+
+      <para>Now try the form again, but this time enter invalid data for both
+      the Email and Subject fields and then submit. You'll see that all of the
+      errors are listed above the form, and the specific errors are again
+      repeated next to the relevant form elements.</para>
+    </section>
+
+    <section>
+      <title>Formatting Data</title>
+
+      <para>There's one more major component to the PHOCOA framework that you
+      should know about, and that's Formatters. Many data types are not
+      human-readable by default, or are not in the desired format. Good
+      examples are timestamps and currency formats.</para>
+
+      <para>We'll now extend our example to show off formatters.</para>
+
+      <para>Let's add a timestamp to our ExampleEmail class:</para>
+
+      <para><programlisting> protected $sendTimestamp; </programlisting></para>
+
+      <para>and in the send() method:</para>
+
+      <para><programlisting> $this-&gt;sendTimestamp = time(); </programlisting></para>
+
+      <para>Now, let's add the date sent to the success page:</para>
+
+      <para><programlisting>Date Sent: {WFLabel id="timestamp"}&lt;br /&gt;
+      </programlisting></para>
+
+      <para>And now of course we need to add it to the emailSuccess.instances
+      file:</para>
+
+      <para><programlisting> 'timestamp' =&gt; array('class' =&gt; 'WFLabel', 'children'
+      =&gt; array()), </programlisting></para>
+
+      <para>and set up the binding in emailSuccess.config:</para>
+
+      <programlisting>
+        'timestamp' =&gt; array(
+                'bindings' =&gt; array(
+                        'value' =&gt; array(
+                                'instanceID' =&gt; 'email',
+                                'controllerKey' =&gt; '',
+                                'modelKeyPath' =&gt; 'sendTimestamp',
+                        ),
+                ),
+        ),
+      </programlisting>
+
+      <para>If you try sending another email now, you'll see that the Date
+      Sent is an ugly integer, or UNIX time. To format it, we can use a PHOCOA
+      formatter. Formatters are WFFormatter subclasses, and include
+      WFNumberFormatter, WFSQLDateFormatter, and WFUNIXDateFormatter. We want
+      to use a WFUNIXDateFormatter.</para>
+
+      <para>To add a formatter, you could instantiate one manually in the
+      helloworld.php file, and then link it to the timestamp label. However,
+      why bother coding if you don't have to? Let's instantiate a
+      WFUNIXDateFormatter by adding some code in shared.instances:</para>
+
+      <para><programlisting> 'dateSentFormatter' =&gt; 'WFUNIXDateFormatter',
+      </programlisting></para>
+
+      <para>Now, we want to make the timestamp label use the formatter.
+      There's another feature of the .config files besides bindings; you can
+      use them to set up properties of the instances. Supply a property name
+      and value, and PHOCOA will configure that property with a
+      <function>setValueForKey()</function> call.</para>
+
+      <para>So, in emailSuccess.config, we can set the "formatter" property to
+      the formatter we instantiated in shared.instances by editing the
+      'timestamp' entry:</para>
+
+      <programlisting>
+        'timestamp' =&gt; array(
+                'properties' =&gt; array(
+                        'formatter' =&gt; '#module#dateSentFormatter',
+                ),
+                'bindings' =&gt; array(
+                        'value' =&gt; array(
+                                'instanceID' =&gt; 'email',
+                                'controllerKey' =&gt; '',
+                                'modelKeyPath' =&gt; 'sendTimestamp',
+                        ),
+                ),
+        ),
+      </programlisting>
+
+      <para>Notice the #module# preceding the shared instance ID; since you
+      can use the config mechanism to set up values such as strings, integers,
+      booleans, and doubles, we needed a special flag to indicate that you
+      want to link it to the value of an instance variable of the module,
+      which is what shared instances are.</para>
+
+      <para>Now, submit the form again and you'll see the new, nicely
+      formatted date. You can also set up your own format string, by using
+      shared.config to set up the formatString property of the
+      WFUNIXDateFormatter instance. WFUNIXDateFormatter simply wraps PHP's
+      <function>date()</function> function, using "r" by default as the format
+      string. Try your own format string by editing shared.config:</para>
+
+      <programlisting>
+'dateSentFormatter' =&gt; array(
+    'properties' =&gt; array(
+        'formatString' =&gt; 'F j, Y, g:i a'
+    ),
+),</programlisting>
+
+      <para>Send another email and you'll see the new format.</para>
+
+      <para>Another note, formatters are reversible. So, if you have a date
+      field that you want to be editable, feel free to add a formatter to a
+      WFTextField instance. The formatter will attempt to convert the edited
+      string value using PHP's <function>strtotime()</function> function. In
+      this case, you might want to add a validator to your date property to
+      make sure it's not NULL, which is what you'll get if the string was not
+      parseable by <function>strtotime().</function></para>
+    </section>
+
+    <section>
+      <title>Setting Page-Level Attributes</title>
+
+      <para>It is a best-practice to set up the Title, Meta Keywords, and Meta
+      Description of each page to keep the information relevant and help with
+      search engine optimization. PHOCOA provides a callback mechanism on a
+      page-by-page basis to all you to edit this information.</para>
+
+      <para>The prototype of the callback is:</para>
+
+      <programlisting>function &lt;pageName&gt;_SkinSetup($skin)</programlisting>
+
+      <para>The function should be implemented in your WFModule subclass. Here
+      is an example:</para>
+
+      <programlisting>    function helloWorld_SetupSkin($skin)
+    {   
+        $skin-&gt;setTitle("Hello, World, from PHOCOA!");
+        $skin-&gt;addMetaKeywords(array('keyword 1', 'keyword 2'));
+        $skin-&gt;setMetaDescription('Hello world example module in PHOCOA.');
+    }</programlisting>
+    </section>
+
+    <section>
+      <title>Conclusion</title>
+
+      <para>Hopefully this brief tutorial has showed to you the benefits of
+      PHOCOA development, and taught you enough to experiment on your own.
+      Thanks for reading!</para>
+    </section>
+  </chapter>
+</book>

@@ -1,0 +1,23 @@
+{literal}
+body {
+    background-color: {/literal}{$skinThemeVars.bgcolor}{literal};
+    color: {/literal}{$skinThemeVars.textcolor}{literal};
+    margin: 0;
+    padding: 0;
+}
+
+#header {
+    text-align: center;
+    font: 18px Sans-Serif bold;
+padding: 10px;
+}
+#footer {
+    font: 12px Sans-Serif;
+    text-align: center;
+}
+#content {
+width: 100%;
+padding: 15px;
+border-top: 10px dashed green;
+}
+{/literal}

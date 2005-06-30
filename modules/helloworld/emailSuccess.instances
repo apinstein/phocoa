@@ -1,0 +1,9 @@
+<?php
+
+$__instances = array(
+	'timestamp' => array('class' => 'WFLabel', 'children' => array()),
+	'message' => array('class' => 'WFLabel', 'children' => array()),
+	'subject' => array('class' => 'WFLabel', 'children' => array()),
+	'email' => array('class' => 'WFLabel', 'children' => array()),
+);
+?>
