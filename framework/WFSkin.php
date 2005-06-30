@@ -287,6 +287,16 @@ class WFSkin extends WFObject
     }
 
     /**
+     *  Get the current skin name
+     *
+     *  @return string The name of the current skin.
+     */
+    function skinName()
+    {
+        return $this->skinName;
+    }
+
+    /**
       * Load the current skin.
       * @internal
       */
