@@ -274,7 +274,7 @@ abstract class WFWidget extends WFView
     function pullBindings()
     {
         foreach ($this->bindings as $prop => $binding) {
-            WFLog::log("pullBindings() -- processing binding '$prop'", WFLog::TRACE_LOG);
+            WFLog::log("pullBindings() -- processing binding {$this->id} / $prop / " . $binding->bindToKeyPath(), WFLog::TRACE_LOG);
             // DO NOT RE-BIND IF THE VALUE WAS AN ERROR! WANT TO SHOW THE BAD VALUE!
             if (count($this->errors) > 0)
             {
@@ -307,7 +307,7 @@ abstract class WFWidget extends WFView
                 }
 
                 // assign final value
-                WFLog::log("Using value '$boundValue' for binding $prop...", WFLog::TRACE_LOG);
+                WFLog::log("Using value '$boundValue' for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
                 $this->setValueForKey($boundValue, $prop);  // must do this to allow accessors to be called!
             } catch (Exception $e) {
                 if ($binding->raisesForNotApplicableKeys())
