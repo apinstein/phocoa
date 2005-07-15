@@ -32,7 +32,7 @@ class WFRequestController extends WFObject
     /**
      * @var object The root WFModuleInvocation object used for the request.
      */
-    protected $rootModInvocation;
+    protected $rootModuleInvocation;
 
     function __construct()
     {
@@ -95,10 +95,10 @@ class WFRequestController extends WFObject
     {
         $modInvocationPath = ( empty($_SERVER['PATH_INFO']) ? '' : $_SERVER['PATH_INFO'] );
         try {
-            $this->rootModInvocation = new WFModuleInvocation($modInvocationPath, NULL);
+            $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL);
 
             // get HTML result of the module
-            $body_html = $this->rootModInvocation->execute();
+            $body_html = $this->rootModuleInvocation->execute();
 
             // display the skin
             $this->skin->setBody($body_html);
