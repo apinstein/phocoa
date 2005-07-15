@@ -426,6 +426,9 @@ class WFSkin extends WFObject
                 break;
         }
 
+        // pre-render callback
+        $this->willRender();
+
         // render smarty
         if ($display) {
             $smarty->render();
@@ -520,6 +523,19 @@ class WFSkin extends WFObject
             return $this->delegate->namedContent($name, $options);
         }
         return NULL;
+    }
+
+    /**
+     *  Pre-render callback.
+     *
+     *  Calls the skin delegate's willRender() method if it exists.
+     *  This method is called just before the template for the skin is rendered.
+     */
+    function willRender()
+    {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'willRender')) {
+            $this->delegate->willRender();
+        }
     }
 }
 ?>
