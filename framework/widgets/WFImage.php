@@ -23,6 +23,18 @@ require_once('framework/widgets/WFWidget.php');
  * are based on dynamic data. Plus, no image will be rendered if value is blank, even if baseDir is non-blank.
  *
  * If only one of width or height is supplied, the image will be proportionally resized with CSS.
+ *
+ * <b>PHOCOA Builder Setup:</b>
+ *
+ * <b>Required:</b><br>
+ * - <b>value:</b> The image's URL. The baseDir attribute will be pre-pended.
+ * 
+ * <b>Optional:</b><br>
+ * - <b>baseDir:</b> The URL prefix used before ALL images. IE: /images/products/previews/small/.<br>
+ * - <b>width:</b> The PIXEL width of the image.<br>
+ * - <b>height:</b> The PIXEL height of the image.<br>
+ * - <b>border:</b> The CSS border text. Example: "1 px solid black"<br>
+ * - <b>align:</b> The HTML align attribute. Example: left, right, top, bottom, middle.<br>
  */
 class WFImage extends WFWidget
 {
@@ -38,6 +50,14 @@ class WFImage extends WFWidget
       * @var integer The height in pixels of the image.
       */
     protected $height;
+    /**
+      * @var integer The border to use (css-style: 1px solid blue). Default 0.
+      */
+    protected $border;
+    /**
+      * @var string The HTML align string. Default "".
+      */
+    protected $align;
 
     /**
       * Constructor.
@@ -48,6 +68,8 @@ class WFImage extends WFWidget
         $this->baseDir = '';
         $this->width = NULL;
         $this->height = NULL;
+        $this->border = 'border: 0;';
+        $this->align = NULL;
     }
 
     function setupExposedBindings()
@@ -82,9 +104,11 @@ class WFImage extends WFWidget
         else if ($this->height and !$this->width) $this->width = 'auto';
 
         return '<img src="' . $this->baseDir . $this->value . '"' .
+            ($this->align ? " align=\"{$this->align}\"" : '') .
             ' style="' .
             ($this->width ? "width: {$this->width}; " : '') .
             ($this->height ? "height: {$this->height}; " : '') .
+            $this->border .
             '" />';
     }
 

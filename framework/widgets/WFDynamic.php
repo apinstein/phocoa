@@ -19,6 +19,16 @@ require_once('framework/widgets/WFWidget.php');
  * It's perfect for repeating data, tabular data, etc. You can also use multiple ones on the same page.
  * 
  * NOTE: If you want to assign a formatter to the widgets, simply assign a formatter to the WFDynamic and it will be re-used for all dynamically created widgets too.
+ *
+ * <b>PHOCOA Builder Setup:</b>
+ * 
+ * Required:<br>
+ * - <b>widgetClass:</b> The class name of the WFView/WFWidget type that this WFDynamic will manage. Examples: WFLabel, WFTextField, etc.<br>
+ * - <b>arrayController:</b> The arrayController that represents the list of values to use. Example: #module#myArrayController<br>
+ * - <b>simpleBindKeyPath:</b> The keyPath of the object managed by the array controller that contains the value to use for the created widgets. Example: author.name, title.<br>
+ *
+ * Optional:<br>
+ * - <b>parentFormID:</b> The ID of the parent form, if the widgets being created are part of a form. Example: editMultipleForm.
  */
 class WFDynamic extends WFWidget
 {
