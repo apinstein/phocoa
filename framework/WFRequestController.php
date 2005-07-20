@@ -164,7 +164,7 @@ class WFRequestController extends WFObject
     {
         static $singleton = NULL;
         if (!$singleton) {
-            $singleton = new WFRequestController();   // must make copy or the singleton part won't work.
+            $singleton = new WFRequestController();
         }
         return $singleton;
     }
