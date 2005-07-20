@@ -327,7 +327,7 @@ class WFModuleInvocation extends WFObject
             }
             else
             {
-                throw( new Exception("Module 404") );
+                throw( new Exception("Module 404: invocation path {$this->invocationPath} could not be found.") );
             }
         }
 
@@ -349,7 +349,7 @@ class WFModuleInvocation extends WFObject
             $this->moduleName = basename($defaultModulePath);
         }
 
-        if (empty($this->moduleName)) throw( new Exception("Module 404") );
+        if (empty($this->moduleName)) throw( new Exception("Module 404: No module name could be determined from {$this->invocationPath}.") );
 
         // if we get here, we're guaranteed that a modulePath is valid.
         // load module instance
