@@ -661,6 +661,7 @@ class WFPage extends WFObject
                 if (count($parameterList) > 0)
                 {
                     // first map all items through from PATH_INFO
+                    // @todo Right now this doesn't allow DEFAULT parameter values (uses NULL). Would be nice if this supported assoc_array so we could have defaults.
                     $invocationParameters = $this->module->invocation()->parameters();
                     for ($i = 0; $i < count($parameterList); $i++) {
                         if (isset($invocationParameters[$i]))
