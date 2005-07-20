@@ -23,17 +23,17 @@ require_once('framework/widgets/WFWidget.php');
  * <b>PHOCOA Builder Setup:</b>
  * 
  * Required:<br>
- * - <b>widgetClass:</b> The class name of the WFView/WFWidget type that this WFDynamic will manage. Examples: WFLabel, WFTextField, etc.<br>
- * - <b>arrayController:</b> The arrayController that represents the list of values to use. Example: #module#myArrayController<br>
- * - <b>simpleBindKeyPath:</b> The keyPath of the object managed by the array controller that contains the value to use for the created widgets. Example: author.name, title.<br>
+ * - {@link WFDynamic::$widgetClass widgetClass}
+ * - {@link WFDynamic::$arrayController arrayController}
+ * - {@link WFDynamic::$simpleBindKeyPath simpleBindKeyPath}
  *
  * Optional:<br>
- * - <b>parentFormID:</b> The ID of the parent form, if the widgets being created are part of a form. Example: editMultipleForm.
+ * - {@link WFDynamic::$parentFormID parentFormID}
  */
 class WFDynamic extends WFWidget
 {
     /**
-     * @var WFArrayController The array controller that will be used to create widgets for. One widget will be created for each item in the controller.
+     * @var WFArrayController The array controller that will be used to create widgets for. One widget will be created for each item in the controller. Example: #module#myArrayController
      */
     protected $arrayController;
     /**
@@ -42,7 +42,7 @@ class WFDynamic extends WFWidget
      */
     protected $parentFormID;
     /**
-     * @var string The class name of the WFWidget subclass to create.
+     * @var string The class name of the WFWidget subclass to create. Examples: WFLabel, WFTextField, etc.
      */
     protected $widgetClass;
     /**

@@ -23,23 +23,25 @@ require_once('framework/widgets/WFWidget.php');
  * are based on dynamic data. Plus, no image will be rendered if value is blank, even if baseDir is non-blank.
  *
  * If only one of width or height is supplied, the image will be proportionally resized with CSS.
+ * 
+ * The "value" for WFImage is the image URL to include. The {@link WFImage::$baseDir baseDir} attribute will be pre-pended.
  *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
- * - <b>value:</b> The image's URL. The baseDir attribute will be pre-pended.
+ * - {@link WFWidget::$value value}
  * 
  * <b>Optional:</b><br>
- * - <b>baseDir:</b> The URL prefix used before ALL images. IE: /images/products/previews/small/.<br>
- * - <b>width:</b> The PIXEL width of the image.<br>
- * - <b>height:</b> The PIXEL height of the image.<br>
- * - <b>border:</b> The CSS border text. Example: "1 px solid black"<br>
- * - <b>align:</b> The HTML align attribute. Example: left, right, top, bottom, middle.<br>
+ * - {@link WFImage::$baseDir baseDir}
+ * - {@link WFImage::$width width}
+ * - {@link WFImage::$height height}
+ * - {@link WFImage::$border border}
+ * - {@link WFImage::$align align}
  */
 class WFImage extends WFWidget
 {
     /**
-      * @var string The base dir for the image path stored in value.
+      * @var string The base dir for the image path stored in value. Example: /images/products/previews/small/
       */
     protected $baseDir;
     /**
@@ -55,7 +57,7 @@ class WFImage extends WFWidget
       */
     protected $border;
     /**
-      * @var string The HTML align string. Default "".
+      * @var string The HTML align string. Default "". One of left, right, top, bottom, middle, baseline, etc.
       */
     protected $align;
 

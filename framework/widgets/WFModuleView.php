@@ -22,6 +22,11 @@ require_once('framework/widgets/WFWidget.php');
  * any {@link WFModuleView::invocationPath}, and can be used multiple times. Even the targeting of forms on the component can be
  * configured with the {@link WFModuleView::targetRootModule} property.
  *
+ * <b>PHOCOA Builder Setup:</b>
+ *
+ * <b>Required:</b><br>
+ * - {@link WFModuleView::$invocationPath invocationPath}
+ *
  * @todo Once bindings are moved to WFView, this should probably be made into a WFView subclass since it does not use "value" or represent an interactive control.
  */
 class WFModuleView extends WFWidget
