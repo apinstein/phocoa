@@ -19,10 +19,6 @@ require_once(APP_ROOT . '/wwwroot/www/framework/FCKEditor/fckeditor.php');
  */
 class WFHTMLArea extends WFWidget
 {
-    /**
-     * @var string The VALUE of the text field.
-     */
-    protected $value;
     protected $width;
     protected $height;
 
