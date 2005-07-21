@@ -17,6 +17,19 @@ require_once('framework/widgets/WFWidget.php');
  * A Select widget for our framework.
  *
  * Used to select either a single, or multiple, values.
+ *
+ * <b>PHOCOA Builder Setup:</b>
+ *
+ * <b>Required:</b><br>
+ * - {@link WFWidget::$value value} or {@link WFSelect::$values values}, depending on {@link WFSelect::$multiple multiple}.
+ * 
+ * <b>Optional:</b><br>
+ * - {@link WFSelect::$multiple multiple}
+ * - {@link WFSelect::$contentValues contentValues}
+ * - {@link WFSelect::$contentLabels contentLabels}
+ * - {@link WFSelect::setOptions() options}
+ * - {@link WFSelect::$visibleItems visibleItems}
+ * - {@link WFSelect::$enabled enabled}
  */
 class WFSelect extends WFWidget
 {
@@ -44,6 +57,10 @@ class WFSelect extends WFWidget
      * @var boolean TRUE if the widget is enabled, false otherwise.
      */
     protected $enabled;
+    /**
+     * @var string CSS width data for the popup. Default is EMPTY. Useful to constrain width of the popup menu. Ex: 80px will yield width: 80px;.
+     */
+    protected $width;
 
     /**
       * Constructor.
@@ -57,6 +74,7 @@ class WFSelect extends WFWidget
         $this->visibleItems = 5;
         $this->contentValues = array();
         $this->contentLabels = array();
+        $this->width = NULL;
     }
 
     function setupExposedBindings()
@@ -287,6 +305,7 @@ class WFSelect extends WFWidget
         $output = '<select name="' . $this->name() . ($this->multiple() ? '[]' : '') . '" ' .
                     $multiple .
                     ($this->enabled() ? '' : ' disabled readonly ') .
+                    ($this->width ? ' style="width: ' . $this->width . ';" ' : '') . 
                     '>';
 
         $values = $this->contentValues();
