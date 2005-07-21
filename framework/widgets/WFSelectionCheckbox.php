@@ -14,7 +14,21 @@
 require_once('framework/widgets/WFDynamic.php');
 
 /**
+ * WFSelectionCheckbox is used to create numerous checkboxes representing a selection of items in an array.
+ *
  * A {@link WFDynamic} subclass that has specialized behavior for creating a bunch of checkboxes that represent the selected items managed by a {@link WFArrayController}.
+ *
+ * WFSelectionCheckbox is great for adding a column of checkboxes representing a "selection" of objects to perform an action on, for instance multiple deletes or bulk updates.
+ * Another common use is for creating a list of checkboxes in a "search" situation where the checked items represent items whose condition you want to match (maybe generating an IN clause).
+ *
+ * <b>PHOCOA Builder Setup:</b>
+ * 
+ * Required:<br>
+ * - See {@link WFDynamic} for required parameters.
+ *
+ * Optional:<br>
+ * - {@link WFSelectionCheckbox::$labelKeyPath labelKeyPath}
+ *
  * @todo Refactor to coalesce createWidgets and createSelectionWidgets
  */
 class WFSelectionCheckbox extends WFDynamic
@@ -24,12 +38,19 @@ class WFSelectionCheckbox extends WFDynamic
      *              based on whether or not the object for each checkbox is selected in the arraycontroller.
      */
     private $preRenderCheckHasRun;
+    /**
+     * @var string The keyPath to use as the label for each checkbox.
+     *             By default, this is NULL, and no labels will be output. Supply a valid keyPath for the class managed by your arrayController and the labels will be dynamically generated.
+     *             This option is often used in conjunction with {@link WFDynamic::$oneShotMode oneShotMode}.
+     */
+    protected $labelKeyPath;
 
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
 
         $this->preRenderCheckHasRun = false;
+        $this->labelKeyPath = NULL;
     }
 
 
@@ -62,6 +83,10 @@ class WFSelectionCheckbox extends WFDynamic
             'checkedValue' => array( 'custom' => array('iterate' => true, 'keyPath' => '#identifier#') ),
             'uncheckedValue' => array( 'custom' => array('iterate' => false, 'value' => '') )
         ); 
+        if ($this->labelKeyPath)
+        {
+            $options['label'] = array( 'custom' => array('iterate' => true, 'keyPath' => $this->labelKeyPath) );
+        }
         $this->createDynamicWidgets($arrayController, $parentForm, 'WFCheckbox', $widgetBaseName, false, $options);
     }
 
