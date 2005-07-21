@@ -15,6 +15,18 @@ require_once('framework/widgets/WFWidget.php');
 
 /**
  * A Checkbox widget for our framework.
+ *
+ * <b>PHOCOA Builder Setup:</b>
+ *
+ * <b>Required:</b><br>
+ * - {@link WFWidget::$value value}
+ * 
+ * <b>Optional:</b><br>
+ * - {@link WFCheckbox::$checked checked}
+ * - {@link WFCheckbox::$checkedValue checkedValue}
+ * - {@link WFCheckbox::$uncheckedValue uncheckedValue}
+ * - {@link WFCheckbox::$groupMode groupMode}
+ * - {@link WFCheckbox::$label label}
  */
 class WFCheckbox extends WFWidget
 {
@@ -160,6 +172,7 @@ class WFCheckbox extends WFWidget
     {
         $myBindings = parent::setupExposedBindings();
         $myBindings[] = new WFBindingSetup('value', 'The value of the checkbox -- this will be either checkedValue or uncheckedValue depending on the checked status.');
+        $myBindings[] = new WFBindingSetup('label', 'The label for the checkbox -- Text to label the checkbox with, or empty.');
         $myBindings[] = new WFBindingSetup('checkedValue', 'The value of the checkbox to use if it is checked.');
         $myBindings[] = new WFBindingSetup('uncheckedValue', 'The value of the checkbox to use if it is not checked.');
         return $myBindings;
