@@ -17,6 +17,11 @@ require_once('framework/widgets/WFWidget.php');
  * A Dynamic widget for our framework. The dynamic widget is a meta-widget that automatically creates multple widgets for you, based on an array controller.
  *
  * It's perfect for repeating data, tabular data, etc. You can also use multiple ones on the same page.
+ *
+ * There are two modes of operation for WFDynamic. These two modes allow for great flexibility in layout of the managed widgets.
+ *
+ * 1. By default, the WFDynamic will output the NEXT widget each time the {WFDynamic id="XXX"} is output in the template. In this case, you will need to ensure that if your array has N entries then you output the WFDynamic tag N times in the template. The upside of this mode is that there is great flexibility in layout as you can place the widgets wherever you like them. The downside is that you need to make sure that your template has a loop in it that iterates N times so that you can be sure all widgets will be displayed.
+ * 2. The other option, called {@link WFDynamic::$oneShotMode oneShotMode}, will output one entry for each item in the array when the {WFDynamic id="XXX"} tag is used in your template. In this case, each widget will be separated by the HTML snippet in {@link WFDynamic::$oneShotSeparatorHTML oneShotSeparatorHTML}. The upside to this mode is its simplicity; it's great if you just need a list of checkboxes or labels for each item in the array. The downside is that you cannot position each widget inside of a larger layout in all cases as they are all clumped together.
  * 
  * NOTE: If you want to assign a formatter to the widgets, simply assign a formatter to the WFDynamic and it will be re-used for all dynamically created widgets too.
  *
@@ -25,10 +30,12 @@ require_once('framework/widgets/WFWidget.php');
  * Required:<br>
  * - {@link WFDynamic::$widgetClass widgetClass}
  * - {@link WFDynamic::$arrayController arrayController}
- * - {@link WFDynamic::$simpleBindKeyPath simpleBindKeyPath}
  *
  * Optional:<br>
+ * - {@link WFDynamic::$simpleBindKeyPath simpleBindKeyPath} To set up the {@link WFWidget::$value value} for each widget.
  * - {@link WFDynamic::$parentFormID parentFormID}
+ * - {@link WFDynamic::$oneShotMode oneShotMode}
+ * - {@link WFDynamic::$oneShotSeparatorHTML oneShotSeparatorHTML}
  */
 class WFDynamic extends WFWidget
 {
@@ -62,7 +69,12 @@ class WFDynamic extends WFWidget
      */
     protected $createdWidgets;
     /**
-     * @var string If this property is non-null, it has the same effect as declaring the following config option:
+     * @var string The keyPath on the class managed by arrayController to use as the {@link WFWidget::$value value} for each created widget.
+     *
+     * Very often, we simply want to link a WFDynamic to a particular modelKey of the current object, and this is a way to do this without having to write code.
+     * A good example of this is using a WFLabel to show the value of every item in an array.
+     *
+     * If this property is non-null, it has the same effect as declaring the following config option:
      *
      * <code>
      *      $options = array(
@@ -75,10 +87,16 @@ class WFDynamic extends WFWidget
      *                  )
      *              );
      * </code>
-     *
-     * Very often, we simply want to link a WFDynamic to a particular modelKey of the current object, and this is a way to do this without having to write code.
      */
     protected $simpleBindKeyPath;
+    /**
+     * @var boolean TRUE if all managed widgets should be output at the first occurence of the {WFDynamic id="XXX"} tag. False if the next occurence of the managed widgets should be output at each occurence of the tag.
+     */
+    protected $oneShotMode;
+    /**
+     * @var string If {@link WFDynamic::$oneShotMode oneShotMode} is enabled, this is the HTML that will be used to separate each widget. Default is <samp><br /></samp>.
+     */
+    protected $oneShotSeparatorHTML;
     
     /**
       * Constructor.
@@ -95,6 +113,9 @@ class WFDynamic extends WFWidget
         $this->renderIteration = 0;
         $this->createdWidgets = array();
         $this->simpleBindKeyPath = NULL;
+
+        $this->oneShotMode = false;
+        $this->oneShotSeparatorHTML = '<br />';
     }
 
     function canPushValueBinding()
@@ -145,7 +166,18 @@ class WFDynamic extends WFWidget
     {
         // lookup proper iteration of control...
         // then render it.
-        return $this->createdWidgets[$this->renderIteration++]->render();
+        if ($this->oneShotMode)
+        {
+            $output = '';
+            for (; $this->renderIteration < count($this->createdWidgets); $this->renderIteration++) {
+                $output .= $this->createdWidgets[$this->renderIteration++]->render() . $this->oneShotSeparatorHTML;
+            }
+            return $output;
+        }
+        else
+        {
+            return $this->createdWidgets[$this->renderIteration++]->render();
+        }
     }
 
     /**
