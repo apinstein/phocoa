@@ -170,7 +170,7 @@ class WFDynamic extends WFWidget
         {
             $output = '';
             for (; $this->renderIteration < count($this->createdWidgets); $this->renderIteration++) {
-                $output .= $this->createdWidgets[$this->renderIteration++]->render() . $this->oneShotSeparatorHTML;
+                $output .= $this->createdWidgets[$this->renderIteration]->render() . $this->oneShotSeparatorHTML;
             }
             return $output;
         }
