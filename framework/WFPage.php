@@ -93,7 +93,7 @@ class WFPage extends WFObject
         if (!$this->module->invocation()->respondsToForms()) return NULL;
 
         $formName = NULL;
-        if (isset($_REQUEST['__invocationPath']) and $_REQUEST['__invocationPath'] == $this->module->invocation()->invocationPath())
+        if (isset($_REQUEST['__invocationPath']) and $_REQUEST['__invocationPath'] == $this->module->invocation()->invocationPath() and $this->module->invocation()->pageName() == $this->pageName())
         {
             $formName = $_REQUEST['__formName'];
         }
