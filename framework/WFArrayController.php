@@ -56,6 +56,10 @@ class WFArrayController extends WFObjectController
      * @var boolean Does the controlled class use mutli-key ids?
      */
     protected $classIdentifiersMulti;
+    /**
+     * @var boolean TRUE if all objects should be added to the selection upon adding them to the content. This is useful if you want all objects to be selected by default.
+     */
+    protected $selectOnInsert;
     
     function __construct()
     {
@@ -65,6 +69,17 @@ class WFArrayController extends WFObjectController
 
         $this->setClassIdentifiers(WFArrayController::USE_ARRAY_INDEXES_AS_ID);
         $this->selectedIdentifiersHash = array();
+        $this->selectOnInsert = false;
+    }
+
+    function setSelectOnInsert($bool)
+    {
+        $this->selectOnInsert = $bool;
+    }
+
+    function selectOnInsert()
+    {
+        return $this->selectOnInsert;
     }
 
     function classIdentifiers()
@@ -240,6 +255,11 @@ class WFArrayController extends WFObjectController
         {
             $hash = $this->identifierHashForObject($obj);
             $this->content["$hash"] = $obj;
+        }
+
+        if ($this->selectOnInsert)
+        {
+            $this->addSelectedObject($obj);
         }
     }
 
