@@ -198,6 +198,16 @@ class WFModuleInvocation extends WFObject
     }
 
     /**
+     *  Get the name of the page that this invocation will call in the module.
+     *
+     *  @return string Page name.
+     */
+    function pageName()
+    {
+        return $this->pageName;
+    }
+
+    /**
      *  Get the module path to the current module.
      *
      *  Will always be normalized to the form: path/to/myModule
