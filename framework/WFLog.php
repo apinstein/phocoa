@@ -38,4 +38,11 @@ class WFLog extends WFObject
         $logger = Log::singleton('file', $logFileDir . '/wf.log', $ident, NULL, WF_LOG_LEVEL);
         $logger->log($message, $level);
     }
+
+    function logToFile($fileName, $message)
+    {
+        $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
+        $logger = Log::singleton('file', $logFileDir . '/' . $fileName, 'log', NULL);
+        $logger->log($message);
+    }
 }
