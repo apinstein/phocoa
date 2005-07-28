@@ -75,6 +75,10 @@ abstract class WFWidget extends WFView
       * @todo Should this be moved up into WFView?
       */
     protected $hidden;
+    /**
+     * @var string The css class to use for the item.
+     */
+    protected $class;
 
     /**
       * Constructor.
@@ -92,6 +96,7 @@ abstract class WFWidget extends WFView
         $this->formatter = NULL;
         $this->value = NULL;
         $this->hidden = false;
+        $this->class = NULL;
     }
 
     /**

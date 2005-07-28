@@ -65,6 +65,7 @@ class WFTextField extends WFWidget
         return '<input type="text" name="' . $this->valueForKey('name') . '" value="' . $this->value . '"' .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
+            ($this->class ? ' class="' . $this->class . '"' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
             '/>';
     }
