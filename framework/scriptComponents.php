@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 
-function createModule($modName, $viewName)
+function createModule($modName, $pageName)
 {
 
     $moduleTemplate = "<?php
@@ -11,7 +11,7 @@ class $modName extends WFModule
 {
     function defaultPage()
     {
-        return '{$viewName}';
+        return '{$pageName}';
     }
 
     // Uncomment additional functions as needed
@@ -19,16 +19,16 @@ class $modName extends WFModule
 //    {
 //    }
 //
-//    function {$viewName}_ParameterList()
+//    function {$pageName}_ParameterList()
 //    {
 //        return array();
 //    }
 //
-//    function {$viewName}_SetupSkin(\$skin)
+//    function {$pageName}_SetupSkin(\$skin)
 //    {
 //    }
 //
-//    function {$viewName}_PageDidLoad(\$page, \$params)
+//    function {$pageName}_PageDidLoad(\$page, \$params)
 //    {
 //    }
 }
@@ -54,7 +54,7 @@ class $modName extends WFModule
     print "Done building module $modName!\n";
 }
 
-function createView($viewName)
+function createPage($pageName)
 {
     $includeHints = false;
     if ($includeHints)
@@ -121,30 +121,30 @@ HTML Goes Here.
 ";
     }
 
-    if (!file_exists($viewName . '.tpl'))
+    if (!file_exists($pageName . '.tpl'))
     {
-        print "Writing {$viewName}.tpl\n";
-        file_put_contents($viewName . '.tpl', $templateFile);
+        print "Writing {$pageName}.tpl\n";
+        file_put_contents($pageName . '.tpl', $templateFile);
     }
     else
     {
         print "Skipping .tpl file because it already exists.\n";
     }
 
-    if (!file_exists($viewName . '.instances'))
+    if (!file_exists($pageName . '.instances'))
     {
-        print "Writing {$viewName}.instances\n";
-        file_put_contents($viewName . '.instances', $instancesFile);
+        print "Writing {$pageName}.instances\n";
+        file_put_contents($pageName . '.instances', $instancesFile);
     }
     else
     {
         print "Skipping .instances file because it already exists.\n";
     }
 
-    if (!file_exists($viewName . '.config'))
+    if (!file_exists($pageName . '.config'))
     {
-        print "Writing {$viewName}.config\n";
-        file_put_contents($viewName . '.config', $configFile);
+        print "Writing {$pageName}.config\n";
+        file_put_contents($pageName . '.config', $configFile);
     }
     else
     {
