@@ -445,10 +445,10 @@ class WFPage extends WFObject
         foreach ( $this->widgets() as $widgetID => $widget ) {
             try {
                 // lookup bound values for this widget.
-                WFLog::log("pullBindings() for widget id '$widgetID'", WFLog::TRACE_LOG);
+                WFLog::log("pullBindings() for " . get_class($widget)  . " ($widgetID)", WFLog::TRACE_LOG);
                 $widget->pullBindings();
             } catch (Exception $e) {
-                WFLog::log("Error in pullBindings() for widget '$widgetID':" . $e->__toString(), WFLog::TRACE_LOG);
+                WFLog::log("Error in pullBindings() for " . get_class($widget) . " ($widgetID):" . $e->__toString(), WFLog::TRACE_LOG);
             }
         }
     }
@@ -729,9 +729,10 @@ class WFPage extends WFObject
             if ($this->hasSubmittedForm()) {
                 if ($this->formIsValid()) {
                     // look up the instance ID for the specified action... look for "action|<actionOutletID>" in $_REQUEST...
+                    // but need to skip the _x and _y fields submitted with image submit buttons
                     foreach ($_REQUEST as $name => $value) 
                     {
-                        if (strncmp("action|", $name, 7) == 0)
+                        if (strncmp("action|", $name, 7) == 0 and !in_array(substr($name, -2, 2), array('_x', '_y')))
                         {
                             list(,$actionOutletID) = explode('|', $name);
                             break;
