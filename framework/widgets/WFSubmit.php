@@ -29,6 +29,10 @@ class WFSubmit extends WFWidget
     * @var string The label to show.
     */
     protected $label;
+    /**
+     * @var string THe image path to use. By default empty. If non-empty, turns the submit into an image submit.
+     */
+    protected $imagePath;
 
     /**
       * Constructor.
@@ -38,6 +42,12 @@ class WFSubmit extends WFWidget
         parent::__construct($id, $page);
         $this->action = $id;
         $this->label = "Submit";
+        $this->imagePath = NULL;
+    }
+
+    function setImagePath($path)
+    {
+        $this->imagePath = $path;
     }
 
     function setAction($action)
@@ -67,7 +77,12 @@ class WFSubmit extends WFWidget
         // get there reference to the named item
         // set the name / value
         // render
-        return '<input type="submit" name="action|' . $this->id() . '" value="' . $this->label() . '" />';
+        return '<input type="' . ($this->imagePath ? 'image' : 'submit') . '"' .
+                    ($this->imagePath ? ' src="' . $this->imagePath . '"' : '') .
+                    ($this->class ? ' class="' . $this->class . '"' : '') .
+                    ' name="action|' . $this->id() . '"' . 
+                    ' value="' . $this->label() . '"' . 
+                    '/>';
     }
 
     /********************* BINDINGS SETUP ************************/
