@@ -419,7 +419,7 @@ class WFSkin extends WFObject
                 $smarty->setTemplate($skinTemplateDir . '/template_normal.tpl');
                 break;
             case SKIN_WRAPPER_TYPE_MINIMAL:
-                $smarty->setTemplate($skinTemplateDir . '/template_normal.tpl');
+                $smarty->setTemplate($skinTemplateDir . '/template_minimal.tpl');
                 break;
             case SKIN_WRAPPER_TYPE_RAW:
                 $smarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/template_raw.tpl');
