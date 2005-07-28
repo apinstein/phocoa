@@ -121,8 +121,9 @@ class WFSQLDateFormatter extends WFFormatter
     function stringForValue($value)
     {
         $timeStr = substr($value, 1, 18);
-        //if ($timeStr == '') throw( new Exception("NULL time string.") );
-        return date($this->formatString, strtotime($timeStr));
+        $result = strtotime($timeStr);
+        if ($result === false) throw( new Exception("Error converting string '$timeStr' into time.") );
+        return date($this->formatString, $result);
     }
 
     /**
