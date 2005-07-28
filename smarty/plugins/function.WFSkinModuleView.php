@@ -13,6 +13,8 @@
  *
  *  Smarty Params:
  *  invocationPath - The invocationPath for the module. See {@link WFModuleInvocation}. Required.
+ *  targetRootModule - If you want to customize the value of {@link WFModuleInvocation::$targetRootModule}, specify it in the param.
+ *                     BOOLEAN, but remember that in smarty targetRootModule="false" passing the STRING false, so do targetRootModule=false
  *
  *  @param array The params from smarty tag
  *  @param object WFSmarty object of the current tpl
@@ -25,6 +27,10 @@ function smarty_function_WFSkinModuleView($params, &$smarty)
     $rc = WFRequestController::sharedRequestController();
     $modInvocation = new WFModuleInvocation($params['invocationPath'], $rc->rootModuleInvocation());
     $modInvocation->setRespondsToForms(false);
+    if (isset($params['targetRootModule']))
+    {
+        $modInvocation->setTargetRootModule($params['targetRootModule']);
+    }
     return $modInvocation->execute();
 }
 
