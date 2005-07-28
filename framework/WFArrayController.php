@@ -235,6 +235,52 @@ class WFArrayController extends WFObjectController
     }
 
     /**
+     *  Remove the passed object from the array.
+     *
+     *  Also obvioulsy removes the item from the selection.
+     *
+     *  NOTE: presently this works in non-indexed mode only.
+     *
+     *  NOTE: UNTESTED!!!
+     *
+     *  @param object WFObject An object of the proper class managed by the array controller.
+     *  @throws Exception For various circumstances like invalid parameter, couldn't find object, etc.
+     */
+    function removeObject($obj)
+    {
+        // check class
+        if (!class_exists($this->class)) throw( new Exception("Managed class {$this->class} does not exist.") );
+        if (!is_object($obj)) throw( new Exception("Passed object is, well, not an object!") );
+        if (!($obj instanceof $this->class)) throw( new Exception("Passed object not of class {$this->class} as expected, but instead: " . get_class($obj) . '.') );
+
+        // need to ensure its key is correct!
+        if ($this->usingIndexedMode)
+        {
+            // loop through looking for object
+            for ($i = 0; $i < count($this->content); $i++) {
+                if ($obj === $this->content[$i])
+                {
+                    die("removeObject() is unimplemented for usingIndexedMode presently. It's complicated b/c need to adjust all selections since indexes move'");
+                    //array_slice();
+                    break;
+                }
+            }
+        }
+        else
+        {
+            $hash = $this->identifierHashForObject($obj);
+            if (!isset($this->content["$hash"]))
+            {
+                throw( new Exception("removeObject cannot remove passed object because it is not in the array.") );
+            }
+            // make sure it's unselected
+            $this->removeSelectionIdentifiers(array($hash));
+            unset($this->content["$hash"]);
+        }
+
+    }
+
+    /**
      * Add an object to the array.
      * @param object An object, must be of proper class.
      * @throws If the object is not of the class managed by our controller.
