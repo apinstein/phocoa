@@ -247,6 +247,7 @@ class WFTabView extends WFWidget
 
         $template = $this->page->template();
         $template->assign('__tabView', $this);
+
         if ($this->onePageMode)
         {
             $tabTplFile = WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/onepage_tabs.tpl';
@@ -256,7 +257,9 @@ class WFTabView extends WFWidget
             $tabTplFile = WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/multipage_tabs.tpl';
             throw( new Exception("Non-onePage mode not yet implemented.") );
         }
+
         return $template->fetch($tabTplFile);
+
     }
 }
 
