@@ -65,7 +65,7 @@ class WFForm extends WFWidget
 
     function render($blockContent = NULL)
     {
-        return "\n" . '<form action="' . $this->action . '" method="' . $this->method . '" enctype="multipart/form-data">' .
+        return "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" enctype="multipart/form-data">' .
                "\n" . '<input type="hidden" name="__invocationPath" value="' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '" />' .
                //"\n" . '<input type="hidden" name="__currentModule" value="' . $this->page->module()->invocation()->modulePath() . '" />' .
                //"\n" . '<input type="hidden" name="__currentPage" value="' . $this->page->pageName() . '" />' .

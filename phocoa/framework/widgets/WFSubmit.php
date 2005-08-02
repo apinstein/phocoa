@@ -80,6 +80,7 @@ class WFSubmit extends WFWidget
         return '<input type="' . ($this->imagePath ? 'image' : 'submit') . '"' .
                     ($this->imagePath ? ' src="' . $this->imagePath . '"' : '') .
                     ($this->class ? ' class="' . $this->class . '"' : '') .
+                    ' id="' . $this->id() . '"' . 
                     ' name="action|' . $this->id() . '"' . 
                     ' value="' . $this->label() . '"' . 
                     '/>';

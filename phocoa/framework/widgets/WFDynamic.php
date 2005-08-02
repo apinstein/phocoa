@@ -36,6 +36,9 @@ require_once('framework/widgets/WFWidget.php');
  * - {@link WFDynamic::$parentFormID parentFormID}
  * - {@link WFDynamic::$oneShotMode oneShotMode}
  * - {@link WFDynamic::$oneShotSeparatorHTML oneShotSeparatorHTML}
+ *
+ * @todo Ability to use a "prototype" widget to build all widgets from, that would specify widget values such as width, value, etc. Probably this will be done by providing
+ * a widget ID in as the "prototypeID" and that will impply widgetClass and all of the other default attributes.
  */
 class WFDynamic extends WFWidget
 {
