@@ -28,6 +28,8 @@ require_once('framework/widgets/WFHidden.php');
 require_once('framework/widgets/WFCheckbox.php');
 require_once('framework/widgets/WFUpload.php');
 require_once('framework/widgets/WFPaginatorNavigation.php');
+require_once('framework/widgets/WFPaginatorSortLink.php');
+require_once('framework/widgets/WFPaginatorState.php');
 
 require_once('framework/widgets/WFModuleView.php');
 require_once('framework/widgets/WFTabView.php');

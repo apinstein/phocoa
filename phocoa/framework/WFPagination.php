@@ -1,7 +1,7 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 /** 
-* @package framework-base
+* @package UI
 * @subpackage Pagination
 * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
 * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
@@ -15,7 +15,7 @@ require_once('framework/WFObject.php');
  * PHOCOA has its own pagination widgets. So that our pagination widgets can work with any pagination infrastructure, we have a WFPaginator.
  * 
  * The pagination widgets interface with the paged data via WFPaginator. To hook up the PHOCOA widgets with your pagination infrastructure, you simply
- * need to write an adapter class that implements WFPagedData. This will allow the WFPaginator to page your data.
+ * need to write an adapter class that implements {@link WFPagedData}. This will allow the WFPaginator to page your data.
  *
  * Because of this architecture, the pagination widgets of PHOCOA can be easily "bound" to a pagination instance and make the display of paginated data easy.
  *
@@ -24,6 +24,7 @@ require_once('framework/WFObject.php');
  * NOTE: The first page is page 1 (as opposed to page 0).
  *
  * @see WFPaginatorNavigation, WFPaginatorPageInfo
+ * @todo What needs to be done with bindings, anything?
  */
 class WFPaginator extends WFObject
 {
@@ -55,8 +56,43 @@ class WFPaginator extends WFObject
      * @var string The name of mutliple items being paged. Example: "people".
      */
     protected $itemPhrasePlural;
+    /**
+     * @var assoc_array An associative array of sort options for the current paginator. In the format of array('sortKey' => 'Sort Description'). The sortKeys will be managed by WFPaginator and passed to the WFPagedData interface for actual implementation.
+     * IMPORTANT: if you name your sortKeys properly, the paginator can help you with toggling asc/desc. Precede your sortKey with + or - like so: "+name", "-name".
+     */
+    protected $sortOptions;
+    /**
+     * @var array An array in order of all sort keys that are applied to the paginator.
+     */
+    protected $sortKeys;
+    /**
+     * @var array The default sort keys to use if sortKeys is empty.
+     */
+    protected $defaultSortKeys;
+    /**
+     * @var string The ID of the paginatorState WFPaginatorState in the form. Only used if MODE_FORM.
+     */
+    protected $paginatorStateID;
+    /**
+     * @var string THe ID of the form button to click to re-submit the form. Only used if MODE_FORM.
+     */
+    protected $submitID;
 
+    /**
+     * @const Make the paginator use URL mode, which will produce pagination links via standard HTML links without Javascript.
+     */
+    const MODE_URL = 1;
+    /**
+     * @const Make the paginator use FORM mode, which will produce pagination links that use javascript to manipulate a form's data {@link WFPaginatorState} and then submits sthe form.
+     */
+    const MODE_FORM = 2;
+    /**
+     * @const Make all results show on a single page.
+     */
     const PAGINATOR_PAGESIZE_ALL = -1;
+    /**
+     * @const A constant for the "first" page.
+     */
     const PAGINATOR_FIRST_PAGE = 1;
 
     function __construct()
@@ -70,8 +106,111 @@ class WFPaginator extends WFObject
         $this->dataDelegate = NULL;
         $this->itemPhraseSingular = "Item";
         $this->itemPhrasePlural = "Items";
+        $this->sortOptions = array();
+        $this->sortKeys = array();
+        $this->defaultSortKeys = array();
+        $this->mode = WFPaginator::MODE_URL;
+        $this->paginatorStateID = NULL;
+        $this->submitID = NULL;
     }
 
+    function setModeForm($paginatorStateID = NULL, $submitID = NULL)
+    {
+        $this->mode = WFPaginator::MODE_FORM;
+        if ($paginatorStateID)
+        {
+            $this->paginatorStateID = $paginatorStateID;
+        }
+        if ($submitID)
+        {
+            $this->submitID = $submitID;
+        }
+    }
+
+    function setModeURL()
+    {
+        $this->mode = WFPaginator::MODE_URL;
+    }
+
+    function mode()
+    {
+        return $this->mode;
+    }
+
+    /**
+     *  Inform the paginator of all sort options that can be used via the UI.
+     *
+     *  The {@link WFPaginatorSortLink} widget will use this info to effect sorting.
+     *
+     *  @param assoc_array An associative array of sortKey => DisplayName.
+     *                     IMPORTANT: WFPaginator expects sort keys to be named +sortKey and -sortKey to indicate ascending or descending sort.
+     *                     The display name will be shown by the sort widgets.
+     *  @throws Exception if an array is not passed in.
+     */
+    function setSortOptions($opts)
+    {
+        if (!is_array($opts)) throw( new Exception("Sort options must be an array.") );
+        $this->sortOptions = $opts;
+    }
+
+    /**
+     *  Get the assigned sort options for the paginator.
+     */
+    function sortOptions()
+    {
+        return $this->sortOptions;
+    }
+
+    /**
+     *  Get the effective sortKeys for the paginator.
+     *
+     *  This function will use the default sortKeys if there are no sortKeys set.
+     *
+     *  @return array An array of sortKeys that are part of the sortOptions.
+     */
+    function sortKeys()
+    {
+        if (count($this->sortKeys) == 0)
+        {
+            return $this->defaultSortKeys;
+        }
+        return $this->sortKeys;
+    }
+    
+    /**
+     *  Add a sortKey to the current paginator. Call multiple times for a multi-key-sort.
+     *
+     *  @param string A sortKey to use.
+     *  @throws Exception if the sortKey does not exist in sortOptions.
+     */
+    function addSortKey($key)
+    {
+        if (!isset($this->sortOptions[$key])) throw( new Exception("Sort key '$key' not available in sortOptions.") );
+        $this->sortKeys[] = $key;
+    }
+
+    /**
+     *  Remove all sort information for the paginator.
+     *
+     */
+    function clearSortKeys()
+    {
+        $this->sortKeys = array();
+    }
+
+    /**
+     *  Set the default sort keys that will be used if no other sort keys are added.
+     *
+     *  @param array An array of sortKeys.
+     *  @throws Exception if $keys is not an array.
+     */
+    function setDefaultSortKeys($keys)
+    {
+        if (!is_array($keys)) throw( new Exception('setDefaultSortKeys() requires an array of sortKeys.') );
+
+        $this->defaultSortKeys = $keys;
+    }
+    
     /**
      *  Set the names of the items being paged.
      *
@@ -253,7 +392,8 @@ class WFPaginator extends WFObject
         // cache
         if ($this->currentItems === NULL)
         {
-            $this->currentItems = $this->dataDelegate()->itemsAtIndex($this->startItem(), $this->pageSize);
+            // make sure to use the sortKeys() method as it factors in default sort keys.
+            $this->currentItems = $this->dataDelegate()->itemsAtIndex($this->startItem(), $this->pageSize, $this->sortKeys());
         }
         return $this->currentItems;
     }
@@ -335,20 +475,22 @@ class WFPaginator extends WFObject
      *
      *  @param integer $page The page number to use.
      *  @param integer $pageSize The page size to use.
+     *  @param array $sortKeys The sortKeys to use.
      *  @return string A serialized state that when passed to {@link setPaginatorState() setPaginatorState} will load those settings.
      */
-    function paginatorState($page = NULL, $pageSize = NULL)
+    function paginatorState($page = NULL, $pageSize = NULL, $sortKeys = NULL)
     {
         if (is_null($page)) $page = $this->page;
         if (is_null($pageSize)) $pageSize = $this->pageSize;
+        if (is_null($sortKeys)) $sortKeys = $this->sortKeys;
 
-        return join('|', array($page,$pageSize));
+        return join('|', array($page, $pageSize, join(',', $sortKeys)));
     }
 
     /**
      *  Used to restore the paginator to the state specified.
      *
-     *  @param string $paginatorState The serizlied state.
+     *  @param string $paginatorState The serialized state. Form is "currentPage|pageSize|sortKey1,sortKey2".
      *  @see paginatorState()
      */
     function setPaginatorState($paginatorState)
@@ -357,8 +499,9 @@ class WFPaginator extends WFObject
 
         $currentPage = $this->currentPage;
         $pageSize = $this->pageSize;
+        $sortKeyString = join(',', $this->sortKeys);
 
-        @list(,$currentPage, $pageSize) = each(explode('|', $paginatorState));
+        @list($currentPage, $pageSize, $sortKeyString) = explode('|', $paginatorState);
 
         if ($currentPage)
         {
@@ -368,9 +511,33 @@ class WFPaginator extends WFObject
         {
             $this->setPageSize($pageSize);
         }
+        if ($sortKeyString)
+        {
+            $this->clearSortKeys();
+            foreach (explode(',', $sortKeyString) as $sortKey) {
+                $this->addSortKey($sortKey);
+            }
+        }
+        //print_r(explode('|',$paginatorState));
+        //print "<br>decoding paginator state: $paginatorState :: page=$currentPage, pageSize=$pageSize, sortKeys=$sortKeyString<br>";
 
         $this->loadData();
     }
+
+    /**
+     *  Get the javascript code for the onClick of a link needed to effect the given pasinatorState. For MODE_FORM only.
+     *
+     *  @param $state string The result of {@link WFPaginator::paginatorState()}.
+     *  @return string The JavaScript code that goes in onClick="".
+     *  @throws Exception if paginatorStateID or submitID are not populated.
+     */
+    function jsForState($state)
+    {
+        if (!$this->paginatorStateID) throw( new Exception("No paginatorStateID entered.") );
+        if (!$this->submitID) throw( new Exception("No submitID entered.") );
+        return "document.getElementById('" . $this->paginatorStateID . "').value = '$state'; document.getElementById('" . $this->submitID . "').click(); return false;";
+    }
+
 }
 
 /**
@@ -380,13 +547,29 @@ class WFPaginator extends WFObject
  */
 interface WFPagedData
 {
+    /**
+     *  Get the total number of items in the paged data.
+     *
+     *  @return integer The total number of items.
+     */
     function itemCount();
-    // first item is index 1; returns an array
-    function itemsAtIndex($startIndex, $numItems);
+
+    /**
+     *  Get a page of the managed items.
+     *
+     *  @param integer $startIndex The first item is index 1.
+     *  @param integer $numItems The number of items to fetch in the page.
+     *  @param array $sortKeys The sort info for the data. This is an array of the "sort keys" that was set via {@link WFPaginator::setSortOptions()}.
+     *               It is up to the client class to correctly interpret this sort data.
+     *  @return array The subest of items in the current page.
+     */
+    function itemsAtIndex($startIndex, $numItems, $sortKeys);
 }
 
 /**
  * A WFPagedData implementation for an array.
+ *
+ * WFPagedArray supports the following sortKeys: "+sort, -sort". These will sort the array with sort and rsort respectively.
  */
 class WFPagedArray implements WFPagedData
 {
@@ -407,9 +590,20 @@ class WFPagedArray implements WFPagedData
         //print "Loading item count.<br>";
         return count($this->data);
     }
-    function itemsAtIndex($startIndex, $numItems)
+    function itemsAtIndex($startIndex, $numItems, $sortKeys)
     {
         //print "Loading items $startIndex - $numItems.<br>";
+        if (count($sortKeys) > 0)
+        {
+            if ($sortKeys[0] == '+sort')
+            {
+                sort($this->data);
+            }
+            else if ($sortKeys[0] == '-sort')
+            {
+                rsort($this->data);
+            }
+        }
         return array_slice($this->data, $startIndex - 1, $numItems);
     }
 }
@@ -418,6 +612,8 @@ class WFPagedArray implements WFPagedData
  * A WFPagedData implementation for a Propel query.
  *
  * For PHOCOA, use this instead of PropelPager.
+ *
+ * Sorting support: The sortKeys should be the "XXXPeer::COLUMN" with +/- prepended.
  */
 class WFPagedPropelQuery implements WFPagedData
 {
@@ -440,14 +636,24 @@ class WFPagedPropelQuery implements WFPagedData
         $criteria = clone $this->criteria;
         $criteria->setOffset(0);
         $criteria->setLimit(0);
-        $criteria->clearOrderByColumns();
+        $criteria->clearOrderByColumns();   // no need to waste time sorting to get a count
 		return call_user_func(array($this->peerName, 'doCount'), $criteria);
     }
-    function itemsAtIndex($startIndex, $numItems)
+    function itemsAtIndex($startIndex, $numItems, $sortKeys)
     {
         $criteria = clone $this->criteria;
         $criteria->setOffset($startIndex - 1);
         $criteria->setLimit($numItems);
+        foreach ($sortKeys as $sortKey) {
+            if (substr($sortKey, 0, 1) == '-')
+            {
+                $criteria->addDescendingOrderByColumn(substr($sortKey, 1));
+            }
+            else
+            {
+                $criteria->addAscendingOrderByColumn(substr($sortKey, 1));
+            }
+        }
 		return call_user_func(array($this->peerName, 'doSelect'), $criteria);
     }
 }

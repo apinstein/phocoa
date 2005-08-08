@@ -16,6 +16,10 @@ require_once('framework/widgets/WFView.php');
 /**
  * A Paginator Page info widget.
  *
+ * Creates a summary text element along the lines of:
+ *
+ * Showing items 1-20 of 152.
+ *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
