@@ -16,6 +16,8 @@
  * would automatically convert the INT into a nice human-readable format. The user could edit this, and then the WFDateFormatter would convert
  * the string back into a date object before proceeding.
  *
+ * Formatters should always allow EMPTY values cleanly. If the developer wants to enforce a non-empty value, that should be done via validation.
+ *
  * @see WFWidget::setFormatter(), WFWidget::formatter()
  */
 abstract class WFFormatter extends WFObject
@@ -62,6 +64,11 @@ class WFUNIXDateFormatter extends WFFormatter
 
     function stringForValue($value)
     {
+        // allow empty values
+        if (trim($value) == '')
+        {
+            return '';
+        }
         return date($this->formatString, $value);
     }
 
@@ -120,6 +127,11 @@ class WFSQLDateFormatter extends WFFormatter
     */
     function stringForValue($value)
     {
+        // allow empty values
+        if (trim($value) == '')
+        {
+            return '';
+        }
         $timeStr = substr($value, 1, 18);
         $result = strtotime($timeStr);
         if ($result === false) throw( new Exception("Error converting string '$timeStr' into time.") );
