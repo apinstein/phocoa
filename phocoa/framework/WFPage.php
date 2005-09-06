@@ -691,6 +691,18 @@ class WFPage extends WFObject
         else
         {
             WFLog::log("Skipping Parameterization for $pageName", WFLog::TRACE_LOG);
+            $parameterManifestMethod = "{$this->pageName}_ParameterList";
+            if (method_exists($this->module, $parameterManifestMethod))
+            {
+                $parameterList = $this->module->$parameterManifestMethod($this);
+                if (count($parameterList) > 0)
+                {
+                    // NULL-ify all params
+                    for ($i = 0; $i < count($parameterList); $i++) {
+                        $parameters[$parameterList[$i]] = NULL;
+                    }
+                }
+            }
         }
 
         // this is where pages will set up their bound objects, etc.
