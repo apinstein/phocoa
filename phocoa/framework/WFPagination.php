@@ -15,15 +15,42 @@ require_once('framework/WFObject.php');
  * PHOCOA has its own pagination widgets. So that our pagination widgets can work with any pagination infrastructure, we have a WFPaginator.
  * 
  * The pagination widgets interface with the paged data via WFPaginator. To hook up the PHOCOA widgets with your pagination infrastructure, you simply
- * need to write an adapter class that implements {@link WFPagedData}. This will allow the WFPaginator to page your data.
+ * need to write an adapter class that implements {@link WFPagedData}. This will allow the WFPaginator to page your data. PHOCOA ships with drivers for Array and Propel.
  *
  * Because of this architecture, the pagination widgets of PHOCOA can be easily "bound" to a pagination instance and make the display of paginated data easy.
  *
  * The PHOCOA pagination infrastructure includes support for multi-key sorting as well.
  *
+ * To use the pagination infrastructure, the first thing to figure out is which {@link WFPaginator::$mode} you need to use. MODE_URL effects all pagination via plain-old-urls, which
+ * is more compatible, but of course cannot interact with form data (for instance a search form on the same page). MODE_FORM effects all pagination via javascript and your form. 
+ *
+ * Once you have decided on the mode that's right for you, you must set up the paginator. Here's an example:
+ * - Declare a WFPaginator instance in your shared instances.
+ * - Declare a {@link WFPaginatorState} in your page, and configure the {@link WFPaginatorState::$paginator} element. NOTE: Only needed for MODE_FORM.
+ * - Declare a {@link WFPaginatorNavigation} in your page, and configure the {@link WFPaginatorNavigation::$paginator} element.
+ * - Declare a {@link WFPaginatorPageInfo} in your page, and configure the {@link WFPaginatorPageInfo::$paginator} element.
+ * - Declare a {@link WFPaginatorSortLink} in your page, for each link that will sort, and configure the {@link WFPaginatorSortLink::$paginator} and {@link WFWidget::$value} elements. The value of a WFPaginatorSortLink is the sortKey that the link is for, without the +/-.
+ * - Configure the paginator in the sharedInstancesDidLoad method:
+ * <code>
+ *     $this->myPaginator->setSortOptions(array('+price' => 'Price', '-price' => 'Price'));
+ *     $this->myPaginator->setDefaultSortKeys(array('+price'));
+ *     // if you want to use MODE_FORM, add this line:
+ *     $this->myPaginator->setModeForm('paginatorStateID', 'formSubmitID');
+ * </code>
+ * - Set up the data:
+ * <code>
+ *     $this->myPaginator->setDataDelegate(new WFPagedPropelQuery($criteria, 'MyPeer'));
+ *     // if you are using MODE_URL, use this line
+ *     $this->myPaginator->setPaginatorState($params['paginatorStateID']);  // don't forget to set up your params for the page to grab the first param as the paginator info
+ *     // if you are using MODE_FORM, use this line
+ *     $this->myPaginator->setPaginatorState($page->outlet('paginatorStateID')->value());
+ *     $this->myArrayController->setContent($this->myPaginator->currentItems());
+ * </code>
+ * 
  * NOTE: The first page is page 1 (as opposed to page 0).
  *
- * @see WFPaginatorNavigation, WFPaginatorPageInfo
+ * @see WFPaginatorNavigation, WFPaginatorPageInfo, WFPaginatorSortLink, WFPaginatorState
+ * @see WFPagedArray, WFPagedPropelQuery
  * @todo What needs to be done with bindings, anything?
  */
 class WFPaginator extends WFObject
@@ -146,6 +173,7 @@ class WFPaginator extends WFObject
      *                     IMPORTANT: WFPaginator expects sort keys to be named +sortKey and -sortKey to indicate ascending or descending sort.
      *                     The display name will be shown by the sort widgets.
      *  @throws Exception if an array is not passed in.
+     *  @see WFPaginator::$sortOptions
      */
     function setSortOptions($opts)
     {
