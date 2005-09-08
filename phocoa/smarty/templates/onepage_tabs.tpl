@@ -41,15 +41,24 @@ function activateTab(tabMode)
     </ul>
 </div>
 {/strip}
-{foreach name=tabs from=$__tabView->tabs() item=tab key=tabID}
-    <div id="tabDiv_{$tabID}" class="phocoaTabContent" style="display: none;">
-        {include file=$tab->template()}
-    </div>
-{/foreach}
 
-<script language="JavaScript">
-<!--
-activateTab('{$__tabView->activeTabID()}');
--->
+{if $__tabView->debugShowAllTabs()}
+    {foreach name=tabs from=$__tabView->tabs() item=tab key=tabID}
+        <div id="tabDiv_{$tabID}" class="phocoaTabContent" style="display: block;">
+            {include file=$tab->template()}
+        </div>
+    {/foreach}
+{else}
+    {foreach name=tabs from=$__tabView->tabs() item=tab key=tabID}
+        <div id="tabDiv_{$tabID}" class="phocoaTabContent" style="display: none;">
+            {include file=$tab->template()}
+        </div>
+    {/foreach}
+
+    <script language="JavaScript">
+    <!--
+    activateTab('{$__tabView->activeTabID()}');
+    -->
+{/if}
 </script>
 

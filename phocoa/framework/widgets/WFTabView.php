@@ -20,12 +20,14 @@ class WFTabContent extends WFObject
     protected $id;
     protected $label;
     protected $template;
+    protected $debugShowAllTabs;
 
     function __construct($id, $label, $tpl)
     {
         $this->id = $id;
         $this->label = $label;
         $this->template = $tpl;
+        $this->debugShowAllTabs = false;
     }
 
     function id()
@@ -75,6 +77,10 @@ class WFTabView extends WFWidget
      *              NOT YET IMPLEMENTED.
      */
     protected $onePageMode;
+    /**
+     * @var boolean TRUE to show all tabs at once, for debug purposes. FALSE for normal behavior.
+     */
+    protected $debugShowAllTabs;
 
     /**
       * Constructor.
@@ -87,7 +93,19 @@ class WFTabView extends WFWidget
         $this->activeTab = NULL;
         $this->onePageMode = true;
         $this->defaultTabID = NULL;
+        $this->debugShowAllTabs = false;
     }
+
+    function debugShowAllTabs()
+    {
+        return $this->debugShowAllTabs;
+    }
+
+    function setDebugShowAllTabs($bool)
+    {
+        $this->debugShowAllTabs = $bool;
+    }
+
 
     function canPushValueBinding()
     {
