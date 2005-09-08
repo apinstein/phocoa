@@ -41,6 +41,10 @@ abstract class WFView extends WFObject
       */
     protected $id;
     /**
+      * @var object WFView The parent of this view, or NULL if there is no parent.
+      */
+    protected $parent;
+    /**
       * @var assoc_array Placeholder for additional HTML name/value pairs.
       */
     protected $children;
@@ -63,6 +67,7 @@ abstract class WFView extends WFObject
 
         $this->id = $id;
         $this->children = array();
+        $this->parent = NULL;
         $this->page = $page;
 
         // add the widget to the page's widget list
@@ -78,6 +83,26 @@ abstract class WFView extends WFObject
     }
 
     /**
+     *  Set the parent view for this view.
+     *
+     *  @param object WFView The parent object.
+     */
+    function setParent($parent)
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     *  Get the parent view for this view.
+     *
+     *  @return object WFView The parent object.
+     */
+    function parent()
+    {
+        return $this->parent;
+    }
+
+    /**
       * Add a child view to this view.
       *
       * @param object A WFView object to add.
@@ -85,6 +110,7 @@ abstract class WFView extends WFObject
     function addChild(WFView $view)
     {
         $this->children[$view->id()] = $view;
+        $view->setParent($this);
     }
     /**
       * Get all child views of this view.
