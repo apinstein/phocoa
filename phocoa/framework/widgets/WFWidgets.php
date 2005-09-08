@@ -26,6 +26,8 @@ require_once('framework/widgets/WFSelect.php');
 require_once('framework/widgets/WFTimeSelect.php');
 require_once('framework/widgets/WFHidden.php');
 require_once('framework/widgets/WFCheckbox.php');
+require_once('framework/widgets/WFRadio.php');
+require_once('framework/widgets/WFRadioGroup.php');
 require_once('framework/widgets/WFUpload.php');
 require_once('framework/widgets/WFPaginatorNavigation.php');
 require_once('framework/widgets/WFPaginatorSortLink.php');
