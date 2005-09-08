@@ -193,7 +193,7 @@ class WFPage extends WFObject
      * Add an instance to our page.
      *
      * Use this function to add dynamically created instances to the page.
-     * NOTE: for adding WFWidget instances, you don't need to do this as the WFWidget class automatically registers all widgets.
+     * NOTE: for adding WFView instances, you don't need to do this as the WFView class automatically registers all widgets.
      *
      * @param string The ID of the instance (must be unique).
      * @param object The object.
@@ -884,6 +884,41 @@ class WFPage extends WFObject
 
         // return the rendered HTML of the page.
         return $this->template->render(false);
+    }
+
+    /**
+     *  Debug function for dumping the instance tree for the page.
+     *  
+     *  Recursive. Call dumpTree() to use.
+     */
+    function dumpTree($obj = NULL)
+    {
+        static $depth = 0;
+
+        if ($depth == 0) print "\nInstance tree:\n";
+
+        if ($obj === NULL)
+        {
+            foreach ($this->instances as $inst) {
+                if ($inst->parent() === NULL)
+                {
+                    $this->dumpTree($inst);
+                }
+            }
+        }
+        else
+        {
+            $depth++;
+            print str_repeat(' ', $depth * 2 - 2) . '\-> ' . $obj->id() . ' => ' . get_class($obj) . "\n";
+            if (count($obj->children()))
+            {
+                foreach ($obj->children() as $inst) {
+                    $this->dumpTree($inst);
+                }
+            }
+            $depth--;
+        }
+
     }
 }
 ?>
