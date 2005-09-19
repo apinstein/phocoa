@@ -23,6 +23,7 @@ require_once('framework/widgets/WFTextArea.php');
 require_once('framework/widgets/WFHTMLArea.php');
 require_once('framework/widgets/WFSubmit.php');
 require_once('framework/widgets/WFSelect.php');
+require_once('framework/widgets/WFJumpSelect.php');
 require_once('framework/widgets/WFTimeSelect.php');
 require_once('framework/widgets/WFHidden.php');
 require_once('framework/widgets/WFCheckbox.php');
