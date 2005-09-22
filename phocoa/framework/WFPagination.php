@@ -685,4 +685,91 @@ class WFPagedPropelQuery implements WFPagedData
 		return call_user_func(array($this->peerName, 'doSelect'), $criteria);
     }
 }
+
+/**
+ * A WFPagedData implementation for a Creole query.
+ *
+ * Sorting support: The sortKeys should be the acutal SQL token to use in the order by clause (ie "table.column") with +/- prepended.
+ */
+class WFPagedCreoleQuery implements WFPagedData
+{
+    protected $baseSQL;
+    protected $connection;
+    protected $countQueryRowsMode;
+
+    /**
+      * Create a WFPagedCreoleQuery paged query.
+      *
+      * @param string The SQL query desired, WITHOUT "order by" or "limit/offset" clauses.
+      * @param object A Creole connection.
+      * @param boolean Should the itemCount() function count the rows in the normal query, or just replace the select rows with count(*)?
+      *                Default: false
+      *                Most queries can leave this as the default. Aggregate queries and/or queries with having clauses may return improper row counts unless this is set to true.
+      */
+    function __construct($sql, $connection, $countQueryRowsMode = false)
+    {
+        $this->baseSQL = $sql;
+        $this->countQueryRowsMode = $countQueryRowsMode;
+        $this->connection = $connection;
+    }
+
+    function itemCount()
+    {
+        $matches = array();
+        $matchCount = preg_match('/.*(\bfrom\b.*)/si', $this->baseSQL, $matches);
+        if ($matchCount != 1) throw(new Exception("Could not parse sql statement."));
+
+        if ($this->countQueryRowsMode === true)
+        {
+            $countSQL = "select count(*) from (select count(*) " . $matches[1] . ") as queryRows";
+        }
+        else
+        {
+            $countSQL = "select count(*) " . $matches[1];
+        }
+
+        $stmt = $this->connection->createStatement();
+        $rs = $stmt->executeQuery($countSQL, ResultSet::FETCHMODE_NUM);
+        if ($rs->getRecordCount() != 1) throw(new Exception("Record count for itemCount query was not 1 as expected.") );
+        $rs->next();
+        return $rs->get(1);
+    }
+
+    function itemsAtIndex($startIndex, $numItems, $sortKeys)
+    {
+        $pageSQL = $this->baseSQL;
+        if (count($sortKeys)) {
+            $pageSQL .= " order by ";
+            $first = true;
+            foreach ($sortKeys as $sortKey) {
+                if (!$first)
+                {
+                    $pageSQL .= ",";
+                }
+                if (substr($sortKey, 0, 1) == '-')
+                {
+                    $pageSQL .= " " . substr($sortKey, 1) . " desc ";
+                }
+                else
+                {
+                    $pageSQL .= " " . substr($sortKey, 1) . " asc ";
+                }
+                $first = false;
+            }
+        }
+        $pageSQL .= " limit " . $numItems . " offset " . ($startIndex - 1);
+
+        // run query
+        $stmt = $this->connection->createStatement();
+        $rs = $stmt->executeQuery($pageSQL, ResultSet::FETCHMODE_ASSOC);
+        
+        // prepare results into an array of row data
+        $results = array();
+        while ($rs->next()) {
+            $results[] = $rs->getRow();
+        }
+
+        return $results;
+    }
+}
 ?>
