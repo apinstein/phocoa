@@ -730,7 +730,7 @@ class WFPagedCreoleQuery implements WFPagedData
 
         $stmt = $this->connection->createStatement();
         $rs = $stmt->executeQuery($countSQL, ResultSet::FETCHMODE_NUM);
-        if ($rs->getRecordCount() != 1) throw(new Exception("Record count for itemCount query was not 1 as expected.") );
+        if ($rs->getRecordCount() != 1) throw(new Exception("Record count for itemCount query was not 1 as expected. You may need to set countQueryRowsMode to true.") );
         $rs->next();
         return $rs->get(1);
     }
