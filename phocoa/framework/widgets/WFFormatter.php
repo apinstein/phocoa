@@ -132,7 +132,7 @@ class WFSQLDateFormatter extends WFFormatter
         {
             return '';
         }
-        $timeStr = substr($value, 1, 18);
+        $timeStr = substr($value, 0, 18);
         $result = strtotime($timeStr);
         if ($result === false) throw( new Exception("Error converting string '$timeStr' into time.") );
         return date($this->formatString, $result);
