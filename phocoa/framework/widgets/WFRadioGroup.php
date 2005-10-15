@@ -52,7 +52,7 @@ class WFRadioGroup extends WFWidget
         parent::setValue($val);
         $val = $this->value;    // this is now the formatted value
 
-        WFLog::log( "Setting radio value to: $val<br>");
+        WFLog::log( "Setting radio value to: $val");
         foreach ($this->children() as $radio) {
             $radio->setSelected(false);
             if ($radio->selectedValue() == $val)
@@ -63,7 +63,7 @@ class WFRadioGroup extends WFWidget
     }
     
     /**
-     *  Update the value of the selected radio button managed by this radio group.
+     *  Update the value of the selected radio button managed by this radio group, based on the values of the child WFRadios.
      *
      *  The value for the RadioGroup is the selectedValue of the only selected radio, or NULL if there is no selected radio.
      */
@@ -71,7 +71,7 @@ class WFRadioGroup extends WFWidget
     {
         $value = NULL;
 
-        WFLog::log( "getting radio group value... managed radios: " . count($this->children()) . '<br>' );
+        WFLog::log( "getting radio group value... managed radios: " . count($this->children()));
         foreach ($this->children() as $radio) {
             WFLog::log( "Checking if " . $radio->id() . " is selected: " . ( $radio->selected() ? 'YES' : 'NO') );
             if ($radio->selected())
@@ -81,6 +81,14 @@ class WFRadioGroup extends WFWidget
             }
         }
         $this->value = $value;
+    }
+
+    /**
+     * Update the selected state of all child WFRadios... select the one whose selectedValue matches the WFRadioGroup's value.
+     */
+    function updateSelectedRadio()
+    {
+        $this->setValue($this->value);
     }
 
     function restoreState()
