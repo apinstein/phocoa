@@ -6,6 +6,7 @@ class examplemodule extends WFModule
 {
     protected $person;
     protected $someChoices = array(1,2,3,4,5,6,7);
+    protected $checkboxGroupDefaultSelections = array(1,3);
 
     function examplemodule($invocation)
     {

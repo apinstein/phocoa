@@ -6,6 +6,14 @@ $__instances = array(
 	'name' => array('class' => 'WFTextField', 'children' => array()),
 	'creationDTS' => array('class' => 'WFTextField', 'children' => array()),
 	'selectOne' => array('class' => 'WFSelect', 'children' => array()),
+	'checkboxGroup' => array('class' => 'WFCheckboxGroup', 'children' => array(
+	'checkboxOne' => array('class' => 'WFCheckbox', 'children' => array()),
+	'checkboxThree' => array('class' => 'WFCheckbox', 'children' => array()),
+	'checkboxTwo' => array('class' => 'WFCheckbox', 'children' => array()),)),
+	'checkbox' => array('class' => 'WFCheckbox', 'children' => array()),
+	'radioButtons' => array('class' => 'WFRadioGroup', 'children' => array(
+	'radioTwo' => array('class' => 'WFRadio', 'children' => array()),
+	'radioOne' => array('class' => 'WFRadio', 'children' => array()),)),
 	'selectMultiple' => array('class' => 'WFSelect', 'children' => array()),
 	'textarea' => array('class' => 'WFTextArea', 'children' => array()),
 	'action1' => array('class' => 'WFSubmit', 'children' => array()),
