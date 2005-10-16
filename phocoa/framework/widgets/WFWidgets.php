@@ -27,6 +27,7 @@ require_once('framework/widgets/WFJumpSelect.php');
 require_once('framework/widgets/WFTimeSelect.php');
 require_once('framework/widgets/WFHidden.php');
 require_once('framework/widgets/WFCheckbox.php');
+require_once('framework/widgets/WFCheckboxGroup.php');
 require_once('framework/widgets/WFRadio.php');
 require_once('framework/widgets/WFRadioGroup.php');
 require_once('framework/widgets/WFUpload.php');

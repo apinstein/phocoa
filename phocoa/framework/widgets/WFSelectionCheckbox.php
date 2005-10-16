@@ -30,6 +30,7 @@ require_once('framework/widgets/WFDynamic.php');
  * - {@link WFSelectionCheckbox::$labelKeyPath labelKeyPath}
  *
  * @todo Refactor to coalesce createWidgets and createSelectionWidgets
+ * @todo Should WFSelectionCheckbox use WFCheckboxGroup internally for consistency?
  */
 class WFSelectionCheckbox extends WFDynamic
 {
