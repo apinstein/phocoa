@@ -16,7 +16,7 @@ require_once('framework/widgets/WFWidget.php');
 /**
  * The WFRadioGroup is the "interface" object used to interact with a set of WFRadio widgets.
  * 
- * If you want to use WFRadio's in your page, they must be contained by a WFRadioGroup.
+ * If you want to use WFRadio's in your page, they must be contained by a WFRadioGroup. That is, all of the WFRadio's that are a part of the WFRadioGroup should be set up as children of the WFRadioGroup.
  *
  * <b>PHOCOA Builder Setup:</b>
  *

@@ -19,19 +19,20 @@ require_once('framework/widgets/WFWidget.php');
  * There are several ways to use checkboxes in your application, depending on the way you want your checkboxes to behave and interact with your data.
  *
  * 1. A single checkbox representing whether a certain option is "on" or "off".
- *    Simply use a WFCheckbox in your application. The {@link WFCheckbox::$value value} of the WFCheckbox is {@link WFCheckbox::$checkedValue checkedValue} or {@link WFCheckbox::$uncheckedValue uncheckedValue}, depending on the checkbox's state.
- * 2. Multiple checkboxes representing multiple "states" that should be enabled for a single property. 
- *    a. If you want to set up the checkboxes statically in .instances/.config, use a {@link WFCheckboxGroup} in conjuction with multiple WFCheckbox widgets.
- *       When using this mode, the {@link WFCheckboxGroup::$values values} property is an array containing the {@link WFCheckbox::$checkedValue checkedValue} of each selected checkbox. With WFCheckboxGroup, the WFCheckbox uncheckedValue's are not used.
- *    b. If you want to set up the checkboxes based on the objects in an array, use a {@link WFSelectionCheckbox} control and link it to an array of objects.
- *       When using this mode, which uses WFArrayController, the array controller's selected objects will be updated to reflect the state of the checkboxes.
+ *    Simply use a WFCheckbox in your application. The {@link WFWidget::$value value} of the WFCheckbox is {@link WFCheckbox::$checkedValue checkedValue} or {@link WFCheckbox::$uncheckedValue uncheckedValue}, depending on the checkbox's state.
+ * 2. Multiple checkboxes representing multiple "states" that should be enabled for a single property. <br>
+ *    a. If you want to set up the checkboxes statically in .instances/.config, use a {@link WFCheckboxGroup} in conjuction with multiple WFCheckbox widgets.<br>
+ *       When using this mode, the {@link WFCheckboxGroup::$values values} property is an array containing the {@link WFCheckbox::$checkedValue checkedValue} of each selected checkbox. With WFCheckboxGroup, the WFCheckbox uncheckedValue's are not used.<br><br>
+ *    b. If you want to set up the checkboxes based on the objects in an array, use a {@link WFSelectionCheckbox} control and link it to an array of objects.<br>
+ *       When using this mode, which uses {@link WFArrayController}, the array controller's selected objects will be updated to reflect the state of the checkboxes.
  *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
- * - {@link WFWidget::$value value}
+ * - (none)
  * 
  * <b>Optional:</b><br>
+ * - {@link WFWidget::$value value}
  * - {@link WFCheckbox::$checked checked}
  * - {@link WFCheckbox::$checkedValue checkedValue}
  * - {@link WFCheckbox::$uncheckedValue uncheckedValue}

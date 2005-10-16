@@ -15,11 +15,13 @@ require_once('framework/widgets/WFWidget.php');
 
 /**
  * The WFCheckboxGroup is the "interface" object used to interact with a set of WFCheckbox widgets.
+ *
+ * When setting up a WFCheckboxGroup, all of the WFCheckboxes that are part of the group should be set up as children of the WFCheckboxGroup.
  * 
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Optional:</b><br>
- * - {@link WFWidget::$values values} The values of the selected WFCheckboxes. Remember these should match the {@link WFCheckbox::$checkedValue checkedValue} of the checkboxes. Also note that arrays cannot be set up in PHOCOA Builder at this time, so you'll have to set up an array in the module and set the values to the module's var:
+ * - {@link WFCheckboxGroup::$values values} The values of the selected WFCheckboxes. Remember these should match the {@link WFCheckbox::$checkedValue checkedValue} of the checkboxes. Also note that arrays cannot be set up in PHOCOA Builder at this time, so you'll have to set up an array in the module and set the values to the module's var:
  * <code>
  *     protected $checkboxGroupDefaultSelections = array(1,3);
  * </code>
