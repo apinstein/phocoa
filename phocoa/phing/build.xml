@@ -13,6 +13,10 @@
         <echo message="Make sure your httpd.conf file contains the line: Include ${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/conf/httpd.conf" />
     </target>
 
+    <target name="newprojectforphocoadev" description="Create a new project workspace to work on phocoa." depends="newproject">
+        <!-- replace "modules" directory with a symlink to the modules directory -->
+    </target>
+
     <target name="newproject" description="Create a new project workspace." depends="prepare"> 
         <!-- Gather information -->
         <input propertyname="phocoa.project.name">Enter the name of the new project:</input>
@@ -24,6 +28,7 @@
         <echo msg="Creating a template for new project in ${phocoa.project.container}/${phocoa.project.name}" /> 
 
         <!-- Create a reasonable directory structure -->
+        <echo msg="Creating project directories and setting up permissions..." /> 
         <mkdir dir="${phocoa.project.container}" />
         <mkdir dir="${phocoa.project.container}/${phocoa.project.name}" />
         <mkdir dir="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}" />
@@ -35,8 +40,10 @@
         <chmod file="${phocoa.project.container}/${phocoa.project.name}/runtime/smarty/templates_c" mode="777" /> 
 
         <!-- Copy all default files to the new project directory. -->
+        <echo msg="Copying PHOCOA templates..." />
         <copy toDir="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/">
             <fileset dir="${phocoa.basedir}">
+                <exclude name="**/.svn/**" />
                 <include name="classes/**" />
                 <include name="modules/**" />
                 <include name="skins/**" />
@@ -45,8 +52,10 @@
         </copy>
 
         <!-- Set up conf files -->
+        <echo msg="Setting up configuration files..." />
         <copy toDir="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/">
             <fileset dir="${phocoa.basedir}">
+                <exclude name="**/.svn/**" />
                 <include name="conf/**" />
             </fileset>
             <filterchain>
