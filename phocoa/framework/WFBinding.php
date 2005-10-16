@@ -73,10 +73,31 @@ interface WFKeyValueObserving
  */
 class WFBindingSetup extends WFObject
 {
+    // All bindings are one of these types
+    const WFBINDINGTYPE_SINGLE = 0;
+    const WFBINDINGTYPE_MULTIPLE_BOOLEAN = 1;
+    const WFBINDINGTYPE_MULTIPLE_PATTERN = 2;
+
+    // options for BOOLEAN bindings
+    const WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND = 1;
+    const WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR = 2;
+
+    // info for PATTERN bindings
+    const WFBINDINGSETUP_PATTERN_OPTION_NAME = 'ValuePattern';
+    const WFBINDINGSETUP_PATTERN_OPTION_VALUE = '%1%';
+
     /**
      * @var string The name of the bound proprety.
      */
     protected $boundProperty;
+    /**
+     * @var int The type of the binding. One of WFBINDINGTYPE_SINGLE, WFBINDINGTYPE_MULTIPLE_BOOLEAN, WFBINDINGTYPE_MULTIPLE_PATTERN.
+     */
+    protected $bindingType;
+    /**
+     * @var int The boolean mode for WFBINDINGTYPE_MULTIPLE_BOOLEAN bindings.
+     */
+    protected $booleanMode;
     /**
      * @var string A brief description of the binding's purpose.
      */
@@ -85,6 +106,10 @@ class WFBindingSetup extends WFObject
      * @var assoc_array A list of all supported option keys for this binding, along with the default value.
      */
     protected $options;
+    /**
+     * @var boolean Is the binding read-only?
+     */
+    protected $readOnly;
 
     function __construct($boundPropName, $boundPropDescription = NULL, $options = NULL)
     {
@@ -93,6 +118,9 @@ class WFBindingSetup extends WFObject
         $this->boundProperty = $boundPropName;
 
         $this->description = $boundPropDescription;
+        $this->readOnly = false;
+        $this->bindingType = WFBindingSetup::WFBINDINGTYPE_SINGLE;
+        $this->booleanMode = WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND;
 
         if (is_null($options))
         {
@@ -101,11 +129,108 @@ class WFBindingSetup extends WFObject
         $this->options = $options;
     }
 
+    /**
+     *  Get the boolean mode of a boolean binding.
+     *
+     *  @return int One of WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND or WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR
+     */
+    function booleanMode()
+    {
+        return $this->booleanMode;
+    }
+
+    /**
+     *  Set the boolean mode of a boolean binding.
+     *
+     *  Boolean bindings will combine multiple values by logical AND or logical OR depending on the booleanMode.
+     *
+     *  @param int One of WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND or WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR.
+     *  @throws Exception if the passed mode is not valid.
+     */
+    function setBooleanMode($mode)
+    {
+        if ($mode !== WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND and $mode !== WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR) throw( new Exception("Invalid booleanMode: $mode.") );
+        $this->booleanMode = $mode;
+    }
+
+    /**
+     *  Get the bindingType.
+     *
+     *  @return int One of the binding types.
+     *  @see WFBindingSetup::setBindingType()
+     */
+    function bindingType()
+    {
+        return $this->bindingType;
+    }
+
+    /**
+     *  Set the type of this binding.
+     *
+     *  There are multiple binding types, each of which provides certain behaviors for the binding.
+     *  1. WFBINDINGTYPE_SINGLE Is the simplest type; this binding type maps data from an object to the UI and potentially vice-versa (if it is not {@link WFBindingSetup::$readOnly read only).
+     *  2. WFBINDINGTYPE_MULTIPLE_BOOLEAN Links multiple values together, combined by {@link WFBindingSetup::$booleanMode booleanMode}.
+     *  3. WFBINDINGTYPE_MULTIPLE_PATTERN Allows for the creation of a string based on a patter, filled with multiple values.
+     *
+     *  All of the multiple binding types are read-only by definition because the combination is not reversible.
+     *
+     *  @param int One of the allowed bindingTypes.
+     *  @throws Exception if an illegal type is passed.
+     */
+    function setBindingType($type)
+    {
+        switch ($type) {
+            case WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN:
+            case WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN:
+                $this->setReadOnly(true);
+                break;
+
+            case WFBindingSetup::WFBINDINGTYPE_SINGLE:
+                break;
+
+            default:
+                throw( new Exception("Unknown binding type: $type.") );
+        }
+        $this->bindingType = $type;
+    }
+
+    /**
+     *  Is this binding read-only?
+     *
+     *  @return boolean
+     */
+    function readOnly()
+    {
+        return $this->readOnly;
+    }
+
+    /**
+     *  Set whether this binding is read-only.
+     *
+     *  Read-only bindings will not propagate data from the UI to the bound object.
+     *
+     *  @param boolean TRUE to set the binding as read-only.
+     */
+    function setReadOnly($ro)
+    {
+        $this->readOnly = $ro;
+    }
+
+    /**
+     *  The name of the property of the object that this binding setup applies to.
+     *
+     *  @return string
+     */
     function boundProperty()
     {
         return $this->boundProperty;
     }
 
+    /**
+     *  A human-readable description of the binding.
+     *
+     *  @return string
+     */
     function description()
     {
         return $this->description;
@@ -157,6 +282,15 @@ class WFBinding extends WFObject
      *                  can be configured.
      */
     protected $options;
+
+    /**
+     * @var object WFBindingSetup A reference to the binding setup for this binding.
+     */
+    protected $bindingSetup;
+    /**
+     * @var string The name of the local property of the object being bound.
+     */
+    protected $bindLocalProperty;
     
     function __construct()
     {
@@ -167,6 +301,51 @@ class WFBinding extends WFObject
         $this->placeholders = array();
         $this->raisesForNotApplicableKeys = true;
         $this->options = array();
+        $this->bindingSetup = NULL;
+        $this->bindLocalProperty = NULL;
+    }
+
+    /**
+     *  The {@link WFBindingSetup} object that this binding instance is for.
+     *
+     *  @return object WFBindingSetup
+     */
+    function bindingSetup()
+    {
+        return $this->bindingSetup;
+    }
+
+    /**
+     *  Set the {@link WFBindingSetup} object that this binding instance is for.
+     *
+     *  In the case of Multi-Value bindings, each binding instance will point to the same "base" WFBindingSetup.
+     *
+     *  @param object WFBindingSetup
+     */
+    function setBindingSetup($bs)
+    {
+        if ( !($bs instanceof WFBindingSetup) ) throw( new Exception("The value passed to setBindingSetup is not a WFBindingSetup instance.") );
+        $this->bindingSetup = $bs;
+    }
+
+    /**
+     *  The property of the object that this binding applies to.
+     *
+     *  @return string
+     */
+    function bindLocalProperty()
+    {
+        return $this->bindLocalProperty;
+    }
+    
+    /**
+     *  Set the property of the object that this binding applies to.
+     *
+     *  @param string
+     */
+    function setBindLocalProperty($localPropName)
+    {
+        $this->bindLocalProperty = $localPropName;
     }
 
     function raisesForNotApplicableKeys()

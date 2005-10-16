@@ -224,7 +224,10 @@ abstract class WFWidget extends WFView
     function setupExposedBindings()
     {
         $myBindings[] = new WFBindingSetup('value', 'The value of the widget.');
-        $myBindings[] = new WFBindingSetup('hidden', 'Whether or not the widget is hidden (included in the HTML output).');
+        $hidSetup = new WFBindingSetup('hidden', 'Whether or not the widget is hidden (included in the HTML output).');
+        $hidSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
+        $hidSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR);
+        $myBindings[] = $hidSetup;
         return $myBindings;
     }
 
@@ -236,7 +239,13 @@ abstract class WFWidget extends WFView
     {
         // does this property exist? Easy to test as valueForKey will THROW if DNE...
         try {
-            $this->valueForKey($bindLocalProperty);
+            $baseLocalProperty = $bindLocalProperty;
+            $matches = array();
+            if (preg_match('/(.*)[0-9]+$/', $bindLocalProperty, $matches) == 1)
+            {
+                $baseLocalProperty = $matches[1];
+            }
+            $this->valueForKey($baseLocalProperty);
         } catch (Exception $e) {
             throw( new Exception("Cannot bind property '$bindLocalProperty' because it is not a property of the object '" . get_class($this) . "'.") );
         }
@@ -250,6 +259,11 @@ abstract class WFWidget extends WFView
         $binding = new WFBinding();
         $binding->setBindToObject($bindToObject);
         $binding->setBindToKeyPath($bindToKeyPath);
+        $binding->setBindLocalProperty($bindLocalProperty);
+
+        $exposedBindings = $this->exposedBindings();
+        if (!isset($exposedBindings[$baseLocalProperty])) throw( new Exception("No binding setup available for property: $baseLocalProperty.") );
+        $binding->setBindingSetup($exposedBindings[$baseLocalProperty]);
 
         // Save options
         if (is_null($options))
@@ -273,45 +287,114 @@ abstract class WFWidget extends WFView
     }
 
     /**
+     * Returns the value determined by the binding.
+     *
+     * @return mixed The value to use as determined by resolving the binding.
+     * @throws Exception under various circumstances if the value cannot be determined.
+     */ 
+    final function valueForBinding($prop, $binding)
+    {
+        $exposedBindings = $this->exposedBindings();
+        // get original value
+        $boundValue = $binding->bindToObject()->valueForKeyPath($binding->bindToKeyPath());
+
+        // Get a list of all options, coalesced with default value from the binding setup for this property.
+        // the lack of documenting (ie exposing) a binding setup should simply assume that there are no options.
+        $optionDefaults = array();
+        $optionDefaults = $binding->bindingSetup()->options();
+        $coalescedOptions = array_merge($optionDefaults, $binding->options());
+
+        // let class apply options to value
+        $this->processBindingOptions($prop, $coalescedOptions, $boundValue);
+
+        // process value transformer
+        if ($binding->valueTransformerName())
+        {
+            $vt = WFValueTransformer::valueTransformerForName($binding->valueTransformerName());
+            $boundValue = $vt->transformedValue($boundValue);
+        }
+
+        WFLog::log("Using value '$boundValue' for binding '$prop'", WFLog::TRACE_LOG);
+        return $boundValue;
+    }
+
+    /**
      * Go through all bindings and pull the values into our widget.
      * Will give the class an option to modify the bound value based on all binding options.
      */
-    function pullBindings()
+    final function pullBindings()
     {
         foreach ($this->bindings as $prop => $binding) {
-            WFLog::log("pullBindings() -- processing binding {$this->id} / $prop / " . $binding->bindToKeyPath(), WFLog::TRACE_LOG);
+            if ($prop != $binding->bindingSetup()->boundProperty())
+            {
+                WFLog::log("pullBindings() -- skipping meta-binding '$prop'.", WFLog::TRACE_LOG);
+                continue;
+            }
+            WFLog::log("pullBindings() -- processing binding for widget '{$this->id}', local property '$prop', to keyPath " . $binding->bindToKeyPath(), WFLog::TRACE_LOG);
             // DO NOT RE-BIND IF THE VALUE WAS AN ERROR! WANT TO SHOW THE BAD VALUE!
             if (count($this->errors) > 0)
             {
                 WFLog::log("skipping pullBindings for {$this->id} / $prop because the value is an error.", WFLog::TRACE_LOG);
                 continue;
             }
-
-            $exposedBindings = $this->exposedBindings();
+        
             try {
-                // get original value
-                $boundValue = $binding->bindToObject()->valueForKeyPath($binding->bindToKeyPath());
+                $bindingSetup = $binding->bindingSetup();
+                switch ($bindingSetup->bindingType()) {
+                    case WFBindingSetup::WFBINDINGTYPE_SINGLE:
+                        $boundValue = $this->valueForBinding($prop, $binding);
+                        break;
+                    case WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN:
+                        // find all bindings in the pattern of <prop>, <prop2>, <propN>
+                        $boundValueParts = array($this->valueForBinding($prop, $binding));
+                        $partIndex = 2;
+                        while (true) {
+                            $partName = $prop . $partIndex;
+                            if (!isset($this->bindings[$partName])) break;
 
-                // Get a list of all options, coalesced with default value from the binding setup for this property.
-                // the lack of documenting (ie exposing) a binding setup should simply assume that there are no options.
-                $optionDefaults = array();
-                if (isset($exposedBindings[$prop]))
-                {
-                    $optionDefaults = $exposedBindings[$prop]->options();
+                            $boundValueParts[] = $this->valueForBinding($partName, $this->bindings[$partName]);
+                            $partIndex++;
+                        }
+                        // determine combo of all values; seed value with value of first one.
+                        $boundValue = $boundValueParts[0];
+                        for ($i = 1; $i < count($boundValueParts); $i++) {
+                            switch ($binding->bindingSetup()->booleanMode()) {
+                                case WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR:
+                                    $boundValue = ($boundValue or $boundValueParts[$i]);
+                                    break;
+                                case WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND:
+                                    $boundValue = ($boundValue and $boundValueParts[$i]);
+                                    break;
+                                default:
+                                    throw( new Exception("Illegal booleanMode for '$prop'.") );
+                            }
+                        }
+                        break;
+                    case WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN:
+                        // find all bindings in the pattern of <prop>, <prop2>, <propN> and assemble in format of prop's FormatString binding option.
+                        $boundValueParts = array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE => $this->valueForBinding($prop, $binding));
+                        $partIndex = 2;
+                        while (true) {
+                            $partName = $prop . $partIndex;
+                            if (!isset($this->bindings[$partName])) break;
+
+                            $partPattern = "%{$partIndex}%";
+                            $boundValueParts[$partPattern] = $this->valueForBinding($partName, $this->bindings[$partName]);
+                            $partIndex++;
+                        }
+                        $defaultPropertyOptions = $binding->bindingSetup()->options();
+                        $valuePattern = $defaultPropertyOptions[WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME];
+
+                        $basePropertyOptions = $binding->options();
+                        if (isset($basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME]))
+                        {
+                            $valuePattern = $basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME];
+                        }
+                        $boundValue = str_replace(array_keys($boundValueParts), array_values($boundValueParts), $valuePattern);
+                        break;
+                    default:
+                        throw( new Exception("Support for bindingType " . $bindingSetup->bindingType() . " used by '$prop' is not yet implemented.") );
                 }
-                $coalescedOptions = array_merge($optionDefaults, $binding->options());
-
-                // let class apply options to value
-                $this->processBindingOptions($prop, $coalescedOptions, $boundValue);
-
-                // process value transformer
-                if ($binding->valueTransformerName())
-                {
-                    $vt = WFValueTransformer::valueTransformerForName($binding->valueTransformerName());
-                    $boundValue = $vt->transformedValue($boundValue);
-                }
-
-                // assign final value
                 WFLog::log("Using value '$boundValue' for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
                 $this->setValueForKey($boundValue, $prop);  // must do this to allow accessors to be called!
             } catch (Exception $e) {
@@ -475,6 +558,9 @@ abstract class WFWidget extends WFView
         // the bindable property may not be bound! The is legitimate, so be graceful about it.
         $binding = $this->bindingByName($bindingName);
         if (is_null($binding)) return $value;
+
+        // assert for r/o bindings.
+        if ($binding->bindingSetup()->readOnly()) throw( new Exception("Attempt to propagateValueToBinding for a read-only binding: {$this->id} / $bindingName.") );
 
         $edited = false;
         WFLog::log("propagateValueToBinding() validating value $value for bound object for {$this->id} / $bindingName", WFLog::TRACE_LOG);

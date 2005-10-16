@@ -82,7 +82,10 @@ class WFSelect extends WFWidget
         $myBindings = parent::setupExposedBindings();
         $myBindings[] = new WFBindingSetup('value', 'The selected value for non-multiple select boxes.');
         $myBindings[] = new WFBindingSetup('values', 'The selected values for multiple select boxes.');
-        $myBindings[] = new WFBindingSetup('enabled', 'Whether or not the widget is enabled.');
+        $enSetup = new WFBindingSetup('enabled', 'Whether or not the widget is enabled.');
+        $enSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
+        $enSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND);
+        $myBindings[] = $enSetup;
         $myBindings[] = new WFBindingSetup('contentValues', 'List of the VALUES of each item in the select box.',
                 array(
                     'InsertsNullPlaceholder' => false,

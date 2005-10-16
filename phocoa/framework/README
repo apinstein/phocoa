@@ -14,7 +14,14 @@ TODO
 1.0 Milestone:
 - prototypes for the WFDynamic controls so you can "configure" the default setup for a widget in a table, matrix, etc
 - I18N infrastructure
-- FormatString support so that you can can "craft" strings with PHOCOA Builder rather than have to write a function that spits out the type of string you want
+- Improve bindings support:
+    - (DONE) Read only...
+    - (DONE) Single Value Binding (currently what we do)
+    - (DONE) Multi-Value Bindings (automatically read-only)
+        - (DONE) Boolean: enabled && enabled2 && enabled3, OR hidden || hidden2 || hidden3
+        - (DONE) Pattern: Ability to craft strings together from multiple values, a la formatstring: value="#%1% of %2% selected." The formatstring is set in the binding option "ValuePattern".
+        - (NA) Argument: for target-action: can call a selector with multiple arguments (not required b/c our actions don't currently accept any arguments)
+- Array operators: http://developer.apple.com/documentation/Cocoa/Conceptual/KeyValueCoding/Concepts/ArrayOperators.html
 - Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur.
 
 WFState -- idea for a simple widget to help stuff state in a form. Would simply serialize passed data and put it into a hidden var... and restore state! with bindings!
