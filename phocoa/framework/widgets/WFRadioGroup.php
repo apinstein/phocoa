@@ -91,6 +91,11 @@ class WFRadioGroup extends WFWidget
         $this->setValue($this->value);
     }
 
+    function allConfigFinishedLoading()
+    {
+        $this->updateSelectedRadio();
+    }
+
     function restoreState()
     {
         parent::restoreState();

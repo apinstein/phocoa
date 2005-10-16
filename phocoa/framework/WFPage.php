@@ -407,12 +407,7 @@ class WFPage extends WFObject
         // after all config info is loaded, certain widget types need to "update" things...
         // since we don't control the order of property loading (that would get way too complex) we just handle some things at the end of the loadConfig
         foreach ( $this->widgets() as $widgetID => $widget ) {
-            switch (get_class($widget)) {
-                // WFRadioGroup -> propagate "value" to WFRadio's to ensure proper one is selected.
-                case 'WFRadioGroup':
-                    $widget->updateSelectedRadio();
-                    break;
-            }
+            $widget->allConfigFinishedLoading();
         }
     }
 
