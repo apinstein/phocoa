@@ -4,6 +4,41 @@
  * @package test
  */
 
+class Node extends WFObject
+{
+    public $name;
+    public $value;
+    public $children = array();
+
+    function addChild(Node $child)
+    {
+        $this->children[] = $child;
+    }
+
+    function children()
+    {
+        return $this->children;
+    }
+
+    // basically for testing "distinctArrays"
+    function childrenDuplicated()
+    {
+        return array_merge($this->children, $this->children);
+    }
+
+    // basically for testing distinctObjects
+    function firstChild()
+    {
+        return $this->children[0];
+    }
+
+}
+
+class ObjectHolder extends WFObject
+{
+    public $myObject;
+}
+
 class Person extends WFObject
 {
     public $firstName;

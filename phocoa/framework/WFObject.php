@@ -79,10 +79,14 @@ class WFObject
 
         // walk keypath
         $keys = explode('.', $keyPath);
-        $onFirstKey = true;
-        foreach ($keys as $key) {
-            // determine target
-            if ($onFirstKey)
+        $keyPartsLeft = $keyCount = count($keys);
+        $arrayMode = false;
+        for ($keyI = 0; $keyI < $keyCount; $keyI++) {
+            $key = $keys[$keyI];
+            $keyPartsLeft--;
+
+            // determine target; use this if on first key, use result otherwise
+            if ($keyI == 0)
             {
                 $target = $this;
             }
@@ -97,35 +101,120 @@ class WFObject
             }
 
             $result = $target->valueForKey($key);
-
-            // IF the result of the first key is an array, and the target of the first key was a WFObjectController (why this constraint? maybe to ensure that the array is of WFObjects?), AND there is more path,
-            // THEN we should CREATE a new array with the results of calling EACH object in the array with the rest of the path.
-            //if ($onFirstKey && ($target instanceof WFObjectController) && is_array($result) && !is_null($modelKeyPath))
-            // Need to generalize this more, so that ANYTIME you hit an array, if you have path left, you simply create an array based on the rest of the path...
-            // I think in the end, the magic system should work basically like this... if the result of any valueForKey() while traversing a keyPath is an array,
-            // and there is still keyPath remaining to traverse, then it should create a magic array by having one entry for each object, with the value derived
-            // by calling the remaining keyPath on each object.
-            //
-            // Finish up the above algorithm and write some tests!!!
-            // 
-            // I think the current implementation required the firstKey thing because there was no solution to "get the remaining modelKeyPath" -- maybe I was lazy?
-            // I think the WFObjectController thing was there mostly b/c the original intended use was for ArrayControllers... remember ArrayControllers are WFObjectController subclasses.
-            // The initially imagined use was $myArrayOfIDs = $arrayController->valueForKeyPath("arrangedObjects.id").
-            // However, this is too specific, as there are other good and reasonable uses for the broader capabilities that still work for the above use case.
-            if ($onFirstKey && is_array($result) && !is_null($modelKeyPath))
+            if (is_array($result))
             {
-                //print "magic on $keyPath<BR>";
-                $magicArray = array();
-                foreach ($result as $object) {
-                    if (!is_object($object)) throw( new Exception("All array items must be OBJECTS THAT IMPLEMENT Key-Value Coding for KVC Magic Arrays to work.") );
-                    if (!method_exists($object, 'valueForKey')) throw( new Exception("target is not Key-Value Coding compliant for valueForKey.") );
-                    $magicArray[] = $object->valueForKey($modelKeyPath);
-                }
-                $result = $magicArray;
-                break;
+                $arrayMode = true;
             }
 
-            $onFirstKey = false;
+            // IF the result of the a key is an array, we do some magic.
+            // We CREATE a new array with the results of calling EACH object in the array with the rest of the path.
+            // We also support several operators: http://developer.apple.com/documentation/Cocoa/Conceptual/KeyValueCoding/Concepts/ArrayOperators.html
+            if ($arrayMode and $keyPartsLeft)
+            {
+                $nextPart = $keys[$keyI + 1];
+                // are we in operator mode as well?
+                if (in_array($nextPart, array('@count', '@sum', '@max', '@min', '@avg', '@unionOfArrays', '@unionOfObjects', '@distinctUnionOfArrays', '@distinctUnionOfObjects')))
+                {
+                    $operator = $nextPart;
+                    $rightKeyPath = join('.', array_slice($keyParts, $keyI + 2));
+                }
+                else
+                {
+                    $operator = NULL;
+                    $rightKeyPath = join('.', array_slice($keyParts, $keyI + 1));
+                }
+                //print "magic on $keyPath at " . join('.', array_slice($keyParts, 0, $keyI + 1)) . " kp: $rightKeyPath\n";
+
+                // if there is a rightKeyPath, need to calculate magic array from remaining keypath. Otherwise, just use current result (it's arrayMode) as magicArray.
+                if ($rightKeyPath)
+                {
+                    $magicArray = array();
+                    foreach ($result as $object) {
+                        if (!is_object($object)) throw( new Exception("All array items must be OBJECTS THAT IMPLEMENT Key-Value Coding for KVC Magic Arrays to work.") );
+                        if (!method_exists($object, 'valueForKey')) throw( new Exception("target is not Key-Value Coding compliant for valueForKey.") );
+                        $magicArray[] = $object->valueForKeyPath($rightKeyPath);
+                    }
+                }
+                else
+                {
+                    $magicArray = $result;
+                }
+
+                if ($operator)
+                {
+                    switch ($operator) {
+                        case '@count':
+                            $result = count($magicArray);
+                            break;
+                        case '@sum':
+                            $result = 0;
+                            foreach ($magicArray as $item) {
+                                $result += $item;
+                            }
+                            break;
+                        case '@max':
+                            $result = $magicArray[0];
+                            foreach ($magicArray as $item) {
+                                if ($item > $result)
+                                {
+                                    $result = $item;
+                                }
+                            }
+                            break;
+                        case '@min':
+                            $result = $magicArray[0];
+                            foreach ($magicArray as $item) {
+                                if ($item < $result)
+                                {
+                                    $result = $item;
+                                }
+                            }
+                            break;
+                        case '@avg':
+                            $total = 0;
+                            foreach ($magicArray as $item) {
+                                $total += $item;
+                            }
+                            $result = $total / count($magicArray);
+                            break;
+                        case '@unionOfArrays':
+                            $result = array();
+                            foreach ($magicArray as $item) {
+                                if (!is_array($item))
+                                {
+                                    throw( new Exception("unionOfArrays requires that all results be arrays... non-array encountered: $item") );
+                                }
+                                $result = array_merge($item, $result);
+                            }
+                            break;
+                        // I think this is equivalent to what our magic arrays do anyway
+                        // for instance: transactions.payee will give a list of all payee objects of each transaction
+                        // it would seem: transactions.@unionOfObjects.payee would yield the same?
+                        case '@unionOfObjects':
+                            $result = $magicArray;
+                            break;
+                        case '@distinctUnionOfArrays':
+                            $result = array();
+                            foreach ($magicArray as $item) {
+                                if (!is_array($item))
+                                {
+                                    throw( new Exception("distinctUnionOfArrays requires that all results be arrays... non-array encountered: $item") );
+                                }
+                                $result = array_merge($item, $result);
+                            }
+                            $result = array_unique($result);
+                            break;
+                        case '@distinctUnionOfObjects':
+                            $result = array_unique($magicArray);
+                            break;
+                    }
+                }
+                else
+                {
+                    $result = $magicArray;
+                }
+                break;
+            }
         }
 
         return $result;

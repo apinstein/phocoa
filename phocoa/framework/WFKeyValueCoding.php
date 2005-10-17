@@ -63,7 +63,7 @@ interface WFKeyValueCoding
      * valueForKeypath's default implementation is in {@link WFObject}.
      *
      * The default implementation does some very special things...
-     * 1) Magic Arrays
+     * 1. Magic Arrays<br>
      *    Magic arrays are a way of returning an array of values calculated from an array of objects.
      *    For instance, let's say you have an array of Person objects, for instance in an addressBook application, and that each person has a unique ID.
      *    Now, you want an array containing the ID of every person, but you don't want to have to write a foreach loop to do it.
@@ -72,7 +72,18 @@ interface WFKeyValueCoding
      *    $arrayOfPersonIDs = $addressBook->valueForKeyPath("people.id")
      *    </code>
      *    And afterwards, arrayOfPersonIDs will have an array containing the ID for each person in the address book, in the same order that the Person objects appear in the array.
-     * 2) Calculated values (@count, etc.. not yet implemented)
+     * 2. Array Operators, based on: http://developer.apple.com/documentation/Cocoa/Conceptual/KeyValueCoding/Concepts/ArrayOperators.html
+     *    In a given keyPath, you can include an operator to perform a calculation on the keyPath to that point, provided that the result is an array: "transactions.@sum.amount"<br>
+     *    Operators are preceeded by @:<br>
+     *    count - Count of items specified by remainder of keypath.<br>
+     *    sum - Sum of items specified by remainder of keypath.<br>
+     *    max - Maximum value of items specified by remainder of keypath.<br>
+     *    min - Minimum value of items specified by remainder of keypath.<br>
+     *    avg - Average of items specified by remainder of keypath.<br>
+     *    unionOfArrays - Union of all objects in the arrays specified by remainder of keypath.<br>
+     *    unionOfObjects - Union of all items specified by remainder of keypath. Identical to normal magic, ie: books.author == books.@unionOfObjects.author<br>
+     *    distinctUnionOfArrays - same as @unionOfArrays but with duplicate objects removed. Duplicates determined by PHP === operator.<br>
+     *    distinctUnionOfObjects - same as @unionOfObjects but with duplicate objects removed. Duplicates determined by PHP === operator.<br>
      *
      * @see valueForKey()
      * @param string The keyPath to retrive the value for.
