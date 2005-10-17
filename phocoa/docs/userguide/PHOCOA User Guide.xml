@@ -279,6 +279,44 @@
 
           <para>PHOCOA doesn't yet provide any session infrastructure.</para>
         </listitem>
+
+        <listitem>
+          <para>User Authorization and Authentication</para>
+
+          <para>Many web sites today have a "login" capability. Users can log
+          in to access additional functionality or personalization. While the
+          specifics of what a logged in user gets vary greatly among
+          applications, they all share the need to perform
+          authentication.</para>
+
+          <para><emphasis>This problem is typically solved with a special web
+          page to perform authentication, followed by keeping track of the
+          user in a session context.</emphasis></para>
+
+          <para>PHOCOA has a simple authorization infrastructure that requires
+          implementation of only a few methods to login-enable your
+          application. A simple interface allows your back-end application to
+          use whatever authentication protocol is appropriate. PHOCOA's
+          authorization manager also includes support for "Remember Me"
+          functionality.</para>
+        </listitem>
+
+        <listitem>
+          <para>Component Re-Use and Compositing</para>
+
+          <para>Many web applications have "snippets" of functionality that
+          need to be re-used througout the site. Search, login, headlines, are
+          often self-contained "portlets" of functionality that should be
+          re-usable.</para>
+
+          <para><emphasis>This problem is typically solved via
+          includes.</emphasis></para>
+
+          <para>PHOCOA provides a rich compositing architecture. Each module
+          you create is automatically re-usable in other modules, or in the
+          skin itself. PHOCOA provides a variety of compositing and targeting
+          capabilities for ushering users through the site.</para>
+        </listitem>
       </itemizedlist>
     </section>
   </chapter>
@@ -315,42 +353,140 @@
       tarball. The directory structure looks like:</para>
 
       <screen>$ ls -l phocoa/
-total 540
-drwxrwxr-x   2 apinstein apinstein   4096 May 31 11:21 conf
-drwxrwxr-x   5 apinstein ttimobile   4096 May 31 19:54 framework
-drwxrwxr-x   7 apinstein apinstein   4096 Jun  1 10:33 modules
-drwxrwxr-x  14 apinstein ttimobile   4096 May 28 16:25 phpdocs
-drwxrwxr-x   3 apinstein apinstein   4096 May 31 10:14 skins
-drwxrwxr-x   4 apinstein ttimobile   4096 Apr 14 17:56 smarty
--rw-rw-r--   1 apinstein ttimobile 518069 May 31 10:00 tags
-drwxrwxr-x   3 apinstein apinstein   4096 Jun  1 10:32 wwwroot</screen>
+total 0
+drwxr-xr-x    4 alanpins staff         136 Aug  2 10:34 classes
+drwxr-xr-x    5 alanpins staff         170 Oct 15 16:53 conf
+drwxr-xr-x    7 alanpins staff         238 Oct 17 14:57 docs
+drwxr-xr-x   34 alanpins staff        1156 Oct 17 13:57 framework
+drwxr-xr-x    9 alanpins staff         306 Oct 16 12:04 modules
+drwxr-xr-x    6 alanpins staff         204 Oct 15 16:50 phing
+drwxr-xr-x    4 alanpins staff         136 Aug  2 10:33 skins
+drwxr-xr-x    5 alanpins staff         170 Aug  2 10:33 smarty
+drwxr-xr-x    5 alanpins staff         170 Aug  2 10:34 wwwroot</screen>
 
-      <para>The conf directory contains default versions of all configuraiton
-      files. These will be copied to your application's conf directory during
+      <para>The <emphasis>classes</emphasis> directory contains a skeleton of
+      the basic application infrastructure needed to have a functional
+      application. This will be copied to your application's modules directory
+      during install.</para>
+
+      <para>The <emphasis>conf</emphasis> directory contains default versions
+      of all configuraiton files. These will be copied to your application's
+      conf directory during install.</para>
+
+      <para>The <emphasis>docs</emphasis> directory contains a complete PHPDoc
+      API reference for the framework. Once you have PHOCOA installed, this
+      can be reached from http://your-server.com/docs.</para>
+
+      <note>
+        <para>The docs directory shipped with PHOCOA does not include built
+        documentation. Use PHPDOC to build the docs with the following
+        command. Eventually, this will be set up as a Phing task. The docs are
+        available online at <link
+        linkend="???">http://phocoa.com/docs/</link>.</para>
+
+        <screen>$ cd phocoa
+$ phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" -o HTML:frames:default \
+--ignore test/ -d framework -f "smarty/plugins/*" -f "conf/webapp.conf"</screen>
+      </note>
+
+      <para>The <emphasis>framework</emphasis> directory contains most of the
+      framework's code.</para>
+
+      <para>The <emphasis>modules</emphasis> directory contains modules that
+      are used by the core framework, or are bundled with the framework. These
+      will be copied to your application's modules directory during
       install.</para>
 
-      <para>The framework directory contains most of the framework's
-      code.</para>
+      <para>The <emphasis>phing</emphasis> directory contains the phing
+      buildfiles for PHOCOA.</para>
 
-      <para>The modules directory contains modules that are used by the core
-      framework, or are bundled with the framework. These will be copied to
-      your application's modules directory during install.</para>
+      <para>The <emphasis>skins</emphasis> directory contains bundled skins.
+      This is just a single skin, so that your application has some skin when
+      it starts. These will be copied to your application's skins directory
+      during install.</para>
 
-      <para>The phpdocs directory contains a complete PHPDoc API reference for
-      the framework. Once you have PHOCOA installed, this can be reached from
-      http://your-server.com/docs.</para>
+      <para>The <emphasis>smarty</emphasis> directory is where templates and
+      plugins used by the framework go.</para>
 
-      <para>The skins directory contains bundled skins. This is just a single
-      skin, so that your application has some skin when it starts. These will
-      be copied to your application's skins directory during install. </para>
+      <para>The <emphasis>wwwroot</emphasis> directory is the public wwwroot.
+      This wwwroot contains the bootstrapping code for a PHOCOA application
+      and a directory for all public www documents. This will be copied to
+      your application's wwwroot directory on install.</para>
 
-      <para>The smarty directory is where templates and plugins used by the
-      framework go.</para>
+      <bridgehead>Using Phing to Start a New Project</bridgehead>
 
-      <para>The wwwroot directory is the public wwwroot. This wwwroot contains
-      the bootstrapping code for a PHOCOA application and a directory for all
-      public www documents. This will be copied to your application's wwwroot
-      directory on install.</para>
+      <para>PHOCOA uses Phing to help with managing your web application.
+      Let's create a new project.</para>
+
+      <screen>phing -f phocoa/phing/build.xml
+
+Buildfile: /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml
+
+phocoa &gt; prepare:
+     [echo] PHOCOA framework base dir at: /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/..
+
+phocoa &gt; newproject:
+Enter the name of the new project: helloworld
+Enter the path to create the new project in: /Users/alanpinstein/dev/sandbox 
+Enter the name of the server (ie dns name) that will host this application: [localhost] 
+Enter the IP of the server that will host this application: [127.0.0.1] 
+Enter the PORT of the server that will host this application: [80] 
+     [echo] Creating a template for new project in /Users/alanpinstein/dev/sandbox/helloworld
+     [echo] Creating project directories and setting up permissions...
+    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld
+    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/log
+    [chmod] Changed file mode on '/Users/alanpinstein/dev/sandbox/helloworld/log' to 777
+    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/runtime
+    [chmod] Changed file mode on '/Users/alanpinstein/dev/sandbox/helloworld/runtime' to 777
+    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/runtime/smarty/templates_c
+    [chmod] Changed file mode on '/Users/alanpinstein/dev/sandbox/helloworld/runtime/smarty/templates_c' to 777
+     [echo] Copying PHOCOA templates...
+     [copy] Copying 905 files to /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+     [echo] Setting up configuration files...
+     [copy] Copying 2 files to /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+[filter:ReplaceTokens] Replaced "##SERVER_IP##" with "127.0.0.1"
+[filter:ReplaceTokens] Replaced "##SERVER_PORT##" with "80"
+[filter:ReplaceTokens] Replaced "##SERVER_NAME##" with "localhost"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_BASE_DIR##" with "/Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/.."
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_CONTAINER_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_CONTAINER_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_BASE_DIR##" with "/Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/.."
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_CONTAINER_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_CONTAINER_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[phingcall] Calling Buildfile '/Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml' with target 'httpdconf'
+
+phocoa &gt; httpdconf:
+     [echo] Make sure your httpd.conf file contains the line: Include /Users/alanpinstein/dev/sandbox/helloworld/helloworld/conf/httpd.conf
+
+BUILD FINISHED
+
+Total time: 2 minutes  51.07 seconds
+</screen>
+
+      <para>You should now have a directory <emphasis>helloworld</emphasis>
+      containing your new PHOCOA application.<emphasis></emphasis></para>
+
+      <screen>$ ls -l helloworld                                                                                                                                           alanpinstein@g5:~/dev/sandbox
+total 0
+drwxr-xr-x    7 alanpins staff         238 Oct 17 15:03 helloworld
+drwxrwxrwx    2 alanpins staff          68 Oct 17 15:02 log
+drwxrwxrwx    3 alanpins staff         102 Oct 17 15:02 runtime</screen>
+
+      <para>This directory contains your PHOCOA deployment structure.
+      Typically, log and runtime (tmp / cache) files are not part of your
+      source code, so PHOCOA sets up a wrapper directory containing these
+      items.</para>
+
+      <para>The <emphasis>helloworld</emphasis> directory inside of this
+      deployment structure is your PHOCOA applications directory.</para>
 
       <bridgehead>Application Directory Structure</bridgehead>
 
@@ -376,20 +512,23 @@ drwxrwsr-x  9 apache    ttimobile 4096 May 30 15:53 modules
 drwxrwxr-x  5 apinstein ttimobile 4096 May 30 18:14 skins
 drwxrwxr-x  3 apinstein ttimobile 4096 May 31 09:00 wwwroot</screen>
 
-      <para>The classes directory is where all of your classes go. These are
-      classes specific to your application.</para>
+      <para>The <emphasis>classes</emphasis> directory is where all of your
+      classes go. These are classes specific to your application.</para>
 
-      <para>The conf directory contains all configuraiton files.</para>
+      <para>The <emphasis>conf</emphasis> directory contains all configuraiton
+      files.</para>
 
-      <para>The modules directory is where all components go. These components
-      are the building blocks of your application and include both entire
-      pages and sub-components.</para>
+      <para>The <emphasis>modules</emphasis> directory is where all components
+      go. These components are the building blocks of your application and
+      include both entire pages and sub-components.</para>
 
-      <para>The skins directory is where all skins go.</para>
+      <para>The <emphasis>skins</emphasis> directory is where all skins
+      go.</para>
 
-      <para>The wwwroot directory is a public wwwroot that contains the front
-      controller for the PHOCOA project. All public documents (i.e. the
-      tradiditional public www root) go in wwwroot/www/.</para>
+      <para>The <emphasis>wwwroot</emphasis> directory is a public wwwroot
+      that contains the front controller for the PHOCOA project. All public
+      documents (i.e. the tradiditional public www root) go in
+      wwwroot/www/.</para>
 
       <bridgehead>Initial Configuration</bridgehead>
 
@@ -402,10 +541,13 @@ total 24
 
       <para>The httpd.conf file is the apache configuration for the framework.
       You should customize it to match your domain and path to where you put
-      PHOCOA. Make sure that you update all places where paths exist,
-      including the AliasMatch directives, the various log directives, and the
-      WebDAV setup (optional). We assume that you are familiar with apache
-      setup.</para>
+      PHOCOA. Most of this was done automatically by the Phing
+      <emphasis>newproject</emphasis> build. Examine the file to be sure it
+      matches what you want. You can of course make any corrections to
+      mistakes you may have made earlier regarding hostname, port, etc. Also,
+      examine the WebDAV setup (optional - feel free to comment this out if
+      you don't have or want WebDAV access). We assume that you are familiar
+      with apache setup.</para>
 
       <note>
         <para>WebDAV can be useful when working on an application remotely.
@@ -424,7 +566,10 @@ total 24
       <para>Now restart apache.</para>
 
       <para>Next up is the PHOCOA conf file. Open up webapp.conf. Read through
-      it, setting up each directive as explained by the comments.</para>
+      it, setting up each directive as explained by the comments. It should
+      also be set up correctly because of the Phing task. You may need to
+      tweak the PHP include_path setting to ensure that PHOCOA can see your
+      smarty install.</para>
 
       <para>At this point, you should be able to access the site via the web.
       You should be able to access the application via
@@ -488,14 +633,29 @@ total 24
       <title>Building "Hello, World!"</title>
 
       <para>Let's put PHOCOA to work with a simple example. We start out by
-      creating a new module, "helloworld". To do this, create a new directory
-      inside the "modules" folder named "helloworld". Then, inside this
-      directory, create "helloworld.php":</para>
+      creating a new module, "helloworld".</para>
+
+      <note>
+        <para>Your new project alread has a completed helloworld module, so
+        we'll just explain how it was built.</para>
+      </note>
+
+      <para>To create a new module, we have a Phing task to help us:</para>
+
+      <screen>$ php5 /Users/alanpinstein/dev/sandbox/phocoa/phocoa/framework/createModule.php helloworld helloworld</screen>
+
+      <note>
+        <para>This script isn't yet wrapped by Phing yet so we just run the
+        script directly.</para>
+      </note>
+
+      <para>The createModule task automatically creates a new module with a
+      single page.</para>
 
       <para><programlisting>class helloworld extends WFModule
 {
     /**
-      * Tell system which page to show if none specified. 
+      * Tell system which page to show if none specified in the URL. 
       */ 
      function defaultPage()
      {
@@ -503,11 +663,11 @@ total 24
      }
 }</programlisting></para>
 
-      <para>WFModule is an abstract class, requiring a "defautPage()" method.
-      This method simply tells the system what page to load if none is
-      specified.</para>
+      <para>WFModule is an abstract class, requiring only one method,
+      "defautPage()". This method simply tells the system what page to load if
+      none is specified.</para>
 
-      <para>Next, let's create the helloWorld page.</para>
+      <para>Next, let's examine the helloWorld page.</para>
 
       <para>Each page in PHOCOA has three parts. The .tpl file (the HTML
       Smarty template), the .instances file (contains a list of all WFView
@@ -528,37 +688,47 @@ total 24
         code you see, but for brevity they have been left out.</para>
       </important>
 
-      <para>PHOCOA includes a helper script to create a new page and its
-      helper files for you. CD to the helloworld directory and run the
-      following command:</para>
+      <para>PHOCOA includes a Phing task to add a page to an existing module
+      as well. This script should be run from inside the module directory that
+      you want to add the page to. </para>
 
-      <para><screen>$ php /path/to/phocoa/framework/createView.php helloWorld 
-Writing helloWorld.tpl 
-Writing helloWorld.instances 
-Writing helloWorld.config 
-Done! 
-$ ls -1 
-helloWorld.config 
-helloWorld.instances 
-helloworld.php 
-helloWorld.tpl </screen></para>
+      <screen>$ php5 /Users/alanpinstein/dev/sandbox/phocoa/phocoa/framework/createPage.php helloworld</screen>
 
-      <para>The script will automatically create the .tpl, .instances, and
-      .config file, ready for you to edit. Now, edit the helloWorld.tpl file
-      with a classic message:</para>
+      <note>
+        <para>This script isn't yet wrapped by Phing yet so we just run the
+        script directly.</para>
+      </note>
+
+      <note>
+        <para>The createModule script uses the createPage script to create the
+        default page. The helloworld module already has a helloworld page, so
+        you don't need to run it again.</para>
+      </note>
+
+      <para>Now, edit the helloWorld.tpl file with a classic message:</para>
 
       <para><programlisting>Hello, World! </programlisting></para>
 
       <para>That's all that's needed to make a simple web page in PHOCOA.
       Simply load up the URL for this page: http://localhost/webapp/helloworld
-      and you should see your message!</para>
+      and you should see the helloworld page!</para>
     </section>
 
     <section>
       <title>Forms</title>
 
-      <para>Now, let's add a simple form to our example. In the helloWorld.tpl
-      file, add a form:</para>
+      <para>One of PHOCOA's biggest benefits is that it automatically
+      maintains state of all GUI widgets across requests. Without any code at
+      all, you can have an arbitraily complex form which automatically
+      remembers all values perfectly from one request to another. PHOCOA also
+      has integrated data validation and error handling that keep track of
+      errors on a field-by-field basis. Thus, PHOCOA greatly simplifies the
+      creation of user-friendly forms that automatically remember their state
+      and show errors on a per-field basis.</para>
+
+      <para>Our example also includes a form, which you should have seen when
+      you loaded the URL. Let's examine the helloWorld.tpl file to see how the
+      form is set up:</para>
 
       <programlisting>
         {WFForm id="form"} 
@@ -643,6 +813,16 @@ helloWorld.tpl </screen></para>
       eventually performing an action. Sometimes, you'll also need to format
       the data in a more human-readable way than it is stored, for instance,
       timestamps.</para>
+
+      <para>The glue layer between the GUI and the model is another huge
+      benefit of PHOCOA. Based on Apple's Controller Layer, PHOCOA automates
+      the process of moving data between the GUI elements and the data layer.
+      Instead of writing code to move the data between the layers, the PHOCOA
+      controller layer does this automatically. All you have to do is
+      configure the GUI elements to "bind" them to your model objects. This is
+      done without any coding, and once it's done, the controller layer
+      automatically keeps your GUI in sync with your data as well as
+      automatically providing data validation and error handling.</para>
 
       <para>To extend our example and really explore PHOCOA, we're going to
       build a classic web application, a form-to-email page.</para>
@@ -838,7 +1018,7 @@ function setValueForKey($value, $key);</programlisting></para>
       through the steps to display a different page as a response to an
       action.</para>
 
-      <para>First, let's create the success page. Use the handy createView
+      <para>First, let's create the success page. Use the handy createPage
       script again to create a page named "emailSuccess", then edit the
       template to look like this:</para>
 
@@ -1121,11 +1301,147 @@ $__config = array(
     </section>
 
     <section>
+      <title>PHOCOA API Documentation</title>
+
+      <para>The complete PHOCOA documentation is available online at <link
+      linkend="???">http://phocoa.com/docs/phpdocs/</link>.</para>
+    </section>
+
+    <section>
+      <title>Further Explorations</title>
+
+      <bridgehead>PHOCOA Key-Value Coding and Bindings Primer</bridgehead>
+
+      <para>PHOCOA bindings make it easy to show information from your
+      Key-Value Coding Compliant objects, which includes Propel objects if
+      you've implemented the Propel changes noted in the appendix.</para>
+
+      <para>You can use WFObject's valueForKeyPath() function to access
+      properties of your objects. For instance, if you have a Book object, and
+      want to access the birthdate of the author, you could use:</para>
+
+      <screen>$authorBirthDate = $book-&gt;valueForKeyPath("author.birthDate");</screen>
+
+      <para>Which is equivalent to:</para>
+
+      <screen>$authorBirthDate = $book-&gt;getAuthor()-&gt;getBirthDate();</screen>
+
+      <para>While it doesn't seem that advantageous from just looking at the
+      code, it becomes much more powerful when coupled with PHOCOA
+      bindings.</para>
+
+      <para>Let's say you want to have a web page that shows the details of a
+      book. Normally, you'd have to assign the $book object to your template
+      engine and then put something like
+      {$book-&gt;getAuthor()-&gt;getBirthDate()} in your template code.</para>
+
+      <para>With PHOCOA, instead of assigning the $book object to your
+      template, you instead make the $book object one of the instance
+      variables of your module. Then, you set up a WFLabel object and bind the
+      "value" of the WFLabel to the $book variable, and set a keyPath of
+      "author.birthDate" as the modelKeyPath. </para>
+
+      <para>Now, even this doesn't seem that different. However, as you might
+      be starting to notice, the keyPath for the WFLabel object isn't
+      <emphasis>programming</emphasis>, it's
+      <emphasis>configuration</emphasis>. So, if you want to change the value
+      of the label, you just edit the configuration of the keyPath and the new
+      value will be used.</para>
+
+      <para>Furthermore, because you're using PHOCOA GUI widgets, you get
+      access to a host of additional functionality without having to add any
+      code. Want to truncate the string after 30 characters? Just configure
+      the "ellipsisAfterChars" property of the label. Want to hide the label
+      in certain circumstances? Just bind the "hidden" property of the WFLabel
+      to a function returning a boolean value and PHOCOA does the rest. Want
+      the birthdate to show up as a properly formatted date? Just provide a
+      formatter to the WFLabel. Want to use a formatString to combine multiple
+      values? Use the ValuePattern binding! This is all done via the
+      configuration file, not via coding.</para>
+
+      <bridgehead>PHOCOA's Skin System</bridgehead>
+
+      <para>PHOCOA's skin system provides a simple yet flexible way to control
+      the template being used to render each page. The skin system has three
+      layers:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para><emphasis>Skin Type (Skin Delegate) </emphasis>At the top
+            level is the Skin Type. Each skin type can have its own distinct
+            infrastructure of common components, which are managed by its Skin
+            Delegate. The skin type is not a layout in and of itself; rather
+            it is just an implementation of the layout from a semantic
+            perspective. The Skin Delegate provides an interface for the skins
+            (explained below) to access the data common to the layout. An
+            example of a skin type would be an "Admin" interface and a
+            "Public" interface for an application.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Skin</emphasis> Each skin is a concrete
+            implementation of an actual layout. There can be any number of
+            skins that implement layouts for each Skin Type.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Skin Theme</emphasis> Each skin is further
+            subdivided, optionally, into themes. Themes provide an easy way to
+            use the same basic layout (the Skin) while changing colorschemes,
+            graphics packages, etc.</para>
+          </listitem>
+        </itemizedlist>By default, a new PHOCOA application has a single Skin
+      Type (simple) and two Skins (simple1, simple2). Simple1 has only one
+      theme, while simple2 has two themes set up.</para>
+
+      <para>The bundled "SkinInfo" module provides an interactive browser for
+      the installed skins on any PHOCOA application to make it easy to
+      understand and browse the skin infrastructure.</para>
+    </section>
+
+    <section>
+      <title>Further Resources</title>
+
+      <para>Visit <link linkend="???">http://phocoa.com</link> for the latest
+      news, downloads, etc. There is also a mailing list.</para>
+    </section>
+
+    <section>
       <title>Conclusion</title>
 
       <para>Hopefully this brief tutorial has showed to you the benefits of
       PHOCOA development, and taught you enough to experiment on your own.
       Thanks for reading!</para>
+    </section>
+
+    <section>
+      <title>Appendix: Using PHOCOA With Propel</title>
+
+      <para>PHOCOA is designed to use Propel as an analog for Core Data. By
+      making a 2-line change to the Propel code, your Propel objects will
+      automatically be Key-Value Coding compliant, making it very simple to
+      make your PHOCOA application interact with Propel.</para>
+
+      <para>To update your Propel to work with Phocoa, simply edit the
+      propel/om/BaseObject.php file in 2 places:</para>
+
+      <para><orderedlist>
+          <listitem>
+            <para>Include the PHOCOA WFObject.php base object file:</para>
+
+            <screen>require_once FRAMEWORK_DIR . '/framework/WFObject.php';</screen>
+          </listitem>
+
+          <listitem>
+            <para>Make the Propel BaseObject a subclass of the PHOCOA WFObject
+            base class:</para>
+
+            <screen>abstract class BaseObject<emphasis> extends WFObject </emphasis>{</screen>
+          </listitem>
+        </orderedlist></para>
+
+      <para>That's it! Your Propel install is now fully compatible with PHOCOA
+      to act as the data store for your objects.</para>
     </section>
   </chapter>
 </book>
