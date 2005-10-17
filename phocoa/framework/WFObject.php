@@ -251,7 +251,14 @@ class WFObject
 
     /**
      * Helper function to convert a keyPath into the targetKeyPath (the object to call xxxKey on) and the targetKey (the key to call on the target object).
-     * return array targetKeyPath, targetKey. Usage: list($targetKeyPath, $targetKey) = keyPathToParts($keyPath);
+     *
+     * Usage: 
+     *
+     * <code>
+     * list($targetKeyPath, $targetKey) = keyPathToParts($keyPath);
+     * </code>
+     *
+     * @return array targetKeyPath, targetKey. 
      */
     protected function keyPathToTargetAndKey($keyPath)
     {
