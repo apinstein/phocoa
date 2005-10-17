@@ -19,6 +19,7 @@
  * Formatters should always allow EMPTY values cleanly. If the developer wants to enforce a non-empty value, that should be done via validation.
  *
  * @see WFWidget::setFormatter(), WFWidget::formatter()
+ * @todo Should the valueForString() function be able to return NULL without indicating error? Maybe re-work this a bit... use exceptions, or pass-by-reference...
  */
 abstract class WFFormatter extends WFObject
 {
@@ -28,16 +29,35 @@ abstract class WFFormatter extends WFObject
     * Retrieve a string for the passed in value.
     *
     * @param mixed The value to convert to a string. Each subclass knows how to properly handle the data types it is intended for.
-    * @return string A valid string representing the data passed, or NULL if the convefrsion is not possible.
+    * @return string A valid string representing the data passed, or NULL if the conversion is not possible.
     */
     abstract function stringForValue($value);
 
     /**
+    * Retrieve a string for the passed in value. This is the string that the user would EDIT.
+    *
+    * The default implementation simply calls {@link WFFormatter::stringForValue() stringForValue}.
+    *
+    * An example of why you would implement this function would be if the value to edit is different from the value to display.
+    * For instance, for a dollar value of 5.00 you might prefer to display "$5.00" and edit "5.00".
+    *
+    * @param mixed The value to convert to a string. Each subclass knows how to properly handle the data types it is intended for.
+    * @return string A valid string representing the data passed, or NULL if the conversion is not possible.
+    * @todo Make the UI system use this call instead of stringForValue()
+    */
+    function editingStringForValue($value)
+    {
+        return $this->stringForValue($value);
+    }
+
+    /**
     * Retreive a value for the passed in string.
     *
+    * NOTE: with the current implementation it is not possible to return a "value" of NULL as a legitimate value, since it is currently used as a FLAG for error...
+    * 
     * @param string The string value. Each subclass has algorithms for converting to the particular type of object represented.
     * @param object An empty WFError object. Fill out the {@link WFError::setErrorCode()} or the {@link WFError::setErrorMessage()} if there is an error converting.
-    * @return mixed The value represented for a string.
+    * @return mixed The value represented for a string, or NULL if there was an error in the conversion. If NULL, $error should be filled out.
     *               For instance, a WFDateFormatter will return a UNIX EPOCH TIME, while a WFNumberFormatter will return float, int, etc.
     */
     abstract function valueForString($string, &$error);
@@ -176,6 +196,9 @@ class WFSQLDateFormatter extends WFFormatter
  * The Number format converts between "pretty" numbers with formatting and PHP numeric types.
  *
  * Default is 2 decimal places, ',' for thousands, and '.' for decimal.
+ *
+ * @todo Add capabilty to format witha currency character
+ * @todo Add editingStringForValue capability
  */
 class WFNumberFormatter extends WFFormatter
 {

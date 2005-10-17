@@ -519,7 +519,7 @@ abstract class WFWidget extends WFView
             if (is_null($fmtV))
             {
                 //print "skinpipng pb b/c of null value for {$this->value}<BR>";
-                return NULL;
+                return;
             }
         }
 
