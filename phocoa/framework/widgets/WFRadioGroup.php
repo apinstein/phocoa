@@ -16,6 +16,9 @@ require_once('framework/widgets/WFWidget.php');
 /**
  * The WFRadioGroup is the "interface" object used to interact with a set of WFRadio widgets.
  * 
+ * The WFRadioGroup provides a single object that you can interface with to manage a set of Radio buttons. 
+ * To bind your objects to a set of radio buttons, bind them to the WFRadioGroup, and then specify {@link WFRadio WFRadio's} as choices.
+ *
  * If you want to use WFRadio's in your page, they must be contained by a WFRadioGroup. That is, all of the WFRadio's that are a part of the WFRadioGroup should be set up as children of the WFRadioGroup.
  *
  * <b>PHOCOA Builder Setup:</b>

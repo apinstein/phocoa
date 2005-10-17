@@ -14,16 +14,25 @@
 require_once('framework/widgets/WFWidget.php');
 
 /**
- * A Checkbox widget for our framework.
+ * A Radio Button widget for our framework.
+ *
+ * Radio buttons are a set of 1 or more items that are mutually exclusive. They are similar in logic to a popup menu where only one item can be selected.
+ * Typically, NULL selection is not allowed.
+ *
+ * Unlike a popup menu, however, each choice is represented by a distinct radio button.
+ *
+ * For Phocoa, we implement this by creating whichever radio buttons are desired, and making them part of a {@link WFRadioGroup}, which acts as the interface
+ * to the selected radio button.
  *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
- * - {@link WFRadioGroup::$value Values} of radio controls are managed through WFRadioGroup
+ * - {@link WFRadio::$selectedValue selectedValue} The value to use if this radio button is selected.
  * 
  * <b>Optional:</b><br>
- * - {@link WFRadio::$selectedValue selectedValue}
  * - {@link WFRadio::$label label}
+ *
+ * NOTE: The "value" property is not really used for WFRadio... that instead is handled by the WFRadioGroup.
  */
 class WFRadio extends WFWidget
 {
