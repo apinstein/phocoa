@@ -35,7 +35,7 @@ require_once('framework/WFObjectController.php');
  * @see WFKeyValueCoding
  * @see WFKeyValueBindingCreation
  */
-class WFArrayController extends WFObjectController
+class WFArrayController extends WFObjectController implements Iterator
 {
     const USE_ARRAY_INDEXES_AS_ID = '#arrayIndexes#';
     const ID_DELIMITER = '|';
@@ -60,6 +60,15 @@ class WFArrayController extends WFObjectController
      * @var boolean TRUE if all objects should be added to the selection upon adding them to the content. This is useful if you want all objects to be selected by default.
      */
     protected $selectOnInsert;
+
+    /**
+     * @var int Iterator index, for the Iterator interface.
+     */
+    protected $iteratorIndex;
+    /**
+     * @var int Iterator object list, for the Iterator interface.
+     */
+    protected $iteratorObjects;
     
     function __construct()
     {
@@ -560,5 +569,45 @@ class WFArrayController extends WFObjectController
         return $this->content[$selectedHashes[0]];
     }
 
+    /**
+     * Iterator interface for WFArrayController.
+     */
+    function rewind()
+    {
+        $this->iteratorIndex = 0;
+        $this->iteratorObjects = $this->arrangedObjects();
+    }
+
+    /**
+     * Iterator interface for WFArrayController.
+     */
+    function valid()
+    {
+        return $this->iteratorIndex < count($this->iteratorObjects);
+    }
+
+    /**
+     * Iterator interface for WFArrayController.
+     */
+    function next()
+    {
+        $this->iteratorIndex++;
+    }
+
+    /**
+     * Iterator interface for WFArrayController.
+     */
+    function current()
+    {
+        return $this->iteratorObjects[$this->iteratorIndex];
+    }
+
+    /**
+     * Iterator interface for WFArrayController.
+     */
+    function key()
+    {
+        return $this->iteratorIndex;
+    }
 }
 ?>

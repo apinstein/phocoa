@@ -6,7 +6,7 @@
 error_reporting(E_ALL);
 
 // the CLI doesn't set the CWD to where the script it, but rather where it's run from. To get all of our relative include working, need to chdir to the framework dir.
-require_once('../../conf/webapp.conf');
+require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
 require_once('framework/WFWebApplication.php');
 
 require_once "PHPUnit2/Framework/TestCase.php";
@@ -27,6 +27,36 @@ class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
         $this->personArray = array( new Person('John', 'Doe', 1), new Person('Jane', 'Doe', 3) );
         $this->personIDArray = array( new PersonID('GA', '1234'), new PersonID('NY', '1234') );
         $this->ac = new WFArrayController();
+    }
+
+    /**
+     * Test the Iterator inteface for WFArrayController 
+     */
+    function testIterator()
+    {
+        // setup
+        $this->ac->setClass('Person');
+        $this->ac->setContent($this->personArray);
+
+        // test once
+        $i = 0;
+        $ok = false;
+        foreach ($this->ac as $person) {
+            if ($i == 0) $ok = true;    // make sure we get inside the loop!
+            if ($i == 0 and $person->uid != 1) $ok = false;
+            if ($i == 1 and $person->uid != 3) $ok = false;
+            $i++;
+        }
+        
+        // test again to be sure rewind etc works once done at least once
+        $i = 0;
+        foreach ($this->ac as $person) {
+            if ($i == 0 and $person->uid != 1) $ok = false;
+            if ($i == 1 and $person->uid != 3) $ok = false;
+            $i++;
+        }
+
+        self::assertTrue($ok);
     }
 
     // test round-trip of simple data
