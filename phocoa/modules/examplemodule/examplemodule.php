@@ -5,6 +5,7 @@ require_once('testclass.php');
 class examplemodule extends WFModule
 {
     protected $person;
+    protected $people;
     protected $someChoices = array(1,2,3,4,5,6,7);
     protected $checkboxGroupDefaultSelections = array(1,3);
 
@@ -56,9 +57,10 @@ class examplemodule extends WFModule
     {
         // initialize data used for dynamic fields
         $fields = array();
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 100; $i < 110; $i++) {
             $fields[$i] = new Person;
-            $fields[$i]->setValueForKey("Person: $i", "name");
+            $fields[$i]->setValueForKey("Johnny #$i", "name");
+            $fields[$i]->setValueForKey("$i", "id");
         }
         $this->people->setContent($fields);
     }
@@ -80,20 +82,11 @@ class examplemodule extends WFModule
         $page->outlet('selectOne')->setContentValues(array(1,2,3));
         $page->outlet('selectMultiple')->setContentValues(array(1,2,3,4,5,6));
 
-        $config = array(
-                'value' => array(
-                    'bind' => array(
-                        'instanceID' => '#current#',
-                        'controllerKey' => '',
-                        'modelKeyPath' => 'name'
-                        )
-                    )
-                );
-        $page->outlet('lotsOFields')->setWidgetConfig($config);
-
         // set up tabs
         $page->outlet('tabs')->addTab('stat_tab', 'Statically Declared Widgets', 'tab1.tpl');
         $page->outlet('tabs')->addTab('dyn_tab', 'Dynamically Declared Widgets', 'tab2.tpl');
+
+        $page->assign('itemCount', $this->people->arrangedObjectCount());
     }
 
     function selectedPeople_PageDidLoad($page)
@@ -103,21 +96,36 @@ class examplemodule extends WFModule
         $this->selectedPeople->setContent($this->people->selectedObjects());
 
         $page->assign('selectedPeople', $this->selectedPeople->arrangedObjects());
-        $config = array(
-                'value' => array(
-                    'bind' => array(
-                        'instanceID' => '#current#',
-                        'controllerKey' => '',
-                        'modelKeyPath' => 'name'
-                        )
-                    )
-                );
-        $page->outlet('selectedPeople')->setWidgetConfig($config);
     }
 
     function selectedPeople_SetupSkin($skin)
     {
         $skin->setTitle('View selected people.');
+    }
+
+    function radios_PageDidLoad($page, $params)
+    {
+        $radioDynamicOptions = array(
+                                    'label' => array(
+                                        'bind' => array(
+                                            'instanceID' => '#current#',
+                                            'controllerKey' => '',
+                                            'modelKeyPath' => 'name'
+                                            )
+                                        ),
+                                    'selectedValue' => array(
+                                        'custom' => array(
+                                            'iterate' => true,
+                                            'keyPath' => '#identifier#'
+                                            )
+                                        )
+                                    );
+        $page->outlet('radios')->setWidgetConfig($radioDynamicOptions);
+    }
+
+    function radios_submit_Action($page)
+    {
+        $page->assign('selectedValue', $page->outlet('radioGroup')->value());
     }
 }
 

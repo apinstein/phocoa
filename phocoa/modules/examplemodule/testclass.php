@@ -5,6 +5,7 @@ require_once('framework/WFObject.php');
 class Person extends WFObject
 {
     protected $name;
+    protected $id;
     protected $favoriteNumbers = array();
     protected $cars = array();
     protected $creationDTS;
