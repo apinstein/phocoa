@@ -173,6 +173,7 @@ class WFSelect extends WFWidget
     function setValues($valArray)
     {
         $this->assertMultiple(true);
+        if (!is_array($valArray)) throw( new Exception("setValues requires an array.") );
         $this->values = $valArray;
     }
 
