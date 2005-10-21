@@ -104,13 +104,19 @@ class WFRadio extends WFWidget
 
         if (isset($_REQUEST[$this->parent()->name()]))
         {
-            WFLog::log("Restoring state of {$this->id} (" . $this->selectedValue() . ")... " . $_REQUEST[$this->parent()->name()] . "<br>\n");
             if ($_REQUEST[$this->parent()->name()] == $this->selectedValue())
             {
-                WFLog::log( "State match! {$this->id} == " . $_REQUEST[$this->parent()->name()] . "<br>" );
-                $this->setSelected(true);
+                $this->parent()->setSelectedRadio($this);
             }
         }
+    }
+
+    /**
+     * A WFRadio can only determine if it's the selected one after all of its config has been loaded.
+     */
+    function allConfigFinishedLoading()
+    {
+        $this->parent()->checkRadioForDefault($this);
     }
 
     function render($blockContent = NULL)
