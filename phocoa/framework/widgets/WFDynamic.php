@@ -37,8 +37,10 @@ require_once('framework/widgets/WFWidget.php');
  * - {@link WFDynamic::$oneShotMode oneShotMode}
  * - {@link WFDynamic::$oneShotSeparatorHTML oneShotSeparatorHTML}
  *
- * @todo Ability to use a "prototype" widget to build all widgets from, that would specify widget values such as width, value, etc. Probably this will be done by providing
- * a widget ID in as the "prototypeID" and that will impply widgetClass and all of the other default attributes.
+ * @todo Ability to use a "prototype" widget to build all widgets from, that would specify widget values such as width, value, etc. Probably this will be done by providing 
+ * a widget ID in as the "prototypeID" and that will impply widgetClass and all of the other default attributes. Or, have a special naming convention for extra attributes
+ * that will automatically be passed on to the widgets via {@link setWidgetConfig()}. Then a UI could be created to manage this. 
+ * @todo Convert parentFormID into parentID. This is because WFDynamic can also be used to set up choices for {@link WFRadioGroup} and {@link WFCheckboxGroup}.
  */
 class WFDynamic extends WFWidget
 {
@@ -179,7 +181,9 @@ class WFDynamic extends WFWidget
         }
         else
         {
-            return $this->createdWidgets[$this->renderIteration++]->render();
+            $currentIteration = $this->renderIteration++;
+            if (!isset($this->createdWidgets[$currentIteration]) or !($this->createdWidgets[$currentIteration] instanceof WFView)) throw( new Exception("Widget does not exist for dynamic id: '{$this->id}' iteration: {$currentIteration}") );
+            return $this->createdWidgets[$currentIteration]->render();
         }
     }
 
@@ -202,6 +206,7 @@ class WFDynamic extends WFWidget
      * @param boolean TRUE to make each widget have a unique name.
      *                FALSE to make each widget have the same name. Of course in either case, the ID's will all be uniq, "<basename>_<itemid>".
      * @param array A list of all "magic" variables for each widget. Format:
+     *              <code>
      *              array(
      *                  // enter as many widget property names as you like.
      *                  'widgetPropName' => array(
@@ -227,7 +232,8 @@ class WFDynamic extends WFWidget
      *                                                          )
      *                                      )
      *                  )
-     *              This format lets you arbitrarily configure any property of any type of widget.
+     *              </code>
+     *              This format lets you arbitrarily configure any property of any type of widget.<br>
      *              For each property, you can choose to use the same 'value' for EVERY widget, or you can use a different value for each widget, the nth item in 'value' for the nth instance.
      * @return assoc_array An array of 'widgetID' => widget for all newly created widgets.
      */
@@ -392,6 +398,9 @@ class WFDynamic extends WFWidget
                     }
                 }
             }
+
+            // now that we've loaded all widget options (config), call the callback so that the widget can set itself up.
+            $widget->allConfigFinishedLoading();
 
             // have widget restore state, only if we've posted! otherwise it will grab improper state
             if ($parentForm and $parentForm->page()->submittedFormName())
