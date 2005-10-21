@@ -26,10 +26,10 @@ class simple_SkinDelegate
         switch ($name) {
             case 'mainMenu':
                 return array(
-                        'Hello World' => WFRequestController::WFURL('helloworld'),
-                        'phpinfo' => WFRequestController::WFURL('phpinfo'),
-                        'Examples' => WFRequestController::WFURL('examplemodule'),
-                        'Skin Info' => WFRequestController::WFURL('skininfo'),
+                        'Widget Examples Reference' => WFRequestController::WFURL('examples/widgets/toc'),
+                        'Email' => WFRequestController::WFURL('examples/emailform'),
+                        'phpinfo' => WFRequestController::WFURL('examples/phpinfo'),
+                        'Skin Info' => WFRequestController::WFURL('examples/skininfo'),
                         );
                 break;
             case 'copyright':
