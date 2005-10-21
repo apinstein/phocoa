@@ -279,7 +279,7 @@ class WFObject
         {
             $targetKey = $keyParts[$keyPartCount - 1];
             $targetKeyPath = join('.', array_slice($keyParts, 0, $keyPartCount - 1));
-            $target = $this->valueForKey($targetKeyPath);
+            $target = $this->valueForKeyPath($targetKeyPath);
         }
 
         return array($target, $targetKey);
