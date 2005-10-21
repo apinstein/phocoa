@@ -1,9 +1,0 @@
-<?php
-
-$__instances = array(
-	'radioForm' => array('class' => 'WFForm', 'children' => array(
-	'submit' => array('class' => 'WFSubmit', 'children' => array()),
-	'radios' => array('class' => 'WFDynamic', 'children' => array()),
-	'radioGroup' => array('class' => 'WFRadioGroup', 'children' => array()),)),
-);
-?>

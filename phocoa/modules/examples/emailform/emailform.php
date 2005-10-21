@@ -35,24 +35,27 @@ class ExampleEmail extends WFObject
     }
 }
 
-class helloworld extends WFModule
+class emailform extends WFModule
 {
     /**
       * Tell system which page to show if none specified.
       */
-    function defaultPage() { return 'helloWorld'; }
+    function defaultPage() { return 'compose'; }
 
-    function helloWorld_submit_Action($page)
+    function compose_submit_Action($page)
     {
         $this->email->send();
         $this->setupResponsePage('emailSuccess');
     }
 
-    function helloWorld_SetupSkin($skin)
+    function compose_SetupSkin($skin)
     {
-        $skin->setTitle("Hello, World, from PHOCOA!");
-        $skin->addMetaKeywords(array('keyword 1', 'keyword 2'));
-        $skin->setMetaDescription('Hello world example module in PHOCOA.');
+        $skin->setTitle("Compose an email.");
+    }
+
+    function emailSuccess_SetupSkin($skin)
+    {
+        $skin->setTitle("Email sent successfully.");
     }
 }
 

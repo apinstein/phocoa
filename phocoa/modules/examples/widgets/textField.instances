@@ -1,0 +1,6 @@
+<?php
+
+$__instances = array(
+	'name' => array('class' => 'WFTextField', 'children' => array()),
+);
+?>
