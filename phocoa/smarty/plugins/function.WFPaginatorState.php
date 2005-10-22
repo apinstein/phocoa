@@ -9,16 +9,16 @@
  */ 
     
 /** 
- *  Smarty plugin to include a WFTextField.
+ *  Smarty plugin to include a WFPaginatorState.
  *  
  *  Smarty Params:
- *  id - The id of the WFTextField to use.
+ *  id - The id of the WFPaginatorState to use.
  *
  *  @param array The params from smarty tag.
  *  @param object WFSmarty object of the current tpl.
  *  @return string The rendered HTML.
  */
-function smarty_function_WFTextField($params, &$smarty)
+function smarty_function_WFPaginatorState($params, &$smarty)
 {
     return $smarty->getCurrentWidget($params)->render();
 }
