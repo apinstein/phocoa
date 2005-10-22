@@ -72,7 +72,7 @@ class WFPaginatorNavigation extends WFWidget
     {
         if ($count == 1)
         {
-            return "1 " . $this->paginator->itemPhrase($count);
+            return $this->paginator->itemPhrase($count);
         }
         else
         {
@@ -85,6 +85,7 @@ class WFPaginatorNavigation extends WFWidget
         if (!$this->paginator) throw( new Exception("No paginator assigned.") );
 
         $output = '';
+        if ($this->paginator->itemCount() == 0) return NULL;
 
         if ($this->paginator->mode() == WFPaginator::MODE_URL)
         {
@@ -151,7 +152,7 @@ class WFPaginatorNavigation extends WFWidget
                     }
                     else
                     {
-                        $output .= " <a href=\"$\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($p)) . "\">$p</a>";
+                        $output .= " <a href=\"#\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($p)) . "\">$p</a>";
                     }
                 }
                 if ($lastJumpPage != $this->paginator->pageCount())

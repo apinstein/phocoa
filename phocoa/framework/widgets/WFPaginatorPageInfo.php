@@ -20,6 +20,8 @@ require_once('framework/widgets/WFView.php');
  *
  * Showing items 1-20 of 152.
  *
+ * Will be hidden if there are no items.
+ *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
@@ -47,7 +49,15 @@ class WFPaginatorPageInfo extends WFView
     function render($blockContent = NULL)
     {
         if (!$this->paginator) throw( new Exception("No paginator assigned.") );
-        return 'Showing ' . $this->paginator->itemPhrase($this->paginator->itemCount()) . ' ' . $this->paginator->startItem() . ' - ' . $this->paginator->endItem() .' of ' . $this->paginator->itemCount() . '.';
+        if ($this->paginator->itemCount() == 0) return NULL;
+        if ($this->paginator->pageSize() == 1 or $this->paginator->itemCount() == 1)
+        {
+            return 'Showing ' . $this->paginator->itemPhrase(1) . ' ' . $this->paginator->startItem() .' of ' . $this->paginator->itemCount() . '.';
+        }
+        else
+        {
+            return 'Showing ' . $this->paginator->itemPhrase(2) . ' ' . $this->paginator->startItem() . ' - ' . $this->paginator->endItem() .' of ' . $this->paginator->itemCount() . '.';
+        }
     }
 
     function canPushValueBinding() { return false; }
