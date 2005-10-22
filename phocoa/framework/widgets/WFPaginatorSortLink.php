@@ -24,6 +24,11 @@ require_once('framework/widgets/WFView.php');
  *
  * The WFPaginatorSortLink supports only single-key sorting. Multi-key userland sorting must be done with another method.
  *
+ * When the user click on the sort link, the page will refresh using the new sort order. If the user click on the same link that is the current sort, the sort
+ * will now be in the reverse direction.
+ *
+ * Note that when a sort link is clicked, the paginator will reset to the first page since the current page is meaningless once the sort changes.
+ *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>

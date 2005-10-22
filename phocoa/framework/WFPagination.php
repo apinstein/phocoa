@@ -21,13 +21,14 @@ require_once('framework/WFObject.php');
  *
  * The PHOCOA pagination infrastructure includes support for multi-key sorting as well.
  *
- * To use the pagination infrastructure, the first thing to figure out is which {@link WFPaginator::$mode} you need to use. MODE_URL effects all pagination via plain-old-urls, which
+ * To use the pagination infrastructure, the first thing to figure out is which {@link WFPaginator::$mode} you need to use. MODE_URL (default mode) effects all pagination via plain-old-urls, which
  * is more compatible, but of course cannot interact with form data (for instance a search form on the same page). MODE_FORM effects all pagination via javascript and your form. 
  *
+ * The instructions below show you how to add a paginator to an existing list view.
  * Once you have decided on the mode that's right for you, you must set up the paginator. Here's an example:
  * - Declare a WFPaginator instance in your shared instances.
- * - Declare a {@link WFPaginatorState} in your page, and configure the {@link WFPaginatorState::$paginator} element. NOTE: Only needed for MODE_FORM.
- * - Declare a {@link WFPaginatorNavigation} in your page, and configure the {@link WFPaginatorNavigation::$paginator} element.
+ * - If you're using MODE_FORM, you need to declare a {@link WFPaginatorState} in your page, and configure the {@link WFPaginatorState::$paginator} element. This is a special form element that WFPaginator uses to pass the new settings on via the form submission.
+ * - Declare a {@link WFPaginatorNavigation} in your page, and configure the {@link WFPaginatorNavigation::$paginator} element to point to your shared WFPaginator instance.
  * - Declare a {@link WFPaginatorPageInfo} in your page, and configure the {@link WFPaginatorPageInfo::$paginator} element.
  * - Declare a {@link WFPaginatorSortLink} in your page, for each link that will sort, and configure the {@link WFPaginatorSortLink::$paginator} and {@link WFWidget::$value} elements. The value of a WFPaginatorSortLink is the sortKey that the link is for, without the +/-.
  * - Configure the paginator in the sharedInstancesDidLoad method:
@@ -41,7 +42,9 @@ require_once('framework/WFObject.php');
  * <code>
  *     $this->myPaginator->setDataDelegate(new WFPagedPropelQuery($criteria, 'MyPeer'));
  *     // if you are using MODE_URL, use this line
- *     $this->myPaginator->setPaginatorState($params['paginatorStateID']);  // don't forget to set up your params for the page to grab the first param as the paginator info
+ *     // don't forget to set up your params for the page to grab the first param as the paginator info. This is done in the <page>_ParameterList() function.
+ *     $this->myPaginator->setPaginatorState($params['paginatorStateID']);
+ *
  *     // if you are using MODE_FORM, use this line
  *     $this->myPaginator->setPaginatorState($page->outlet('paginatorStateID')->value());
  *     $this->myArrayController->setContent($this->myPaginator->currentItems());
@@ -50,11 +53,15 @@ require_once('framework/WFObject.php');
  * NOTE: The first page is page 1 (as opposed to page 0).
  *
  * @see WFPaginatorNavigation, WFPaginatorPageInfo, WFPaginatorSortLink, WFPaginatorState
- * @see WFPagedArray, WFPagedPropelQuery
+ * @see WFPagedArray, WFPagedPropelQuery, WFPagedCreoleQuery
  * @todo What needs to be done with bindings, anything?
  */
 class WFPaginator extends WFObject
 {
+    /**
+     * @var int Which mode is the paginator working in, {@link WFPaginator::MODE_URL} (default) or {@link WFPaginator::MODE_FORM}.
+     */
+    protected $mode;
     /**
      * @var integer The total item count for the paginated data. This is actually a cached value, see {@link WFPaginator::itemCount() itemCount}.
      */
