@@ -1,7 +1,0 @@
-<?php
-
-$__instances = array(
-	'name' => array('class' => 'WFLabel', 'children' => array()),
-	'creationDTS' => array('class' => 'WFLabel', 'children' => array()),
-);
-?>

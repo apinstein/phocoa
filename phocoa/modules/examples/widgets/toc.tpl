@@ -22,8 +22,8 @@
 </ul>
 
 <h3>Advanced Features</h3>
-<p>coming soon...</p>
 <ul>
+    <li><a href="{WFURL module="/examples/concepts/pagination"}">Pagination</a></li>
     <li>Formatters.</li>
     <li>Single-Value Binding.</li>
     <li>Multi-Value BOOLEAN Binding.</li>
