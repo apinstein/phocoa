@@ -27,9 +27,9 @@ class WFIsNotEmptyTransformer extends WFValueTransformer
     {
         if (empty($value))
         {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     function reverseTransformedValue($value)
