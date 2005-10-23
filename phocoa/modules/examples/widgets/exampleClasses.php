@@ -11,6 +11,7 @@ class Person extends WFObject
     private $city;
     protected $favoriteColors;
     protected $gender;
+    protected $wealth;
 
     function __construct()
     {
@@ -58,6 +59,7 @@ class Person extends WFObject
             $person->setValueForKey('I am 31 and a Libra.', 'bio');
             $person->setValueForKey(array('blue', 'red'), 'favoriteColors');
             $person->setValueForKey('male', 'gender');
+            $person->setValueForKey('2500.25', 'wealth');
             $person->setCityID(2);
             $people[] = $person;
 

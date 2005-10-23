@@ -1,0 +1,8 @@
+<?php
+
+$__instances = array(
+	'unixDateFormatter' => 'WFUNIXDateFormatter',
+	'currencyFormatter' => 'WFNumberFormatter',
+	'person' => 'WFObjectController',
+);
+?>

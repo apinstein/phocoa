@@ -5,6 +5,7 @@ require_once('exampleClasses.php');
 class widgets extends WFModule
 {
     protected $person;
+    protected $cities;
 
     function __construct($invocation)
     {

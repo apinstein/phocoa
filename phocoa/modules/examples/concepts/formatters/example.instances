@@ -1,0 +1,9 @@
+<?php
+
+$__instances = array(
+	'creationDTS' => array('class' => 'WFLabel', 'children' => array()),
+	'wealth' => array('class' => 'WFLabel', 'children' => array()),
+	'formattedCreationDTS' => array('class' => 'WFLabel', 'children' => array()),
+	'formattedWealth' => array('class' => 'WFLabel', 'children' => array()),
+);
+?>
