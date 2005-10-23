@@ -76,7 +76,10 @@ class WFTextField extends WFWidget
         $myBindings = parent::setupExposedBindings();
         $myBindings[] = new WFBindingSetup('maxLength', 'The maxLength of the text field (in HTML).');
         $myBindings[] = new WFBindingSetup('size', 'The size of the text field (in HTML).');
-        $myBindings[] = new WFBindingSetup('enabled', 'Whether or not the text field is enabled (in HTML).');
+        $enSetup = new WFBindingSetup('enabled', 'Whether or not the text field is enabled (in HTML).');
+        $enSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
+        $enSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND);
+        $myBindings[] = $enSetup;
         return $myBindings;
     }
 
