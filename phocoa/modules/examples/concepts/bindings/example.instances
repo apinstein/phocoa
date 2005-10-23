@@ -1,0 +1,15 @@
+<?php
+
+$__instances = array(
+	'hideIfEmpty' => array('class' => 'WFLabel', 'children' => array()),
+	'hideIfNotEmpty' => array('class' => 'WFLabel', 'children' => array()),
+	'valuePattern' => array('class' => 'WFLabel', 'children' => array()),
+	'multMultEnabledOff' => array('class' => 'WFTextField', 'children' => array()),
+	'multMultEnabledOn' => array('class' => 'WFTextField', 'children' => array()),
+	'multMultHiddenOff' => array('class' => 'WFLabel', 'children' => array()),
+	'multMultHiddenOn' => array('class' => 'WFLabel', 'children' => array()),
+	'multOneOff' => array('class' => 'WFLabel', 'children' => array()),
+	'multOneOn' => array('class' => 'WFLabel', 'children' => array()),
+	'simpleBinding' => array('class' => 'WFLabel', 'children' => array()),
+);
+?>

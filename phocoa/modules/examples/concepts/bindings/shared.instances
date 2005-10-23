@@ -1,0 +1,6 @@
+<?php
+
+$__instances = array(
+	'person' => 'WFObjectController',
+);
+?>

@@ -81,6 +81,29 @@ class Person extends WFObject
     {
         return array('blue', 'brown', 'green', 'red', 'yellow', 'orange');
     }
+
+    function returnsTrue()
+    {
+        return true;
+    }
+    function alsoReturnsTrue()
+    {
+        return true;
+    }
+
+    function returnsFalse()
+    {
+        return false;
+    }
+    function alsoReturnsFalse()
+    {
+        return false;
+    }
+
+    function returnsEmptyArray()
+    {
+        return array();
+    }
 }
 
 class City extends WFObject

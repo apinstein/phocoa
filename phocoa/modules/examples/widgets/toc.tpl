@@ -23,7 +23,5 @@
 <ul>
     <li><a href="{WFURL module="/examples/concepts/pagination"}">Pagination</a></li>
     <li><a href="{WFURL module="/examples/concepts/formatters"}">Formatters</a></li>
-    <li>Single-Value Binding.</li>
-    <li>Multi-Value BOOLEAN Binding.</li>
-    <li>Multi-Value PATTERN Binding (i.e. strprintf).</li>
+    <li><a href="{WFURL module="/examples/concepts/bindings"}">Bindings - Binding Options and Multi-Value Bindings</a></li>
 </ul>
