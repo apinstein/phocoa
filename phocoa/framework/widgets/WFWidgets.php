@@ -39,4 +39,13 @@ require_once('framework/widgets/WFModuleView.php');
 require_once('framework/widgets/WFTabView.php');
 require_once('framework/widgets/WFPaginatorPageInfo.php');
 
+// set up the common Vale Transformers
+require_once('framework/ValueTransformers/WFNegateBooleanTransformer.php');
+require_once('framework/ValueTransformers/WFIsEmptyTransformer.php');
+require_once('framework/ValueTransformers/WFIsNotEmptyTransformer.php');
+
+WFValueTransformer::setValueTransformerForName(new WFNegateBooleanTransformer, 'WFNegateBoolean');
+WFValueTransformer::setValueTransformerForName(new WFIsEmptyTransformer, 'WFIsEmpty');
+WFValueTransformer::setValueTransformerForName(new WFIsNotEmptyTransformer, 'WFIsNotEmpty');
+
 ?>
