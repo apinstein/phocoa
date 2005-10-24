@@ -42,8 +42,9 @@ require_once('framework/WFObject.php');
  * <code>
  *     $this->myPaginator->setDataDelegate(new WFPagedPropelQuery($criteria, 'MyPeer'));
  *     // if you are using MODE_URL, use this line
- *     // don't forget to set up your params for the page to grab the first param as the paginator info. This is done in the <page>_ParameterList() function.
- *     $this->myPaginator->setPaginatorState($params['paginatorStateID']);
+ *     // don't forget to set up your params for the page to grab the LAST param as the paginator info. This is done in the <page>_ParameterList() function.
+ *     // it is very important for the LAST parameter to be the paginator state. This assumption is used when creating the paginator links automatically and is required for proper operation.
+ *     $this->myPaginator->setPaginatorState($params['paginatorState']);
  *
  *     // if you are using MODE_FORM, use this line
  *     $this->myPaginator->setPaginatorState($page->outlet('paginatorStateID')->value());
