@@ -128,6 +128,22 @@ class WFDynamic extends WFWidget
          return false;
     }
 
+    function setSimpleBindKeyPath($kp)
+    {
+        $this->simpleBindKeyPath = $kp;
+    }
+
+    function setWidgetClass($widgetClass)
+    {
+        $this->widgetClass = $widgetClass;
+    }
+    
+    function setArrayController($ac)
+    {
+        if (!($ac instanceof WFArrayController)) throw( new Exception("arrayController must be a WFArrayController.") );
+        $this->arrayController = $ac;
+    }
+
     /**
      *  Get an array of all of the widgets managed by this WFDynamic instance.
      *
