@@ -1,0 +1,7 @@
+<?php
+
+$__instances = array(
+	'pageInfo' => array('class' => 'WFPaginatorPageInfo', 'children' => array()),
+	'pageNav' => array('class' => 'WFPaginatorNavigation', 'children' => array()),
+);
+?>

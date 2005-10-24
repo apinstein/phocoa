@@ -1,0 +1,29 @@
+AUTOWEB is a powerful PHOCOA module.
+
+AUTOWEB is a dynamic database editor for Propel-based databases.
+
+Simple configure the settings in autoweb.config and access the autoweb module on your server (http://your-server.com/webapp/autoweb usually).
+
+This will allow you to browse your database immediately.
+
+AUTOWEB dynamically reads your Propel database metadata and builds a web application on-the-fly to provide access to the records.
+
+Presently, AUTOWEB provides read-only browsing of data. The data is paginated.
+
+In the future, we will be adding capabilities for AUTOWEB to search, edit, create, and delete records.
+
+We are considering architectural strategies at this time. One model is to base it on DirectToWeb from WebObjects.
+
+Links:
+http://developer.apple.com/documentation/WebObjects/Developing_With_D2W/index.html
+http://www.stepwise.com/Articles/Technical/D2W/D2W1.html
+
+This is just in the conceptual phase now, as we want to carefully consider the various architectures for creating applications in this way.
+
+Please note that AUTOWEB is a separate project from the skeleton application generation capabilites also being planned. The skeleton app code gen scripts will create the skeleton of a complete database admin for your Propel tables. Once the skeleton is created, that's it for this process. The rest is just editing the code. Skeleton code gen is just a jump-start to building your app, and is not intended to be a complete solution.
+
+AUTOWEB, on the other hand, with appropriate configuraiton, could be a useable web front end.
+
+Please join the phocoa-dev mailing list and help out if you like the idea!
+
+http://lists.phocoa.com/mailman/listinfo/phocoa-dev
