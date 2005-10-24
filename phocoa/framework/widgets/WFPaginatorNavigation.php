@@ -83,9 +83,10 @@ class WFPaginatorNavigation extends WFWidget
     function render($blockContent = NULL)
     {
         if (!$this->paginator) throw( new Exception("No paginator assigned.") );
+        if ($this->paginator->itemCount() == 0) return NULL;
+        if ($this->paginator->pageSize() == WFPaginator::PAGINATOR_PAGESIZE_ALL) return NULL;
 
         $output = '';
-        if ($this->paginator->itemCount() == 0) return NULL;
 
         if ($this->paginator->mode() == WFPaginator::MODE_URL)
         {

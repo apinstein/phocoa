@@ -363,7 +363,14 @@ class WFPaginator extends WFObject
      */
     function startItem()
     {
-        return (1 + ($this->pageSize * ($this->currentPage - 1)));
+        if ($this->pageSize == WFPaginator::PAGINATOR_PAGESIZE_ALL)
+        {
+            return 1;
+        }
+        else
+        {
+            return (1 + ($this->pageSize * ($this->currentPage - 1)));
+        }
     }
 
     /**
@@ -373,7 +380,14 @@ class WFPaginator extends WFObject
      */
     function endItem()
     {
-        return min($this->itemCount(), $this->startItem() + $this->pageSize - 1);
+        if ($this->pageSize == WFPaginator::PAGINATOR_PAGESIZE_ALL)
+        {
+            return $this->itemCount();
+        }
+        else
+        {
+            return min($this->itemCount(), $this->startItem() + $this->pageSize - 1);
+        }
     }
 
     /**
