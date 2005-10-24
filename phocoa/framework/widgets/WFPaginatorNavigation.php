@@ -26,6 +26,7 @@ require_once('framework/widgets/WFWidget.php');
  * <b>Optional:</b><br>
  * - {@link WFPaginatorNavigation::$maxJumpPagesToShow}
  *
+ * @todo Move the MODE / baseURL stuff into WFPaginator as it's set only once per paginator, and multiple widgets need access to it.
  * @todo Make sure that the pagination links work properly when this widget is in a composited view. Not sure how the params will work from __construct etc... 
  */
 class WFPaginatorNavigation extends WFWidget
