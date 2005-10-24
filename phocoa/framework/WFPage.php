@@ -45,6 +45,7 @@ class WFPage extends WFObject
     protected $pageName;    // the name of the "page" (ie UI bundle - needs to be placed in the forms so the requestPage can load the UI instances)
     protected $template;    // and object conforming to interface WFPageRendering
     protected $instances;   // assoc array of all instances, 'id' => instance object
+    protected $parameters;  // finalized calculated parameters in effect for the page
     protected $errors;      // all validation errors for the current page; errors are managed in real-time. Any errors added to widgets of this page 
                             // are automatically added to our page errors list.
 
@@ -57,6 +58,7 @@ class WFPage extends WFObject
         $this->template = NULL;
         $this->instances = array();
         $this->errors = array();
+        $this->parameters = array();
         WFLog::log("instantiating a page", WFLog::TRACE_LOG, PEAR_LOG_DEBUG);
     }
 
@@ -67,6 +69,19 @@ class WFPage extends WFObject
     function module()
     {
         return $this->module;
+    }
+
+    /**
+     *  Get the parameters for the page. These are the parsed parameters of the URL, coalesced with form elements of the same name.
+     *
+     *  NOTE: This data isn't available until after initPage() has executed.
+     *
+     *  @return assoc_array Array of parameters in format 'parameterID' => 'parameterValue'
+     *  @todo refactor initPage to move the code from there to here so that it's available earlier in the life cycle.
+     */
+    function parameters()
+    {
+        return $this->parameters;
     }
 
     /**
@@ -710,6 +725,8 @@ class WFPage extends WFObject
                 }
             }
         }
+        // save completed parameters
+        $this->parameters = $parameters;
 
         // this is where pages will set up their bound objects, etc.
         $didLoadMethod = "{$this->pageName}_PageDidLoad";
