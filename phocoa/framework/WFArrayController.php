@@ -34,6 +34,7 @@ require_once('framework/WFObjectController.php');
  *
  * @see WFKeyValueCoding
  * @see WFKeyValueBindingCreation
+ * @todo Should there be a "canSelectMultiple" setting? This was if you're using it in a Master-Detail interface it'd be easier to manage the selection? In this case a combo of selectOnInsert and addObject would make it easy to managed.
  */
 class WFArrayController extends WFObjectController implements Iterator
 {
@@ -495,10 +496,9 @@ class WFArrayController extends WFObjectController implements Iterator
     /**
      *  Remove the passed objects from the arrayController's selection.
      *
-     *  THIS FUNCTION HAS NOT BEEN TESTED YET!!!
-     *
-     *  @param array An array of ids: array(1,2). The ids, if they are multi-key ids, should be passed as array(array(1,2),array(1,3)).
+     *  @param array An array of hashes of the objects to be removed: array(1,2). Hashes are string for both single and multi-key arrays.
      *  @throws Exception if the passed parameter is not an array.
+     *  @see identifierHashForObject, identifierHashForValues
      */
     function removeSelectionIdentifiers($idsToRemove)
     {
@@ -506,9 +506,9 @@ class WFArrayController extends WFObjectController implements Iterator
 
         foreach ($idsToRemove as $id) {
             // remove from selection, only if it exists!
-            if (isset($this->selectedIdentifiersHash[$hash]))
+            if (isset($this->selectedIdentifiersHash[$id]))
             {
-                unset($this->selectedIdentifiersHash[$hash]);
+                unset($this->selectedIdentifiersHash[$id]);
             }
         }
     }
