@@ -147,35 +147,16 @@ class WFObject
                             $result = count($magicArray);
                             break;
                         case '@sum':
-                            $result = 0;
-                            foreach ($magicArray as $item) {
-                                $result += $item;
-                            }
+                            $result = array_sum ( $magicArray );
                             break;
                         case '@max':
-                            $result = $magicArray[0];
-                            foreach ($magicArray as $item) {
-                                if ($item > $result)
-                                {
-                                    $result = $item;
-                                }
-                            }
+                            $result = max ( $magicArray );
                             break;
                         case '@min':
-                            $result = $magicArray[0];
-                            foreach ($magicArray as $item) {
-                                if ($item < $result)
-                                {
-                                    $result = $item;
-                                }
-                            }
+                            $result = min ( $magicArray );
                             break;
                         case '@avg':
-                            $total = 0;
-                            foreach ($magicArray as $item) {
-                                $total += $item;
-                            }
-                            $result = $total / count($magicArray);
+                            $result = array_sum ( $magicArray ) / count($magicArray);
                             break;
                         case '@unionOfArrays':
                             $result = array();
