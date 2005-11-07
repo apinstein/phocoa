@@ -10,7 +10,7 @@ class MyWebApplicationDelegate
 {
     function defaultModule()
     {
-        return 'helloworld';
+        return 'examples/widgets';
     }
 
     // switch between different skin catalogs; admin, public, partner reporting, etc
