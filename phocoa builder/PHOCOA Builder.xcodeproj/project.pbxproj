@@ -26,7 +26,7 @@
 		E10C53C8091484750014B582 /* ModuleMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C53C7091484750014B582 /* ModuleMainWindowController.m */; };
 		E10C54D70915AD8E0014B582 /* Page.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C54D60915AD8E0014B582 /* Page.m */; };
 		E10C55B90915BC040014B582 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E10C55B80915BC040014B582 /* WebKit.framework */; };
-		E193CA8709172F4200132276 /* PHOCOA Builder in Resources */ = {isa = PBXBuildFile; fileRef = E193CA8609172F4200132276 /* PHOCOA Builder */; };
+		E193CA8709172F4200132276 /* README in Resources */ = {isa = PBXBuildFile; fileRef = E193CA8609172F4200132276 /* README */; };
 		E1EE70DC091D768C009C71E1 /* TaskWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = E1EE70DB091D768C009C71E1 /* TaskWrapper.m */; };
 /* End PBXBuildFile section */
 
@@ -94,7 +94,7 @@
 		E10C54D50915AD8E0014B582 /* Page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
 		E10C54D60915AD8E0014B582 /* Page.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Page.m; sourceTree = "<group>"; };
 		E10C55B80915BC040014B582 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
-		E193CA8609172F4200132276 /* PHOCOA Builder */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "PHOCOA Builder"; sourceTree = "<group>"; };
+		E193CA8609172F4200132276 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		E1EE70DA091D768C009C71E1 /* TaskWrapper.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TaskWrapper.h; sourceTree = "<group>"; };
 		E1EE70DB091D768C009C71E1 /* TaskWrapper.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = TaskWrapper.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -142,7 +142,7 @@
 		2A37F4AAFDCFA73011CA2CEA /* PHOCOA Builder */ = {
 			isa = PBXGroup;
 			children = (
-				E193CA8609172F4200132276 /* PHOCOA Builder */,
+				E193CA8609172F4200132276 /* README */,
 				2A37F4ABFDCFA73011CA2CEA /* Classes */,
 				E1B74B1A0667B4A90069E3BA /* Models */,
 				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
@@ -303,7 +303,7 @@
 				8D15AC2E0486D014006FF6A4 /* ModuleDocument.nib in Resources */,
 				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
 				E10C52E9091070770014B582 /* phocoa_serializer.php in Resources */,
-				E193CA8709172F4200132276 /* PHOCOA Builder in Resources */,
+				E193CA8709172F4200132276 /* README in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
