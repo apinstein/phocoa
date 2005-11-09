@@ -4,6 +4,7 @@
     <p>You must log in to access the requested page.</p>
     {/if}
 
+    {WFShowErrors}
     {WFForm id="loginForm"}
     {WFHidden id="continueURL"}
         <table border="0">

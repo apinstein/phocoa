@@ -46,6 +46,10 @@ class login extends WFModule
             }
             exit;
         }
+        else
+        {
+            $page->addError(new WFError("Login username or password is not valid.") );
+        }
     }
 
     function promptLogin_SetupSkin($skin)
