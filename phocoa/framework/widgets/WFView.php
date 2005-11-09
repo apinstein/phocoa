@@ -75,6 +75,16 @@ abstract class WFView extends WFObject
     }
 
     /**
+     *  Get a relative URL path to the public www dir for graphics for this widget.
+     *
+     *  @return string The URL to directory containing www items for this widget.
+     */
+    function getWidgetWWWDir()
+    {
+        return WWW_ROOT . '/www/framework/widgets/' . get_class($this);
+    }
+    
+    /**
       * Get the {@link WFPage} object that this view belongs to.
       */
     function page()

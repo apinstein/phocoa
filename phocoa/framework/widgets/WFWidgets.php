@@ -17,6 +17,7 @@ require_once('framework/widgets/WFSelectionCheckbox.php');
 require_once('framework/widgets/WFImage.php');
 require_once('framework/widgets/WFForm.php');
 require_once('framework/widgets/WFLabel.php');
+require_once('framework/widgets/WFMessageBox.php');
 require_once('framework/widgets/WFPassword.php');
 require_once('framework/widgets/WFTextField.php');
 require_once('framework/widgets/WFTextArea.php');

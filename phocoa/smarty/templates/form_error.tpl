@@ -1,7 +1,9 @@
-<div style="border: 2px solid red;">
-    <ul>
-    {section name=error loop=$errorList}
-        <li>{$errorList[error]->errorMessage()}</li>
-    {/section}
-    </ul>
+<div style="margin: 5px 0; padding: 0;">
+    <div class="phocoaWFMessageBox phocoaWFMessageBox_Error">
+        <ul>
+        {section name=error loop=$errorList}
+            <li>{$errorList[error]->errorMessage()}</li>
+        {/section}
+        </ul>
+    </div>
 </div>
