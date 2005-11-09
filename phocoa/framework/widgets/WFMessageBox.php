@@ -22,14 +22,14 @@ require_once('framework/widgets/WFWidget.php');
  * - {@link WFWidget::$value value} The message to display. Can use ValuePattern.
  * 
  * <b>Optional:</b><br>
- * - {@link WFMessageBox::$mode mode} Built-in types are phocoaWFMessageBox_Info, phocoaWFMessageBox_Warning, phocoaWFMessageBox_Error, and phocoaWFMessageBox_Confirm. You can supply any string, which will be used as the "class" of the div. This allows you to customize the icons for custom messages.
+ * - {@link WFMessageBox::$mode mode} Built-in types are Info, Warning, Error, and Confirm. You can supply any string, which will be used as the "class" of the div. This allows you to customize the icons for custom messages. Default is "Info".
  */
 class WFMessageBox extends WFWidget
 {
-    const WFMESSAGEBOX_INFO = 'phocoaWFMessageBox_Info';
-    const WFMESSAGEBOX_WARNING = 'phocoaWFMessageBox_Warning';
-    const WFMESSAGEBOX_ERROR = 'phocoaWFMessageBox_Error';
-    const WFMESSAGEBOX_CONFIRM = 'phocoaWFMessageBox_Confirm';
+    const WFMESSAGEBOX_INFO = 'Info';
+    const WFMESSAGEBOX_WARNING = 'Warning';
+    const WFMESSAGEBOX_ERROR = 'Error';
+    const WFMESSAGEBOX_CONFIRM = 'Confirm';
 
     /**
      * @var string The "mode" of the MessageBox.
@@ -78,8 +78,9 @@ class WFMessageBox extends WFWidget
                     $imgSrc .= 'WFMessageBox_Icon_Warning.jpg';
                     break;
             }
+            $modeClass = "phocoaWFMessageBox_{$this->mode}";
             return "
-<div style=\"margin: 5px 0; padding: 0;\"><div class=\"phocoaWFMessageBox {$this->mode}\">
+<div style=\"margin: 5px 0; padding: 0;\"><div class=\"phocoaWFMessageBox {$modeClass}\">
 <img class=\"phocoaWFMessageBox_icon\" src=\"{$imgSrc}\" />
 {$this->value}
 </div></div>
