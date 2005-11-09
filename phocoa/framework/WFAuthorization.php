@@ -51,8 +51,6 @@ class WFAuthorizationDelegate extends WFObject
   *
   * NOTE: If you are using a subclass of WFAuthorizationInfo, please note that the authorizationInfo managed by WFAuthorizationManager will only be of your subclass' type if
   * someone is logged in. Until then, it's always WFAuthorizationInfo. So, always test isLoggedIn() before accessing authorizationInfo as your subclass.
-  *
-  * @todo Should isAdmin() be moved into the base class here? Seems that all apps probably need a superuser!
   */
 class WFAuthorizationInfo extends WFObject
 {
@@ -60,6 +58,10 @@ class WFAuthorizationInfo extends WFObject
       * @var string The userid of the logged in user.
       */
     protected $userid;
+    /**
+     * @var boolean TRUE is the user is a super-user. FALSE otherwise.
+     */
+    protected $isSuperUser;
 
     /**
       * @const Flag for no user logged in.
@@ -69,8 +71,29 @@ class WFAuthorizationInfo extends WFObject
     function __construct()
     {
         $this->userid = WFAuthorizationInfo::NO_USER;
+        $this->isSuperUser = false;
     }
 
+    /**
+     *  Is the current user a superuser?
+     *
+     *  @return boolean TRUE if superuser, false otherwise.
+     */
+    function isSuperUser()
+    {
+        return $this->isSuperUser;
+    }
+    
+    /**
+     *  Set the superuser status.
+     *
+     *  @param boolean TRUE if the user is a superuser, false otherwise.
+     */
+    function setIsSuperUser($isSuperUser)
+    {
+        $this->isSuperUser = $isSuperUser;
+    }
+    
     /**
       * Set the user id of the authorized user.
       * @param string The user id.
@@ -133,8 +156,15 @@ class WFAuthorizationException extends Exception
   *
   * By default, a web application has no login capabilities and thus all users are unprivileged.
   *
+  * WFAuthorizationManager works in conjuction with the bundled "login" module. The following is the public interface of the login module:
+  * - promptLogin($continueURL)
+  * - doLogout()
+  * - notAuthorized()
+  * If you want to extend / override the default login module, you can set the invocation path of the login module with {@link WFAuthorizationManager::setLoginModule()}. NOT YET IMPLEMENTED.
+  * ??????????? THINK ABOUT THE ABOVE... NOT YET WELL THOUGHT OUT....
+  *
+  * @todo Do we need to encapsulate the "login" module in a method of WFAuthorizationManager so that applications can override the login module with their own?
   * @todo Remember-me logins not yet implemented. See loginWithHash()
-  * @todo forgotten password? need generic interface for resetting (secret question, email, etc)
   * @todo Login page needs to have redirect-url support (default and passed-in)
   * @todo verify login with garbled image (OPTIONAL)
   */
