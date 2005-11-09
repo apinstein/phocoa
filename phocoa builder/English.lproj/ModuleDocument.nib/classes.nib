@@ -1,0 +1,19 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = ModuleDocument; LANGUAGE = ObjC; SUPERCLASS = NSPersistentDocument; }, 
+        {
+            CLASS = ModuleMainWindowController; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = NSPersistentDocument; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
+        {
+            CLASS = PageTableDelegate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {pagesController = id; webView = id; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}

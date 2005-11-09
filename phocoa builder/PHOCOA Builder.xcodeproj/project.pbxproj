@@ -1,0 +1,477 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		775BDEF1067A8BF0009058FE /* MyDocument.xcdatamodel in Sources */ = {isa = PBXBuildFile; fileRef = 775BDEF0067A8BF0009058FE /* MyDocument.xcdatamodel */; };
+		775DFF38067A968500C5B868 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */; };
+		8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */; };
+		8D15AC2D0486D014006FF6A4 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */; };
+		8D15AC2E0486D014006FF6A4 /* ModuleDocument.nib in Resources */ = {isa = PBXBuildFile; fileRef = 2A37F4B4FDCFA73011CA2CEA /* ModuleDocument.nib */; };
+		8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165FFE840EACC02AAC07 /* InfoPlist.strings */; };
+		8D15AC310486D014006FF6A4 /* ModuleDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4ACFDCFA73011CA2CEA /* ModuleDocument.m */; settings = {ATTRIBUTES = (); }; };
+		8D15AC320486D014006FF6A4 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2A37F4B0FDCFA73011CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
+		E102D73009171D55003C92AB /* PageInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D72F09171D55003C92AB /* PageInstance.m */; };
+		E102D76A0917202F003C92AB /* PageInstanceConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D7690917202F003C92AB /* PageInstanceConfig.m */; };
+		E102D77F091720F4003C92AB /* PageInstanceBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D77E091720F4003C92AB /* PageInstanceBinding.m */; };
+		E102D7A2091721C3003C92AB /* PageInstanceBindingOption.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D7A1091721C3003C92AB /* PageInstanceBindingOption.m */; };
+		E10C52E9091070770014B582 /* phocoa_serializer.php in Resources */ = {isa = PBXBuildFile; fileRef = E10C52E8091070770014B582 /* phocoa_serializer.php */; };
+		E10C52F6091071430014B582 /* SharedInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C52F5091071430014B582 /* SharedInstance.m */; };
+		E10C5349091076D40014B582 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C5348091076D40014B582 /* AppDelegate.m */; };
+		E10C536F091079370014B582 /* SharedInstanceConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C536E091079370014B582 /* SharedInstanceConfig.m */; };
+		E10C53C8091484750014B582 /* ModuleMainWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C53C7091484750014B582 /* ModuleMainWindowController.m */; };
+		E10C54D70915AD8E0014B582 /* Page.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C54D60915AD8E0014B582 /* Page.m */; };
+		E10C55B90915BC040014B582 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E10C55B80915BC040014B582 /* WebKit.framework */; };
+		E193CA8709172F4200132276 /* PHOCOA Builder in Resources */ = {isa = PBXBuildFile; fileRef = E193CA8609172F4200132276 /* PHOCOA Builder */; };
+		E1EE70DC091D768C009C71E1 /* TaskWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = E1EE70DB091D768C009C71E1 /* TaskWrapper.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		4A9504D0FFE6A4CB11CA0CBA /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PREBINDING = NO;
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		4A9504D1FFE6A4CB11CA0CBA /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				PREBINDING = NO;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXFileReference section */
+		089C1660FE840EACC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		2A37F4ACFDCFA73011CA2CEA /* ModuleDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModuleDocument.m; sourceTree = "<group>"; };
+		2A37F4AEFDCFA73011CA2CEA /* ModuleDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModuleDocument.h; sourceTree = "<group>"; };
+		2A37F4B0FDCFA73011CA2CEA /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		2A37F4B5FDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/ModuleDocument.nib; sourceTree = "<group>"; };
+		2A37F4B7FDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		2A37F4BAFDCFA73011CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
+		2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
+		2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		32DBCF750370BD2300C91783 /* PHOCOA Builder_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PHOCOA Builder_Prefix.pch"; sourceTree = "<group>"; };
+		775BDEF0067A8BF0009058FE /* MyDocument.xcdatamodel */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = wrapper.xcdatamodel; path = MyDocument.xcdatamodel; sourceTree = "<group>"; };
+		7788DA0506752A1600599AAD /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		8D15AC360486D014006FF6A4 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8D15AC370486D014006FF6A4 /* PHOCOA Builder.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PHOCOA Builder.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E102D72E09171D55003C92AB /* PageInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageInstance.h; sourceTree = "<group>"; };
+		E102D72F09171D55003C92AB /* PageInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageInstance.m; sourceTree = "<group>"; };
+		E102D7680917202F003C92AB /* PageInstanceConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageInstanceConfig.h; sourceTree = "<group>"; };
+		E102D7690917202F003C92AB /* PageInstanceConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageInstanceConfig.m; sourceTree = "<group>"; };
+		E102D77D091720F4003C92AB /* PageInstanceBinding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageInstanceBinding.h; sourceTree = "<group>"; };
+		E102D77E091720F4003C92AB /* PageInstanceBinding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageInstanceBinding.m; sourceTree = "<group>"; };
+		E102D7A0091721C3003C92AB /* PageInstanceBindingOption.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageInstanceBindingOption.h; sourceTree = "<group>"; };
+		E102D7A1091721C3003C92AB /* PageInstanceBindingOption.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageInstanceBindingOption.m; sourceTree = "<group>"; };
+		E10C52E8091070770014B582 /* phocoa_serializer.php */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.php; path = phocoa_serializer.php; sourceTree = "<group>"; };
+		E10C52F4091071430014B582 /* SharedInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedInstance.h; sourceTree = "<group>"; };
+		E10C52F5091071430014B582 /* SharedInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SharedInstance.m; sourceTree = "<group>"; };
+		E10C5347091076D40014B582 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		E10C5348091076D40014B582 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		E10C536D091079370014B582 /* SharedInstanceConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedInstanceConfig.h; sourceTree = "<group>"; };
+		E10C536E091079370014B582 /* SharedInstanceConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SharedInstanceConfig.m; sourceTree = "<group>"; };
+		E10C53C6091484750014B582 /* ModuleMainWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModuleMainWindowController.h; sourceTree = "<group>"; };
+		E10C53C7091484750014B582 /* ModuleMainWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModuleMainWindowController.m; sourceTree = "<group>"; };
+		E10C54D50915AD8E0014B582 /* Page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
+		E10C54D60915AD8E0014B582 /* Page.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Page.m; sourceTree = "<group>"; };
+		E10C55B80915BC040014B582 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
+		E193CA8609172F4200132276 /* PHOCOA Builder */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "PHOCOA Builder"; sourceTree = "<group>"; };
+		E1EE70DA091D768C009C71E1 /* TaskWrapper.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TaskWrapper.h; sourceTree = "<group>"; };
+		E1EE70DB091D768C009C71E1 /* TaskWrapper.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = TaskWrapper.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8D15AC330486D014006FF6A4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				775DFF38067A968500C5B868 /* Cocoa.framework in Frameworks */,
+				E10C55B90915BC040014B582 /* WebKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7A7FEA54F5311CA2CBB /* Cocoa.framework */,
+			);
+			name = "Linked Frameworks";
+			sourceTree = "<group>";
+		};
+		1058C7A8FEA54F5311CA2CBB /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E10C55B80915BC040014B582 /* WebKit.framework */,
+				2A37F4C5FDCFA73011CA2CEA /* Foundation.framework */,
+				7788DA0506752A1600599AAD /* CoreData.framework */,
+				2A37F4C4FDCFA73011CA2CEA /* AppKit.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		19C28FB0FE9D524F11CA2CBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D15AC370486D014006FF6A4 /* PHOCOA Builder.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2A37F4AAFDCFA73011CA2CEA /* PHOCOA Builder */ = {
+			isa = PBXGroup;
+			children = (
+				E193CA8609172F4200132276 /* PHOCOA Builder */,
+				2A37F4ABFDCFA73011CA2CEA /* Classes */,
+				E1B74B1A0667B4A90069E3BA /* Models */,
+				2A37F4AFFDCFA73011CA2CEA /* Other Sources */,
+				2A37F4B8FDCFA73011CA2CEA /* Resources */,
+				2A37F4C3FDCFA73011CA2CEA /* Frameworks */,
+				19C28FB0FE9D524F11CA2CBB /* Products */,
+			);
+			name = "PHOCOA Builder";
+			sourceTree = "<group>";
+		};
+		2A37F4ABFDCFA73011CA2CEA /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				E102D72B09171D0C003C92AB /* Core Data Instances */,
+				E102D72A09171CFD003C92AB /* View */,
+				2A37F4AEFDCFA73011CA2CEA /* ModuleDocument.h */,
+				2A37F4ACFDCFA73011CA2CEA /* ModuleDocument.m */,
+				E10C5347091076D40014B582 /* AppDelegate.h */,
+				E10C5348091076D40014B582 /* AppDelegate.m */,
+				E1EE70DA091D768C009C71E1 /* TaskWrapper.h */,
+				E1EE70DB091D768C009C71E1 /* TaskWrapper.m */,
+			);
+			name = Classes;
+			sourceTree = "<group>";
+		};
+		2A37F4AFFDCFA73011CA2CEA /* Other Sources */ = {
+			isa = PBXGroup;
+			children = (
+				32DBCF750370BD2300C91783 /* PHOCOA Builder_Prefix.pch */,
+				2A37F4B0FDCFA73011CA2CEA /* main.m */,
+			);
+			name = "Other Sources";
+			sourceTree = "<group>";
+		};
+		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E10C52E8091070770014B582 /* phocoa_serializer.php */,
+				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
+				2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */,
+				2A37F4B4FDCFA73011CA2CEA /* ModuleDocument.nib */,
+				8D15AC360486D014006FF6A4 /* Info.plist */,
+				089C165FFE840EACC02AAC07 /* InfoPlist.strings */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */,
+				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E102D72A09171CFD003C92AB /* View */ = {
+			isa = PBXGroup;
+			children = (
+				E10C53C6091484750014B582 /* ModuleMainWindowController.h */,
+				E10C53C7091484750014B582 /* ModuleMainWindowController.m */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		E102D72B09171D0C003C92AB /* Core Data Instances */ = {
+			isa = PBXGroup;
+			children = (
+				E10C52F4091071430014B582 /* SharedInstance.h */,
+				E10C52F5091071430014B582 /* SharedInstance.m */,
+				E10C536D091079370014B582 /* SharedInstanceConfig.h */,
+				E10C536E091079370014B582 /* SharedInstanceConfig.m */,
+				E10C54D50915AD8E0014B582 /* Page.h */,
+				E10C54D60915AD8E0014B582 /* Page.m */,
+				E102D72E09171D55003C92AB /* PageInstance.h */,
+				E102D72F09171D55003C92AB /* PageInstance.m */,
+				E102D7680917202F003C92AB /* PageInstanceConfig.h */,
+				E102D7690917202F003C92AB /* PageInstanceConfig.m */,
+				E102D77D091720F4003C92AB /* PageInstanceBinding.h */,
+				E102D77E091720F4003C92AB /* PageInstanceBinding.m */,
+				E102D7A0091721C3003C92AB /* PageInstanceBindingOption.h */,
+				E102D7A1091721C3003C92AB /* PageInstanceBindingOption.m */,
+			);
+			name = "Core Data Instances";
+			sourceTree = "<group>";
+		};
+		E1B74B1A0667B4A90069E3BA /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				775BDEF0067A8BF0009058FE /* MyDocument.xcdatamodel */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8D15AC270486D014006FF6A4 /* PHOCOA Builder */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E10C51E809105E000014B582 /* Build configuration list for PBXNativeTarget "PHOCOA Builder" */;
+			buildPhases = (
+				8D15AC2B0486D014006FF6A4 /* Resources */,
+				8D15AC300486D014006FF6A4 /* Sources */,
+				8D15AC330486D014006FF6A4 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "PHOCOA Builder_Prefix.pch";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PREBINDING = NO;
+				PRODUCT_NAME = "PHOCOA Builder";
+				WRAPPER_EXTENSION = app;
+			};
+			dependencies = (
+			);
+			name = "PHOCOA Builder";
+			productInstallPath = "$(HOME)/Applications";
+			productName = "PHOCOA Builder";
+			productReference = 8D15AC370486D014006FF6A4 /* PHOCOA Builder.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2A37F4A9FDCFA73011CA2CEA /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = E10C51EC09105E000014B582 /* Build configuration list for PBXProject "PHOCOA Builder" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				4A9504D0FFE6A4CB11CA0CBA /* Debug */,
+				4A9504D1FFE6A4CB11CA0CBA /* Release */,
+			);
+			hasScannedForEncodings = 1;
+			mainGroup = 2A37F4AAFDCFA73011CA2CEA /* PHOCOA Builder */;
+			projectDirPath = "";
+			targets = (
+				8D15AC270486D014006FF6A4 /* PHOCOA Builder */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8D15AC2B0486D014006FF6A4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D15AC2C0486D014006FF6A4 /* Credits.rtf in Resources */,
+				8D15AC2D0486D014006FF6A4 /* MainMenu.nib in Resources */,
+				8D15AC2E0486D014006FF6A4 /* ModuleDocument.nib in Resources */,
+				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
+				E10C52E9091070770014B582 /* phocoa_serializer.php in Resources */,
+				E193CA8709172F4200132276 /* PHOCOA Builder in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8D15AC300486D014006FF6A4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8D15AC310486D014006FF6A4 /* ModuleDocument.m in Sources */,
+				8D15AC320486D014006FF6A4 /* main.m in Sources */,
+				775BDEF1067A8BF0009058FE /* MyDocument.xcdatamodel in Sources */,
+				E10C52F6091071430014B582 /* SharedInstance.m in Sources */,
+				E10C5349091076D40014B582 /* AppDelegate.m in Sources */,
+				E10C536F091079370014B582 /* SharedInstanceConfig.m in Sources */,
+				E10C53C8091484750014B582 /* ModuleMainWindowController.m in Sources */,
+				E10C54D70915AD8E0014B582 /* Page.m in Sources */,
+				E102D73009171D55003C92AB /* PageInstance.m in Sources */,
+				E102D76A0917202F003C92AB /* PageInstanceConfig.m in Sources */,
+				E102D77F091720F4003C92AB /* PageInstanceBinding.m in Sources */,
+				E102D7A2091721C3003C92AB /* PageInstanceBindingOption.m in Sources */,
+				E1EE70DC091D768C009C71E1 /* TaskWrapper.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		089C165FFE840EACC02AAC07 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				089C1660FE840EACC02AAC07 /* English */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		2A37F4B4FDCFA73011CA2CEA /* ModuleDocument.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A37F4B5FDCFA73011CA2CEA /* English */,
+			);
+			name = ModuleDocument.nib;
+			sourceTree = "<group>";
+		};
+		2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A37F4B7FDCFA73011CA2CEA /* English */,
+			);
+			name = MainMenu.nib;
+			sourceTree = "<group>";
+		};
+		2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2A37F4BAFDCFA73011CA2CEA /* English */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		E10C51E909105E000014B582 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "PHOCOA Builder_Prefix.pch";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PREBINDING = NO;
+				PRODUCT_NAME = "PHOCOA Builder";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Debug;
+		};
+		E10C51EA09105E000014B582 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "PHOCOA Builder_Prefix.pch";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PREBINDING = NO;
+				PRODUCT_NAME = "PHOCOA Builder";
+				WRAPPER_EXTENSION = app;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		E10C51EB09105E000014B582 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "PHOCOA Builder_Prefix.pch";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				PREBINDING = NO;
+				PRODUCT_NAME = "PHOCOA Builder";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Default;
+		};
+		E10C51ED09105E000014B582 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		E10C51EE09105E000014B582 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E10C51EF09105E000014B582 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Default;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E10C51E809105E000014B582 /* Build configuration list for PBXNativeTarget "PHOCOA Builder" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E10C51E909105E000014B582 /* Debug */,
+				E10C51EA09105E000014B582 /* Release */,
+				E10C51EB09105E000014B582 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+		E10C51EC09105E000014B582 /* Build configuration list for PBXProject "PHOCOA Builder" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E10C51ED09105E000014B582 /* Debug */,
+				E10C51EE09105E000014B582 /* Release */,
+				E10C51EF09105E000014B582 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2A37F4A9FDCFA73011CA2CEA /* Project object */;
+}

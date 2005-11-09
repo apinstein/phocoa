@@ -1,0 +1,14 @@
+BUGS:
+
+1. Clicking around a lot on the pages (use test module -- click detail, edit, detail) will crash. CFArray index log item when click on EDIT... maybe that's it.
+
+2005-11-06 12:01:42.682 PHOCOA Builder[5815] *** -[NSCFArray objectAtIndex:]: index (1) beyond bounds (1)
+
+
+TODO:
+
+1. Get page instances hierarchy add / add child / remove buttons working.
+2. Why doesn't undo work when the panels are FOCUSED? Works if we focus the main window, but not if we focus on a panel.
+3. Saving back out to all appropriate files.
+4. Editable / Saveable .tpl editing.
+5. Ability to toggle inspectors?

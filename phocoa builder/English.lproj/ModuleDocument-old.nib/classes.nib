@@ -1,0 +1,21 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {CLASS = ModuleDocument; LANGUAGE = ObjC; SUPERCLASS = NSPersistentDocument; }, 
+        {
+            ACTIONS = {loadGoogle = id; }; 
+            CLASS = ModuleMainWindowController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {webView = id; }; 
+            SUPERCLASS = NSWindowController; 
+        }, 
+        {CLASS = NSPersistentDocument; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 
+        {
+            CLASS = PageTableDelegate; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {table = id; }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}
