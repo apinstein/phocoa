@@ -7,13 +7,15 @@
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
 
+require_once('framework/WFKeyValueCoding.php');
+
 /** 
  * Base Class for all framework classes.
  *
  * Provides:
  *   - {@link KeyValueCoding}
  */
-class WFObject
+class WFObject implements WFKeyValueCoding
 {
     function __construct()
     {
@@ -21,7 +23,7 @@ class WFObject
 
     function valueForKey($key)
     {
-        if ($key == NULL) throw( new Exception("NULL key Exception") );
+        if ($key == NULL) WFException::raise(NSUndefinedKeyException, "NULL key Exception");
 
         $performed = false;
 
@@ -56,7 +58,7 @@ class WFObject
 
         if (!$performed)
         {
-            throw( new Exception("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
+            WFException::raise(NSUndefinedKeyException, "Unknown key '$key' requested for object '" . get_class($this) . "'.");
         }
 
         return $result;

@@ -8,6 +8,7 @@
  */
 
 require_once('WFObject.php');
+require_once('WFException.php');
 require_once('WFLog.php');
 require_once('WFRequestController.php');
 require_once('WFAuthorization.php');    // must come before WFSession because we have serialized auth objects!

@@ -7,6 +7,11 @@
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
 
+/**
+ * Exceptions for KVC.
+ */
+define('WFUndefinedKeyException', 'WFUndefinedKeyException');
+
 /** 
  * Key-Value Coding protocol.
  *

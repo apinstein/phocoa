@@ -247,7 +247,15 @@ abstract class WFWidget extends WFView
             }
             $this->valueForKey($baseLocalProperty);
         } catch (Exception $e) {
-            throw( new Exception("Cannot bind property '$bindLocalProperty' because it is not a property of the object '" . get_class($this) . "'.") );
+            // must do === because getCode returns a number
+            if ($e->getCode() === WFUndefinedKeyException)
+            {
+                throw( new Exception("Cannot bind property '$bindLocalProperty' because it is not a property of the object '" . get_class($this) . "' (" . $this->id() . ").") );
+            }
+            else
+            {
+                throw($e);
+            }
         }
 
         // is the bindToObject an object? ideally we'd check to be sure it's KVC compliant, but for now just make sure it's an object.
