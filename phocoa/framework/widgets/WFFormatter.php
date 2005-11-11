@@ -197,7 +197,7 @@ class WFSQLDateFormatter extends WFFormatter
  *
  * Default is 2 decimal places, ',' for thousands, and '.' for decimal.
  *
- * @todo Add capabilty to format witha currency character
+ * @todo Implement full suite of formatting styles, like that of NSNumberFormatter. There are 5 basic styles, None, Decimal, Currency, Percent, and Scientific.
  * @todo Add editingStringForValue capability
  */
 class WFNumberFormatter extends WFFormatter
@@ -215,17 +215,59 @@ class WFNumberFormatter extends WFFormatter
     */
     protected $thousandsSep;
 
+    const WFNumberFormatterNoStyle = 'None';
+    const WFNumberFormatterDecimalStyle = 'Decimal';
+    const WFNumberFormatterCurrencyStyle = 'Currency';
+    private $style;
+
+    private $currencySymbol;
+
     function __construct()
     {
         parent::__construct();
         $this->decimalPlaces = 2;
         $this->decimalPoint = '.';
         $this->thousandsSep = ',';
+        $this->style = WFNumberFormatter::WFNumberFormatterDecimalStyle;
+        $this->currencySymbol = '$';
+    }
+
+    /**
+     *  Set the formatting style. Supported styles are Decimal, Currency, Percent, and Scientific.
+     *
+     *  NOTE: At this time, only Decimal and Currency are supported.
+     *
+     *  @param string Style to use.
+     */
+    function setStyle($style)
+    {
+        $this->style = $style;
+    }
+
+    function setCurrencySymbol($s)
+    {
+        $this->currencySymbol = $s;
     }
 
     function stringForValue($value)
     {
-        return number_format($value, $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep);
+        switch ($this->style) {
+            case WFNumberFormatter::WFNumberFormatterNoStyle:
+                if ($value == '') return '';
+                return $value;
+                break;
+            case WFNumberFormatter::WFNumberFormatterDecimalStyle:
+                if ($value == '') return '';
+                return number_format($value, $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep);
+                break;
+            case WFNumberFormatter::WFNumberFormatterCurrencyStyle:
+                if ($value == '') return '';
+                $num = number_format($value, $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep);
+                return $this->currencySymbol . $num;
+                break;
+            default:
+                throw( new Exception("Unsupported WFNumberFormatter style: " . $this->style) );
+        }
     }
 
     /**
@@ -233,22 +275,50 @@ class WFNumberFormatter extends WFFormatter
      */
     function valueForString($string, &$error)
     {
-        // first check for illegal characters
-        if (preg_match("/[^0-9{$this->decimalPoint}{$this->thousandsSep}]/", $string))
-        {
-            $error->setErrorMessage("Could not determine number for the string: '$string' due to invalid characters.");
-            return NULL;
-        }
-        // normalize string first
-        $string = preg_replace('/[^0-9\.]/', '', trim($string));
-        if ($string != '' and !is_numeric($string))
-        {
-            $error->setErrorMessage("Could not determine number for the string: '$string'.");
-            return NULL;
-        }
-        else
-        {
-            return $string;
+        switch ($this->style) {
+            case WFNumberFormatter::WFNumberFormatterNoStyle:   // use WFNumberFormatterDecimalStyle, all it does is normalize anyway.
+            case WFNumberFormatter::WFNumberFormatterDecimalStyle:
+                // first check for illegal characters
+                if (preg_match("/[^0-9{$this->decimalPoint}{$this->thousandsSep}]/", $string))
+                {
+                    $error->setErrorMessage("Could not determine number for the string: '$string' due to invalid characters.");
+                    return NULL;
+                }
+                // normalize string first
+                $string = preg_replace('/[^0-9\.]/', '', trim($string));
+                if ($string != '' and !is_numeric($string))
+                {
+                    $error->setErrorMessage("Could not determine number for the string: '$string'.");
+                    return NULL;
+                }
+                else
+                {
+                    return $string;
+                }
+                break;
+            case WFNumberFormatter::WFNumberFormatterCurrencyStyle:
+                // clear out the currency symbol
+                $string = str_replace($this->currencySymbol, '', $string);
+                // first check for illegal characters
+                if (preg_match("/[^0-9{$this->decimalPoint}{$this->thousandsSep}]/", $string))
+                {
+                    $error->setErrorMessage("Could not determine number for the string: '$string' due to invalid characters.");
+                    return NULL;
+                }
+                // normalize string first
+                $string = preg_replace('/[^0-9\.]/', '', trim($string));
+                if ($string != '' and !is_numeric($string))
+                {
+                    $error->setErrorMessage("Could not determine number for the string: '$string'.");
+                    return NULL;
+                }
+                else
+                {
+                    return $string;
+                }
+                break;
+            default:
+                throw( new Exception("Unsupported WFNumberFormatter style: " . $this->style) );
         }
     }
 
