@@ -32,6 +32,7 @@ require_once('framework/WFPage.php');
  *       to update separately from the user code. We could have some "aliases" inside the path-walking stuff that would shunt over to another dir.
  *       for instance, maybe if the first path was "contrib" it would shunt over to contrib/modules/ or that kind of thing.
  * @todo Evaluate whether the WFModuleInvocation and WFModule should be coalesced into a single class... can they be used apart from each other?
+ * @todo Do we need to encapsulate the "login" module in a method of WFAuthorizationManager so that applications can override the login module with their own?
  */
 class WFModuleInvocation extends WFObject
 {
