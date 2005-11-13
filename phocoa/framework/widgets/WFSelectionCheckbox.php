@@ -64,19 +64,17 @@ class WFSelectionCheckbox extends WFDynamic
      */
     function createWidgets()
     {
-        // check inputs
-        $this->createSelectionWidgets($this->arrayController, $this->page->outlet($this->parentFormID), $this->id);
+        $this->createSelectionWidgets($this->arrayController, $this->id);
     }
 
     /**
      * A special version of {@link createDynamicWidgets} that is used for managing SELECTION of a list of objects.
      *
      * @param object A WFArrayController instance. The array of objects to manage selection for.
-     * @param object The WFForm that this widget belongs to.
      * @param string The base name of the widget.
      * @param string A keyPath of the managed object class of the arrayController that will return the identifier {@link WFArrayController} for the object.
      */
-    function createSelectionWidgets($arrayController, $parentForm, $widgetBaseName)
+    function createSelectionWidgets($arrayController, $widgetBaseName)
     {
         // add checkboxes for selection
         $options = array(
@@ -88,7 +86,7 @@ class WFSelectionCheckbox extends WFDynamic
         {
             $options['label'] = array( 'custom' => array('iterate' => true, 'keyPath' => $this->labelKeyPath) );
         }
-        $this->createDynamicWidgets($arrayController, $parentForm, 'WFCheckbox', $widgetBaseName, false, $options);
+        $this->createDynamicWidgets($arrayController, 'WFCheckbox', $widgetBaseName, false, $options);
     }
 
     /**

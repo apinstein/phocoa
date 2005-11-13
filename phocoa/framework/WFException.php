@@ -16,10 +16,38 @@ define('WFGenericException', 'WFGenericException');
 /** 
  * A helper class to easily throw named exceptions.
  *
- * @todo Eventually have this throw a WFException and have all PHOCOA stuff throw WFException's?
+ * The "name" field has been added for consistency with the way Cocoa handles exceptions. This allows components to easily define "exception names" in the conventional format of:
+ *
+ * <code>
+ * define('MyProblemException', 'MyProblemException');
+ * </code>
+ *
+ * Using named exceptions makes it easier to keep track of exceptions across than with exception codes.
+ *
+ * @todo Need to have all PHOCOA exceptions that are thrown switched to WFException so code can distinguish b/w PHOCOA and external exceptions.
  */
 class WFException extends Exception
 {
+    /**
+     * @var string The name of the exception.
+     */
+    protected $name;
+
+    function setName($name)
+    {
+        $this->name = $name;
+    }
+    function name()
+    {
+        return $this->name;
+    }
+
+    function __construct($message = NULL, $code = 0)
+    {
+        parent::__construct($message, $code);
+        $this->name = WFGenericException;
+    }
+
     /**
      *  Raise an exception of the passed type with the passed message.
      *
@@ -28,7 +56,9 @@ class WFException extends Exception
      */
     static function raise($name = WFGenericException, $message = NULL)
     {
-        throw( new Exception($message, $name) );
+        $e = new WFException($message);
+        $e->setName($name);
+        throw( $e );
     }
 }
 ?>

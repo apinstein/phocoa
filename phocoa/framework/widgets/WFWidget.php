@@ -246,9 +246,9 @@ abstract class WFWidget extends WFView
                 $baseLocalProperty = $matches[1];
             }
             $this->valueForKey($baseLocalProperty);
-        } catch (Exception $e) {
+        } catch (WFException $e) {
             // must do === because getCode returns a number
-            if ($e->getCode() === WFUndefinedKeyException)
+            if ($e->name() === WFUndefinedKeyException)
             {
                 throw( new Exception("Cannot bind property '$bindLocalProperty' because it is not a property of the object '" . get_class($this) . "' (" . $this->id() . ").") );
             }

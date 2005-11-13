@@ -127,7 +127,7 @@ class WFDynamic extends WFWidget
 
     function setParentFormID()
     {
-        WFException::raise(WFGenericException, "setParentFormID is deprecated as parent detection is now automatic.");
+        WFLog::log("Use of parentFormID is now deprecated as it is automatic. Please remove from your config of " . get_class($this) . ", id: '" . $this->id() . "'", WFLog::WARN_LOG);
     }
 
     function canPushValueBinding()
@@ -192,14 +192,14 @@ class WFDynamic extends WFWidget
     }
 
     /**
-     *  Create the dynamic widgets.
+     *  Get the parent form for the WFDynamic. 
      *
-     *  This will be called AFTER the _PageDidLoad method... which is what we need to wait for before creating our widgets. WFPage makes this call.
+     *  Will be calculated the first time; cached for subsequent accesses.
+     *
+     *  @return object WFForm The parent form, or NULL if the WFDynamic is not part of a form.
      */
-    function createWidgets()
+    function calculateParentForm()
     {
-        // check inputs
-        if (!$this->arrayController instanceof WFArrayController) throw( new Exception("arrayController must be a WFArrayController instance."));
         $parentForm = NULL;
         try {
             // determine parent
@@ -215,7 +215,19 @@ class WFDynamic extends WFWidget
         } catch (Exception $e) {
             $parentForm = NULL;
         }
-        $this->createDynamicWidgets($this->arrayController, $parentForm, $this->widgetClass, $this->id, $this->useUniqueNames, $this->widgetConfig);
+        return $parentForm;
+    }
+
+    /**
+     *  Create the dynamic widgets.
+     *
+     *  This will be called AFTER the _PageDidLoad method... which is what we need to wait for before creating our widgets. WFPage makes this call.
+     */
+    function createWidgets()
+    {
+        // check inputs
+        if (!$this->arrayController instanceof WFArrayController) throw( new Exception("arrayController must be a WFArrayController instance."));
+        $this->createDynamicWidgets($this->arrayController, $this->widgetClass, $this->id, $this->useUniqueNames, $this->widgetConfig);
     }
 
     /**
@@ -261,7 +273,6 @@ class WFDynamic extends WFWidget
      *
      * @static
      * @param object A WFArrayController instance. The createDynamicWidgets will iterate over the arrangedObjects, making one widget for each item.
-     * @param object The WFForm that this widget belongs to.
      * @param string The class of widget to create.
      * @param string The base name of the widget.
      *               If $useUniqueNames is true, all widgets will have this name.
@@ -300,8 +311,9 @@ class WFDynamic extends WFWidget
      *              For each property, you can choose to use the same 'value' for EVERY widget, or you can use a different value for each widget, the nth item in 'value' for the nth instance.
      * @return assoc_array An array of 'widgetID' => widget for all newly created widgets.
      */
-    function createDynamicWidgets($arrayController, $parentForm, $widgetClass, $widgetBaseName, $useUniqueNames, $widgetValueOptions)
+    function createDynamicWidgets($arrayController, $widgetClass, $widgetBaseName, $useUniqueNames, $widgetValueOptions)
     {
+        $parentForm = $this->calculateParentForm();
         $this->createdWidgets = array();
 
         if (!class_exists($widgetClass)) throw( new Exception("There is no widget class '$widgetClass'.") );
@@ -463,7 +475,6 @@ class WFDynamic extends WFWidget
                     try {
                         $widget->bind($propName, $bindToObject, $fullKeyPath, $options);
                     } catch (Exception $e) {
-                        print_r($bindingInfo);
                         throw($e);
                     }
                 }

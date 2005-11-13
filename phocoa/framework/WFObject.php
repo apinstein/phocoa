@@ -58,7 +58,7 @@ class WFObject implements WFKeyValueCoding
 
         if (!$performed)
         {
-            WFException::raise(NSUndefinedKeyException, "Unknown key '$key' requested for object '" . get_class($this) . "'.");
+            WFException::raise(WFUndefinedKeyException, "Unknown key '$key' requested for object '" . get_class($this) . "'.");
         }
 
         return $result;
