@@ -23,24 +23,27 @@ require_once('framework/widgets/WFWidget.php');
  * 1. By default, the WFDynamic will output the NEXT widget each time the {WFDynamic id="XXX"} is output in the template. In this case, you will need to ensure that if your array has N entries then you output the WFDynamic tag N times in the template. The upside of this mode is that there is great flexibility in layout as you can place the widgets wherever you like them. The downside is that you need to make sure that your template has a loop in it that iterates N times so that you can be sure all widgets will be displayed.
  * 2. The other option, called {@link WFDynamic::$oneShotMode oneShotMode}, will output one entry for each item in the array when the {WFDynamic id="XXX"} tag is used in your template. In this case, each widget will be separated by the HTML snippet in {@link WFDynamic::$oneShotSeparatorHTML oneShotSeparatorHTML}. The upside to this mode is its simplicity; it's great if you just need a list of checkboxes or labels for each item in the array. The downside is that you cannot position each widget inside of a larger layout in all cases as they are all clumped together.
  * 
- * NOTE: If you want to assign a formatter to the widgets, simply assign a formatter to the WFDynamic and it will be re-used for all dynamically created widgets too.
+ * NOTE: (DEPRECEATED -- USE PROTOTYPES NOW) If you want to assign a formatter to the widgets, simply assign a formatter to the WFDynamic and it will be re-used for all dynamically created widgets too. 
+ *
+ * PROTOTYPES
+ * Oftentimes you want to have customized attributes on the widget you are creating via WFDynamic. For instance, using formatters, setting default options, or other properties.
+ * WFDynamic now supports "prototypes". Simply add a child to the WFDynamic named "<id of WFDynamic>Prototype" and configure it as you would normally. WFDynamic will use this
+ * prototype object as the basis for all objects created. If you do use a prototype, there is no need to supply the widgetClass.
+ *
+ * NOTE: At this point bindings on the prototype are not supported. We want to add this in the future so that it is easy to assign bind multiple params of the widgets to the data.
  *
  * <b>PHOCOA Builder Setup:</b>
  * 
  * Required:<br>
- * - {@link WFDynamic::$widgetClass widgetClass}
  * - {@link WFDynamic::$arrayController arrayController}
  *
  * Optional:<br>
- * - {@link WFDynamic::$simpleBindKeyPath simpleBindKeyPath} To set up the {@link WFWidget::$value value} for each widget.
- * - {@link WFDynamic::$parentFormID parentFormID}
+ * - {@link WFDynamic::$widgetClass widgetClass}
+ * - {@link WFDynamic::$simpleBindKeyPath simpleBindKeyPath}
  * - {@link WFDynamic::$oneShotMode oneShotMode}
  * - {@link WFDynamic::$oneShotSeparatorHTML oneShotSeparatorHTML}
  *
- * @todo Ability to use a "prototype" widget to build all widgets from, that would specify widget values such as width, value, etc. Probably this will be done by providing 
- * a widget ID in as the "prototypeID" and that will impply widgetClass and all of the other default attributes. Or, have a special naming convention for extra attributes
- * that will automatically be passed on to the widgets via {@link setWidgetConfig()}. Then a UI could be created to manage this. 
- * @todo Convert parentFormID into parentID. This is because WFDynamic can also be used to set up choices for {@link WFRadioGroup} and {@link WFCheckboxGroup}.
+ * @todo Support bindings on prototypes that automatically update the bindToObject to the current iteration.
  */
 class WFDynamic extends WFWidget
 {
@@ -48,11 +51,6 @@ class WFDynamic extends WFWidget
      * @var WFArrayController The array controller that will be used to create widgets for. One widget will be created for each item in the controller. Example: #module#myArrayController
      */
     protected $arrayController;
-    /**
-     * @var string The ID of the parent form that will contain these widgets.
-     * @todo We should probably figure out a way to refactor WFWidgets so that they automatically track their parents. Then we could remove the need to specify this directly.
-     */
-    protected $parentFormID;
     /**
      * @var string The class name of the WFWidget subclass to create. Examples: WFLabel, WFTextField, etc.
      */
@@ -102,6 +100,10 @@ class WFDynamic extends WFWidget
      * @var string If {@link WFDynamic::$oneShotMode oneShotMode} is enabled, this is the HTML that will be used to separate each widget. Default is <samp><br /></samp>.
      */
     protected $oneShotSeparatorHTML;
+    /**
+     * @var object WFView A prototype object to use for each widget created. Can be NULL.
+     */
+    protected $prototype;
     
     /**
       * Constructor.
@@ -111,21 +113,56 @@ class WFDynamic extends WFWidget
         parent::__construct($id, $page);
 
         $this->arrayController = NULL;
-        $this->parentFormID = '';
         $this->widgetClass = '';
         $this->useUniqueNames = true;
         $this->widgetConfig = array();
         $this->renderIteration = 0;
         $this->createdWidgets = array();
         $this->simpleBindKeyPath = NULL;
+        $this->prototype = NULL;
 
         $this->oneShotMode = false;
         $this->oneShotSeparatorHTML = '<br />';
     }
 
+    function setParentFormID()
+    {
+        WFException::raise(WFGenericException, "setParentFormID is deprecated as parent detection is now automatic.");
+    }
+
     function canPushValueBinding()
     {
          return false;
+    }
+
+    /**
+     *  Set the WFView object to be used as the prototype for all instances created.
+     *
+     *  @param object WFView The WFView object to be used as the prototype.
+     */
+    function setPrototype(WFView $view)
+    {
+        $this->prototype = $view;
+        $this->setWidgetClass(get_class($view));
+    }
+
+    /**
+     *  To implement our prototype functionality, we need to detect when a child object named "<id>Prototype" has been added.
+     *
+     *  If a prototype object is detected, we set up the prototype for the WFDynamic.
+     *
+     *  @param object WFView The object being added.
+     */
+    function addChild(WFView $view)
+    {
+        if ($view->id() == "{$this->id}Prototype")
+        {
+            $this->setPrototype($view);
+        }
+        else
+        {
+            parent::addChild($view);
+        }
     }
 
     function setSimpleBindKeyPath($kp)
@@ -163,8 +200,18 @@ class WFDynamic extends WFWidget
     {
         // check inputs
         if (!$this->arrayController instanceof WFArrayController) throw( new Exception("arrayController must be a WFArrayController instance."));
+        $parentForm = NULL;
         try {
-            $parentForm = $this->page->outlet($this->parentFormID);
+            // determine parent
+            $cPar = $this->parent();
+            while ($cPar) {
+                if ($cPar instanceof WFForm)
+                {
+                    $parentForm = $cPar;
+                    break;
+                }
+                $cPar = $cPar->parent();
+            }
         } catch (Exception $e) {
             $parentForm = NULL;
         }
@@ -283,7 +330,14 @@ class WFDynamic extends WFWidget
             {
                 $id = $widgetBaseName . '_' . $arrayController->identifierHashForObject($object);
             }
-            $widget = new $widgetClass($id, $this->page());
+            if (!is_null($this->prototype))
+            {
+                $widget = $this->prototype->cloneWithID($id);
+            }
+            else
+            {
+                $widget = new $widgetClass($id, $this->page());
+            }
             if ($parentForm)
             {
                 $parentForm->addChild($widget);

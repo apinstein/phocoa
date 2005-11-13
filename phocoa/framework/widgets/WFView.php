@@ -69,11 +69,49 @@ abstract class WFView extends WFObject
         $this->children = array();
         $this->parent = NULL;
         $this->page = $page;
+        $this->setId($id);
+    }
 
+    /**
+     *  Create a clone of the WFView with a new ID.
+     *
+     *  This will give you a copy of WFView that has been registered with the page.
+     *
+     *  @param 
+     *  @return
+     *  @throws
+     */
+    function cloneWithID($id)
+    {
+        $newView = clone($this);
+        $newView->setId($id);
+        return $newView;
+    }
+
+    /**
+     *  Set the unique ID of this widget.
+     *
+     *  ID's are unique within a page; this function will tell the page of the new instance ID so it can be registered.
+     *
+     *  @param string The ID of the WFView instance.
+     */
+    function setId($id)
+    {
+        $this->id = $id;
         // add the widget to the page's widget list
         $this->page->addInstance($this->id, $this);
     }
 
+    /**
+      * Get the id of this view. All id's on a single page are unique.
+      *
+      * @return string The unique id of this view.
+      */
+    function id()
+    {
+        return $this->id;
+    }
+    
     /**
      *  Get a relative URL path to the public www dir for graphics for this widget.
      *
@@ -132,16 +170,6 @@ abstract class WFView extends WFObject
         return $this->children;
     }
 
-    /**
-      * Get the id of this view. All id's on a single page are unique.
-      *
-      * @return string The unique id of this view.
-      */
-    function id()
-    {
-        return $this->id;
-    }
-    
     /**
       * Render the view into HTML.
       *

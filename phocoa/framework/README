@@ -12,7 +12,7 @@ Dependencies
 TODO
 
 1.0 Milestone:
-- prototypes for the WFDynamic controls so you can "configure" the default setup for a widget in a table, matrix, etc
+- (DONE) prototypes for the WFDynamic controls so you can "configure" the default setup for a widget in a table, matrix, etc
 - I18N infrastructure
 - Improve bindings support:
     - (DONE) Read only...
