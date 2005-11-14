@@ -396,7 +396,7 @@ class Mail_Mailer
             $mailer =& Mail::factory($this->pear_mailer_driver, $this->pear_mailer_config);
         }
         if (PEAR::isError($mailer)) {
-            return $err;
+            return $mailer;
         }
 
         $err = $mailer->send($recipients, $mm_headers, $mm_body);
