@@ -23,7 +23,7 @@ class WFObject implements WFKeyValueCoding
 
     function valueForKey($key)
     {
-        if ($key == NULL) WFException::raise(NSUndefinedKeyException, "NULL key Exception");
+        if ($key == NULL) WFException::raise(WFUndefinedKeyException, "NULL key Exception");
 
         $performed = false;
 
