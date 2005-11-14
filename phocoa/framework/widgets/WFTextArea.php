@@ -31,8 +31,8 @@ class WFTextArea extends WFWidget
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
-        $this->cols = NULL;
-        $this->rows = NULL;
+        $this->cols = 40;
+        $this->rows = 10;
         $this->enabled = true;
     }
 

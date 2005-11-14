@@ -45,6 +45,18 @@ class WFMessageBox extends WFWidget
         $this->mode = WFMessageBox::WFMESSAGEBOX_INFO;
     }
 
+    /**
+     *  Set the mode of the message box.
+     *
+     *  Options are WFMESSAGEBOX_INFO, WFMESSAGEBOX_WARNING, WFMESSAGEBOX_ERROR, or WFMESSAGEBOX_CONFIRM.
+     *
+     *  @param string The mode to use.
+     */
+    function setMode($m)
+    {
+        $this->mode = $m;
+    }
+
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();
