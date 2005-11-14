@@ -258,11 +258,15 @@ class WFBindingSetup extends WFObject
  *
  * The binding object encapsulates all information about a particular bound property of an object. These instances are created at runtime each time the
  * {@link bind} function of the WFKeyValueBindingCreation protocol is used.
- *
+ * 
+ * @todo Incorporate commonly used binding options here??? In addition to valueTransformer?
+ * http://developer.apple.com/documentation/Cocoa/Reference/CocoaBindingsRef/Concepts/BindingsOptions.html
  */
 class WFBinding extends WFObject
 {
+    // commonly used binding options available globally
     const VALUE_TRANSFORMER_NAME = "valueTransformer";
+
     /**
      * @var object The object that this property is bound to.
      */
