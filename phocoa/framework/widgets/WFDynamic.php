@@ -26,11 +26,15 @@ require_once('framework/widgets/WFWidget.php');
  * NOTE: (DEPRECEATED -- USE PROTOTYPES NOW) If you want to assign a formatter to the widgets, simply assign a formatter to the WFDynamic and it will be re-used for all dynamically created widgets too. 
  *
  * PROTOTYPES
+ * 
  * Oftentimes you want to have customized attributes on the widget you are creating via WFDynamic. For instance, using formatters, setting default options, or other properties.
  * WFDynamic now supports "prototypes". Simply add a child to the WFDynamic named "<id of WFDynamic>Prototype" and configure it as you would normally. WFDynamic will use this
  * prototype object as the basis for all objects created. If you do use a prototype, there is no need to supply the widgetClass.
  *
- * NOTE: At this point bindings on the prototype are not supported. We want to add this in the future so that it is easy to assign bind multiple params of the widgets to the data.
+ * BINDINGS VIA PROTOTYPES
+ * 
+ * You can specify "simpleBindKeyPath" style bindings via prototypes as well. To bind a property of the prototype to a keyPath of each object in the WFDynamic's ArrayController, simply
+ * add a binding to the prototype object, bind it to the same array controller you configured for WFDynamic, set the controller key to "#current#", and set the desired Model Key Path.
  *
  * <b>PHOCOA Builder Setup:</b>
  * 
@@ -318,9 +322,33 @@ class WFDynamic extends WFWidget
 
         if (!class_exists($widgetClass)) throw( new Exception("There is no widget class '$widgetClass'.") );
 
+        // emulate simpleBindKeyPath from bindings on prototype that bind to the same arrayController / arrangedObjects
+        if (!is_null($this->prototype))
+        {
+            foreach ($this->prototype->bindings() as $bindLocalProp => $binding) {
+                if ($binding->bindToObject() === $arrayController
+                        and strncmp($binding->bindToKeyPath(), '#current#', 9) === 0)
+                {
+                    $widgetValueOptions[$bindLocalProp] = array(
+                                                                'bind' => array(
+                                                                    'instanceID' => '#current#',
+                                                                    'controllerKey' => '',
+                                                                    'modelKeyPath' => substr($binding->bindToKeyPath(), 10),
+                                                                    'options' => $binding->options()
+                                                                    )
+                                                             );
+                    // any binding that we use from the prototype, we need to UNBIND so that we can re-bind below to the proper object of the arrayController / iteration
+                    // NOTE!!! Some scripts may call createDynamicWidgets() more than once, thus we probably need to store the widgetValueOptions so that
+                    // if createDynamicWidgets is called again it works properly with prototype'd bindings
+                    $this->prototype->unbind($bindLocalProp);
+                }
+            }
+        }
+
         // is there a configured simpleBindKeyPath?
         if (!is_null($this->simpleBindKeyPath))
         {
+            if (isset($widgetValueOptions['value'])) throw (new Exception("simpleBindKeyPath set but 'value' binding already set up.") );
             $widgetValueOptions['value'] = 
                 array(
                         'bind' => array(
@@ -342,6 +370,8 @@ class WFDynamic extends WFWidget
             {
                 $id = $widgetBaseName . '_' . $arrayController->identifierHashForObject($object);
             }
+
+            // instantiate widget
             if (!is_null($this->prototype))
             {
                 $widget = $this->prototype->cloneWithID($id);
@@ -350,6 +380,8 @@ class WFDynamic extends WFWidget
             {
                 $widget = new $widgetClass($id, $this->page());
             }
+
+            // add to form if needed
             if ($parentForm)
             {
                 $parentForm->addChild($widget);
@@ -364,7 +396,7 @@ class WFDynamic extends WFWidget
                 $widget->setName($widgetBaseName);
             }
 
-            WFLog::log("WFMatrix:: created $widgetClass id=$id name=" . $widget->name());
+            WFLog::log("WFDynamic:: created $widgetClass id=$id name=" . $widget->name());
 
             // set up properties
             if ($this->formatter)
@@ -421,7 +453,7 @@ class WFDynamic extends WFWidget
                         $customValue = $customSettings['value'];
                     }
 
-                    WFLog::log("WFMatrix:: setting $propName to $customValue for $id", WFLog::TRACE_LOG);
+                    WFLog::log("WFDynamic:: setting $propName to $customValue for $id", WFLog::TRACE_LOG);
                     $widget->setValueForKey($customValue, $propName);
                 }
                 // or are we using bindings
@@ -429,7 +461,7 @@ class WFDynamic extends WFWidget
                 {
                     $bindingInfo = $propInfo['bind'];
 
-                    WFLog::log("WFMatrix:: Binding property '$propName' to {$bindingInfo['instanceID']} => {$bindingInfo['controllerKey']}::{$bindingInfo['modelKeyPath']}", WFLog::TRACE_LOG);
+                    WFLog::log("WFDynamic:: Binding property '$propName' to {$bindingInfo['instanceID']} => {$bindingInfo['controllerKey']}::{$bindingInfo['modelKeyPath']}", WFLog::TRACE_LOG);
 
                     // determine object to bind to:
                     if (!isset($bindingInfo['instanceID'])) throw( new Exception("No instance id specified for binding property '{$propName}'.") );

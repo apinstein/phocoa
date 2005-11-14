@@ -593,6 +593,11 @@ abstract class WFWidget extends WFView
         return $value;
     }
 
+    function bindings()
+    {
+        return $this->bindings;
+    }
+
     function bindingByName($bindingName)
     {
         if (isset($this->bindings[$bindingName]))
