@@ -68,6 +68,10 @@ class WFDynamic extends WFWidget
      */
     protected $widgetConfig;
     /**
+     * @var boolean Tracks whether or not the widgetConfig has been updated based on other settings yet.
+     */
+    private $processedWidgetConfig;
+    /**
      * @var integer The current iteration, used during rendering.
      */
     protected $renderIteration;
@@ -120,6 +124,7 @@ class WFDynamic extends WFWidget
         $this->widgetClass = '';
         $this->useUniqueNames = true;
         $this->widgetConfig = array();
+        $this->processedWidgetConfig = false;
         $this->renderIteration = 0;
         $this->createdWidgets = array();
         $this->simpleBindKeyPath = NULL;
@@ -127,6 +132,21 @@ class WFDynamic extends WFWidget
 
         $this->oneShotMode = false;
         $this->oneShotSeparatorHTML = '<br />';
+    }
+
+     /*
+     * Set whether or not each created widget will have the same name.
+     *
+     * If {WFDynamic::$useUniqueNames} is true, all widgets will have this name.
+     * If {WFDynamic::$useUniqueNames} is false, each widget will be named "<basename>_<itemid>".
+     * Of course in either case, the ID's will all be uniq, "<basename>_<itemid>".
+     *
+     * @param boolean TRUE to make each widget have a unique name.
+     *                FALSE to make each widget have the same name. 
+     */
+    function setUseUniqueNames($useUniqueNames)
+    {
+        $this->useUniqueNames = $useUniqueNames;
     }
 
     function setParentFormID()
@@ -223,21 +243,41 @@ class WFDynamic extends WFWidget
     }
 
     /**
-     *  Create the dynamic widgets.
-     *
-     *  This will be called AFTER the _PageDidLoad method... which is what we need to wait for before creating our widgets. WFPage makes this call.
-     */
-    function createWidgets()
-    {
-        // check inputs
-        if (!$this->arrayController instanceof WFArrayController) throw( new Exception("arrayController must be a WFArrayController instance."));
-        $this->createDynamicWidgets($this->arrayController, $this->widgetClass, $this->id, $this->useUniqueNames, $this->widgetConfig);
-    }
-
-    /**
      *  Set the config that will be used for the dynamic creation of widgets. See {@link createDynamicWidgets} for documentation on the config array.
      *
-     *  @param array The config.
+     * @param array The widgetConfig to use for creation of widgets. Format:
+     *  <code>
+     *  array(
+     *      // enter as many widget property names as you like.
+     *      'widgetPropName' => array(
+     *                              'custom' => array(
+     *                                              'iterate' => true / false,
+     *                                              'keyPath' => 'modelKeyPath' KeyPath of the object to use for this iteration.
+     *                                                                          Only used if 'iterate' == true, and then it's optional.
+     *                                                                          If 'iterate' == true, then uses the nth value from the 'value' array.
+     *                                                                          If 'iterate' == '#identifier#', then uses the identifierHashForObject() for the current object.
+     *                                                                          NOTE: if the array controller is in indexed mode, will use the index of the object.
+     *                                                                          If 'iterate' == false, then uses the 'value' for EVERY iteration.
+     *                                              'value' => mixed            Either an array or a primitive, depending on the setting of 'iterate'.
+     *                                              )
+     *                              // use this binding config (similar format as widget .config file)
+     *                              'bind' => array(
+     *                                              'instanceID' => 'outletName' or 
+     *                                                              '#module#' (to use the module) or
+     *                                                              '#custom# (to use object specified in 'custom' above) or
+     *                                                              '#current#' (to use the object of the current iteration)
+     *                                              'controllerKey' => 'controllerKey',
+     *                                              'modelKeyPath' => 'modelKeyPath',
+     *                                              'options' => array() // bindings options
+     *                                              )
+     *                          )
+     *      )
+     *  </code>
+     *
+     *  This format lets you arbitrarily configure any property of any type of widget.
+     *  
+     *  For each property, you can choose to use the same 'value' for EVERY widget, or you can use a different value for each widget, the nth item in 'value' for the nth instance.
+     *  
      *  @throws If the passed parameter is not a PHP array.
      */
     function setWidgetConfig($config)
@@ -267,69 +307,24 @@ class WFDynamic extends WFWidget
     }
 
     /**
-     * Function to help in the creation of dynamic widgets.
+     *  Process the widget config.
      *
-     * Allows for creation of n widgets based on an WFArrayController. Various options allow you to set up nearly any type
-     * of widget that is repeated for all objects in an array. Great for managing selection, editing data from joins, etc.
-     *
-     * Once the objects are instantiated, configured, and bound as appropriate, restoreState() will be called. You can be sure that
-     * when this function exits that your widgets are in the same state as statically instantiated widgets from the page.
-     *
-     * @static
-     * @param object A WFArrayController instance. The createDynamicWidgets will iterate over the arrangedObjects, making one widget for each item.
-     * @param string The class of widget to create.
-     * @param string The base name of the widget.
-     *               If $useUniqueNames is true, all widgets will have this name.
-     *               If $useUniqueNames is false, each widget will be named "<basename>_<itemid>".
-     * @param boolean TRUE to make each widget have a unique name.
-     *                FALSE to make each widget have the same name. Of course in either case, the ID's will all be uniq, "<basename>_<itemid>".
-     * @param array A list of all "magic" variables for each widget. Format:
-     *              <code>
-     *              array(
-     *                  // enter as many widget property names as you like.
-     *                  'widgetPropName' => array(
-     *                                          'custom' => array(
-     *                                                          'iterate' => true / false,
-     *                                                          'keyPath' => 'modelKeyPath' KeyPath of the object to use for this iteration.
-     *                                                                                      Only used if 'iterate' == true, and then it's optional.
-     *                                                                                      If 'iterate' == true, then uses the nth value from the 'value' array.
-     *                                                                                      If 'iterate' == '#identifier#', then uses the identifierHashForObject() for the current object.
-     *                                                                                      NOTE: if the array controller is in indexed mode, will use the index of the object.
-     *                                                                                      If 'iterate' == false, then uses the 'value' for EVERY iteration.
-     *                                                          'value' => mixed            Either an array or a primitive, depending on the setting of 'iterate'.
-     *                                                          )
-     *                                          // use this binding config (similar format as widget .config file)
-     *                                          'bind' => array(
-     *                                                          'instanceID' => 'outletName' or 
-     *                                                                          '#module#' (to use the module) or
-     *                                                                          '#custom# (to use object specified in 'custom' above) or
-     *                                                                          '#current#' (to use the object of the current iteration)
-     *                                                          'controllerKey' => 'controllerKey',
-     *                                                          'modelKeyPath' => 'modelKeyPath',
-     *                                                          'options' => array() // bindings options
-     *                                                          )
-     *                                      )
-     *                  )
-     *              </code>
-     *              This format lets you arbitrarily configure any property of any type of widget.<br>
-     *              For each property, you can choose to use the same 'value' for EVERY widget, or you can use a different value for each widget, the nth item in 'value' for the nth instance.
-     * @return assoc_array An array of 'widgetID' => widget for all newly created widgets.
+     *  The widgetConfig is the options to use for creating the dynamic widgets. Based on various other settings, the widgetConfig may be altered.
+     *  The alteration process need happen only once per WFDynamic instance. The processing should be delayed until just before creating the widgets.
      */
-    function createDynamicWidgets($arrayController, $widgetClass, $widgetBaseName, $useUniqueNames, $widgetValueOptions)
+    function processWidgetConfig()
     {
-        $parentForm = $this->calculateParentForm();
-        $this->createdWidgets = array();
-
-        if (!class_exists($widgetClass)) throw( new Exception("There is no widget class '$widgetClass'.") );
+        if ($this->processedWidgetConfig) return;
+        $this->processedWidgetConfig = true;
 
         // emulate simpleBindKeyPath from bindings on prototype that bind to the same arrayController / arrangedObjects
         if (!is_null($this->prototype))
         {
             foreach ($this->prototype->bindings() as $bindLocalProp => $binding) {
-                if ($binding->bindToObject() === $arrayController
+                if ($binding->bindToObject() === $this->arrayController
                         and strncmp($binding->bindToKeyPath(), '#current#', 9) === 0)
                 {
-                    $widgetValueOptions[$bindLocalProp] = array(
+                    $this->widgetConfig[$bindLocalProp] = array(
                                                                 'bind' => array(
                                                                     'instanceID' => '#current#',
                                                                     'controllerKey' => '',
@@ -337,9 +332,6 @@ class WFDynamic extends WFWidget
                                                                     'options' => $binding->options()
                                                                     )
                                                              );
-                    // any binding that we use from the prototype, we need to UNBIND so that we can re-bind below to the proper object of the arrayController / iteration
-                    // NOTE!!! Some scripts may call createDynamicWidgets() more than once, thus we probably need to store the widgetValueOptions so that
-                    // if createDynamicWidgets is called again it works properly with prototype'd bindings
                     $this->prototype->unbind($bindLocalProp);
                 }
             }
@@ -348,8 +340,8 @@ class WFDynamic extends WFWidget
         // is there a configured simpleBindKeyPath?
         if (!is_null($this->simpleBindKeyPath))
         {
-            if (isset($widgetValueOptions['value'])) throw (new Exception("simpleBindKeyPath set but 'value' binding already set up.") );
-            $widgetValueOptions['value'] = 
+            if (isset($this->widgetConfig['value'])) throw (new Exception("simpleBindKeyPath set but 'value' binding already set up.") );
+            $this->widgetConfig['value'] = 
                 array(
                         'bind' => array(
                             'instanceID' => '#current#',
@@ -358,6 +350,38 @@ class WFDynamic extends WFWidget
                             )
                      );
         }
+    }
+
+    /**
+     * Create the dynamic widgets.
+     *
+     * Allows for creation of n widgets based on an WFArrayController. Various options allow you to set up nearly any type
+     * of widget that is repeated for all objects in an array. Great for managing selection, editing data from joins, etc.
+     *
+     * Once the objects are instantiated, configured, and bound as appropriate, restoreState() will be called. You can be sure that
+     * when this function exits that your widgets are in the same state as statically instantiated widgets from the page.
+     * 
+     * This will be called AFTER the _PageDidLoad method... which is what we need to wait for before creating our widgets. WFPage makes this call.
+     *
+     * Module code may need to call this function again, particularly if the content of they arrayController is changed by the current action.
+     *
+     * @return assoc_array An array of 'widgetID' => widget for all newly created widgets.
+     */
+    function createWidgets()
+    {
+        $arrayController = $this->arrayController;
+        $widgetClass = $this->widgetClass;
+        $widgetBaseName = $this->id;
+        $useUniqueNames = $this->useUniqueNames;
+
+        $parentForm = $this->calculateParentForm();
+        $this->createdWidgets = array();
+
+        // check params
+        if (!class_exists($widgetClass)) throw( new Exception("There is no widget class '$widgetClass'.") );
+        if (!$this->arrayController instanceof WFArrayController) throw( new Exception("arrayController must be a WFArrayController instance."));
+
+        $this->processWidgetConfig();
 
         $currentIndex = 0;
         foreach ($arrayController->arrangedObjects() as $object) {
@@ -403,7 +427,7 @@ class WFDynamic extends WFWidget
             {
                 $widget->setFormatter($this->formatter);
             }
-            foreach ($widgetValueOptions as $propName => $propInfo) {
+            foreach ($this->widgetConfig as $propName => $propInfo) {
                 // set up custom value and/or binding
                 if (!isset($propInfo['custom']) and !isset($propInfo['bind']))
                 {

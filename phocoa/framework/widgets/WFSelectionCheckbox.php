@@ -60,22 +60,15 @@ class WFSelectionCheckbox extends WFDynamic
      *
      *  This will be called AFTER the _PageDidLoad method... which is what we need to wait for before creating our widgets. WFPage makes this call.
      *
+     *  Module code may need to call this function again, particularly if the content of they arrayController is changed by the current action.
+     *
      *  @throws A variety of exceptions that can occur from createWidgets or createSelectionWidgets.
      */
     function createWidgets()
     {
-        $this->createSelectionWidgets($this->arrayController, $this->id);
-    }
-
-    /**
-     * A special version of {@link createDynamicWidgets} that is used for managing SELECTION of a list of objects.
-     *
-     * @param object A WFArrayController instance. The array of objects to manage selection for.
-     * @param string The base name of the widget.
-     * @param string A keyPath of the managed object class of the arrayController that will return the identifier {@link WFArrayController} for the object.
-     */
-    function createSelectionWidgets($arrayController, $widgetBaseName)
-    {
+        // check inputs
+        if (!$this->arrayController instanceof WFArrayController) throw( new Exception("arrayController must be a WFArrayController instance."));
+        
         // add checkboxes for selection
         $options = array(
             'groupMode' => array( 'custom' => array('iterate' => false, 'value' => true) ),
@@ -86,7 +79,11 @@ class WFSelectionCheckbox extends WFDynamic
         {
             $options['label'] = array( 'custom' => array('iterate' => true, 'keyPath' => $this->labelKeyPath) );
         }
-        $this->createDynamicWidgets($arrayController, 'WFCheckbox', $widgetBaseName, false, $options);
+        $this->setWidgetConfig($options);
+        $this->setWidgetClass('WFCheckbox');
+        $this->useUniqueNames = false;
+
+        parent::createWidgets();
     }
 
     /**
