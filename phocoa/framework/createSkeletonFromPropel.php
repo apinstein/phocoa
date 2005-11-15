@@ -558,8 +558,8 @@ class SkeletonDumperPropel
             print "Creating {$confirmDeletePageName}.tpl file.\n";
             file_put_contents($confirmDeletePageName . '.tpl', "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
 {WFMessageBox id=\"confirmMessage\"}
-{WFForm id=\"CommercialOpportunityConfirmDeleteForm\"}
-    {WFHidden id=\"opportunityId\"}
+{WFForm id=\"{$this->className}ConfirmDeleteForm\"}
+    {WFHidden id=\"{$this->singlePrimaryKey}\"}
     {WFSubmit id=\"cancel\"}{WFSubmit id=\"delete\"}
 {/WFForm}
             ");
