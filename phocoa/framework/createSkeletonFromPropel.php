@@ -417,7 +417,7 @@ class SkeletonDumperPropel
         $confirmDeletePageName = 'confirmDelete';
         print "Suggested module code:
     // this function should throw an exception if the user is not permitted to edit (add/edit/delete) in the current context
-    function verifyEditingPermissions()
+    function verifyEditingPermission()
     {
         // example
         // \$authInfo = WFAuthorizationManager::sharedAuthorizationManager()->authorizationInfo();
