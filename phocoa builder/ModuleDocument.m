@@ -7,6 +7,10 @@
 #import "ModuleDocument.h"
 #import "TaskWrapper.h"
 
+@interface ModuleDocument (Private)
+- (void)setModule:(NSManagedObject *)aModule;
+@end
+
 @implementation ModuleDocument
 
 - (id)init 
@@ -19,6 +23,20 @@
     return self;
 }
 
+// this will be called with "New" -- need to bootstrap a new module
+- (id)initWithType:(NSString *)type error:(NSError **)error {
+    self = [super initWithType:type error:error];
+    if (self != nil) {
+		NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
+		[self setModule:[NSEntityDescription insertNewObjectForEntityForName:@"Module"
+                                                      inManagedObjectContext:managedObjectContext]];
+		[managedObjectContext processPendingChanges];
+		[[managedObjectContext undoManager] removeAllActions];
+		[self updateChangeCount:NSChangeCleared];
+    }
+    return self;
+}
+
 - (void)setModule:(NSManagedObject *)aModule
 {
     if (module != aModule) {
@@ -26,6 +44,7 @@
         module = [aModule retain];
     }
 }
+
 - (NSManagedObject*) module
 {
 	return module;
@@ -60,6 +79,132 @@
     }
 //    NSLog(@"Got data:\n%@", xml);
     return xml;
+}
+
+- (void) makeWindowControllers
+{
+	// make main window
+	mainWindow = [[ModuleMainWindowController alloc] init];
+	[mainWindow autorelease];
+	[self addWindowController: mainWindow];
+}
+
+- (NSString *)windowNibName 
+{
+    return @"MyDocument";
+}
+
+- (void)windowControllerDidLoadNib:(NSWindowController *)windowController 
+{
+    [super windowControllerDidLoadNib:windowController];
+    // user interface preparation code
+}
+
+- (void)dealloc {
+    [self setModule:nil];
+    [super dealloc];
+}
+
+#pragma mark -- Loading & Saving --
+
+// we use saveDocument because we are core data, but we don't want the normal NSPersistentDocument save handler to run
+// instead, we just grab the menu action and do the right thing for us, which is output a bunch of config files
+- (IBAction)saveDocument:(id)sender
+{  
+    // did we open a doc or are we saving a new doc?
+    if ([self fileURL] == nil)
+    {
+        NSSavePanel *savePanel = [NSSavePanel savePanel];
+        int result = [savePanel runModal];
+        if (result == NSFileHandlingPanelCancelButton)
+        {
+            // save was cancelled
+            return;
+        }
+        
+        // set doc's fileURL
+        [self setFileURL: [savePanel URL]];
+
+        // update the module with the proper module name / path info
+        NSString	*fileName = [[self fileURL] path];
+        NSString	*moduleName = [[fileName stringByDeletingLastPathComponent] lastPathComponent];
+        [module setValue: moduleName forKey: @"name"];
+        [module setValue: [fileName stringByDeletingLastPathComponent] forKey: @"path"];
+    }
+    
+    [mainWindow startSaveProgress];
+    
+    // prepare the shared instances and config
+    NSMutableString         *siOut = [NSMutableString stringWithString: @"<?php\n\n$__instances = array("];
+    NSMutableString         *scOut = [NSMutableString stringWithString: @"<?php\n\n$__config = array("];
+    NSEnumerator            *siEn = [[module valueForKey: @"sharedInstances"] objectEnumerator];
+    SharedInstance          *sharedInstance;
+    SharedInstanceConfig    *config;
+    while (sharedInstance = [siEn nextObject]) {
+        // manifest the instance in the shared.instance file
+        [siOut appendFormat: @"\n\t'%@' => '%@',", [sharedInstance valueForKey: @"instanceID"], [sharedInstance valueForKey: @"instanceClass"]];
+        
+        // look for config for this instance
+        NSEnumerator *scEn = [[sharedInstance valueForKey: @"config"] objectEnumerator];
+        if ([[sharedInstance valueForKey: @"config"] count] > 0)
+        {
+            [scOut appendFormat: @"\n\t'%@' => array(", [sharedInstance valueForKey: @"instanceID"]];
+            [scOut appendString: @"\n\t\t'properties' => array("];
+            while (config = [scEn nextObject]) {
+                if ([[config valueForKey: @"encapsulate"] boolValue] == YES)
+                {
+                    [scOut appendFormat: @"\n\t\t\t'%@' => '%@',", [config valueForKey: @"name"],  ([config valueForKey: @"value"] ? [config valueForKey: @"value"] : @"")];
+                }
+                else
+                {
+                    [scOut appendFormat: @"\n\t\t\t'%@' => %@,", [config valueForKey: @"name"],  ([config valueForKey: @"value"] ? [config valueForKey: @"value"] : @"")];
+                }
+            }
+            [scOut appendString: @"\n\t\t),"];
+            [scOut appendString: @"\n\t),"];
+        }
+    }
+    [siOut appendString: @"\n);\n?>\n"];
+    [scOut appendString: @"\n);\n?>\n"];
+    
+    // ensure module directory exists
+    NSString        *moduleDirPath = [module valueForKey: @"path"];
+    NSFileManager   *fm = [NSFileManager defaultManager];
+    if (![fm fileExistsAtPath: moduleDirPath])
+    {
+        [fm createDirectoryAtPath: moduleDirPath attributes: nil];
+    }
+    
+    // write shared.*
+    NSError *err;
+    BOOL    wroteFile;
+    NSString    *siPath = [moduleDirPath stringByAppendingPathComponent: @"shared.instances"];
+    NSString    *scPath = [moduleDirPath stringByAppendingPathComponent: @"shared.config"];
+    wroteFile = [siOut writeToFile: siPath atomically: YES encoding: NSASCIIStringEncoding error: &err];
+    if (!wroteFile)
+    {
+        NSLog(@"Failed writing %@, reason: %@.", siPath, err);
+    }
+    wroteFile = [scOut writeToFile: scPath atomically: YES encoding: NSASCIIStringEncoding error: &err];
+    if (!wroteFile)
+    {
+        NSLog(@"Failed writing %@, reason: %@.", scPath, err);
+    }
+    
+    // write page.*
+    NSEnumerator    *pageEn = [[module valueForKey: @"pages"] objectEnumerator];
+    Page            *page;
+    while (page = [pageEn nextObject]) {
+        [page saveSetupToDirectory: moduleDirPath];
+    }
+    
+    [mainWindow stopSaveProgress];
+
+    // mark as un-edited
+    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
+    [managedObjectContext processPendingChanges];
+    [[managedObjectContext undoManager] removeAllActions];
+    [self updateChangeCount:NSChangeCleared];    
 }
 
 - (void) loadStateFromFiles: (NSError**) outError
@@ -164,77 +309,36 @@
 	}
 }
 
-- (id)initWithContentsOfURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError **)outError
+- (BOOL) readFromURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError **)outError
 {
-    self = [super init];
-    if (self != nil) {
-		// init a new document
-		NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-		[self setModule:[NSEntityDescription insertNewObjectForEntityForName:@"Module"
-													  inManagedObjectContext:managedObjectContext]];
-
-		// load data from file
-		NSLog(@"opening module file: %@ (%@).", url, typeName);
-
-		// check input
-		if (![url isFileURL])
-		{
-			*outError = [NSError errorWithDomain: @"badFileURL" code: 0 userInfo: nil];
-			return NO;
-		}
-		
-		// set up module
-		NSString	*fileName = [url path];
-		NSString	*moduleName = [[fileName stringByDeletingLastPathComponent] lastPathComponent];
-		[module setValue: moduleName forKey: @"name"];
-		[module setValue: [fileName stringByDeletingLastPathComponent] forKey: @"path"];
-
-		[self loadStateFromFiles: outError];
-
-		// mark as un-edited
-		[managedObjectContext processPendingChanges];
-		[[managedObjectContext undoManager] removeAllActions];
-		[self updateChangeCount:NSChangeCleared];
+    NSLog(@"opening module file: %@ (%@).", url, typeName);
+    
+    // check input
+    if (![url isFileURL])
+    {
+        *outError = [NSError errorWithDomain: @"badFileURL" code: 0 userInfo: nil];
+        return NO;
     }
-    return self;
-}
+    
+    // bootstrap a new module
+    NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
+    [self setModule:[NSEntityDescription insertNewObjectForEntityForName:@"Module"
+                                                  inManagedObjectContext:managedObjectContext]];
+    
+    // set up the new module
+    NSString	*fileName = [url path];
+    NSString	*moduleName = [[fileName stringByDeletingLastPathComponent] lastPathComponent];
+    [module setValue: moduleName forKey: @"name"];
+    [module setValue: [fileName stringByDeletingLastPathComponent] forKey: @"path"];
 
-// is this function needed? I think only the above is...
-- (id)initWithType:(NSString *)type error:(NSError **)error {
-    self = [super initWithType:type error:error];
-    if (self != nil) {
-		NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
-		[self setModule:[NSEntityDescription insertNewObjectForEntityForName:@"Module"
-														  inManagedObjectContext:managedObjectContext]];
-		[managedObjectContext processPendingChanges];
-		[[managedObjectContext undoManager] removeAllActions];
-		[self updateChangeCount:NSChangeCleared];
-    }
-    return self;
-}
+    [self loadStateFromFiles: outError];
 
-- (void) makeWindowControllers
-{
-	// make main window
-	ModuleMainWindowController *wc = [[ModuleMainWindowController alloc] init];
-	[wc autorelease];
-	[self addWindowController: wc];
-}
-
-- (NSString *)windowNibName 
-{
-    return @"MyDocument";
-}
-
-- (void)windowControllerDidLoadNib:(NSWindowController *)windowController 
-{
-    [super windowControllerDidLoadNib:windowController];
-    // user interface preparation code
-}
-
-- (void)dealloc {
-    [self setModule:nil];
-    [super dealloc];
+    // mark as un-edited
+    [managedObjectContext processPendingChanges];
+    [[managedObjectContext undoManager] removeAllActions];
+    [self updateChangeCount:NSChangeCleared];
+    
+    return YES;
 }
 
 

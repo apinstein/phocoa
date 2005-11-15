@@ -11,6 +11,27 @@
 
 @implementation PageInstance
 
+- (BOOL) isPrototype
+{
+    if (![self valueForKey: @"parent"]) return NO;
+    
+    NSString *expectedPrototypeName = [NSString stringWithFormat: @"%@Prototype", [[self valueForKey: @"parent"] valueForKey: @"instanceID"]];
+    if ([[self valueForKey: @"instanceID"] isEqualTo: expectedPrototypeName]) return YES;
+
+    return NO;
+}
+
+- (void) instanceToPHPArray: (NSMutableString*) instancesOut
+{
+    [instancesOut appendFormat: @"\n\t'%@' => array('class' => '%@', 'children' => array(", [self valueForKey: @"instanceID"], [self valueForKey: @"instanceClass"]];
+    NSEnumerator    *instEn = [[self valueForKey: @"children"] objectEnumerator];
+    PageInstance    *inst;
+    while (inst = [instEn nextObject]) {
+        [inst instanceToPHPArray: instancesOut];
+    }
+    [instancesOut appendString: @")),"];
+}
+
 + (PageInstance*) pageInstanceFromXMLNode: (NSXMLNode*) node withConfig: (NSXMLNode*) configXML context: (NSManagedObjectContext*) context
 {
 	// set up new page instance

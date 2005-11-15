@@ -1,10 +1,22 @@
 {
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            CLASS = FixedNSTreeController; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSTreeController; 
+        }, 
         {CLASS = ModuleDocument; LANGUAGE = ObjC; SUPERCLASS = NSPersistentDocument; }, 
         {
+            ACTIONS = {insertBinding = id; }; 
             CLASS = ModuleMainWindowController; 
             LANGUAGE = ObjC; 
+            OUTLETS = {
+                pageInstanceBindingController = id; 
+                pageInstancesController = id; 
+                saveProgress = id; 
+                sharedInstancesController = id; 
+            }; 
             SUPERCLASS = NSWindowController; 
         }, 
         {CLASS = NSPersistentDocument; LANGUAGE = ObjC; SUPERCLASS = NSDocument; }, 

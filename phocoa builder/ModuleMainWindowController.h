@@ -10,5 +10,15 @@
 
 
 @interface ModuleMainWindowController : NSWindowController {
+    IBOutlet    id saveProgress;
+    IBOutlet    id sharedInstancesController;
+    IBOutlet    id pageInstancesController;
+    IBOutlet    id pageInstanceBindingController;
 }
+
+- (void) startSaveProgress;
+- (void) stopSaveProgress;
+
+- (IBAction) insertBinding: (id) sender;
+
 @end

@@ -11,6 +11,14 @@
 
 @implementation PageInstanceConfig
 
+- (NSString*) escapedValue
+{
+    NSMutableString *str = [NSMutableString stringWithString: [self valueForKey: @"value"]];
+    [str replaceOccurrencesOfString: @"'" withString: @"\\'" options: NSLiteralSearch range: NSMakeRange(0, [[self valueForKey: @"value"] length])];
+    return str;
+}
+
+
 + (PageInstanceConfig*) pageInstanceConfigFromXMLNode: (NSXMLNode*) node context: (NSManagedObjectContext*) context
 {
 	// set up new config

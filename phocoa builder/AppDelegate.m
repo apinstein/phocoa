@@ -30,4 +30,8 @@
           NSCoreDataVersionNumber, [defaults stringForKey: @"php_executable"]);
 }
 
+- (BOOL)applicationShouldOpenUntitledFile:(NSApplication *)sender
+{
+    return NO;
+}
 @end

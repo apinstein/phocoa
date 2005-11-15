@@ -12,7 +12,8 @@
 #import "ModuleMainWindowController.h"
 
 @interface ModuleDocument : NSPersistentDocument {
-    NSManagedObject *module;
+    NSManagedObject             *module;
+    ModuleMainWindowController  *mainWindow;
 }
 
 @end

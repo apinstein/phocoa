@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<string>WFDynamic</string>
+	<string>WFSelectionCheckbox</string>
+	<string>WFImage</string>
+	<string>WFForm</string>
+	<string>WFLabel</string>
+	<string>WFPassword</string>
+	<string>WFTextArea</string>
+	<string>WFTextField</string>
+	<string>WFHTMLArea</string>
+	<string>WFSubmit</string>
+	<string>WFSelect</string>
+	<string>WFJumpSelect</string>
+	<string>WFTimeSelect</string>
+	<string>WFHidden</string>
+	<string>WFCheckbox</string>
+	<string>WFCheckboxGroup</string>
+    <string>WFRadio</string>
+    <string>WFRadioGroup</string>
+	<string>WFUpload</string>
+	<string>WFPaginatorNavigation</string>
+	<string>WFPaginatorSortLink</string>
+	<string>WFPaginatorState</string>
+	<string>WFPaginatorPageInfo</string>
+	<string>WFModuleView</string>
+	<string>WFTabView</string>
+</array>
+</plist>

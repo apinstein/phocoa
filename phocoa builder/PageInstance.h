@@ -16,5 +16,8 @@
 
 }
 
+- (BOOL) isPrototype;
+
+- (void) instanceToPHPArray: (NSMutableString*) instancesOut;
 + (PageInstance*) pageInstanceFromXMLNode: (NSXMLNode*) node withConfig: (NSXMLNode*) configXML context: (NSManagedObjectContext*) context;
 @end

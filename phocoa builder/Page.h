@@ -14,5 +14,6 @@
 }
 
 - (NSString*) tplFilePath;
+- (void) saveSetupToDirectory: (NSString*) dir;
 
 @end
