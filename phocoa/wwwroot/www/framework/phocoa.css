@@ -48,3 +48,30 @@ border-bottom: 1px solid black;
 border-right: 1px solid black;
 }
 
+div.phocoaWFMessageBox {
+    width: 350px;
+    border: 1px solid black;
+    padding: 5px;
+    margin: 0;
+    background-color: yellow;
+    min-height: 48px;
+}
+img.phocoaWFMessageBox_icon {
+    float: left;
+    margin: 0 8px 0 5px;
+    padding: 0;
+    width: 48px;
+    height: 48px;
+}
+div.phocoaWFMessageBox_Info {
+    border: 2px solid green;
+}
+div.phocoaWFMessageBox_Warning {
+    border: 2px solid orange;
+}
+div.phocoaWFMessageBox_Error {
+    border: 2px solid red;
+}
+div.phocoaWFMessageBox_Confirm {
+    border: 2px solid orange;
+}
