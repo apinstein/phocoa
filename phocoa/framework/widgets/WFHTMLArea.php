@@ -59,7 +59,7 @@ class WFHTMLArea extends WFWidget
         $editor = new FCKEditor($this->name());
         $editor->Width = $this->width;
         $editor->Height = $this->height;
-        $editor->BasePath = '/www/framework/FCKEditor/';
+        $editor->BasePath = WWW_ROOT . '/www/framework/FCKEditor/';
         $editor->Value = $this->value();
         return $editor->CreateHtml();
     }
