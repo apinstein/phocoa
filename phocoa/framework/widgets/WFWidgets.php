@@ -12,6 +12,7 @@
  */
 require_once('framework/widgets/WFWidget.php');
 
+require_once('framework/widgets/WFDynarchMenu.php');
 require_once('framework/widgets/WFDynamic.php');
 require_once('framework/widgets/WFSelectionCheckbox.php');
 require_once('framework/widgets/WFImage.php');
