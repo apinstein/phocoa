@@ -27,6 +27,8 @@ require_once('framework/WFMenuItem.php');
  */
 class WFDynarchMenu extends WFWidget
 {
+    static private $hasIncludedFiles = false;
+
     /**
      * @var array An array of objects confirming to WFMenuItem protocol.
      */
@@ -44,6 +46,9 @@ class WFDynarchMenu extends WFWidget
         parent::__construct($id, $page);
         $this->menuItems = array();
         $this->skin = '';
+
+        // check the existence of the www dir and throw and exception if it isn't there as people will need to install it.
+        //if (!file_exists($projectRoot . $this->getWidgetWWWDir())) throw( new Exception("You need to install the hmenu files in " . $this->getWidgetWWWDir()) );
     }
 
     /**
@@ -66,7 +71,28 @@ class WFDynarchMenu extends WFWidget
         }
         else
         {
-            $html = "\n<ul id=\"{$this->id}\">\n";
+            $html = '';
+            if (!$this->hasIncludedFiles)
+            {
+                $this->hasIncludedFiles = true;
+                $html = '
+                    <!-- load the menu stylesheet -->
+                    <style type="text/css">
+                      @import url("' . $this->getWidgetWWWDir() . '/skin-aqua.css");
+                    </style>
+                    <!-- declare the menu location -->
+                    <script type="text/javascript">
+                      _dynarch_menu_url = "' . $this->getWidgetWWWDir() . '/";
+                      window.onload = function()
+                      {
+                          DynarchMenu.setup(\'' . $this->id . '\', { electric: true, timeout: 70 } );
+                      }
+                    </script>
+                    <!-- load the menu program file -->
+                    <script type="text/javascript" src="' . $this->getWidgetWWWDir() . '/hmenu.js"></script>
+                ';
+            }
+            $html .= "\n<ul id=\"{$this->id}\">\n";
             foreach ($this->menuItems as $menuItem) {
                 $html .= $this->menuItemToHTML($menuItem);
             }
