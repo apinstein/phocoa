@@ -23,13 +23,20 @@
 
 - (void) instanceToPHPArray: (NSMutableString*) instancesOut
 {
-    [instancesOut appendFormat: @"\n\t'%@' => array('class' => '%@', 'children' => array(", [self valueForKey: @"instanceID"], [self valueForKey: @"instanceClass"]];
-    NSEnumerator    *instEn = [[self valueForKey: @"children"] objectEnumerator];
-    PageInstance    *inst;
-    while (inst = [instEn nextObject]) {
-        [inst instanceToPHPArray: instancesOut];
+    if ([[self valueForKey: @"children"] count] == 0)
+    {
+        [instancesOut appendFormat: @"\n\t'%@' => array('class' => '%@'),", [self valueForKey: @"instanceID"], [self valueForKey: @"instanceClass"]];
     }
-    [instancesOut appendString: @")),"];
+    else
+    {
+        [instancesOut appendFormat: @"\n\t'%@' => array('class' => '%@', 'children' => array(", [self valueForKey: @"instanceID"], [self valueForKey: @"instanceClass"]];
+        NSEnumerator    *instEn = [[self valueForKey: @"children"] objectEnumerator];
+        PageInstance    *inst;
+        while (inst = [instEn nextObject]) {
+            [inst instanceToPHPArray: instancesOut];
+        }
+        [instancesOut appendString: @")),"];
+    }
 }
 
 + (PageInstance*) pageInstanceFromXMLNode: (NSXMLNode*) node withConfig: (NSXMLNode*) configXML context: (NSManagedObjectContext*) context
