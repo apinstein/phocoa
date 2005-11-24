@@ -211,7 +211,7 @@ class WFObject implements WFKeyValueCoding
         $setMethod = "set" . ucfirst($key);
         if (method_exists($this, $setMethod))
         {
-            $this->$setMethod($value, $key);
+            $this->$setMethod($value);
             $performed = true;
         }
 
