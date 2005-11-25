@@ -38,15 +38,10 @@ require_once('framework/widgets/WFView.php');
  * <b>Optional:</b><br>
  * None.
  *
- * @todo Move the MODE / baseURL stuff into WFPaginator as it's set only once per paginator, and multiple widgets need access to it.
  * @todo Make sure that the pagination links work properly when this widget is in a composited view. Not sure how the params will work from __construct etc... 
  */
 class WFPaginatorSortLink extends WFWidget
 {
-    /**
-     * @var string The base URL of the link to use in MODE_URL.
-     */
-    private $baseURL;
     /**
      * @var object WFPaginator The paginator object that we will draw navigation for.
      */
@@ -59,15 +54,6 @@ class WFPaginatorSortLink extends WFWidget
     {
         parent::__construct($id, $page);
         $this->paginator = NULL;
-
-        if ($this->page->module()->invocation()->targetRootModule() and !$this->page->module()->invocation()->isRootInvocation())
-        {
-            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->rootInvocation()->invocationPath();
-        }
-        else
-        {
-            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName();
-        }
     }
 
     function setPaginator($p)
@@ -79,11 +65,6 @@ class WFPaginatorSortLink extends WFWidget
     function render($blockContent = NULL)
     {
         if (!$this->paginator) throw( new Exception("No paginator assigned.") );
-
-        // calculate appropriate baseURL based on parameters - must do this here b/c in the construct the params haven't been parsed
-        // the baseURL should be the modulePath + Page + current params up the last one, which is the paginatorState. The paginatorState param is always LAST.
-        $paramsWithoutPaginationState = array_slice($this->page->parameters(), 0, count($this->page->parameters()) - 1);
-        $this->baseURL .= '/' . join('/', $paramsWithoutPaginationState);
 
         $sortIndicator = NULL;
         $linkKey = "+{$this->value}";
@@ -104,7 +85,7 @@ class WFPaginatorSortLink extends WFWidget
 
         if ($this->paginator->mode() == WFPaginator::MODE_URL)
         {
-            $output = '<a href="' . $this->baseURL  . '/' . $this->paginator->paginatorState(NULL, NULL, array($linkKey)) . '">' . $sortOptions[$linkKey] . $sortIndicator . '</a>';
+            $output = '<a href="' . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState(NULL, NULL, array($linkKey))) . '">' . $sortOptions[$linkKey] . $sortIndicator . '</a>';
             if ($sortIndicator)
             {
                 return "<b>$output</b>";

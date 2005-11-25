@@ -127,12 +127,12 @@ class pagination extends WFModule
 
     function example_ParameterList()
     {
-        return array('paginatorStateID');
+        return array('paginatorState');
     }
     function example_PageDidLoad($page, $params)
     {
         $this->paginator->setDataDelegate(new WFPagedArray($this->allPeople));
-        $this->paginator->setPaginatorState($params['paginatorStateID']);
+        $this->paginator->readPaginatorStateFromParams($params);
         $this->people->setContent($this->paginator->currentItems());
         $page->assign('people', $this->people->arrangedObjects());
     }

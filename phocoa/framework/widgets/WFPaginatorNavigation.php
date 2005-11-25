@@ -26,7 +26,6 @@ require_once('framework/widgets/WFWidget.php');
  * <b>Optional:</b><br>
  * - {@link WFPaginatorNavigation::$maxJumpPagesToShow}
  *
- * @todo Move the MODE / baseURL stuff into WFPaginator as it's set only once per paginator, and multiple widgets need access to it.
  * @todo Make sure that the pagination links work properly when this widget is in a composited view. Not sure how the params will work from __construct etc... 
  */
 class WFPaginatorNavigation extends WFWidget
@@ -35,10 +34,6 @@ class WFPaginatorNavigation extends WFWidget
      * @var object WFPaginator The paginator object that we will draw navigation for.
      */
     protected $paginator;
-    /**
-     * @var string The base URL of the link to use in MODE_URL.
-     */
-    private $baseURL;
     /**
      * @var integer The maximum number of direct-page-links to show in the "Jump To" section. Default is 10. Set to 0 to disable "Jump To" section.
      */
@@ -52,15 +47,6 @@ class WFPaginatorNavigation extends WFWidget
         parent::__construct($id, $page);
         $this->paginator = NULL;
         $this->maxJumpPagesToShow = 10;
-
-        if ($this->page->module()->invocation()->targetRootModule() and !$this->page->module()->invocation()->isRootInvocation())
-        {
-            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->rootInvocation()->invocationPath();
-        }
-        else
-        {
-            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName();
-        }
     }
 
     /**
@@ -87,18 +73,13 @@ class WFPaginatorNavigation extends WFWidget
         if ($this->paginator->itemCount() == 0) return NULL;
         if ($this->paginator->pageSize() == WFPaginator::PAGINATOR_PAGESIZE_ALL) return NULL;
 
-        // calculate appropriate baseURL based on parameters - must do this here b/c in the construct the params haven't been parsed
-        // the baseURL should be the modulePath + Page + current params up the last one, which is the paginatorState. The paginatorState param is always LAST.
-        $paramsWithoutPaginationState = array_slice($this->page->parameters(), 0, count($this->page->parameters()) - 1);
-        $this->baseURL .= '/' . join('/', $paramsWithoutPaginationState);
-
         $output = '';
 
         if ($this->paginator->mode() == WFPaginator::MODE_URL)
         {
             if ($this->paginator->prevPage())
             {
-                $output .= "<a href=\"" . $this->baseURL . "/" . $this->paginator->paginatorState($this->paginator->prevPage()) . "\">&lt;&lt; Previous " . $this->itemsPhrase($this->paginator->pageSize()) . "</a>";
+                $output .= "<a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState($this->paginator->prevPage())) . "\">&lt;&lt; Previous " . $this->itemsPhrase($this->paginator->pageSize()) . "</a>";
             }
             if ($this->paginator->pageCount() > 1 and $this->maxJumpPagesToShow != 0)
             {
@@ -107,7 +88,7 @@ class WFPaginatorNavigation extends WFWidget
                 $output .= " [ Jump to: ";
                 if ($firstJumpPage != 1)
                 {
-                    $output .= "<a href=\"{$this->baseURL}/" . $this->paginator->paginatorState(1) . "\">First</a> ...";
+                    $output .= "<a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState(1)) . "\">First</a> ...";
                 }
                 for ($p = $firstJumpPage; $p <= $lastJumpPage; $p++)
                 {
@@ -117,12 +98,12 @@ class WFPaginatorNavigation extends WFWidget
                     }
                     else
                     {
-                        $output .= " <a href=\"" . $this->baseURL . "/" . $this->paginator->paginatorState($p) . "\">$p</a>";
+                        $output .= " <a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState($p)) . "\">$p</a>";
                     }
                 }
                 if ($lastJumpPage != $this->paginator->pageCount())
                 {
-                    $output .= "... <a href=\"{$this->baseURL}/" . $this->paginator->paginatorState($this->paginator->pageCount()) . "\">Last</a>";
+                    $output .= "... <a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState($this->paginator->pageCount())) . "\">Last</a>";
                 }
                 $output .= " ] ";
             }
@@ -132,7 +113,7 @@ class WFPaginatorNavigation extends WFWidget
             }
             if ($this->paginator->nextPage())
             {
-                $output .= "<a href=\"" . $this->baseURL . "/" . $this->paginator->paginatorState($this->paginator->nextPage()) . "\">Next " . $this->itemsPhrase( min($this->paginator->pageSize(), ($this->paginator->itemCount() - $this->paginator->endItem())) ) . " &gt;&gt;</a>";
+                $output .= "<a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState($this->paginator->nextPage())) . "\">Next " . $this->itemsPhrase( min($this->paginator->pageSize(), ($this->paginator->itemCount() - $this->paginator->endItem())) ) . " &gt;&gt;</a>";
             }
         }
         else

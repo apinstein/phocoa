@@ -131,13 +131,20 @@ $__config = array(
 <h3>Module Code</h3>
 <p>Note that the module code for this example is exactly the same as the other pagination example, but with this code added:</p>
 <pre>
+    function exampleWithForm_ParameterList()
+    {
+        return array('paginatorState');
+    }
     function exampleWithForm_PageDidLoad($page, $params)
     {
-        $this->paginator->setModeForm('paginatorState', 'submit');
+        $this->paginator->enableModeForm('submit');
+
         $page->outlet('numPeople')->setContentValues(array(0,1,10,100));
         $somePeople = array_slice($this->allPeople, 0, $page->outlet('numPeople')->value());
+
         $this->paginator->setDataDelegate(new WFPagedArray($somePeople));
-        $this->paginator->setPaginatorState($page->outlet('paginatorState')->value());
+        $this->paginator->readPaginatorStateFromParams($params);
+
         $this->people->setContent($this->paginator->currentItems());
         $page->assign('people', $this->people->arrangedObjects());
     }

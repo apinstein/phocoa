@@ -12,42 +12,47 @@ require_once('framework/WFObject.php');
 /**
  * Base paginator class.
  *
- * PHOCOA has its own pagination widgets. So that our pagination widgets can work with any pagination infrastructure, we have a WFPaginator.
+ * PHOCOA has its own pagination infrastructure. The UI layer of pagination is nicely separated from the data layer so that the PHOCOA pagination infrastructure
+ * can be easily used with any underlying data source (SQL, PHP arrays, etc).
  * 
- * The pagination widgets interface with the paged data via WFPaginator. To hook up the PHOCOA widgets with your pagination infrastructure, you simply
- * need to write an adapter class that implements {@link WFPagedData}. This will allow the WFPaginator to page your data. PHOCOA ships with drivers for Array and Propel.
+ * The WFPaginator class is the core pagination functionality that coordiantes the PHOCOA Pagination UI widgets with the underlying data.
+ * The PHOCOA pagination infrastructure includes support for multi-key sorting as well.
+ *
+ * It is extremely simple to paginate your data with PHOCOA.
+ * 
+ * To hook up the PHOCOA widgets with a data source, you must provide a Data Delegate to WFPaginator to provide the paged data to the pagination infrastructure.
+ * A Data delegate is any class that implements the {@link WFPagedData WFPagedData interface}.
+ *
+ * PHOCOA ships with data delegates for PHP Arrays, Propel criteria-based queries, and Creole-based queries.
+ * There is also a data delegate for {@link http://www.dieselpoint.com DieselPoint} result sets.
  *
  * Because of this architecture, the pagination widgets of PHOCOA can be easily "bound" to a pagination instance and make the display of paginated data easy.
  *
- * The PHOCOA pagination infrastructure includes support for multi-key sorting as well.
+ * USAGE
+ * First, figure out is which {@link WFPaginator::$mode mode} you need to use.
+ * - MODE_URL (default mode) effects all pagination via plain-old-urls, which is more compatible (with browsers), but of course cannot interact with form data (for instance a search form on the same page).
+ * - MODE_FORM effects all pagination via javascript and your form. 
  *
- * To use the pagination infrastructure, the first thing to figure out is which {@link WFPaginator::$mode} you need to use. MODE_URL (default mode) effects all pagination via plain-old-urls, which
- * is more compatible, but of course cannot interact with form data (for instance a search form on the same page). MODE_FORM effects all pagination via javascript and your form. 
+ * The default is MODE_URL.
  *
- * The instructions below show you how to add a paginator to an existing list view.
- * Once you have decided on the mode that's right for you, you must set up the paginator. Here's an example:
- * - Declare a WFPaginator instance in your shared instances.
- * - If you're using MODE_FORM, you need to declare a {@link WFPaginatorState} in your page, and configure the {@link WFPaginatorState::$paginator} element. This is a special form element that WFPaginator uses to pass the new settings on via the form submission.
- * - Declare a {@link WFPaginatorNavigation} in your page, and configure the {@link WFPaginatorNavigation::$paginator} element to point to your shared WFPaginator instance.
- * - Declare a {@link WFPaginatorPageInfo} in your page, and configure the {@link WFPaginatorPageInfo::$paginator} element.
- * - Declare a {@link WFPaginatorSortLink} in your page, for each link that will sort, and configure the {@link WFPaginatorSortLink::$paginator} and {@link WFWidget::$value} elements. The value of a WFPaginatorSortLink is the sortKey that the link is for, without the +/-.
- * - Configure the paginator in the sharedInstancesDidLoad method:
+ * Adding Pagination to an exist list view.
+ * 1. Set up the paginator by declaring a WFPaginator instance in your shared instances.
+ * 2. Manifest the paginatorState parameter id in the page's ParameterList method. By default, WFPaginator expects the id to be "paginatorState".
+ * 3. If you're using MODE_FORM, enable MODE_FORM by configuring the paginator's "enableModeForm" element with the value of the submit button on your form that should be clicked to "update" the display. Then, declare a {@link WFPaginatorState} in your page (the ID should be paginatorState parameter ID, "paginatorState" by default), and configure the {@link WFPaginatorState::$paginator paginator} element. This is a special form element that WFPaginator uses to pass the new settings on via the form submission.
+ * 4. Declare a {@link WFPaginatorNavigation} in your page, and configure the {@link WFPaginatorNavigation::$paginator paginator} element.
+ * 5. Declare a {@link WFPaginatorPageInfo} in your page, and configure the {@link WFPaginatorPageInfo::$paginator paginator} element.
+ * 6. Declare a {@link WFPaginatorSortLink} in your page for each sorting option, and configure the {@link WFPaginatorSortLink::$paginator paginator} and {@link WFWidget::$value value} elements. The value of a WFPaginatorSortLink is the sortKey that the link is for, without the +/-.
+ * 7. Configure the paginator in the sharedInstancesDidLoad method:
  * <code>
  *     $this->myPaginator->setSortOptions(array('+price' => 'Price', '-price' => 'Price'));
  *     $this->myPaginator->setDefaultSortKeys(array('+price'));
- *     // if you want to use MODE_FORM, add this line:
- *     $this->myPaginator->setModeForm('paginatorStateID', 'formSubmitID');
  * </code>
- * - Set up the data:
+ * 8. In your page's PageDidLoad method, configure the paginator's data delegate and have the paginator read the state from the request.
  * <code>
  *     $this->myPaginator->setDataDelegate(new WFPagedPropelQuery($criteria, 'MyPeer'));
- *     // if you are using MODE_URL, use this line
- *     // don't forget to set up your params for the page to grab the LAST param as the paginator info. This is done in the <page>_ParameterList() function.
- *     // it is very important for the LAST parameter to be the paginator state. This assumption is used when creating the paginator links automatically and is required for proper operation.
- *     $this->myPaginator->setPaginatorState($params['paginatorState']);
- *
- *     // if you are using MODE_FORM, use this line
- *     $this->myPaginator->setPaginatorState($page->outlet('paginatorStateID')->value());
+ *     $this->myPaginator->readPaginatorStateFromParams($params);    // this will read the paginator's desired state from the params.
+ * </code>
+ * 9. Finally, access the paged data set. Typically this is done in the PageDidLoad method if there is no form submission, otherwise it is done from the action method.
  *     $this->myArrayController->setContent($this->myPaginator->currentItems());
  * </code>
  * 
@@ -55,7 +60,6 @@ require_once('framework/WFObject.php');
  *
  * @see WFPaginatorNavigation, WFPaginatorPageInfo, WFPaginatorSortLink, WFPaginatorState
  * @see WFPagedArray, WFPagedPropelQuery, WFPagedCreoleQuery
- * @todo What needs to be done with bindings, anything?
  */
 class WFPaginator extends WFObject
 {
@@ -105,13 +109,19 @@ class WFPaginator extends WFObject
      */
     protected $defaultSortKeys;
     /**
-     * @var string The ID of the paginatorState WFPaginatorState in the form. Only used if MODE_FORM.
-     */
-    protected $paginatorStateID;
-    /**
-     * @var string THe ID of the form button to click to re-submit the form. Only used if MODE_FORM.
+     * @var string The ID of the form button to click to re-submit the form. Only used if MODE_FORM.
      */
     protected $submitID;
+    /**
+     * @var string The name of the page's parameter ID containing the WFPaginatorState. Of course your parameterID declared in <pageName>_ParameterList and the ID of the 
+     *             WFPaginatorState widget should be the same.
+     */
+    protected $paginatorStateParameterID;
+    /**
+     * @var assoc_array An associative array of alternative replacement params for the current page's parameter list. This is used by the baseURL calculation 
+     *                  to allow clients to change paramters before creating the pagination URLs.
+     */
+    protected $alternativeParams;
 
     /**
      * @const Make the paginator use URL mode, which will produce pagination links via standard HTML links without Javascript.
@@ -145,24 +155,114 @@ class WFPaginator extends WFObject
         $this->sortKeys = array();
         $this->defaultSortKeys = array();
         $this->mode = WFPaginator::MODE_URL;
-        $this->paginatorStateID = NULL;
+        $this->paginatorStateParameterID = 'paginatorState';
+        $this->alternativeParams = array();
         $this->submitID = NULL;
     }
 
-    function setModeForm($paginatorStateID = NULL, $submitID = NULL)
+    /**
+     *  Provide alternate values for the page's params that will be used with {@link urlForPaginatorState() urlForPaginatorState}.
+     *
+     *  @param string The ID of the parameter.
+     *  @param mixed The value of the parameter.
+     */
+    function setAlternativeParameterValue($id, $value)
     {
-        $this->mode = WFPaginator::MODE_FORM;
-        if ($paginatorStateID)
-        {
-            $this->paginatorStateID = $paginatorStateID;
-        }
-        if ($submitID)
-        {
-            $this->submitID = $submitID;
-        }
+        $this->alternativeParams[$id] = $value;
     }
 
-    function setModeURL()
+    /**
+     *  Get an absolute URL that links to a different paginator state for the current setup.
+     *
+     *  This is a helper function used by the pagination widgets.
+     *
+     *  This function is only used with MODE_URL.
+     *
+     *  If any of the other parameters should be different than they were in the original params created for the page, set the new value(s)
+     *  with {@link setAlternativeParameterValue() setAlternativeParameterValue} before displaying any of the pagination widgets.
+     *
+     *  @param object WFPage The page that the widget is on.
+     *  @param string The desired paginatorState for the link. See {@link paginatorState() paginatorState}.
+     *  @return string The absolute URL to the desired paginator state.
+     *  @throws Exception on invalid arguments.
+     *  @see paginatorState(), setAlternativeParameterValue()
+     */
+    function urlForPaginatorState($page, $paginatorState)
+    {
+        // assert params
+        if (!($page instanceof WFPage)) throw( new Exception("Invalid page parameter.") );
+        if (empty($paginatorState)) throw( new Exception("PaginatorState is empty.") );
+        
+        $params = $page->parameters();
+        $module = $page->module();
+
+        if ($module->invocation()->targetRootModule() and !$module->invocation()->isRootInvocation())
+        {
+            $baseURL = WWW_ROOT . '/' . $module->invocation()->rootInvocation()->invocationPath();
+        }
+        else
+        {
+            $baseURL = WWW_ROOT . '/' . $module->invocation()->modulePath() . '/' . $page->pageName();
+        }
+
+        // re-build params
+        $newParams = array();
+        foreach ($params as $paramID => $paramValue) {
+            // use the passed paginator state
+            if ($paramID == $this->paginatorStateParameterID)
+            {
+                $newParams[$paramID] = $paginatorState;
+            }
+            else
+            {
+                // preserve all other params, unless overloaded
+                if (isset($this->alternativeParams[$paramID]))
+                {
+                    $newParams[$paramID] = $this->alternativeParams[$paramID];
+                }
+                else
+                {
+                    $newParams[$paramID] = $paramValue;
+                }
+            }
+        }
+
+        $fullURL = $baseURL . '/' . join('/', $newParams);
+        return $fullURL;
+    }
+
+    /**
+     *  Read the paginator's state from the page's parameters.
+     *
+     *  @param assoc_array The params array from the page.
+     *  @throws Exception if the paginatorStateParameterID param cannot be found.
+     */
+    function readPaginatorStateFromParams($params)
+    {
+        if (!in_array($this->paginatorStateParameterID, array_keys($params))) throw( new Exception("Paginator State Parameter ({$this->paginatorStateParameterID}) is not set. Make sure that you have it declared as a parameter for your page. If your paginatorStateParameterID is different from the one reported, then update it with setPaginatorStateParameterID().") );
+        $this->setPaginatorState($params[$this->paginatorStateParameterID]);
+    }
+
+    function setPaginatorStateParameterID($id)
+    {
+        $this->paginatorStateParameterID = $id;
+    }
+
+    /**
+     *  Turn on MODE_FORM.
+     *
+     *  @param string The ID of the submit button that should be "clicked" to udpate the page.
+     */
+    function enableModeForm($submitID)
+    {
+        $this->mode = WFPaginator::MODE_FORM;
+        $this->submitID = $submitID;
+    }
+
+    /**
+     *  Turn on MODE_URL.
+     */
+    function enableModeURL()
     {
         $this->mode = WFPaginator::MODE_URL;
     }
@@ -571,7 +671,8 @@ class WFPaginator extends WFObject
         //print_r(explode('|',$paginatorState));
         //print "<br>decoding paginator state: $paginatorState :: page=$currentPage, pageSize=$pageSize, sortKeys=$sortKeyString<br>";
 
-        $this->loadData();
+        // Why do we reload here? Aren't we re-loading before we really need to? Do we need a "dirty" bit to track if we've tried to load data yet?
+        //$this->loadData();
     }
 
     /**
@@ -579,13 +680,13 @@ class WFPaginator extends WFObject
      *
      *  @param $state string The result of {@link WFPaginator::paginatorState()}.
      *  @return string The JavaScript code that goes in onClick="".
-     *  @throws Exception if paginatorStateID or submitID are not populated.
+     *  @throws Exception if paginatorStateParameterID or submitID are not populated.
      */
     function jsForState($state)
     {
-        if (!$this->paginatorStateID) throw( new Exception("No paginatorStateID entered.") );
+        if (!$this->paginatorStateParameterID) throw( new Exception("No paginatorStateParameterID entered.") );
         if (!$this->submitID) throw( new Exception("No submitID entered.") );
-        return "document.getElementById('" . $this->paginatorStateID . "').value = '$state'; document.getElementById('" . $this->submitID . "').click(); return false;";
+        return "document.getElementById('" . $this->paginatorStateParameterID . "').value = '$state'; document.getElementById('" . $this->submitID . "').click(); return false;";
     }
 
 }
@@ -794,4 +895,5 @@ class WFPagedCreoleQuery implements WFPagedData
         return $results;
     }
 }
+
 ?>

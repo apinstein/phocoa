@@ -29,23 +29,30 @@ class pagination extends WFModule
 
     function example_ParameterList()
     {
-        return array('paginatorStateID');
+        return array('paginatorState');
     }
     function example_PageDidLoad($page, $params)
     {
         $this->paginator->setDataDelegate(new WFPagedArray($this->allPeople));
-        $this->paginator->setPaginatorState($params['paginatorStateID']);
+        $this->paginator->readPaginatorStateFromParams($params);
         $this->people->setContent($this->paginator->currentItems());
         $page->assign('people', $this->people->arrangedObjects());
     }
 
+    function exampleWithForm_ParameterList()
+    {
+        return array('paginatorState');
+    }
     function exampleWithForm_PageDidLoad($page, $params)
     {
-        $this->paginator->setModeForm('paginatorState', 'submit');
+        $this->paginator->enableModeForm('submit');
+
         $page->outlet('numPeople')->setContentValues(array(0,1,10,100));
         $somePeople = array_slice($this->allPeople, 0, $page->outlet('numPeople')->value());
+
         $this->paginator->setDataDelegate(new WFPagedArray($somePeople));
-        $this->paginator->setPaginatorState($page->outlet('paginatorState')->value());
+        $this->paginator->readPaginatorStateFromParams($params);
+
         $this->people->setContent($this->paginator->currentItems());
         $page->assign('people', $this->people->arrangedObjects());
     }
