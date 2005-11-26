@@ -216,13 +216,14 @@ class WFPaginator extends WFObject
             else
             {
                 // preserve all other params, unless overloaded
+                // Replace all EMPTY params with WFNull (PARAMETER_NULL_VALUE) so that we don't hit the // problem and lose our parameters.
                 if (isset($this->alternativeParams[$paramID]))
                 {
-                    $newParams[$paramID] = $this->alternativeParams[$paramID];
+                    $newParams[$paramID] = (is_null($this->alternativeParams[$paramID]) ? WFModuleInvocation::PARAMETER_NULL_VALUE : $this->alternativeParams[$paramID]);
                 }
                 else
                 {
-                    $newParams[$paramID] = $paramValue;
+                    $newParams[$paramID] = (is_null($paramValue) ? WFModuleInvocation::PARAMETER_NULL_VALUE : $paramValue);
                 }
             }
         }

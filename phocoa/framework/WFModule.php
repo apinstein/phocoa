@@ -36,6 +36,8 @@ require_once('framework/WFPage.php');
  */
 class WFModuleInvocation extends WFObject
 {
+    const PARAMETER_NULL_VALUE = 'WFNull';
+
     /**
      * @var object WFModuleInvocation A reference to the parent WFModuleInvocation for this object, or NULL if it's the root object.
      */
@@ -298,6 +300,8 @@ class WFModuleInvocation extends WFObject
      *  This is where {@link WFAuthorizationManager module security} is applied. If the page requies login to continue, the system will redirect to a login page,
      *  and will redirect back to the initial page upon successful login.
      *
+     *  NOTE: Will convert WFNull params into NULL values.
+     *
      *  @throws Various exceptions in setting up the module.
      */
     private function extractComponentsFromInvocationPath()
@@ -324,7 +328,14 @@ class WFModuleInvocation extends WFObject
                 }
                 if (count($pathInfoParts) > 2)
                 {
-                    $this->invocationParameters = array_slice($pathInfoParts, $partsUsedBeforeModule + 2);
+                    $params = array_slice($pathInfoParts, $partsUsedBeforeModule + 2);
+                    foreach ($params as $k => $v) {
+                        if ($v === WFModuleInvocation::PARAMETER_NULL_VALUE)
+                        {
+                            $params[$k] = NULL;
+                        }
+                    }
+                    $this->invocationParameters = $params;
                 }
                 //print "Found module {$this->moduleName} in {$this->modulePath}.";
                 //if ($this->pageName) print " Found page name: {$this->pageName}";
