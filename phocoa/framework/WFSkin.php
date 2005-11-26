@@ -342,7 +342,7 @@ class WFSkin extends WFObject
       */
     function setTitle($title)
     {
-        $this->title = $title;
+        $this->title = htmlentities($title);
     }
 
     /**
