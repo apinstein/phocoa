@@ -14,7 +14,7 @@
 require_once('framework/widgets/WFWidget.php');
 
 /**
- * A DieselPoint Facet widget for our framework.
+ * A Dieselpoint Facet widget for our framework.
  * 
  * <b>PHOCOA Builder Setup:</b>
  *
@@ -37,7 +37,7 @@ require_once('framework/widgets/WFWidget.php');
 class WFDieselFacet extends WFWidget
 {
     /**
-     * @var string The DieselPoint attribute id that this facet shows.
+     * @var string The Dieselpoint attribute id that this facet shows.
      */
     protected $attributeID;
     /**

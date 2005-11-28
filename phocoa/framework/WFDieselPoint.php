@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * DieselPoint helper object.
+  * Dieselpoint helper object.
   *
   * @copyright Copyright (c) 2002 Alan Pinstein. All Rights Reserved.
   * @version $Id: smarty_showcase.php,v 1.3 2005/02/01 01:24:37 alanpinstein Exp $
@@ -37,7 +37,7 @@ Propel::init(PROPEL_CONF);
  *
  * You set the callback with {@link setResultObjectLoaderCallback} or {@link setResultObjectLoaderCallbackWithPropelPeer}.
  *
- * The ids passed to the callback are retrieved from the DieselPoint index. The ID is configured in DieselPoint by setting up one of the attributes as the item id:
+ * The ids passed to the callback are retrieved from the Dieselpoint index. The ID is configured in Dieselpoint by setting up one of the attributes as the item id:
  *
  * prop_id, type=Item_id, datatype=I    # configure "prop_id" as the item_id for the index items.
  */
@@ -522,7 +522,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 // need to convert PageNum to DP-style; in DP the first page is page 0.
                 $pageNum = 1 + floor($startIndex / $numItems);
                 //print "Fetching items starting at $startIndex, max $numItems items. This means we're on page: " . $pageNum;
-                if ($numItems == WFPaginator::PAGINATOR_PAGESIZE_ALL) throw( new Exception("Paginator page size is set to PAGINATOR_PAGESIZE_ALL when using DieselPoint. Are you crazy?") );
+                if ($numItems == WFPaginator::PAGINATOR_PAGESIZE_ALL) throw( new Exception("Paginator page size is set to PAGINATOR_PAGESIZE_ALL when using Dieselpoint. Are you crazy?") );
                 $this->searcher->setNumberOfItemsOnAPage($numItems);
                 $this->searcher->setPageNumber($pageNum - 1);
                 $this->execute();
