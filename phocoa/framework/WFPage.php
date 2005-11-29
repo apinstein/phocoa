@@ -296,7 +296,7 @@ class WFPage extends WFObject
      *           ),
      *           'bindings' => array(
      *              'value' => array(
-     *                  'instanceID' => 'moduleInstanceVarName',        //  no need to put #module# here as it's the ONLY way to access objects!
+     *                  'instanceID' => 'moduleInstanceVarName',        //  put the instance name of a module instance var, or "#module#" to bind to the actual module (like File's Owner)
      *                  'controllerKey' => 'Name of the key of the controller, if the instance is a controller',
      *                  'modelKeyPath' => 'Key-Value Coding Compliant keyPath to use with the bound object'
      *                  'options' => array( // Binding options go here.
@@ -368,7 +368,15 @@ class WFPage extends WFObject
                     // determine object to bind to:
                     if (!is_string($bindingInfo['instanceID'])) throw( new Exception("'$bindProperty' binding parameter instanceID is not a string.") );
                     if (!isset($bindingInfo['instanceID'])) throw( new Exception("No instance id specified for binding object id '{$id}', property '{$bindProperty}'.") );
-                    $bindToObject = $this->module->valueForKey($bindingInfo['instanceID']);
+                    // let objects be bound to the module, like "File's Owner" kinda thing...
+                    if ($bindingInfo['instanceID'] == '#module#')
+                    {
+                        $bindToObject = $this->module;
+                    }
+                    else
+                    {
+                        $bindToObject = $this->module->valueForKey($bindingInfo['instanceID']);
+                    }
                     // at this point we should have an object...
                     if (!is_object($bindToObject)) throw( new Exception("Module instance var '{$bindingInfo['instanceID']}' does not exist for binding object id '{$id}', property '{$bindProperty}'.") );
 
@@ -629,6 +637,7 @@ class WFPage extends WFObject
      * After the _PageDidLoad call, the UI state from the request will be applied on top of the defaults.
      *
      * @todo Something is goofy with the detection of isRequestPage surrounding the action processor... seems to be getting called on the response page too. investiage.
+     * @todo createWidgets()... works fine unless the ACTION method alters the arrayController. Then you need to call createWidgets() for each Dynamic again. Should this be automated after the "action" callback is called? If so, should we implement the "no action" handler for !hasSubmittedForm so that createWidgets() doens't get called 2x when there's an action?
      */
     function initPage($pageName)
     {
