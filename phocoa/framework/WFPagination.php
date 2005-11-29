@@ -631,7 +631,7 @@ class WFPaginator extends WFObject
      */
     function paginatorState($page = NULL, $pageSize = NULL, $sortKeys = NULL)
     {
-        if (is_null($page)) $page = $this->page;
+        if (is_null($page)) $page = $this->currentPage();
         if (is_null($pageSize)) $pageSize = $this->pageSize;
         if (is_null($sortKeys)) $sortKeys = $this->sortKeys;
 
