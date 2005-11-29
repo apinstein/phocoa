@@ -366,6 +366,8 @@ class WFDynamic extends WFWidget
      * Module code may need to call this function again, particularly if the content of they arrayController is changed by the current action.
      *
      * @return assoc_array An array of 'widgetID' => widget for all newly created widgets.
+     * @todo Is it bad that if this function is called multiple times that we whack the list of widgets w/o deleting them from the parent?
+     * @todo Anything else wrong with calling more than once? This should be stateless...
      */
     function createWidgets()
     {
