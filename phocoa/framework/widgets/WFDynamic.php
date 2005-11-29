@@ -243,7 +243,7 @@ class WFDynamic extends WFWidget
     }
 
     /**
-     *  Set the config that will be used for the dynamic creation of widgets. See {@link createDynamicWidgets} for documentation on the config array.
+     *  Set the config that will be used for the dynamic creation of widgets. See {@link createWidgets} for documentation on the config array.
      *
      * @param array The widgetConfig to use for creation of widgets. Format:
      *  <code>
