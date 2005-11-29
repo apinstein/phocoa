@@ -40,6 +40,9 @@ Propel::init(PROPEL_CONF);
  * The ids passed to the callback are retrieved from the Dieselpoint index. The ID is configured in Dieselpoint by setting up one of the attributes as the item id:
  *
  * prop_id, type=Item_id, datatype=I    # configure "prop_id" as the item_id for the index items.
+ *
+ * @todo Add support for relevance ranks. Add a protected var that stores a map of relevance score by item id. Add relevanceScoreForItemId(). Need to use DieselResultSet to get at relevance score.
+ * @todo Add support for sorting
  */
 class WFDieselSearch extends WFObject implements WFPagedData
 {
@@ -533,7 +536,6 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 }
                 if (is_null($this->resultObjectLoaderCallback)) throw( new Exception("No resultObjectLoaderCallback exists. Install one with setResultObjectLoaderCallback or setResultObjectLoaderCallbackWithPropelPeer.") );
                 $objectsOnPage = call_user_func($this->resultObjectLoaderCallback, $allIDs);    // more efficient to grab all items in a single query
-                //print_r($objectsOnPage);
                 return $objectsOnPage;
             } catch (JavaException $e) {
                 $this->handleJavaException($e);
