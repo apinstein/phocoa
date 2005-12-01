@@ -1,5 +1,13 @@
 README for the Cocoa-Style PHP Framework (PHOCOA)
 
+Both CLI and HTTP access to functionality is available. In the HTTP environment, everything is bootstrapped automatically, you need only write WFModule subclasses to add request handlers. On the CLI side, there is now an autoload mechanism in place. To bootstrap the PHOCOA environment, you need only include the webapp.conf file at the top of the CLI script. We recommend setting up and ENV PHOCOA_PROJECT_CONF with the absolute path to the conf file and then using this at the top of all CLI scripts:
+
+require_once $_ENV['PHOCOA_PROJECT_CONF'];
+
+This will bootstrap the web application, load the application delegate, etc. PHOCOA's autoload mechanism will then call into your app to allow you to provide autoloading for your systems.
+
+-------------------------------
+
 Dependencies
 1) PHP5
 2) Propel is nice (http://propel.phpdb.org)

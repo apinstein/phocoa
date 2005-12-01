@@ -19,6 +19,13 @@
  */
 class WFWebApplicationDelegate
 {
+    /**
+     *  Autoload callback.
+     *
+     *  @param string The class name needing loading.
+     *  @return boolean TRUE if the class loading request was handled, FALSE otherwise.
+     */
+    function autoload($className)
 
     /**
      * Retrieve the default module for the application.

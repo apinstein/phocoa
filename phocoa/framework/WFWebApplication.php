@@ -18,13 +18,43 @@ require_once('WFAuthorization.php');    // must come before WFSession because we
  */
 function WFWebApplicationMain()
 {
+    $api = php_sapi_name();
+    $webapp = NULL;
     $webapp = WFWebApplication::sharedWebApplication();
-    $webapp->run();
+    switch ($api) {
+        case 'cli':
+            break;
+        default:
+            $webapp->runWebApplication();
+            break;
+
+    }
     return $webapp;
 }
 
 /**
- * The WFWebApplication object is a singleton object that manages the running of the entire web application.
+ *  Base autoload handler for PHOCOA. 
+ *
+ *  Implements a Chain of Responsibility pattern to allow various parts of the application to have a change to load classes.
+ *
+ *  1. Calls the autoload function on the Shared Web Application. This in turn will call the same function on the app delegate.
+ *
+ *  <code>
+ *    bool autoload($className);    // return true if the class was loaded, false otherwise
+ *  </code>
+ *
+ *  @param string The class name that needs to be loaded.
+ */
+function __autoload($className)
+{
+    print "Autoload request for: $className\n";
+    $webapp = WFWebApplication::sharedWebApplication();
+    $ok = $webapp->autoload($className);
+    if (!$ok) print "FATAL: unable to load class: $className\n";
+}
+
+/**
+ * The WFWebApplication object is a singleton object that manages the running of the any Phocoa request, be it CLI or HTTP.
  *
  * Right now it doesn't do a whole lot besides manage the shared application object and provide access to a few application defaults via the delegate.
  * Eventually it can be used to manage application-wide settings and state.
@@ -83,40 +113,10 @@ class WFWebApplication extends WFObject
      *
      * The web framework's normal cycle is to instantiate the WFWebApplication then pass control to the WFRequestController to handle the request.
      */
-    function run()
+    function runWebApplication()
     {
         $rc = WFRequestController::sharedRequestController();
         $rc->handleHTTPRequest();
-    }
-
-    /**
-     * Get the default module for this web application. The default module is the module that will be run if the web root is accessed.
-     *
-     * The default module is provided by the {@link WFWebApplicationDelegate}.
-     * 
-     * @return string The default module for this web application. Will be either a module name (examplemodule) or a path to a module (path/to/examplemodule).
-     */
-    function defaultModule()
-    {
-        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultModule')) {
-            return $this->delegate->defaultModule();
-        }
-        return NULL;
-    }
-
-    /**
-     * Get the default Skin delegate for the application.
-     *
-     * The default skin delegate is provided by the {@link WFWebApplicationDelegate}.
-     *
-     * @return object Object implementing the {@link WFSkinDelegate} delegate protocol, or NULL if there is no default delegate.
-     */
-    function defaultSkinDelegate()
-    {
-        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultSkinDelegate')) {
-            return $this->delegate->defaultSkinDelegate();
-        }
-        return NULL;
     }
 
     /**
@@ -158,6 +158,59 @@ class WFWebApplication extends WFObject
             default:
                 throw(new Exception("Unknown app dir: {$appDirName}."));
         }
+    }
+
+    /** DELEGATE WRAPPER METHODS BELOW */
+
+    /**
+     *  Autoload callback for WFWebApplication.
+     *
+     *  @param string The class name needing loading.
+     *  @return boolean TRUE if the class loading request was handled, FALSE otherwise.
+     */
+    function autoload($className)
+    {
+        $loaded = false;
+
+        // let the application try to autoload the class
+        if (is_object($this->delegate) && method_exists($this->delegate, 'autoload')) {
+            $loaded = $this->delegate->autoload($className);
+            if ($loaded) return true;
+        }
+
+        // handle PHOCOA objects
+
+        return $loaded;
+    }
+
+    /**
+     * Get the default module for this web application. The default module is the module that will be run if the web root is accessed.
+     *
+     * The default module is provided by the {@link WFWebApplicationDelegate}.
+     * 
+     * @return string The default module for this web application. Will be either a module name (examplemodule) or a path to a module (path/to/examplemodule).
+     */
+    function defaultModule()
+    {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultModule')) {
+            return $this->delegate->defaultModule();
+        }
+        return NULL;
+    }
+
+    /**
+     * Get the default Skin delegate for the application.
+     *
+     * The default skin delegate is provided by the {@link WFWebApplicationDelegate}.
+     *
+     * @return object Object implementing the {@link WFSkinDelegate} delegate protocol, or NULL if there is no default delegate.
+     */
+    function defaultSkinDelegate()
+    {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultSkinDelegate')) {
+            return $this->delegate->defaultSkinDelegate();
+        }
+        return NULL;
     }
 }
 

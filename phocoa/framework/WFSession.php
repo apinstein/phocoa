@@ -7,8 +7,10 @@
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
-
-session_start();
+if (php_sapi_name() !== 'cli')
+{
+    session_start();
+}
 
 // This class is for shit right now; for now just let people access session manually.
 ///**
