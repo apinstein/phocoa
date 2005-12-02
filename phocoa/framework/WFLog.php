@@ -12,7 +12,7 @@
  * Includes
  */
 require_once('WFObject.php');
-require_once('Log.php');
+require_once('Log.php');    // PEAR log
 
 /**
  * The WFLog class provides some static helper methods for logging things.

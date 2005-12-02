@@ -7,11 +7,13 @@
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
 
+/**
+ * Various includes used in all cases.
+ */
 require_once('WFObject.php');
-require_once('WFException.php');
 require_once('WFLog.php');
-require_once('WFRequestController.php');
-require_once('WFAuthorization.php');    // must come before WFSession because we have serialized auth objects!
+require_once('WFException.php');
+
 
 /**
  * BOOTSTRAP function used by the main web page to start our framework.
@@ -30,27 +32,6 @@ function WFWebApplicationMain()
 
     }
     return $webapp;
-}
-
-/**
- *  Base autoload handler for PHOCOA. 
- *
- *  Implements a Chain of Responsibility pattern to allow various parts of the application to have a change to load classes.
- *
- *  1. Calls the autoload function on the Shared Web Application. This in turn will call the same function on the app delegate.
- *
- *  <code>
- *    bool autoload($className);    // return true if the class was loaded, false otherwise
- *  </code>
- *
- *  @param string The class name that needs to be loaded.
- */
-function __autoload($className)
-{
-    print "Autoload request for: $className\n";
-    $webapp = WFWebApplication::sharedWebApplication();
-    $ok = $webapp->autoload($className);
-    if (!$ok) print "FATAL: unable to load class: $className\n";
 }
 
 /**
@@ -115,6 +96,7 @@ class WFWebApplication extends WFObject
      */
     function runWebApplication()
     {
+        require_once('WFRequestController.php');
         $rc = WFRequestController::sharedRequestController();
         $rc->handleHTTPRequest();
     }
@@ -170,17 +152,70 @@ class WFWebApplication extends WFObject
      */
     function autoload($className)
     {
-        $loaded = false;
-
         // let the application try to autoload the class
         if (is_object($this->delegate) && method_exists($this->delegate, 'autoload')) {
             $loaded = $this->delegate->autoload($className);
             if ($loaded) return true;
         }
 
-        // handle PHOCOA objects
+        // I am guessing that using a hashmap will be faster than a big switch statement... no tests yet, but... in any case I'll do it this way first.
+        // other option is to add a bunch of paths to include_path, but that seems like a bad idea...
+        static $autoloadClassmapCache = array(
+            'WFAuthorizationDelegate' => 'framework/WFAuthorization.php',
+            'WFAuthorizationInfo' => 'framework/WFAuthorization.php',
+            'WFAuthorizationException' => 'framework/WFAuthorization.php',
+            'WFAuthorizationManager' => 'framework/WFAuthorization.php',
+            'WFUNIXDateFormatter' => 'framework/widgets/WFFormatter.php',
+            'WFSQLDateFormatter' => 'framework/widgets/WFFormatter.php',
+            'WFNumberFormatter' => 'framework/widgets/WFFormatter.php',
+            'WFPaginator' => 'framework/WFPagination.php',
+            'WFPagedArray' => 'framework/WFPagination.php',
+            'WFPagedPropelQuery' => 'framework/WFPagination.php',
+            'WFPagedCreoleQuery' => 'framework/WFPagination.php',
+            'WFDieselSearch' => 'framework/WFDieselpoint.php',
+            'WFWidget' => 'framework/widgets/WFWidget.php',
+            'WFDieselFacet' => 'framework/widgets/WFDieselFacet.php',
+            'WFDynarchMenu' => 'framework/widgets/WFDynarchMenu.php',
+            'WFDynamic' => 'framework/widgets/WFDynamic.php',
+            'WFSelectionCheckbox' => 'framework/widgets/WFSelectionCheckbox.php',
+            'WFImage' => 'framework/widgets/WFImage.php',
+            'WFForm' => 'framework/widgets/WFForm.php',
+            'WFLabel' => 'framework/widgets/WFLabel.php',
+            'WFLink' => 'framework/widgets/WFLink.php',
+            'WFMessageBox' => 'framework/widgets/WFMessageBox.php',
+            'WFPassword' => 'framework/widgets/WFPassword.php',
+            'WFTextField' => 'framework/widgets/WFTextField.php',
+            'WFTextArea' => 'framework/widgets/WFTextArea.php',
+            'WFHTMLArea' => 'framework/widgets/WFHTMLArea.php',
+            'WFSubmit' => 'framework/widgets/WFSubmit.php',
+            'WFSelect' => 'framework/widgets/WFSelect.php',
+            'WFJumpSelect' => 'framework/widgets/WFJumpSelect.php',
+            'WFTimeSelect' => 'framework/widgets/WFTimeSelect.php',
+            'WFHidden' => 'framework/widgets/WFHidden.php',
+            'WFCheckbox' => 'framework/widgets/WFCheckbox.php',
+            'WFCheckboxGroup' => 'framework/widgets/WFCheckboxGroup.php',
+            'WFRadio' => 'framework/widgets/WFRadio.php',
+            'WFRadioGroup' => 'framework/widgets/WFRadioGroup.php',
+            'WFUpload' => 'framework/widgets/WFUpload.php',
+            'WFPaginatorNavigation' => 'framework/widgets/WFPaginatorNavigation.php',
+            'WFPaginatorSortLink' => 'framework/widgets/WFPaginatorSortLink.php',
+            'WFPaginatorState' => 'framework/widgets/WFPaginatorState.php',
+            'WFModuleView' => 'framework/widgets/WFModuleView.php',
+            'WFTabView' => 'framework/widgets/WFTabView.php',
+            'WFPaginatorPageInfo' => 'framework/widgets/WFPaginatorPageInfo.php',
+            'WFValueTransformer' => 'framework/ValueTransformers/WFValueTransformer.php',
+            'WFNegateBooleanTransformer' => 'framework/ValueTransformers/WFNegateBooleanTransformer.php',
+            'WFIsEmptyTransformer' => 'framework/ValueTransformers/WFIsEmptyTransformer.php',
+            'WFIsNotEmptyTransformer' => 'framework/ValueTransformers/WFIsNotEmptyTransformer.php',
+        );
 
-        return $loaded;
+        if (isset($autoloadClassmapCache[$className]))
+        {
+            require_once($autoloadClassmapCache[$className]);
+            return true;
+        }
+
+        return false;
     }
 
     /**

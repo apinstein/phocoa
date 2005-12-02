@@ -9,6 +9,7 @@
  */
 if (php_sapi_name() !== 'cli')
 {
+    require_once('WFAuthorization.php');    // must come before session_start because we have serialized auth objects!
     session_start();
 }
 

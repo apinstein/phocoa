@@ -8,46 +8,11 @@
  */
 
 /**
- * Include file that includes all widgets, for convenience.
+ * Automated setup for widget system.
+ *
+ *
+ *
  */
-require_once('framework/widgets/WFWidget.php');
-
-require_once('framework/widgets/WFDieselFacet.php');
-require_once('framework/widgets/WFDynarchMenu.php');
-require_once('framework/widgets/WFDynamic.php');
-require_once('framework/widgets/WFSelectionCheckbox.php');
-require_once('framework/widgets/WFImage.php');
-require_once('framework/widgets/WFForm.php');
-require_once('framework/widgets/WFLabel.php');
-require_once('framework/widgets/WFLink.php');
-require_once('framework/widgets/WFMessageBox.php');
-require_once('framework/widgets/WFPassword.php');
-require_once('framework/widgets/WFTextField.php');
-require_once('framework/widgets/WFTextArea.php');
-require_once('framework/widgets/WFHTMLArea.php');
-require_once('framework/widgets/WFSubmit.php');
-require_once('framework/widgets/WFSelect.php');
-require_once('framework/widgets/WFJumpSelect.php');
-require_once('framework/widgets/WFTimeSelect.php');
-require_once('framework/widgets/WFHidden.php');
-require_once('framework/widgets/WFCheckbox.php');
-require_once('framework/widgets/WFCheckboxGroup.php');
-require_once('framework/widgets/WFRadio.php');
-require_once('framework/widgets/WFRadioGroup.php');
-require_once('framework/widgets/WFUpload.php');
-require_once('framework/widgets/WFPaginatorNavigation.php');
-require_once('framework/widgets/WFPaginatorSortLink.php');
-require_once('framework/widgets/WFPaginatorState.php');
-
-require_once('framework/widgets/WFModuleView.php');
-require_once('framework/widgets/WFTabView.php');
-require_once('framework/widgets/WFPaginatorPageInfo.php');
-
-// set up the common Vale Transformers
-require_once('framework/ValueTransformers/WFNegateBooleanTransformer.php');
-require_once('framework/ValueTransformers/WFIsEmptyTransformer.php');
-require_once('framework/ValueTransformers/WFIsNotEmptyTransformer.php');
-
 WFValueTransformer::setValueTransformerForName(new WFNegateBooleanTransformer, 'WFNegateBoolean');
 WFValueTransformer::setValueTransformerForName(new WFIsEmptyTransformer, 'WFIsEmpty');
 WFValueTransformer::setValueTransformerForName(new WFIsNotEmptyTransformer, 'WFIsNotEmpty');
