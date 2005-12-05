@@ -111,6 +111,7 @@ class WFRadio extends WFWidget
      */
     function allConfigFinishedLoading()
     {
+        if (!$this->parent()) throw( new Exception("All WFRadio's must be children of a WFRadioGroup.") );
         $this->parent()->checkRadioForDefault($this);
     }
 
