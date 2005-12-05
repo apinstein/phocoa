@@ -92,8 +92,8 @@ switch ($__config['pageType']) {
     case 'edit':
         $sdp->updateEditPage($__config['phocoaPageName']);
         break;
-    case 'list':
-        $sdp->updateListPage($__config['phocoaPageName']);
+    case 'search':
+        $sdp->updateSearchPage($__config['phocoaPageName']);
         break;
     case 'detail':
         $sdp->updateDetailPage($__config['phocoaPageName']);
@@ -118,7 +118,7 @@ class SkeletonDumperPropel
 
     function pageTypes()
     {
-        return array('detail', 'edit', 'search', 'list');
+        return array('detail', 'edit', 'search');
     }
 
     function updateSharedSetup()
@@ -174,6 +174,36 @@ class SkeletonDumperPropel
 
     }
 
+    function updateSearchPage($pageName)
+    {
+        $this->updateSharedSetup();
+
+        $tplFile = $pageName . '.tpl';
+        $instanceFile = $pageName . '.instances';
+        if (file_exists($instanceFile))
+        {
+            include($instanceFile);
+            $pageInstances = $__instances;
+        }
+        else
+        {
+            // eventually call createPage script
+            $pageInstances = array();
+        }
+        $configFile = $pageName . '.config';
+        if (file_exists($configFile))
+        {
+            include($configFile);
+            $pageConfig = $__config;
+        }
+        else
+        {
+            // eventually call createPage script
+            $pageConfig = array();
+        }
+        
+    }
+
     function updateDetailPage($pageName)
     {
         $this->updateSharedSetup();
@@ -203,7 +233,7 @@ class SkeletonDumperPropel
         }
         
         // deal with all of the columns
-        $tpl = '<table border="1" cellpadding="3" cellspacing="0">' . "\n";
+        $tpl = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}\n" . '<table border="1" cellpadding="3" cellspacing="0">' . "\n";
         foreach ($this->dbMap->getTable($this->tableName)->getColumns() as $col) {
             $widgetID = strtolower(substr($col->getPhpName(), 0, 1)) . substr($col->getPhpName(), 1);
             if (!isset($pageInstances[$widgetID]))
@@ -290,7 +320,7 @@ class SkeletonDumperPropel
             $pageInstances[$formID] = array('class' => 'WFForm', 'children' => array());
         }
         // deal with all of the columns
-        $tpl = "{WFLabel id=\"statusMessage\"}\n{WFShowErrors}\n{WFForm id=\"{$formID}\"}\n" . '<table border="1" cellpadding="3" cellspacing="0">' . "\n";
+        $tpl = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}\n{WFLabel id=\"statusMessage\"}\n{WFShowErrors}\n{WFForm id=\"{$formID}\"}\n" . '<table border="1" cellpadding="3" cellspacing="0">' . "\n";
         foreach ($this->dbMap->getTable($this->tableName)->getColumns() as $col) {
             $displayInLayout = true;
             $widgetID = strtolower(substr($col->getPhpName(), 0, 1)) . substr($col->getPhpName(), 1);
