@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Dieselpoint Facet widget for our framework.
  * 
  * <b>PHOCOA Builder Setup:</b>
@@ -33,6 +28,9 @@ require_once('framework/widgets/WFWidget.php');
  * - {@link WFDieselFacet::$enableShowAll enableShowAll}
  * - {@link WFDieselFacet::$enableShowSelection enableShowSelection}
  * - {@link WFDieselFacet::$class class}
+ *
+ * @todo Implement hierarchies.
+ * @todo Implement multi-select facets: AND vs. OR.
  */
 class WFDieselFacet extends WFWidget
 {
@@ -80,6 +78,14 @@ class WFDieselFacet extends WFWidget
      * @var string The CSS class of the span that encloses each facet.
      */
     protected $class;
+    /**
+     * @var integer The CSS height after which the list of facets should SCROLL, or 0 to use any height to show all facets. Default: 250px
+     */
+    protected $scrollAfterHeight;
+    /**
+     * @var integer Number of chars after which the facet value string should be ellipsised. Default 0 (UNLIMITED).
+     */
+	protected $ellipsisAfterChars;
 
     /**
       * Constructor.
@@ -97,6 +103,8 @@ class WFDieselFacet extends WFWidget
         $this->sortByFrequency = true;
         $this->enableShowAll = true;
         $this->enableShowSelection = true;
+        $this->scrollAfterHeight = '250px';
+        $this->ellipsisAfterChars = 0;
     }
 
     function setShowItemCounts($show)
@@ -149,6 +157,12 @@ class WFDieselFacet extends WFWidget
             {
                 $baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName();
             }
+               
+            // wrap all facets in a div that overflows
+            if ($this->scrollAfterHeight != 0)
+            {
+                $html .= '<div style="height: 200px; overflow: auto;">';
+            }
 
             // load facets
             try {
@@ -192,6 +206,11 @@ class WFDieselFacet extends WFWidget
                         }
                     }
 
+                    if ( $this->ellipsisAfterChars and (strlen($label) >= $this->ellipsisAfterChars) )
+                    {
+                        $label = substr($label, 0, $this->ellipsisAfterChars) . '...';
+                    }
+
                     $newAttrQueries = array();
                     if ($this->rangeCount)
                     {
@@ -222,6 +241,11 @@ class WFDieselFacet extends WFWidget
                 $trace = new java("java.io.ByteArrayOutputStream");
                 $e->printStackTrace(new java("java.io.PrintStream", $trace));
                 throw( new Exception("java stack trace:<pre> $trace </pre>\n") );
+            }
+
+            if ($this->scrollAfterHeight != 0)
+            {
+                $html .= '</div>';
             }
         }
     }
