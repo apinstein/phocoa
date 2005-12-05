@@ -1,4 +1,4 @@
-<p>This is a statically declared form. That is, all form elements are statically declared in the template file. See staticPage.tpl.</p>
+<p>This is a simple form example. Notice that there is NO CODE that needs to be written to support this form. It is linked to the data object without any code. PHOCOA automatically grabs the data from the object and puts it in the form, and then puts all data back into the object when the form is submitted. Also, note how the widgets maintain their state perfectly across requests.</p>
 
 {WFForm id="form"}
 <table border="1" cellpadding="5" cellspacing="0">
