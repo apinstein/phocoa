@@ -189,6 +189,8 @@ class WFIncluding
             'WFArrayController' => 'framework/WFArrayController.php',
             'WFError' => 'framework/WFError.php',
             'WFExceptionReporting' => 'framework/WFExceptionReporting.php',
+               'WFUnixDateFormatter' => 'framework/widgets/WFFormatter.php',
+
         );
 
         if (isset($autoloadClassmapCache[$className]))

@@ -31,6 +31,12 @@
  * You can specify "simpleBindKeyPath" style bindings via prototypes as well. To bind a property of the prototype to a keyPath of each object in the WFDynamic's ArrayController, simply
  * add a binding to the prototype object, bind it to the same array controller you configured for WFDynamic, set the controller key to "#current#", and set the desired Model Key Path.
  *
+ * WFDYNAMIC AND THE VIEW HIERARCHY OF CREATED WIDGETS
+ * WFDynamic creates widgets. However, WFDynamic is a "magic" widget and should be transparent to its parent and the created children. WFDynamic will add its dynamic widgets
+ * to the parent WFView object of the WFDynamic, thus creating the widgets as children of that object as if they had been created normally.
+ * HOWEVER: At this time, the WFDynamic is still in the view hierarchy as another child of the parent. So, at this point, WFViews that expect children such as WFRadioGroup should skip
+ * any WFDynamics they find when processing their children.
+ *
  * <b>PHOCOA Builder Setup:</b>
  * 
  * Required:<br>
@@ -42,7 +48,7 @@
  * - {@link WFDynamic::$oneShotMode oneShotMode}
  * - {@link WFDynamic::$oneShotSeparatorHTML oneShotSeparatorHTML}
  *
- * @todo Support bindings on prototypes that automatically update the bindToObject to the current iteration.
+ * @todo I think maybe that WFDynamic should be completely transparent to the view heirarchy. However, currently, subclasses of WFDynamic may not agree. Please check them out and see if this can all be refactored in a better, more consistent way. Maybe WFDynamic should be final? Definitely look into this and WFCheckboxGroup as well. There are related todo's in there.
  */
 class WFDynamic extends WFWidget
 {
@@ -180,7 +186,16 @@ class WFDynamic extends WFWidget
         }
         else
         {
-            parent::addChild($view);
+            // add new view to the "parentView" object
+            $parentView = $this->calculateParent();
+            if ($parentView)
+            {
+                $parentView->addChild($view);
+            }
+            else
+            {
+                parent::addChild($view);
+            }
         }
     }
 
@@ -211,30 +226,21 @@ class WFDynamic extends WFWidget
     }
 
     /**
-     *  Get the parent form for the WFDynamic. 
+     *  Get the parent WFView for the WFDynamic. 
      *
-     *  Will be calculated the first time; cached for subsequent accesses.
+     *  The WFDynamic is basically used to dynamically add children to the parent of whatever it's under. So for things like WFRadioGroup and WFCheckboxGroup
+     *  it's important that the parent "Group" widget gets directly assigned all objects created by WFDynamic.
      *
-     *  @return object WFForm The parent form, or NULL if the WFDynamic is not part of a form.
+     *  @return object WFView The parent WFView, or NULL if the WFDynamic does not have a parent.
      */
-    function calculateParentForm()
+    function calculateParent()
     {
-        $parentForm = NULL;
-        try {
-            // determine parent
-            $cPar = $this->parent();
-            while ($cPar) {
-                if ($cPar instanceof WFForm)
-                {
-                    $parentForm = $cPar;
-                    break;
-                }
-                $cPar = $cPar->parent();
-            }
-        } catch (Exception $e) {
-            $parentForm = NULL;
+        $parentView = NULL;
+        if ($this->parent())
+        {
+            $parentView = $this->parent();
         }
-        return $parentForm;
+        return $parentView;
     }
 
     /**
@@ -371,7 +377,7 @@ class WFDynamic extends WFWidget
         $widgetBaseName = $this->id;
         $useUniqueNames = $this->useUniqueNames;
 
-        $parentForm = $this->calculateParentForm();
+        $parentView = $this->calculateParent();
         $this->createdWidgets = array();
 
         // check params
@@ -403,9 +409,9 @@ class WFDynamic extends WFWidget
             }
 
             // add to form if needed
-            if ($parentForm)
+            if ($parentView)
             {
-                $parentForm->addChild($widget);
+                $parentView->addChild($widget);
             }
 
             // add to our list
@@ -489,7 +495,7 @@ class WFDynamic extends WFWidget
                     $bindToObject = NULL;
                     if ($bindingInfo['instanceID'] == '#module#')
                     {
-                        $bindToObject = $parentForm->page()->module();
+                        $bindToObject = $parentView->page()->module();
                     }
                     else if ($bindingInfo['instanceID'] == '#custom#')
                     {
@@ -502,7 +508,7 @@ class WFDynamic extends WFWidget
                     }
                     else
                     {
-                        $bindToObject = $parentForm->page()->outlet($bindingInfo['instanceID']);
+                        $bindToObject = $parentView->page()->outlet($bindingInfo['instanceID']);
                     }
                     if (is_null($bindToObject)) throw( new Exception("Could not determine bindToObject ({$bindingInfo['instanceID']}) for binding property '{$propName}'.") );
 
@@ -537,7 +543,7 @@ class WFDynamic extends WFWidget
             $widget->allConfigFinishedLoading();
 
             // have widget restore state, only if we've posted! otherwise it will grab improper state
-            if ($parentForm and $parentForm->page()->submittedFormName())
+            if ($parentView and $parentView->page()->submittedFormName())
             {
                 $widget->restoreState();
             }

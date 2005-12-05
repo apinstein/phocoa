@@ -21,6 +21,8 @@
  *
  * <b>Required:</b><br>
  * - {@link WFWidget::$value value} The value of the WFRadio that should be selected.
+ *
+ * @todo WFDynamic may need a little refactoring to avoid inserting itself into the view hierarchy. If we refactor, take out WFDynamic stuff.
  */
 class WFRadioGroup extends WFWidget
 {
@@ -78,6 +80,8 @@ class WFRadioGroup extends WFWidget
         }
         parent::setValue($val);
         foreach ($this->children() as $id => $radio) {
+            if ($radio instanceof WFDynamic) continue;  // special sauce to skip the WFDynamic that created the WFRadio's
+            if (!($radio instanceof WFRadio)) throw( new Exception("All child objects of WFRadioGroup must be WFRadio's.") );
             if ($radio->selectedValue() == $this->value)
             {
                 $this->setSelectedRadio($radio);
@@ -86,8 +90,9 @@ class WFRadioGroup extends WFWidget
         }
     }
 
-    function setSelectedRadio(WFRadio $radio)
+    function setSelectedRadio($radio)
     {
+        if (!($radio instanceof WFRadio)) throw( new Exception("Passed object must be a WFRadio.") );
         //WFLog::log( "setSelectedRadio: to " . $radio->id() . " value: " . $radio->selectedValue() );
         if ($this->selectedRadio)
         {
@@ -106,7 +111,7 @@ class WFRadioGroup extends WFWidget
     {
         parent::addChild($newChild);
         // make sure one child is always selected
-        if (!$this->selectedRadio)
+        if (!$this->selectedRadio and !($newChild instanceof WFDynamic))
         {
             $this->setSelectedRadio($newChild);
         }
@@ -118,6 +123,7 @@ class WFRadioGroup extends WFWidget
 
         // restore state of all children
         foreach ($this->children() as $radio) {
+            if ($radio instanceof WFDynamic) continue;  // special sauce to skip the WFDynamic that created the WFRadio's
             $radio->restoreState();
         }
     }
