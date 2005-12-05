@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * An Image widget for our framework.
  *
  * This widget allows you to easily display an image on your page.

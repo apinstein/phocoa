@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/WFObject.php');
-
-/**
  * The base "view" class. Views are the components that make up a WFPage. Each page has a root view, and then is made up of various subviews in
  * a view hierarchy. There is also a well-defined class hierarchy for WFView that contains all components that are used in creating a web page.
  *

@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Upload widget for our framework.
  */
 class WFUpload extends WFWidget

@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Hidden widget for our framework.
  *
  * NOTE: It is very important to note that WFHidden does NOT push values back to the bound objects. Therefore, if you are using WFHidden to carry state from one page to another, you'll

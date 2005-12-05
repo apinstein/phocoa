@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Dynamic widget for our framework. The dynamic widget is a meta-widget that automatically creates multple widgets for you, based on an array controller.
  *
  * It's perfect for repeating data, tabular data, etc. You can also use multiple ones on the same page.

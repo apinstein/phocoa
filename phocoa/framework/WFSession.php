@@ -9,16 +9,10 @@
  */
 if (php_sapi_name() !== 'cli')
 {
-    require_once('WFAuthorization.php');    // must come before session_start because we have serialized auth objects!
     session_start();
 }
 
 // This class is for shit right now; for now just let people access session manually.
-///**
-// * Includes
-// */
-//require_once('WFObject.php');
-//
 ///**
 // * The WFMainSession class is the base session handler.
 // *

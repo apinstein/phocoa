@@ -1,18 +1,15 @@
 <?php
+/* vim: set expandtab tabstop=4 shiftwidth=4: */
 
- /**
-  * Dieselpoint helper object.
-  *
-  * @copyright Copyright (c) 2002 Alan Pinstein. All Rights Reserved.
-  * @version $Id: smarty_showcase.php,v 1.3 2005/02/01 01:24:37 alanpinstein Exp $
-  * @author Alan Pinstein <apinstein@mac.com>                        
-  * @package UI
-  * @subpackage Search
-  **/
-require_once('framework/WFPagination.php');
-
-require_once('showcase/Property.php');
-Propel::init(PROPEL_CONF);
+/**
+ * Dieselpoint helper object.
+ *
+ * @copyright Copyright (c) 2002 Alan Pinstein. All Rights Reserved.
+ * @version $Id: smarty_showcase.php,v 1.3 2005/02/01 01:24:37 alanpinstein Exp $
+ * @author Alan Pinstein <apinstein@mac.com>                        
+ * @package UI
+ * @subpackage Search
+ **/
 
 /**
  * DP Questions:
@@ -115,6 +112,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
     }
     function setResultObjectLoaderCallbackWithPropelPeer($peerName, $method = 'retrieveByPKs')
     {
+        // check that the callback exists -- with PHOCOA's autoload, we need to check the class explicitly
+        if (!class_exists($peerName))
+        {
+            __autoload($peerName);
+            if (!$class_exists($peerName)) throw( new Exception("Callback class '{$peerName}' does not exist.") );
+        }
+        if (!is_callable($peerName, $method)) throw( new Exception("Callback method '{$method}' of class '{$peerName}' does not exist.") );
+
         $this->resultObjectLoaderCallback = array($peerName, $method);
     }
 

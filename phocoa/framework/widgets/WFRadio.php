@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Radio Button widget for our framework.
  *
  * Radio buttons are a set of 1 or more items that are mutually exclusive. They are similar in logic to a popup menu where only one item can be selected.

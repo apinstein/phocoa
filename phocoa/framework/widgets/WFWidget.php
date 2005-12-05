@@ -9,15 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/WFError.php');
-require_once('framework/widgets/WFView.php');
-require_once('framework/WFBinding.php');
-require_once('framework/ValueTransformers/WFValueTransformer.php');
-require_once('framework/widgets/WFFormatter.php');
-
-/**
  * The base "widget" class. In our framework, all html form widgets are necessarily WFWidget subclasses.
  *
  * Widgets are {@link WFView} subclasses that add capabilities such as state maintainance/restoration, error tracking, formatters, and editability.

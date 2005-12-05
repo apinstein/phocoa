@@ -8,7 +8,6 @@
 * @author Alan Pinstein <apinstein@mac.com>                        
 */
 
-require_once('framework/WFObject.php');
 /**
  * Base paginator class.
  *

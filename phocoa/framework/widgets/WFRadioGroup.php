@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * The WFRadioGroup is the "interface" object used to interact with a set of WFRadio widgets.
  * 
  * The WFRadioGroup provides a single object that you can interface with to manage a set of Radio buttons. 

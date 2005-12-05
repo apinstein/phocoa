@@ -8,13 +8,6 @@
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
 
-require_once('WFObject.php');
-require_once('WFModule.php');
-require_once('WFWebApplication.php');
-require_once('WFExecptionReporting.php');
-require_once('WFSkin.php');
-require_once('WFSmarty.php');
-
 /**
  * The RequestController object is a singleton controller for the entire request-act-respond cycle.
  *

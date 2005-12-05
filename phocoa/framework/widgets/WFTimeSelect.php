@@ -9,12 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFSelect.php');
-require_once('framework/widgets/WFFormatter.php');
-
-/**
  * A Select widget for our framework.
  *
  * Used to select either a single, or multiple, values.

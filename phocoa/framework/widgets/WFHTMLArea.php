@@ -9,12 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-require_once(APP_ROOT . '/wwwroot/www/framework/FCKEditor/fckeditor.php');
-
-/**
  * A HTML WYSIWYG Editor widget for our framework.
  */
 class WFHTMLArea extends WFWidget

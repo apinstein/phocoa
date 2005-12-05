@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A special form field used in conjuction with WFPagination in MODE_FORM.
  *
  * This field works in conjunction with the WFPaginator to allow navigation on sort changes of the paginator in MODE_FORM.

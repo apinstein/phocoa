@@ -251,7 +251,7 @@ class WFSkin extends WFObject
         $skinsDir = WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS);
         $skinDelegatePath = $skinsDir . '/' . $skinDelegateName . '/' . $skinDelegateFileClassName . '.php';
         if (!file_exists($skinDelegatePath)) throw( new Exception("Skin Delegate {$skinDelegateName} file {$skinDelegatePath} does not exist.") );
-        require_once($skinDelegatePath);
+        WFIncluding::requireOnce($skinDelegatePath);
         if (!class_exists($skinDelegateFileClassName)) throw( new Exception("Skin Delegate class {$skinDelegateFileClassName} does not exist.") );
         $this->setDelegate(new $skinDelegateFileClassName());
     }
@@ -307,7 +307,7 @@ class WFSkin extends WFObject
         $skinManifestDelegateFileClassName = $this->skinName . '_SkinManifestDelegate';
         $skinManifestDelegatePath = $skinsDir . '/' . $this->delegateName . '/' . $this->skinName . '/' . $skinManifestDelegateFileClassName . '.php';
         if (!file_exists($skinManifestDelegatePath)) throw( new Exception("Skin manifest delegate file does not exist: $skinManifestDelegatePath.") );
-        require_once($skinManifestDelegatePath);
+        WFIncluding::requireOnce($skinManifestDelegatePath);
 
         // instantiate the skin manifest delegate
         if (!class_exists($skinManifestDelegateFileClassName)) throw( new Exception("Skin manifest delegate class does not exist: {$skinManifestDelegateFileClassName}."));

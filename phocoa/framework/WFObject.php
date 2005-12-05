@@ -7,8 +7,6 @@
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
 
-require_once('framework/WFKeyValueCoding.php');
-
 /** 
  * Base Class for all framework classes.
  *

@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A TextField widget for our framework.
  */
 class WFTextField extends WFWidget

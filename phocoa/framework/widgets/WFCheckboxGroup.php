@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * The WFCheckboxGroup is the "interface" object used to interact with a set of WFCheckbox widgets.
  *
  * When setting up a WFCheckboxGroup, all of the WFCheckboxes that are part of the group should be set up as children of the WFCheckboxGroup.

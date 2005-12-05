@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFSelect.php');
-
-/**
  * A Select widget for our framework that will "jump" to a new URL when the user selects an item.
  *
  * This is implemented via JavaScript. You should account for non-JS browsers by having a button and appropriate action handler.

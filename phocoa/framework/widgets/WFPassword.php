@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Password widget for our framework.
  */
 class WFPassword extends WFWidget

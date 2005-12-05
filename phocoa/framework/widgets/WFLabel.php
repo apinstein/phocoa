@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Label widget for our framework.
  * 
  * <b>PHOCOA Builder Setup:</b>

@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFView.php');
-
-/**
  * A Paginator Page info widget.
  *
  * Creates a summary text element along the lines of:

@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * The WFModuleView allows for the easy inclusion of module/page based components in your template.
  *
  * This is a very powerful capability. Developers can develop re-usable components for their web application

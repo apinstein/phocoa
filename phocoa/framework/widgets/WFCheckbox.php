@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Checkbox widget for our framework.
  *
  * There are several ways to use checkboxes in your application, depending on the way you want your checkboxes to behave and interact with your data.

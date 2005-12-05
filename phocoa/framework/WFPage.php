@@ -20,12 +20,6 @@
  * flow would go straight into the responsePage.
  */
 
-require_once('framework/widgets/WFWidgets.php');
-require_once('framework/WFObjectController.php');
-require_once('framework/WFArrayController.php');
-require_once('framework/WFPageRendering.php');
-require_once('framework/WFSmarty.php');
-
 /**
  * The WFPage encapsulates the UI and Controller Layer state of a page.
  *

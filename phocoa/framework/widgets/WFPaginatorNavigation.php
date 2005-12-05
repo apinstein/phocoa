@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Paginator Navigation widget for our framework.
  *
  * Creates a clickable navigation element for the paged data. Something along the lines of:

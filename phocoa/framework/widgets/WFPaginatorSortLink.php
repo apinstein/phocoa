@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFView.php');
-
-/**
  * A Paginator sort link widget. 
  *
  * Creates a link along the lines of:

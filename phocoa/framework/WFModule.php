@@ -10,11 +10,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/WFPage.php');
-
-/**
  * The WFModuleInvocation object is a wrapper around WFModule. This allows the modules to be nicely decoupled from the callers. Thus, the http handler
  * can create a WFModuleInvocation based on the URL, while a WFModuleView can create one based on parameters set by a caller.
  *
@@ -280,6 +275,11 @@ class WFModuleInvocation extends WFObject
         // set up module
         $this->extractComponentsFromInvocationPath();
 
+        if ($this->module()->shouldProfile())
+        {
+            apd_set_pprof_trace(WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG));
+        }
+
         // execute
         // initialize the request page
         $this->module->requestPage()->initPage($this->pageName);
@@ -291,7 +291,9 @@ class WFModuleInvocation extends WFObject
         }
 
         // render
-        return $this->module->responsePage()->render();
+        $html = $this->module->responsePage()->render();
+
+        return $html;
     }
 
     /**
@@ -815,6 +817,19 @@ abstract class WFModule extends WFObject
      * @return string The name of the default page.
      */
     abstract function defaultPage();
+
+    /**
+     *  Should APD profiling be enabled for this request? To enable profiling of your module, just add shouldProfile() to your WFModule and return TRUE.
+     *
+     *  If so, will turn on profiling just before executing your module, and dump the profile data into the log dir.
+     *
+     *  @return boolean TRUE to enable profiling.
+     */
+    function shouldProfile()
+    {
+        return false;
+    }
+
 }
 
 ?>

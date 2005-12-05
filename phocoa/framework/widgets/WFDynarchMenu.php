@@ -9,12 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-require_once('framework/WFMenuItem.php');
-
-/**
  * A Menu widget for our framework. Uses {@link http://www.dynarch.com/products/dhtml-menu/ Dynarch Menu}.
  * 
  * <b>PHOCOA Builder Setup:</b>

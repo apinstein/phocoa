@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('WFObject.php');
-
-/**
  * The WFExceptionReporting class provides some static helper methods for dealing with exceptions.
  */
 class WFExceptionReporting extends WFObject

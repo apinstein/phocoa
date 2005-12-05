@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFDynamic.php');
-
-/**
  * WFSelectionCheckbox is used to create numerous checkboxes representing a selection of items in an array.
  *
  * A {@link WFDynamic} subclass that has specialized behavior for creating a bunch of checkboxes that represent the selected items managed by a {@link WFArrayController}.

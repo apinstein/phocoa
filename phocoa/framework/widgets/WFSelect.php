@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
  * A Select widget for our framework.
  *
  * Used to select either a single, or multiple, values.

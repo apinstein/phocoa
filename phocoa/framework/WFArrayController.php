@@ -8,11 +8,6 @@
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
 
-/**
- * Includes
- */
-require_once('framework/WFObjectController.php');
-
 /** 
  * The ArrayController class.
  *

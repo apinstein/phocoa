@@ -9,12 +9,6 @@
 */
 
 /**
- * Includes
- */
-require_once('smarty/Smarty.class.php');
-require_once('framework/WFPageRendering.php');
-
-/**
 * OVERLOAD SMARTY TEMPLATE ENGINE INIT
 */
 class WFSmarty extends Smarty implements WFPageRendering

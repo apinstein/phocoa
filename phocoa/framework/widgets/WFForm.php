@@ -9,11 +9,6 @@
  */
 
 /**
- * Includes
- */
-require_once('framework/widgets/WFWidget.php');
-
-/**
   * A wrapper for HTML Form Elements.
   */
 class WFForm extends WFWidget
