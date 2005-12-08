@@ -206,8 +206,10 @@ class WFDieselFacet extends WFWidget
                         }
                     }
 
-                    if ( $this->ellipsisAfterChars and (strlen($label) >= $this->ellipsisAfterChars) )
+                    $fullLabelAsTooltip = '';
+                    if ( $this->ellipsisAfterChars and (strlen($label) > $this->ellipsisAfterChars) )
                     {
+                        $fullLabelAsTooltip = ' title="' . $label . '"';
                         $label = substr($label, 0, $this->ellipsisAfterChars) . '...';
                     }
 
@@ -229,7 +231,7 @@ class WFDieselFacet extends WFWidget
                         $newAttrQueries = array("EQ_{$this->attributeID}=" . $facet->getAttributeValue());
                     }
                     $link = $baseURL . '/' . $this->dieselSearch->getQueryState($this->attributeID, $newAttrQueries);
-                    $html .= "<span {$classHTML}><a href=\"{$link}\">{$label}</a>";
+                    $html .= "<span {$classHTML}><a href=\"{$link}\"$fullLabelAsTooltip>{$label}</a>";
                     if ($this->showItemCounts)
                     {
                         $html .= ' (' . $facet->getHits() . ')';
