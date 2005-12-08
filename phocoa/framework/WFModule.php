@@ -82,7 +82,7 @@ class WFModuleInvocation extends WFObject
      *
      *  @param string The invocationPath for the module. The invocationPath is basically a way to specify the module to run, along with parameters.
      *                Example: path/to/my/module/pageName/param1/param2/paramN
-     *  @param object The parent WFModuleInvocation that is creating this invocation, or NULL if this is the root invocation.
+     *  @param object WFModuleInvocation The parent WFModuleInvocation that is creating this invocation, or NULL if this is the root invocation.
      *  @throws Various errors if the module could not be identified.
      */
     function __construct($invocationPath, $parentInvocation)
@@ -377,45 +377,7 @@ class WFModuleInvocation extends WFObject
 
         // if we get here, we're guaranteed that a modulePath is valid.
         // load module instance
-        try {
-            $this->module = WFModule::factory($this);
-
-            // check security, but only for the root invocation
-            if ($this->isRootInvocation())
-            {
-                $authInfo = WFAuthorizationManager::sharedAuthorizationManager()->authorizationInfo();
-                $access = $this->module->checkSecurity($authInfo);
-                if (!in_array($access, array(WFAuthorizationManager::ALLOW, WFAuthorizationManager::DENY))) throw( new Exception("Unexpected return code from checkSecurity.") );
-                // if access is denied, see if there is a logged in user. If so, then DENY. If not, then allow login.
-                if ($access == WFAuthorizationManager::DENY)
-                {
-                    if ($authInfo->isLoggedIn())
-                    {
-                        // if no one is logged in, allow login, otherwise deny.
-                        throw( new WFAuthorizationException("Access denied.", WFAuthorizationException::DENY) );
-                    }
-                    else
-                    {
-                        // if no one is logged in, allow login, otherwise deny.
-                        throw( new WFAuthorizationException("Try logging in.", WFAuthorizationException::TRY_LOGIN) );
-                    }
-                }
-            }
-        } catch (WFAuthorizationException $e) {
-            switch ($e->getCode()) {
-                case WFAuthorizationException::TRY_LOGIN:
-                    // NOTE: we pass the redir-url base64 encoded b/c otherwise Apache picks out the slashes!!!
-                    header("Location: " . WFRequestController::WFURL('login', 'promptLogin') . '/' . base64_encode(WWW_ROOT . '/' . $this->invocationPath));
-                    exit;
-                    break;
-                case WFAuthorizationException::DENY:
-                    header("Location: " . WFRequestController::WFURL('login', 'notAuthorized'));
-                    exit;
-                    break;
-            }
-        } catch (Exception $e) {
-            die($e->__toString());
-        }
+        $this->module = WFModule::factory($this);
 
         // determine default page
         if (empty($this->pageName))
@@ -533,6 +495,9 @@ abstract class WFModule extends WFObject
         if (!($invocation instanceof WFModuleInvocation)) throw( new Exception("Modules must be instantiated with a WFModuleInvocation.") );
         $this->invocation = $invocation;
 
+        // check security
+        $this->runSecurityCheck();
+
         // load shared instances
         $this->prepareSharedInstances();
 
@@ -542,7 +507,9 @@ abstract class WFModule extends WFObject
     }
 
     /**
-      * Allow the module to check security.
+      * Callback to allow the module to determine security clearance of the user.
+      *
+      * Subclasses can override this method to alter security policy for this module. Default behavior is to allow all.
       *
       * @param object WFAuthorizationInfo The authInfo for the current user.
       * @return integer One of WFAuthorizationManager::ALLOW or WFAuthorizationManager::DENY.
@@ -550,6 +517,52 @@ abstract class WFModule extends WFObject
     function checkSecurity(WFAuthorizationInfo $authInfo)
     {
         return WFAuthorizationManager::ALLOW;
+    }
+
+    /**
+     *  Execute the checking of security clearance for the user and the module.
+     *
+     *  NOTE: This function may issue an HTTP 302 and redirect the user to the login page, then halt script execution.
+     * 
+     *  @throws Exception if anything unexpected happens.
+     */
+    private function runSecurityCheck()
+    {
+        try {
+            // check security, but only for the root invocation
+            if ($this->invocation->isRootInvocation())
+            {
+                $authInfo = WFAuthorizationManager::sharedAuthorizationManager()->authorizationInfo();
+                $access = $this->checkSecurity($authInfo);
+                if (!in_array($access, array(WFAuthorizationManager::ALLOW, WFAuthorizationManager::DENY))) throw( new Exception("Unexpected return code from checkSecurity.") );
+                // if access is denied, see if there is a logged in user. If so, then DENY. If not, then allow login.
+                if ($access == WFAuthorizationManager::DENY)
+                {
+                    if ($authInfo->isLoggedIn())
+                    {
+                        // if no one is logged in, allow login, otherwise deny.
+                        throw( new WFAuthorizationException("Access denied.", WFAuthorizationException::DENY) );
+                    }
+                    else
+                    {
+                        // if no one is logged in, allow login, otherwise deny.
+                        throw( new WFAuthorizationException("Try logging in.", WFAuthorizationException::TRY_LOGIN) );
+                    }
+                }
+            }
+        } catch (WFAuthorizationException $e) {
+            switch ($e->getCode()) {
+                case WFAuthorizationException::TRY_LOGIN:
+                    // NOTE: we pass the redir-url base64 encoded b/c otherwise Apache picks out the slashes!!!
+                    header("Location: " . WFRequestController::WFURL('login', 'promptLogin') . '/' . base64_encode(WWW_ROOT . '/' . $this->invocation->invocationPath()));
+                    exit;
+                    break;
+                case WFAuthorizationException::DENY:
+                    header("Location: " . WFRequestController::WFURL('login', 'notAuthorized'));
+                    exit;
+                    break;
+            }
+        }
     }
 
     /**
