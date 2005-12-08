@@ -19,7 +19,8 @@
  * 2. Numbers seems to be getting treated lexographically. PRICE and SQFT are good examples. Also, new attrs cannot be found.
  *    When does the info in the index refresh, b/c it fixes itself, but not immediately after delete/re-index. Does it have to do with leaving it open?
  * 3. Geospatial stuff? Items withing N miles?
- * 4. Case-sensitivity. How does this work? To turn off case-sensitivity for a field, can you still use parametric?
+ * 4. Case-sensitivity. How does this work? To turn off case-sensitivity for a field, can you still use parametric? NO. Parametric is case-sensitive; normalize data on the way in.
+ * 5. SimpleQuery: golf and tennis => "golf or and or tennis", golf AND tennis => "golf and tennis"
  *
  * USING WFDieselSearch
  *
@@ -535,9 +536,8 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 $this->searcher->setPageNumber($pageNum - 1);
                 $this->execute();
                 $allIDs = array();
-                $javaItemIDS = $this->searcher->getItem_ids();  // normally would use FOREACH, but the iterator interface in the php-java-bridge has a bug if the array is empty.
-                for ($i = 0; $i < $javaItemIDS->size(); $i++) {
-                    $allIDs[] = $javaItemIDS->get($i);
+                foreach ($this->searcher->getItem_ids() as $itemId) {
+                    $allIDs[] = $itemId;
                 }
                 if (is_null($this->resultObjectLoaderCallback)) throw( new Exception("No resultObjectLoaderCallback exists. Install one with setResultObjectLoaderCallback or setResultObjectLoaderCallbackWithPropelPeer.") );
                 $objectsOnPage = call_user_func($this->resultObjectLoaderCallback, $allIDs);    // more efficient to grab all items in a single query

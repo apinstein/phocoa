@@ -181,9 +181,7 @@ class WFDieselFacet extends WFWidget
                     $facetGenerator->setRangeCount($this->rangeCount);
                 }
                 $facets = $facetGenerator->getList($this->attributeID, $this->maxRows, $this->sortByFrequency, $this->maxHits);
-                $Array = new java_class("java.lang.reflect.Array"); // php-java-bridge zend iterators are broken; they crash on 0-length arrays. use for() loop
-                for ($i = 0; $i < $Array->getLength($facets); $i++) {
-                    $facet = $facets[$i];
+                foreach ($facets as $facet) {
                     $label = '';
                     if ($this->formatter)
                     {
