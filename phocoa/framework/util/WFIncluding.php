@@ -129,6 +129,10 @@ class WFIncluding
              $autoloadClassmapCache = array(
                 'Smarty' => 'smarty/Smarty.class.php',
 
+                'WFMenuTree' => 'framework/WFMenuItem.php',
+                'WFMenuTreeBuilding' => 'framework/WFMenuItem.php',
+                'WFMenuItem' => 'framework/WFMenuItem.php',
+                'WFMenuItemBasic' => 'framework/WFMenuItem.php',
                 'WFObject' => 'framework/WFObject.php',
                 'WFKeyValueCoding' => 'framework/WFKeyValueCoding.php',
                 'WFRequestController' => 'framework/WFRequestController.php',
