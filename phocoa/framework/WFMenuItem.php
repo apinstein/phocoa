@@ -12,6 +12,11 @@
  * WFMenuItem protocol.
  *
  * The menu is a formal protocol (interface) for objects to communicate their properties as menu items.
+ *
+ * Menu rending systems are built to accept an array of WFMenuItem objects which are then displayed. Decoupling the rendering from the data via the WFMenuItem interface
+ * means that PHOCOA applications can easily use any meny rendering system.
+ *
+ * Presently, there is only one rendering system implemented: {@link WFDynarchMenu}.
  */
 interface WFMenuItem
 {
@@ -24,7 +29,7 @@ interface WFMenuItem
 }
 
 /**
- *  Interface for objects to adhere to to be able to use WFMenuTree helper functions.
+ *  Interface for objects to adhere to to be able to use the {@link WFMenuTree:menuTree()} functions.
  */
 interface WFMenuTreeBuilding
 {
@@ -33,13 +38,161 @@ interface WFMenuTreeBuilding
     function addChild($child);
 }
 
+
 /**
- * Class with helper methods for managing menu items.
+ * Generic menu item class for dynamically building menu trees.
+ *
+ * @see WFMenuTree::nestedArrayToMenuTree()
+ * @todo Add support for tooltop, linkTarget, and icon
+ */
+class WFMenuItemBasic implements WFMenuItem
+{
+    /**
+     * @var string The label to display for the menu.
+     */
+    protected $label;
+    /**
+     * @var string The url for the menu item.
+     */
+    protected $link;
+    /**
+     * @var array The child menu items (ie submenus) for this menu item.
+     */
+    protected $children;
+
+    function __construct()
+    {
+        $this->label = NULL;
+        $this->link = NULL;
+        $this->children = array();
+    }
+
+    /**
+     *  Get the label for this menu item.
+     *
+     *  @return string
+     */
+    function label()
+    {
+        return $this->label;
+    }
+    
+    /**
+     *  Set the label for this menu item.
+     *
+     *  @param string The label
+     */
+    function setLabel($label)
+    {
+        $this->label = $label;
+    }
+    
+    /**
+     *  Get the link for this menu item.
+     *
+     *  @return string
+     */
+    function link()
+    {
+        return $this->link;
+    }
+
+    /**
+     *  Set the link for this menu item.
+     *
+     *  @param string The label
+     */
+    function setLink($link)
+    {
+        $this->link = $link;
+    }
+
+    /**
+     *  Get the children (submenus) of this menu item.
+     *
+     *  @return array An array of WFMenuItemBasic objects.
+     */
+    function children()
+    {
+        return $this->children;
+    }
+
+    /**
+     *  Add a submenu to this menu item.
+     *
+     *  @param object WFMenuItemBasic
+     */
+    function addChild($child)
+    {
+        $this->children[] = $child;
+    }
+
+    function toolTip() { return NULL; }
+    function linkTarget() { return NULL; }
+    function icon() { return NULL; }
+}
+
+/**
+ * Class with helper methods for adapting data sources into a tree of {@link WFMenuItem} objects.
+ *
  */
 class WFMenuTree
 {
     /**
-     *  Generic algorithm for building a menu tree from a list of items implementing WFMenuTreeBuilding.
+     *  Builds a hierarchical array of {@link WFMenuItemBasic} objects from the passed hierarchical associative array.
+     *
+     *  assoc array format:
+     *  <code>
+     *  $menuArray = array(
+     *                  'topMenu1' => array(
+     *                                      'Menu Item 1' => '/link/to/target1',
+     *                                      'Menu Item 2' => '/link/to/target2',
+     *                                      ),
+     *                  'topMenuItem2' => '/link/to/target'
+     *                  );
+     *  </code>
+     *
+     *  NOTE: This function is very useful for converting menus set up in skin delegates (ie namedContent) to nice menus.
+     *
+     *  @param array The array of menu items.
+     *  @param object WFMenuItemBasic The menu item to add items found to as submenus.
+     *  @return array An array of WFMenuItemBasic objects.
+     *  @todo Amend the array structure to provide ALL properties of {@link WFMenuItemBasic}.
+     */
+    static function nestedArrayToMenuTree($menuArray, $addToMenuItem = null)
+    {
+        $topMenuItems = array();
+        foreach ($menuArray as $label => $value) {
+            $currentMenuItem = new WFMenuItemBasic;
+
+            $currentMenuItem->setLabel($label);
+            if ($addToMenuItem == NULL)
+            {
+                $topMenuItems[] = $currentMenuItem;
+            }
+            else
+            {
+                $addToMenuItem->addChild($currentMenuItem);
+            }
+
+            if (is_array($value))   // submenu!
+            {
+                $item = WFMenuTree::nestedArrayToMenuTree($value, $currentMenuItem);
+            }
+            else
+            {
+                $currentMenuItem->setLink($value);
+            }
+        }
+
+        return $topMenuItems;
+    }
+
+    /**
+     *  Generic algorithm for building a menu tree from a list of objects implementing WFMenuTreeBuilding.
+     *
+     *  This algorithm is intended to adapt a flat list of objects which contain information on their place within a hierarchy.
+     *  For instance, this could be a list of "web page objects" that each know about their proper place in a hierarchical navigation system.
      *
      *  This algorithm takes an array of objects, each having a menuPath in the form of "a/b/c/d", and returns them in tree form. The tree form is suitable for WFDynarchMenu or other menu subsytems.
      *
