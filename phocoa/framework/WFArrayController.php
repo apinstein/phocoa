@@ -286,6 +286,34 @@ class WFArrayController extends WFObjectController implements Iterator
     }
 
     /**
+     *  Remove all selected objects from the array controller.
+     *
+     *  @throws Exception
+     */
+    function cullSelectedObjects()
+    {
+        foreach ($this->selectedObjects() as $obj) {
+            $this->removeObject($obj);
+        }
+        return;
+    }
+
+    /**
+     *  Remove all unselected objects from the array controller.
+     *
+     *  @throws Exception
+     */
+    function cullUnselectedObjects()
+    {
+        foreach ($this->arrangedObjects() as $obj) {
+            if (!$this->objectIsSelected($obj))
+            {
+                $this->removeObject($obj);
+            }
+        }
+    }
+
+    /**
      * Add an object to the array.
      * @param object An object, must be of proper class.
      * @throws If the object is not of the class managed by our controller.
