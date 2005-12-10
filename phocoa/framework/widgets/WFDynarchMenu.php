@@ -91,6 +91,10 @@ class WFDynarchMenu extends WFWidget
                 $html .= $this->menuItemToHTML($menuItem);
             }
             $html .= "\n</ul>\n";
+            // add JS to "hide" the UL until Dynarch shows it. Using JS to do this ensures that we only hide it if JS is there, which is what is used to turn it back on.
+            $html .= "<script type=\"text/javascript\">//<![CDATA[
+            document.getElementById('" . $this->id . "').style.display = 'none';
+            //]]></script>";
         }
         return $html;
     }
