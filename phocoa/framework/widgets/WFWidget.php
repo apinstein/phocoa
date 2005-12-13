@@ -9,6 +9,13 @@
  */
 
 /**
+ * Set up built-in value transformers.
+ */
+WFValueTransformer::setValueTransformerForName(new WFNegateBooleanTransformer, 'WFNegateBoolean');
+WFValueTransformer::setValueTransformerForName(new WFIsEmptyTransformer, 'WFIsEmpty');
+WFValueTransformer::setValueTransformerForName(new WFIsNotEmptyTransformer, 'WFIsNotEmpty');
+
+/**
  * The base "widget" class. In our framework, all html form widgets are necessarily WFWidget subclasses.
  *
  * Widgets are {@link WFView} subclasses that add capabilities such as state maintainance/restoration, error tracking, formatters, and editability.

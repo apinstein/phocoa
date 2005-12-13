@@ -32,6 +32,8 @@
  * - {@link WFImage::$height height}
  * - {@link WFImage::$border border}
  * - {@link WFImage::$align align}
+ * - {@link WFImage::$link link}
+ * - {@link WFWidget::$class class}
  */
 class WFImage extends WFWidget
 {
@@ -55,6 +57,10 @@ class WFImage extends WFWidget
       * @var string The HTML align string. Default "". One of left, right, top, bottom, middle, baseline, etc.
       */
     protected $align;
+    /**
+      * @var string The url of the link to surround the image with.
+      */
+    protected $link;
 
     /**
       * Constructor.
@@ -67,6 +73,7 @@ class WFImage extends WFWidget
         $this->height = NULL;
         $this->border = 'border: 0;';
         $this->align = NULL;
+        $this->link = NULL;
     }
 
     function setupExposedBindings()
@@ -76,6 +83,10 @@ class WFImage extends WFWidget
         $myBindings[] = new WFBindingSetup('baseDir', 'The base path to the image. Blank by default.');
         $myBindings[] = new WFBindingSetup('width', 'The width in pixels of the image, or blank.');
         $myBindings[] = new WFBindingSetup('height', 'The height in pixels of the image, or blank.');
+        $newValBinding = new WFBindingSetup('link', 'The url that the image should link to.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
         return $myBindings;
     }
 
@@ -100,13 +111,22 @@ class WFImage extends WFWidget
         if ($this->width and !$this->height) $this->height = 'auto';
         else if ($this->height and !$this->width) $this->width = 'auto';
 
-        return '<img src="' . $this->baseDir . $this->value . '"' .
+        $imgHTML = '<img src="' . $this->baseDir . $this->value . '"' .
             ($this->align ? " align=\"{$this->align}\"" : '') .
+            ($this->class ? " class=\"{$this->class}\"" : '') .
             ' style="' .
             ($this->width ? "width: {$this->width}; " : '') .
             ($this->height ? "height: {$this->height}; " : '') .
             $this->border .
             '" />';
+        if ($this->link)
+        {
+            return '<a href="' . $this->link . '">' . $imgHTML . '</a>';
+        }
+        else
+        {
+            return $imgHTML;
+        }
     }
 
     function canPushValueBinding() { return false; }
