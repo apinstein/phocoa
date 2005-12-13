@@ -302,7 +302,7 @@ class WFDynamic extends WFWidget
         else
         {
             $currentIteration = $this->renderIteration++;
-            if (!isset($this->createdWidgets[$currentIteration]) or !($this->createdWidgets[$currentIteration] instanceof WFView)) throw( new Exception("Widget does not exist for dynamic id: '{$this->id}' iteration: {$currentIteration}") );
+            if (!isset($this->createdWidgets[$currentIteration]) or !($this->createdWidgets[$currentIteration] instanceof WFView)) throw( new Exception("Widget does not exist for dynamic id: '{$this->id}' iteration: {$currentIteration}. Maybe you need to call createWidgets() again after loading data into the arrayController?") );
             return $this->createdWidgets[$currentIteration]->render();
         }
     }
