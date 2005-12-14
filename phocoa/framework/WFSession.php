@@ -9,6 +9,7 @@
  */
 if (php_sapi_name() !== 'cli')
 {
+    WFWebApplication::sharedWebApplication()->sessionWillStart();
     session_start();
 }
 

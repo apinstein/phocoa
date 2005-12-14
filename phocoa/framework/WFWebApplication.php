@@ -51,7 +51,14 @@ class WFWebApplication extends WFObject
     /**
      * Constructor
      */
-    function __construct()
+    function __construct() {}
+
+    /**
+     *  This is the true "setup function"; use this instead of constructor for setup because the object is a singleton with callback,
+     *  and down in the call stack of "init" are calls to get the singleton. 
+     *  If this happens from the constructor, then the singleton accessor is called before it has a chance to save the singleton.
+     */
+    private function init()
     {
         $this->delegate = NULL;
         if (defined('WEBAPP_DELEGATE')) 
@@ -102,7 +109,8 @@ class WFWebApplication extends WFObject
         static $webapp = NULL;
         if (!$webapp) 
         {
-            $webapp = new WFWebApplication();   // must make copy or the singleton part won't work.
+            $webapp = new WFWebApplication();
+            $webapp->init();
         }
         return $webapp;
     }
@@ -146,7 +154,8 @@ class WFWebApplication extends WFObject
     function autoload($className)
     {
         // let the application try to autoload the class
-        if (is_object($this->delegate) && method_exists($this->delegate, 'autoload')) {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'autoload'))
+        {
             $loaded = $this->delegate->autoload($className);
             if ($loaded) return true;
         }
@@ -162,7 +171,8 @@ class WFWebApplication extends WFObject
      */
     function defaultModule()
     {
-        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultModule')) {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultModule'))
+        {
             return $this->delegate->defaultModule();
         }
         return NULL;
@@ -177,10 +187,22 @@ class WFWebApplication extends WFObject
      */
     function defaultSkinDelegate()
     {
-        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultSkinDelegate')) {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultSkinDelegate'))
+        {
             return $this->delegate->defaultSkinDelegate();
         }
         return NULL;
+    }
+
+    /**
+     *  Hook to provide opportunity for the web application to munge the session config before php's session_start() is called.
+     */
+    function sessionWillStart()
+    {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'sessionWillStart'))
+        {
+            $this->delegate->sessionWillStart();
+        }
     }
 }
 
