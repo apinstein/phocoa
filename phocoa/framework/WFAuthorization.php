@@ -22,20 +22,10 @@ class WFAuthorizationDelegate extends WFObject
       *
       * @param string The username to use for the authentication.
       * @param string The password to use for the authentication.
+      * @param boolean TRUE if the password is in "token" form; ie, not the clear-text password. Useful for remember-me logins or single-sign-on (SSO) setups.
       * @return object WFAuthorizationInfo Return an WFAuthorizationInfo with any additional security profile. This of course can be a subclass. Return NULL if login failed.
       */
-    function login($username, $password) {}
-
-    /**
-      * Provide the login authentication based on the "RememberMe" function which will store some kind of hash of the password.
-      *
-      * Your WFAuthorizationDelegate can provide its own login capability. Maybe your app will authenticate against LDAP, a Database, etc.
-      *
-      * @param string The username to use for the authentication.
-      * @param string The password to use for the authentication.
-      * @return object WFAuthorizationInfo Return an WFAuthorizationInfo with any additional security profile. This of course can be a subclass. Return NULL if login failed.
-      */
-    function loginWithHash($username, $passwordHash) {}
+    function login($username, $password, $passIsToken) {}
 }
 
 /**
@@ -164,7 +154,7 @@ class WFAuthorizationException extends Exception
   * ??????????? THINK ABOUT THE ABOVE... NOT YET WELL THOUGHT OUT....
   *
   * @todo Do we need to encapsulate the "login" module in a method of WFAuthorizationManager so that applications can override the login module with their own?
-  * @todo Remember-me logins not yet implemented. See loginWithHash()
+  * @todo Remember-me logins not yet implemented.
   * @todo Login page needs to have redirect-url support (default and passed-in)
   * @todo verify login with garbled image (OPTIONAL)
   */
@@ -282,15 +272,18 @@ class WFAuthorizationManager extends WFObject
       *
       * This will call the delegate's login function to authenticate and get the authorizationInfo.
       *
+      * @param string The username to use for the authentication.
+      * @param string The password to use for the authentication.
+      * @param boolean TRUE if the password is in "token" form; ie, not the clear-text password. Useful for remember-me logins or single-sign-on (SSO) setups.
       * @return boolean TRUE if login was successful, FALSE otherwise.
       */
-    function login($username, $password)
+    function login($username, $password, $passIsToken = false)
     {
         if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required to attempt login.") );
         if (!method_exists($this->authorizationDelegate, 'login')) throw( new Exception("WFAuthorizationDelegate is missing login() function.") );
 
         // get delegate to attempt authorization
-        $result = $this->authorizationDelegate->login($username, $password);
+        $result = $this->authorizationDelegate->login($username, $password, $passIsToken);
         if ($result instanceof WFAuthorizationInfo)
         {
             // means login succeeded!
