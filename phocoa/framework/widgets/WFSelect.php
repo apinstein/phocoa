@@ -25,6 +25,8 @@
  * - {@link WFSelect::setOptions() options}
  * - {@link WFSelect::$visibleItems visibleItems}
  * - {@link WFSelect::$enabled enabled}
+ *
+ * NOTE: Formatters assigned to WFSelect are used to format the label only.
  */
 class WFSelect extends WFWidget
 {
@@ -114,11 +116,6 @@ class WFSelect extends WFWidget
                 }
                 break;
         }
-    }
-
-    function setFormatter($f)
-    {
-        throw( new Exception("Formatters are not supported on WFSelect at this time.") );
     }
 
     function setVisibleItems($numItems)
@@ -312,6 +309,10 @@ class WFSelect extends WFWidget
         for ($i = 0; $i < count($values); $i++) {
             $value = $label = $values[$i];
             if (isset($labels[$i])) $label = $labels[$i];
+            if ($this->formatter())
+            {
+                $label = $this->formatter->stringForValue($label);
+            }
             $selected = $this->valueIsSelected($value) ? 'selected' : '';
             $output .= "\n<option value=\"{$value}\" {$selected} >$label</option>";
         }
