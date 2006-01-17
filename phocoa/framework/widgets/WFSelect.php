@@ -22,11 +22,10 @@
  * - {@link WFSelect::$multiple multiple}
  * - {@link WFSelect::$contentValues contentValues}
  * - {@link WFSelect::$contentLabels contentLabels}
+ * - {@link WFSelect::$labelFormatter labelFormatter}
  * - {@link WFSelect::setOptions() options}
  * - {@link WFSelect::$visibleItems visibleItems}
  * - {@link WFSelect::$enabled enabled}
- *
- * NOTE: Formatters assigned to WFSelect are used to format the label only.
  */
 class WFSelect extends WFWidget
 {
@@ -58,6 +57,10 @@ class WFSelect extends WFWidget
      * @var string CSS width data for the popup. Default is EMPTY. Useful to constrain width of the popup menu. Ex: 80px will yield width: 80px;.
      */
     protected $width;
+    /**
+     * @var object WFFormatter labelFormatter A formatter for the "label" portion of the data.
+     */
+    protected $labelFormatter;
 
     /**
       * Constructor.
@@ -72,6 +75,7 @@ class WFSelect extends WFWidget
         $this->contentValues = array();
         $this->contentLabels = array();
         $this->width = NULL;
+        $this->labelFormatter = NULL;
     }
 
     function setupExposedBindings()
@@ -116,6 +120,21 @@ class WFSelect extends WFWidget
                 }
                 break;
         }
+    }
+
+    function setLabelFormatter($f)
+    {
+        if (!($f instanceof WFFormatter)) throw( new Exception("labelFormatter must be a WFFormatter subclass.") );
+        $this->labelFormatter = $f;
+    }
+    function labelFormatter()
+    {
+        return $this->labelFormatter;
+    }
+
+    function setFormatter($f)
+    {
+        throw( new Exception("Formatters are not supported on WFSelect at this time. Are you looking for labelFormatter?") );
     }
 
     function setVisibleItems($numItems)
@@ -309,9 +328,9 @@ class WFSelect extends WFWidget
         for ($i = 0; $i < count($values); $i++) {
             $value = $label = $values[$i];
             if (isset($labels[$i])) $label = $labels[$i];
-            if ($this->formatter())
+            if ($this->labelFormatter())
             {
-                $label = $this->formatter->stringForValue($label);
+                $label = $this->labelFormatter->stringForValue($label);
             }
             $selected = $this->valueIsSelected($value) ? 'selected' : '';
             $output .= "\n<option value=\"{$value}\" {$selected} >$label</option>";
