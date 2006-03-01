@@ -251,6 +251,13 @@ class WFPage extends WFObject
         $class = $instanceManifest['class'];
 
         WFLog::log("Instantiating object id '$id'", WFLog::TRACE_LOG);
+        // we want to see if the class is a WFView subclass before instantiating (so that we can be sure our 'new' call below calls an existing prototype).
+        // bug in PHP's is_subclass_of() causes segfault sometimes if the class needs to be autoloaded, so in 5.1.0 PHP stops calling autoload.
+        // Thus, the fix is to load the class ourselves if needed before checking the inheritance.
+        if (!class_exists($class))
+        {
+            __autoload($class);
+        }
         if (!is_subclass_of($class, 'WFView')) throw( new Exception("Only WFView objects can be instantiated in the .instances file. Object id '$id' is of class '$class'.") );
 
         // NOTE!! We don't need to call addInstance() for widgets, as the WFWidget constructor does this automatically.
