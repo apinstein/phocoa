@@ -7,7 +7,7 @@ function createModule($modName, $pageName)
     $moduleTemplate = "<?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 
-class $modName extends WFModule
+class module_{$modName} extends WFModule
 {
     function defaultPage()
     {

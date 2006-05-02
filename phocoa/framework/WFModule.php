@@ -308,8 +308,8 @@ class WFModuleInvocation extends WFObject
      */
     private function extractComponentsFromInvocationPath()
     {
-        // walk path looking for the module.
-        $pathInfoParts = preg_split('/\//', trim($this->invocationPath, '/'), -1, PREG_SPLIT_NO_EMPTY);
+        // walk path looking for the module -- keep "blank" entry when "//" encountered.
+        $pathInfoParts = preg_split('/\//', trim($this->invocationPath, '/'), -1);
 
         //print_r($pathInfoParts);
         //print "URI: $<BR>";
@@ -650,9 +650,20 @@ abstract class WFModule extends WFObject
         $moduleFilePath = $modulesDirPath . '/' . $invocation->modulePath() . '/' . $moduleName . '.php';
 
         // load module subclass and instantiate
+        $module = NULL;
+        // since PHP has no namespaces, this can get messy as many times a module will have the same name as another class.
+        // so, we *prefer* all modules to be named "module_<moduleName>" to avoid these collisions, but will roll-over to <moduleName> for BC.
         require_once($moduleFilePath);
-        if (!class_exists($moduleName)) throw( new Exception("WFModule subclass {$moduleName} does not exist.") );
-        $module = new $moduleName($invocation);
+        if (class_exists("module_{$moduleName}"))
+        {
+            $moduleClassName = "module_{$moduleName}";
+            $module = new $moduleClassName($invocation);
+        }
+        else if (class_exists($moduleName))
+        {
+            $module = new $moduleName($invocation);
+        }
+        else throw( new Exception("WFModule subclass (module_{$moduleName} or {$moduleName}) could not be found.") );
 
         return $module;
     }
