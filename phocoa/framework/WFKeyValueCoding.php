@@ -132,12 +132,14 @@ interface WFKeyValueCoding
      *
      * Classes that wish to provide validators for keys should implement one validator per key, with the following prototype:
      * 
+     *      <code>
      *      // parameters are the same as for the validateValueForKey function, minus the key name.
      *      // function should return TRUE if valid, FALSE if not valid.
      *      validate<KeyName>(&$value, &$edited, &$errors);
      *
      *      // clients wishing to add errors do so with:
-     *      $error[] = new WFError('My error message'); // could also add an error code (string) parameter.
+     *      $errors[] = new WFError('My error message'); // could also add an error code (string) parameter.
+     *      </code>
      *
      * @param mixed A reference to value to check. Passed by reference so that the implementation can normalize the data.
      * @param string The key for the value to validate.
