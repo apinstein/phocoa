@@ -626,7 +626,10 @@ total 24
       stored in one file.</para>
 
       <para>Each PHOCOA module is a single PHP file that contains a single
-      WFModule subclass. This subclass will have specially named functions
+      WFModule subclass. There is a naming convention to the subclass names.
+      The subclass should be named "module_<dirName>" where <dirName> is the 
+      name of the directory that the module sits in. This helps prevent name collisions 
+      with other classes. This subclass will have specially named functions
       that you create to set up pages and respond to user actions.</para>
 
       <para>Because each module has multiple pages, actions, etc., each module
@@ -688,7 +691,7 @@ total 24
       <para>The createModule task automatically creates a new module with a
       single page.</para>
 
-      <para><programlisting>class helloworld extends WFModule
+      <para><programlisting>class module_helloworld extends WFModule
 {
     /**
       * Tell system which page to show if none specified in the URL. 
