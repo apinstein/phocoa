@@ -15,10 +15,6 @@ class WFTextField extends WFWidget
 {
     protected $maxLength;
     protected $size;
-    /**
-     * @var boolean TRUE if the widget is enabled, false otherwise.
-     */
-    protected $enabled;
 
     /**
       * Constructor.
@@ -28,17 +24,6 @@ class WFTextField extends WFWidget
         parent::__construct($id, $page);
         $this->maxLength = NULL;
         $this->size = NULL;
-        $this->enabled = true;
-    }
-
-    function enabled()
-    {
-        return $this->enabled;
-    }
-
-    function setEnabled($enabled)
-    {
-        $this->enabled = $enabled;
     }
 
     function restoreState()
@@ -71,10 +56,6 @@ class WFTextField extends WFWidget
         $myBindings = parent::setupExposedBindings();
         $myBindings[] = new WFBindingSetup('maxLength', 'The maxLength of the text field (in HTML).');
         $myBindings[] = new WFBindingSetup('size', 'The size of the text field (in HTML).');
-        $enSetup = new WFBindingSetup('enabled', 'Whether or not the text field is enabled (in HTML).');
-        $enSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
-        $enSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND);
-        $myBindings[] = $enSetup;
         return $myBindings;
     }
 

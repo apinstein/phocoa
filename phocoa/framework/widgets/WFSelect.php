@@ -25,7 +25,6 @@
  * - {@link WFSelect::$labelFormatter labelFormatter}
  * - {@link WFSelect::setOptions() options}
  * - {@link WFSelect::$visibleItems visibleItems}
- * - {@link WFSelect::$enabled enabled}
  */
 class WFSelect extends WFWidget
 {
@@ -50,10 +49,6 @@ class WFSelect extends WFWidget
      */
     protected $visibleItems;
     /**
-     * @var boolean TRUE if the widget is enabled, false otherwise.
-     */
-    protected $enabled;
-    /**
      * @var string CSS width data for the popup. Default is EMPTY. Useful to constrain width of the popup menu. Ex: 80px will yield width: 80px;.
      */
     protected $width;
@@ -70,7 +65,6 @@ class WFSelect extends WFWidget
         parent::__construct($id, $page);
         $this->values = array();
         $this->multiple = false;
-        $this->enabled = true;
         $this->visibleItems = 5;
         $this->contentValues = array();
         $this->contentLabels = array();
@@ -83,10 +77,6 @@ class WFSelect extends WFWidget
         $myBindings = parent::setupExposedBindings();
         $myBindings[] = new WFBindingSetup('value', 'The selected value for non-multiple select boxes.');
         $myBindings[] = new WFBindingSetup('values', 'The selected values for multiple select boxes.');
-        $enSetup = new WFBindingSetup('enabled', 'Whether or not the widget is enabled.');
-        $enSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
-        $enSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND);
-        $myBindings[] = $enSetup;
         $myBindings[] = new WFBindingSetup('contentValues', 'List of the VALUES of each item in the select box.',
                 array(
                     'InsertsNullPlaceholder' => false,
@@ -301,16 +291,6 @@ class WFSelect extends WFWidget
                 $this->setValue($_REQUEST[$this->name]);
             }
         }
-    }
-
-    function enabled()
-    {
-        return $this->enabled;
-    }
-
-    function setEnabled($enabled)
-    {
-        $this->enabled = $enabled;
     }
 
     function render($blockContent = NULL)

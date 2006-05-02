@@ -33,7 +33,7 @@ WFValueTransformer::setValueTransformerForName(new WFIsNotEmptyTransformer, 'WFI
  *
  * And you will see a nicely formatted list of all available bindings and options.
  *
- * @todo Write a GUI editor to manage .instances and .config, using options from {@link exposedBinding()}.
+ * @todo Write a GUI editor to manage .instances and .config, using options from {@link exposedBinding()}. Switch to YAML?
  *
  * Implements:
  *  {@link WFKeyValueBindingCreation} - Provides a base implementation of bindings support.
@@ -226,6 +226,10 @@ abstract class WFWidget extends WFView
         $hidSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
         $hidSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR);
         $myBindings[] = $hidSetup;
+        $enSetup = new WFBindingSetup('enabled', 'Whether or not the widget is enabled.');
+        $enSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
+        $enSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND);
+        $myBindings[] = $enSetup;
         return $myBindings;
     }
 
@@ -513,6 +517,7 @@ abstract class WFWidget extends WFView
     function pushBindings()
     {
         if (!$this->canPushValueBinding()) return;
+        if (!$this->enabled()) return;  // disabled HTML controls do not submit data, thus they'll be empty! Thus don't push data or we'll blow away valid data.
 
         WFLog::log("pushBindings() for for widget id '{$this->id}'", WFLog::TRACE_LOG);
 
@@ -543,6 +548,10 @@ abstract class WFWidget extends WFView
       * If the control is editable, and you only use the built-in value property, then subclasses should return TRUE.
       * 
       * If the control is editable, and the subclass does not make use of the built-in value property, then should return FALSE.
+      *
+      * NOTE: contrast this with the {@link WFView::$enabled} setting. The canPushValueBinding setting is an inherent property of the widget class; enabled is a setting
+      * that is toggleable at runtime.
+      * 
       * @return boolean Return TRUE to have the base WFWidget class automatically push your 'value' binding. FALSE to skip pushing bindings for the "value" property.
       */
     abstract function canPushValueBinding();
@@ -554,6 +563,10 @@ abstract class WFWidget extends WFView
      * If the value is valid, it will also push the value onto the bound object with setValueForKeyPath.
      *
      * Any validation errors are stored in the widget's error list.
+     *
+     * If the value of the widget is equivalent to an empty string ($value === '') then value is converted into PHP NULL.
+     * Since all values in widgets come from the UI, and there is no distinction in the UI world b/w "" and NULL, we normalize all "" values to NULL.
+     * It is left up to objects to then distinguish between NULL and "" (via normalization in Key-Value Validation).
      *
      * @param string The name of the binding to propagate back to the bound object.
      * @param mixed The value from the UI widget (submitted by the form).
@@ -568,6 +581,10 @@ abstract class WFWidget extends WFView
         // assert for r/o bindings.
         if ($binding->bindingSetup()->readOnly()) throw( new Exception("Attempt to propagateValueToBinding for a read-only binding: {$this->id} / $bindingName.") );
 
+        // normalize "" string values to NULL. Do this pre-validation; that function can do normalization etc.
+        // we simply cover the case of TOTALLY EMPTY STRING is equivalent to NULL here.
+        if ($value === '') $value = NULL;
+        
         $edited = false;
         WFLog::log("propagateValueToBinding() validating value $value for bound object for {$this->id} / $bindingName", WFLog::TRACE_LOG);
         $errors = array();

@@ -15,10 +15,6 @@ class WFTextArea extends WFWidget
 {
     protected $cols;
     protected $rows;
-    /**
-     * @var boolean TRUE if the widget is enabled, false otherwise.
-     */
-    protected $enabled;
 
     /**
       * Constructor.
@@ -28,7 +24,6 @@ class WFTextArea extends WFWidget
         parent::__construct($id, $page);
         $this->cols = 40;
         $this->rows = 10;
-        $this->enabled = true;
     }
 
     function restoreState()

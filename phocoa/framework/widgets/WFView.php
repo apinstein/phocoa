@@ -47,6 +47,10 @@ abstract class WFView extends WFObject
       * @var object The WFPage object that contains this view.
       */
     protected $page;
+    /**
+     * @var boolean Enabled. TRUE if the control is enabled (ie responds to input), FALSE otherwise.
+     */
+    protected $enabled;
 
     /**
       * Constructor.
@@ -61,6 +65,7 @@ abstract class WFView extends WFObject
         if (!($page instanceof WFPage)) throw( new Exception("page must be a WFPage.") );
 
         $this->id = $id;
+        $this->enabled = true;
         $this->children = array();
         $this->parent = NULL;
         $this->page = $page;
@@ -107,6 +112,26 @@ abstract class WFView extends WFObject
         return $this->id;
     }
     
+    /**
+     *  Is the view enabled? 
+     *
+     *  @return boolean
+     */
+    function enabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     *  Set whether or not the view is enabled. Enabled views respond to the user and accept input (widgets).
+     *
+     *  @param boolean
+     */
+    function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
+    }
+
     /**
      *  Get a relative URL path to the public www dir for graphics for this widget.
      *
