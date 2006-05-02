@@ -13,7 +13,7 @@ if ($phocoaConfFile = getenv('PHOCOA_PROJECT_CONF'))
 }
 
 $shortopts = "";
-$longopts = array('phocoaConfFile=', 'tableName=', 'propelOutputDir=', 'propelConfFile=', 'databaseName=', 'pageName=', 'pageType=');
+$longopts = array('phocoaConfFile=', 'tableName=', 'columnName=', 'propelOutputDir=', 'propelConfFile=', 'databaseName=', 'pageName=', 'pageType=');
 
 $cgo = new Console_Getopt;
 $args = $cgo->readPHPArgv();
@@ -38,6 +38,9 @@ foreach ($options[0] as $optInfo) {
         case '--tableName':
             $__config['tableName'] = $optValue;
             break;
+        case '--columnName':
+            $__config['columnName'] = $optValue;
+            break;
         case '--propelConfFile':
             $__config['propelConfFile'] = $optValue;
             break;
@@ -57,7 +60,8 @@ foreach ($options[0] as $optInfo) {
 }
 // use defaults
 // assert params
-if (empty($__config['tableName'])) throw( new Exception("tableName must be specified.") );
+if (empty($__config['tableName'])) throw( new Exception("tableName must be specified. This is the database name of the table that you want to build code for.") );
+if (empty($__config['columnName'])) throw( new Exception("columnName must be specified. This is the database name of column that is a good column to show as a single field description of the row. Example: name") );
 if (empty($__config['phocoaConfFile'])) throw( new Exception("phocoaConfFile must be specified.") );
 if (empty($__config['propelConfFile'])) throw( new Exception("propelConfFile must be specified.") );
 if (empty($__config['propelOutputDir'])) throw( new Exception("propelOutputDir must be specified. This is the directory that propel generates all classes in, without the database name. Same as the build file for propel.") );
@@ -78,16 +82,17 @@ require_once 'framework/util/PHPArrayDumper.php';
 ini_set('include_path', ini_get('include_path') . ":{$__config['propelOutputDir']}");
 // load propel conf
 require_once($__config['propelConfFile']);
-// load desired object file
+// load desired object file - we need to load the main, peer, and base files so that Propel::init() sees that the table is loaded.
 $propelClassesDir = $__config['propelOutputDir'] . "/{$__config['propelDatabaseName']}";
 $propelObjectName = NameFactory::generateName(NameFactory::PHP_GENERATOR, array($__config['tableName'], NameGenerator::CONV_METHOD_PHPNAME));
 require_once( $propelClassesDir . '/' . $propelObjectName . '.php');
-// start up propel; this will load the database map including info for all included files
+require_once( $propelClassesDir . '/om/Base' . $propelObjectName . '.php');
+require_once( $propelClassesDir . '/om/Base' . $propelObjectName . 'Peer.php');
 Propel::init($__config['propelConfFile']);
 // load databaseMap into inst var
 $propelDBMap = Propel::getDatabaseMap($__config['propelDatabaseName']);
 
-$sdp = new SkeletonDumperPropel($propelDBMap, $__config['tableName']);
+$sdp = new SkeletonDumperPropel($propelDBMap, $__config['tableName'], $__config['columnName']);
 switch ($__config['pageType']) {
     case 'edit':
         $sdp->updateEditPage($__config['phocoaPageName']);
@@ -107,13 +112,36 @@ class SkeletonDumperPropel
     protected $tableName;
     protected $singlePrimaryKey;
     
-    function __construct($dbMap, $tableName)
+    function __construct($dbMap, $tableName, $mainColumnName)
     {
         $this->tableName = $tableName;
+        $colNameAsPHPName = NameFactory::generateName(NameFactory::PHP_GENERATOR, array($mainColumnName, NameGenerator::CONV_METHOD_PHPNAME));
+        $this->mainColumnName = strtolower(substr($colNameAsPHPName, 0, 1)) . substr($colNameAsPHPName, 1);
+        $this->mainColumnPropelConstName = strtoupper($mainColumnName);
         $this->className = NameFactory::generateName(NameFactory::PHP_GENERATOR, array($tableName, NameGenerator::CONV_METHOD_PHPNAME));
         $this->sharedInstanceID = $this->className;
         $this->dbMap = $dbMap;
         $this->singlePrimaryKey = NULL;
+
+        // figure out modulePath
+        // walk up PWD until we hit "modules" and use that.
+        $dir = getcwd();
+        $parts = explode('/', $dir);
+        $this->modulePath = NULL;
+        foreach ($parts as $part) {
+            if ($this->modulePath === NULL)
+            {
+                if ($part == 'modules')
+                {
+                    $this->modulePath = '/webapp';
+                    continue;
+                }
+            }
+            else
+            {
+                $this->modulePath .= '/' . $part;
+            }
+        }
     }
 
     function pageTypes()
@@ -150,6 +178,13 @@ class SkeletonDumperPropel
             print "Adding shared instance: {$this->sharedInstanceID}\n";
             $sharedInstances[$this->sharedInstanceID] = 'WFArrayController';
         }
+        global $__config;
+        print $__config['pageType'];
+        if ($__config['pageType'] == 'search' and !isset($sharedInstances['paginator']))
+        {
+            print "Adding shared instance: 'paginator'\n";
+            $sharedInstances['paginator'] = 'WFPaginator';
+        }
         print "Saving updated shared.instances\n";
         PHPArrayDumper::arrayToPHPFileWithArray($sharedInstances, '__instances', 'shared.instances');
         // deal with shared config
@@ -166,12 +201,24 @@ class SkeletonDumperPropel
                                                                         'class' => $this->className,
                                                                         'classIdentifiers' => $this->singlePrimaryKey,
                                                                         'selectOnInsert' => true,
+                                                                        'automaticallyPreparesContent' => false,
+                                                                        )
+                                                    );
+        }
+        if ($__config['pageType'] == 'search' and !isset($sharedConfig['paginator']))
+        {
+            print "Adding config for shared instance 'paginator'\n";
+            $sharedConfig['paginator'] = array(
+                                                    'properties' => array(
+                                                                        'modeForm' => 'search',
+                                                                        'pageSize' => 25,
+                                                                        'itemPhraseSingular' => $this->className,
+                                                                        'itemPhrasePlural' => "{$this->className}s",
                                                                         )
                                                     );
         }
         print "Saving updated shared.config\n";
         PHPArrayDumper::arrayToPHPFileWithArray($sharedConfig, '__config', 'shared.config');
-
     }
 
     function updateSearchPage($pageName)
@@ -202,6 +249,170 @@ class SkeletonDumperPropel
             $pageConfig = array();
         }
         
+        // set up the form
+        $formID = 'search' . $this->className . 'Form';
+        // finish form
+        if (!isset($pageInstances[$formID]))
+        {
+            $pageInstances[$formID] = array('class' => 'WFForm', 'children' => array(
+                                                                                    'search' => array('class' => 'WFSubmit'),
+                                                                                    'paginatorState' => array('class' => 'WFPaginatorState'),
+                                                                                    'query' => array('class' => 'WFTextField'),
+                                                                                    )
+                                            );
+            // config for form widgets
+            $pageConfig['search'] = array('properties' => array('label' => 'Search'));
+            $pageConfig['paginatorState'] = array('properties' => array('paginator' => '#module#paginator'));
+        }
+        // output TPL file for search
+        $tpl = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
+<h2>{$this->className}</h2>
+
+{WFForm id=\"{$formID}\"}
+    {WFPaginatorState id=\"paginatorState\"}
+    {WFTextField id=\"query\"} {WFSubmit id=\"search\"} <a href=\"{WFURL action=\"edit\"}\">Add a new {$this->className}.</a>
+{/WFForm}
+
+<p>{WFPaginatorPageInfo id=\"paginatorPageInfo\"} {WFPaginatorNavigation id=\"paginatorNavigation\"}</p>
+<table border=\"1\" cellspacing=\"0\" cellpadding=\"5\">
+{section name=items loop=\$itemCount}
+    {if \$smarty.section.items.first}
+    <tr>
+        <th>{$this->mainColumnName}</th>
+        <th></th>
+    </tr>
+    {/if}
+    <tr>
+        <td>{WFDynamic id=\"{$this->mainColumnName}\"}</td>
+        <td>{WFDynamic id=\"editLink\"} {WFDynamic id=\"deleteLink\"}</td>
+    </tr>
+{sectionelse}
+    <tr><td>No items found.</td></tr>
+{/section}
+</table>
+
+<script language=\"JavaScript1.2\">
+<!--
+document.forms.{$formID}.query.focus();
+-->
+</script>
+        ";
+
+        // add pagination widget instances and config
+        if (!isset($pageInstances['paginatorNavigation']))
+        {
+            $pageInstances['paginatorNavigation'] = array('class' => 'WFPaginatorNavigation');
+            $pageConfig['paginatorNavigation'] = array('properties' => array('paginator' => '#module#paginator'));
+        }
+        if (!isset($pageInstances['paginatorPageInfo']))
+        {
+            $pageInstances['paginatorPageInfo'] = array('class' => 'WFPaginatorPageInfo');
+            $pageConfig['paginatorPageInfo'] = array('properties' => array('paginator' => '#module#paginator'));
+        }
+
+        // add table display widget instances and config
+        if (!isset($pageInstances[$this->mainColumnName]))
+        {
+            $pageInstances[$this->mainColumnName] = array('class' => 'WFDynamic', 'children' => array( "{$this->mainColumnName}Prototype" => array('class' => 'WFLabel') ));
+            $pageConfig[$this->mainColumnName] = array('properties' => array('arrayController' => "#module#{$this->sharedInstanceID}"));
+            $pageConfig["{$this->mainColumnName}Prototype"] = array(
+                                                                        'bindings' => array(
+                                                                                        'value' => array(
+                                                                                                        'instanceID' => $this->sharedInstanceID,
+                                                                                                        'controllerKey' => '#current#',
+                                                                                                        'modelKeyPath' => $this->mainColumnName
+                                                                                                        )
+                                                                                        )
+                                                                    );
+        }
+        if (!isset($pageInstances['editLink']))
+        {
+            $pageInstances['editLink'] = array('class' => 'WFDynamic', 'children' => array( "editLinkPrototype" => array('class' => 'WFLink') ));
+            $pageConfig['editLink'] = array('properties' => array('arrayController' => "#module#{$this->sharedInstanceID}"));
+            $pageConfig['editLinkPrototype'] = array(
+                                                                        'properties' => array('label' => 'Edit'),
+                                                                        'bindings' => array(
+                                                                                        'value' => array(
+                                                                                                        'instanceID' => $this->sharedInstanceID,
+                                                                                                        'controllerKey' => '#current#',
+                                                                                                        'modelKeyPath' => $this->singlePrimaryKey,
+                                                                                                        'options' => array('ValuePattern' => $this->modulePath . '/edit/%1%')
+                                                                                                        )
+                                                                                        )
+                                                                    );
+        }
+        if (!isset($pageInstances['deleteLink']))
+        {
+            $pageInstances['deleteLink'] = array('class' => 'WFDynamic', 'children' => array( "deleteLinkPrototype" => array('class' => 'WFLink') ));
+            $pageConfig['deleteLink'] = array('properties' => array('arrayController' => "#module#{$this->sharedInstanceID}"));
+            $pageConfig['deleteLinkPrototype'] = array(
+                                                                        'properties' => array('label' => 'Delete'),
+                                                                        'bindings' => array(
+                                                                                        'value' => array(
+                                                                                                        'instanceID' => $this->sharedInstanceID,
+                                                                                                        'controllerKey' => '#current#',
+                                                                                                        'modelKeyPath' => $this->singlePrimaryKey,
+                                                                                                        'options' => array('ValuePattern' => $this->modulePath . '/confirmDelete/%1%')
+                                                                                                        )
+                                                                                        )
+                                                                    );
+        }
+
+        // thru here
+        print "Saving updated {$pageName}.instances\n";
+        PHPArrayDumper::arrayToPHPFileWithArray($pageInstances, '__instances', $instanceFile);
+        print "Saving updated {$pageName}.config\n";
+        PHPArrayDumper::arrayToPHPFileWithArray($pageConfig, '__config', $configFile);
+        if (!file_exists($tplFile))
+        {
+            print "Creating {$pageName}.tpl file.\n";
+            file_put_contents($tplFile, $tpl);
+        }
+        else
+        {
+            print "\nTemplate file already exists, so it will not be overwritten. Here is the template code for the table:\n$tpl\n";
+        }
+
+        // suggested module code
+        print "Suggested module code:
+    function search_ParameterList()
+    {
+        return array('paginatorState');
+    }
+    function search_PageDidLoad(\$page, \$params)
+    {
+        \$this->paginator->readPaginatorStateFromParams(\$params);
+        if (!\$page->hasSubmittedForm())
+        {
+            \$this->search_doSearch(\$page);
+        }
+    }
+    function search_search_Action(\$page)
+    {   
+        \$this->search_doSearch(\$page);
+        
+        // re-build dynamic widgets
+        \$page->outlet('{$this->mainColumnName}')->createWidgets();
+        \$page->outlet('editLink')->createWidgets();
+        \$page->outlet('deleteLink')->createWidgets();
+    }   
+    function search_doSearch(\$page)
+    {
+        \$query = \$page->outlet('query')->value();
+        \$c = new Criteria();
+        if (!empty(\$query))
+        {   
+            \$querySubStr = '%' . str_replace(' ', '%', trim(\$query)) . '%';
+
+            \$c->add({$this->className}Peer::{$this->mainColumnPropelConstName}, \$querySubStr, Criteria::ILIKE);
+        }
+
+        \$this->paginator->setDataDelegate(new WFPagedPropelQuery(\$c, '{$this->className}Peer'));
+        \$this->{$this->sharedInstanceID}->setContent(\$this->paginator->currentItems());
+
+        \$page->assign('itemCount', \$this->{$this->sharedInstanceID}->arrangedObjectCount());
+    }
+        ";
     }
 
     function updateDetailPage($pageName)
@@ -492,12 +703,18 @@ class SkeletonDumperPropel
         \$this->setupResponsePage('{$confirmDeletePageName}');
     }
 
+    function {$confirmDeletePageName}_ParameterList()
+    {
+        return array('{$this->singlePrimaryKey}');
+    }
     function {$confirmDeletePageName}_PageDidLoad(\$page, \$params)
     {
-        if (\$page->hasSubmittedForm())
+        // if we're a redirected action, then the {$this->className} object is already loaded. If there is no object loaded, try to load it from the object ID passed in the params.
+        if (\$this->{$this->sharedInstanceID}->selection() === NULL)
         {
-            // load selection from form hidden field
-            \$this->{$this->sharedInstanceID}->setContent(array({$this->className}Peer::retrieveByPK(\$page->outlet('{$this->singlePrimaryKey}')->value())));
+            \$objectToDelete = {$this->className}Peer::retrieveByPK(\$params['{$this->singlePrimaryKey}']);
+            if (!\$objectToDelete) throw( new Exception(\"Could not load {$this->className} object to delete.\") );
+            \$this->{$this->sharedInstanceID}->setContent(array(\$objectToDelete));
         }
         if (\$this->{$this->sharedInstanceID}->selection() === NULL) throw( new Exception(\"Could not load {$this->className} object to delete.\") );
     }
@@ -572,7 +789,7 @@ class SkeletonDumperPropel
                                                                         'value' => array(
                                                                                         'instanceID' => $this->sharedInstanceID,
                                                                                         'controllerKey' => 'selection',
-                                                                                        'modelKeyPath' => $this->singlePrimaryKey,
+                                                                                        'modelKeyPath' => $this->mainColumnName,
                                                                                         'options' => array(
                                                                                                             'ValuePattern' => 'Are you sure you want to delete ' . $this->className . ' "%1%"?'
                                                                                                             )
