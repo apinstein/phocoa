@@ -43,6 +43,9 @@ class WFWebApplication extends WFObject
     const DIR_WWW       = 6;
     const DIR_SKINS     = 7;
 
+    const WWW_DIR_BASE          = 1;
+    const WWW_DIR_FRAMEWORK     = 2;
+
     /**
      * @var object The delegate object for the application.
      */
@@ -117,6 +120,8 @@ class WFWebApplication extends WFObject
 
     /**
       * Get the absolute path of one of the application directories.
+      *
+      * @param string One of the DIR_* constants.
       * @return string The absolute path of the passed directory type. NO TRAILING SLASH!! ADD IT YOURSELF.
       */
     static function appDirPath($appDirName)
@@ -138,6 +143,25 @@ class WFWebApplication extends WFObject
                 return APP_ROOT . '/skins';
             default:
                 throw(new Exception("Unknown app dir: {$appDirName}."));
+        }
+    }
+
+    /**
+     *  Get the www-absolute path of one of the application's public www directories.
+     *
+     *  @param string One of the WWW_DIR_* constants.
+     *  @return string The absolute path to the passed directory type.
+     *  @throws
+     */
+    static function webDirPath($webDirPath)
+    {
+        switch ($webDirPath) {
+            case self::WWW_DIR_BASE:
+                return WWW_ROOT . '/www';
+            case self::WWW_DIR_FRAMEWORK:
+                return WWW_ROOT . '/www/framework';
+            default:
+                throw(new Exception("Unknown app dir: {$webDirPath}."));
         }
     }
 
