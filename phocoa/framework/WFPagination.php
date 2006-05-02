@@ -37,7 +37,7 @@
  * Adding Pagination to an exist list view.
  * 1. Set up the paginator by declaring a WFPaginator instance in your shared instances.
  * 2. Manifest the paginatorState parameter id in the page's ParameterList method. By default, WFPaginator expects the id to be "paginatorState".
- * 3. If you're using MODE_FORM, enable MODE_FORM by configuring the paginator's "enableModeForm" element with the value of the submit button on your form that should be clicked to "update" the display. Then, declare a {@link WFPaginatorState} in your page (the ID should be paginatorState parameter ID, "paginatorState" by default), and configure the {@link WFPaginatorState::$paginator paginator} element. This is a special form element that WFPaginator uses to pass the new settings on via the form submission.
+ * 3. If you're using MODE_FORM, enable MODE_FORM by configuring the paginator's "modeForm" element {@link WFPaginator::setModeForm()} with the value of the submit button on your form that should be clicked to "update" the display. Then, declare a {@link WFPaginatorState} in your page (the ID should be paginatorState parameter ID, "paginatorState" by default), and configure the {@link WFPaginatorState::$paginator paginator} element. This is a special form element that WFPaginator uses to pass the new settings on via the form submission.
  * 4. Declare a {@link WFPaginatorNavigation} in your page, and configure the {@link WFPaginatorNavigation::$paginator paginator} element.
  * 5. Declare a {@link WFPaginatorPageInfo} in your page, and configure the {@link WFPaginatorPageInfo::$paginator paginator} element.
  * 6. Declare a {@link WFPaginatorSortLink} in your page for each sorting option, and configure the {@link WFPaginatorSortLink::$paginator paginator} and {@link WFWidget::$value value} elements. The value of a WFPaginatorSortLink is the sortKey that the link is for, without the +/-.
@@ -59,6 +59,7 @@
  *
  * @see WFPaginatorNavigation, WFPaginatorPageInfo, WFPaginatorSortLink, WFPaginatorState
  * @see WFPagedArray, WFPagedPropelQuery, WFPagedCreoleQuery
+ * @todo Is it possible to make readPaginatorStateFromParams() happen automatically?
  */
 class WFPaginator extends WFObject
 {
@@ -218,11 +219,11 @@ class WFPaginator extends WFObject
                 // Replace all EMPTY params with WFNull (PARAMETER_NULL_VALUE) so that we don't hit the // problem and lose our parameters.
                 if (isset($this->alternativeParams[$paramID]))
                 {
-                    $newParams[$paramID] = (is_null($this->alternativeParams[$paramID]) ? WFModuleInvocation::PARAMETER_NULL_VALUE : $this->alternativeParams[$paramID]);
+                    $newParams[$paramID] = ( (strlen($this->alternativeParams[$paramID]) == 0) ? WFModuleInvocation::PARAMETER_NULL_VALUE : $this->alternativeParams[$paramID]);
                 }
                 else
                 {
-                    $newParams[$paramID] = (is_null($paramValue) ? WFModuleInvocation::PARAMETER_NULL_VALUE : $paramValue);
+                    $newParams[$paramID] = ( (strlen($paramValue) == 0) ? WFModuleInvocation::PARAMETER_NULL_VALUE : $paramValue);
                 }
             }
         }
@@ -253,7 +254,7 @@ class WFPaginator extends WFObject
      *
      *  @param string The ID of the submit button that should be "clicked" to udpate the page.
      */
-    function enableModeForm($submitID)
+    function setModeForm($submitID)
     {
         $this->mode = WFPaginator::MODE_FORM;
         $this->submitID = $submitID;
