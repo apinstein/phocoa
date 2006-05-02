@@ -382,7 +382,8 @@ class WFDynamic extends WFWidget
 
         // check params
         if (!class_exists($widgetClass)) throw( new Exception("There is no widget class '$widgetClass'.") );
-        if (!$this->arrayController instanceof WFArrayController) throw( new Exception("arrayController must be a WFArrayController instance."));
+        if (!is_object($this->arrayController)) throw( new Exception("No WFArrayController assigned to WFDynamic. Set the arrayController object for WFDynamic '{$this->id}'."));
+        if (!($this->arrayController instanceof WFArrayController)) throw( new Exception("arrayController must be a WFArrayController instance."));
 
         $this->processWidgetConfig();
 
