@@ -83,10 +83,25 @@ class WFRequestController extends WFObject
      *
      * @todo Handle 404 situation better -- need to be able to detect this nicely from WFModuleInvocation.. maybe an Exception subclass?
      * @todo PATH_INFO with multiple params, where one is blank, isn't working correctly. IE, /url/a//c gets turned into /url/a/c for PATH_INFO thus we skip a "null" param.
+     *       NOTE: Partial solution; use /WFNull/ to indicate NULL param instead of // until we figure something out.
+     *       NOTE: Recent change to REQUEST_URI instead of PATH_INFO to solve decoding problem seems to have also solved the // => / conversion problem... test more!
+     *       WORRY: That the new PATH_INFO calculation will fail when using aliases other than WWW_ROOT. IE: /products/myProduct might break it...
      */
     function handleHTTPRequest()
     {
-        $modInvocationPath = ( empty($_SERVER['PATH_INFO']) ? '' : $_SERVER['PATH_INFO'] );
+        // OLD WAY - use server's PATH_INFO
+        //$modInvocationPath = ( empty($_SERVER['PATH_INFO']) ? '' : $_SERVER['PATH_INFO'] );
+
+        // NEW WAY - calculate our own PATH_INFO. WHY? This way we can eliminate the urldecoding of the PATH_INFO which prevents passing through / and also 
+        // destroys the ability to pass NULL URL params via //.
+        // This way is much better, so long as it's compatible! So make sure that it doesn't break anything.
+        $modInvocationPath = ltrim(substr($_SERVER['REQUEST_URI'], strlen(WWW_ROOT)), '/');
+        $paramsPos = strpos($modInvocationPath, '?');
+        if ($paramsPos !== false)
+        {
+            $modInvocationPath = substr($modInvocationPath, 0, $paramsPos);
+        }
+        
         try {
             $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL);
 
