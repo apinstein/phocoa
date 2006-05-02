@@ -72,7 +72,7 @@ class WFLink extends WFWidget
             {
                 $class = " class=\"{$this->class}\" ";
             }
-            return "<a href=\"{$this->value}\" {$class}/>{$this->label}</a>";
+            return "<a href=\"{$this->value}\" {$class}>{$this->label}</a>";
         }
     }
 
