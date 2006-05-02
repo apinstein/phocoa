@@ -21,7 +21,7 @@
  *  @return string The HTML snippet from the WFModule.
  *  @throws Exception if the module cannot be found or no invocationPath is specified.
  */
-function smarty_function_WFSkinModuleView($params, &$smarty)
+function smarty_function_WFSkinModuleView($params, $smarty)
 {
     if (empty($params['invocationPath'])) throw( new Exception("InvocationPath is required.") );
     $rc = WFRequestController::sharedRequestController();
