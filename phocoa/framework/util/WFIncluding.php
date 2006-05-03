@@ -135,6 +135,7 @@ class WFIncluding
                 'WFMenuItemBasic' => 'framework/WFMenuItem.php',
                 'WFObject' => 'framework/WFObject.php',
                 'WFKeyValueCoding' => 'framework/WFKeyValueCoding.php',
+                'WFKeyValueValidators' => 'framework/util/WFKeyValueValidators.php',
                 'WFRequestController' => 'framework/WFRequestController.php',
                 'WFSkin' => 'framework/WFSkin.php',
                 'WFModule' => 'framework/WFModule.php',
