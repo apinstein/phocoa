@@ -313,11 +313,17 @@ document.forms.{$formID}.query.focus();
         // add table display widget instances and config
         if (!isset($pageInstances[$this->mainColumnName]))
         {
-            $pageInstances[$this->mainColumnName] = array('class' => 'WFDynamic', 'children' => array( "{$this->mainColumnName}Prototype" => array('class' => 'WFLabel') ));
+            $pageInstances[$this->mainColumnName] = array('class' => 'WFDynamic', 'children' => array( "{$this->mainColumnName}Prototype" => array('class' => 'WFLink') ));
             $pageConfig[$this->mainColumnName] = array('properties' => array('arrayController' => "#module#{$this->sharedInstanceID}"));
             $pageConfig["{$this->mainColumnName}Prototype"] = array(
                                                                         'bindings' => array(
                                                                                         'value' => array(
+                                                                                                        'instanceID' => $this->sharedInstanceID,
+                                                                                                        'controllerKey' => '#current#',
+                                                                                                        'modelKeyPath' => $this->singlePrimaryKey,
+                                                                                                        'options' => array('ValuePattern' => $this->modulePath . '/detail/%1%')
+                                                                                                        ),
+                                                                                        'label' => array(
                                                                                                         'instanceID' => $this->sharedInstanceID,
                                                                                                         'controllerKey' => '#current#',
                                                                                                         'modelKeyPath' => $this->mainColumnName
@@ -677,7 +683,8 @@ document.forms.{$formID}.query.focus();
         }
         else
         {
-            // will prepare content automatically, for new instance
+            // prepare content for new
+            \$this->{$this->sharedInstanceID}->setContent(array(new {$this->className}()));
         }
     }
     function save{$this->className}(\$page)
