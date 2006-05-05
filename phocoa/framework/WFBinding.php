@@ -265,7 +265,7 @@ class WFBindingSetup extends WFObject
 class WFBinding extends WFObject
 {
     // commonly used binding options available globally
-    const VALUE_TRANSFORMER_NAME = "valueTransformer";
+    const VALUE_TRANSFORMER_NAME = "ValueTransformer";
 
     /**
      * @var object The object that this property is bound to.
@@ -394,6 +394,10 @@ class WFBinding extends WFObject
         if (isset($this->options[WFBinding::VALUE_TRANSFORMER_NAME]))
         {
             return $this->options[WFBinding::VALUE_TRANSFORMER_NAME];
+        }
+        else if (isset($this->options['valueTransformer'])) // support for original naming convention which is now deprecated in favor of TitleCaseNamingConvention
+        {
+            return $this->options['valueTransformer'];
         }
         else
         {
