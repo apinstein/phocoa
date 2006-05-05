@@ -97,7 +97,7 @@ class WFObject implements WFKeyValueCoding
             // target must be an object
             if (!is_object($target))
             {
-                throw( new Exception('Target is not an object for keyPath.') );
+                throw( new Exception('Target is not an object at keyPath: ' . join('.', array_slice($keys, 0, $keyI))) );
             }
 
             $result = $target->valueForKey($key);
