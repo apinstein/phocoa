@@ -149,7 +149,7 @@ class SkeletonDumperPropel
         return array('detail', 'edit', 'search');
     }
 
-    function updateSharedSetup()
+    function updateSharedSetup($pageType)
     {
         // deal with shared instances
         // figure out primary key
@@ -178,9 +178,7 @@ class SkeletonDumperPropel
             print "Adding shared instance: {$this->sharedInstanceID}\n";
             $sharedInstances[$this->sharedInstanceID] = 'WFArrayController';
         }
-        global $__config;
-        print $__config['pageType'];
-        if ($__config['pageType'] == 'search' and !isset($sharedInstances['paginator']))
+        if ($pageType == 'search' and !isset($sharedInstances['paginator']))
         {
             print "Adding shared instance: 'paginator'\n";
             $sharedInstances['paginator'] = 'WFPaginator';
@@ -205,7 +203,7 @@ class SkeletonDumperPropel
                                                                         )
                                                     );
         }
-        if ($__config['pageType'] == 'search' and !isset($sharedConfig['paginator']))
+        if ($pageType == 'search' and !isset($sharedConfig['paginator']))
         {
             print "Adding config for shared instance 'paginator'\n";
             $sharedConfig['paginator'] = array(
@@ -223,7 +221,7 @@ class SkeletonDumperPropel
 
     function updateSearchPage($pageName)
     {
-        $this->updateSharedSetup();
+        $this->updateSharedSetup('search');
 
         $tplFile = $pageName . '.tpl';
         $instanceFile = $pageName . '.instances';
@@ -381,28 +379,28 @@ document.forms.{$formID}.query.focus();
 
         // suggested module code
         print "Suggested module code:
-    function search_ParameterList()
+    function {$pageName}_ParameterList()
     {
         return array('paginatorState');
     }
-    function search_PageDidLoad(\$page, \$params)
+    function {$pageName}_PageDidLoad(\$page, \$params)
     {
         \$this->paginator->readPaginatorStateFromParams(\$params);
         if (!\$page->hasSubmittedForm())
         {
-            \$this->search_doSearch(\$page);
+            \$this->{$pageName}_doSearch(\$page);
         }
     }
-    function search_search_Action(\$page)
+    function {$pageName}_search_Action(\$page)
     {   
-        \$this->search_doSearch(\$page);
+        \$this->{$pageName}_doSearch(\$page);
         
         // re-build dynamic widgets
         \$page->outlet('{$this->mainColumnName}')->createWidgets();
         \$page->outlet('editLink')->createWidgets();
         \$page->outlet('deleteLink')->createWidgets();
     }   
-    function search_doSearch(\$page)
+    function {$pageName}_doSearch(\$page)
     {
         \$query = \$page->outlet('query')->value();
         \$c = new Criteria();
@@ -423,7 +421,7 @@ document.forms.{$formID}.query.focus();
 
     function updateDetailPage($pageName)
     {
-        $this->updateSharedSetup();
+        $this->updateSharedSetup('detail');
 
         $tplFile = $pageName . '.tpl';
         $instanceFile = $pageName . '.instances';
@@ -503,7 +501,7 @@ document.forms.{$formID}.query.focus();
 
     function updateEditPage($pageName)
     {
-        $this->updateSharedSetup();
+        $this->updateSharedSetup('edit');
 
         $tplFile = $pageName . '.tpl';
         $instanceFile = $pageName . '.instances';
@@ -676,15 +674,18 @@ document.forms.{$formID}.query.focus();
     }
     function {$pageName}_PageDidLoad(\$page, \$params)
     {
-        if (\$params['{$this->singlePrimaryKey}'])
+        if (\$this->{$this->sharedInstanceID}->selection() === NULL)
         {
-            \$this->{$this->sharedInstanceID}->setContent(array({$this->className}Peer::retrieveByPK(\$params['{$this->singlePrimaryKey}'])));
-            \$this->verifyEditingPermission();
-        }
-        else
-        {
-            // prepare content for new
-            \$this->{$this->sharedInstanceID}->setContent(array(new {$this->className}()));
+            if (\$params['{$this->singlePrimaryKey}'])
+            {
+                \$this->{$this->sharedInstanceID}->setContent(array({$this->className}Peer::retrieveByPK(\$params['{$this->singlePrimaryKey}'])));
+                \$this->verifyEditingPermission();
+            }
+            else
+            {
+                // prepare content for new
+                \$this->{$this->sharedInstanceID}->setContent(array(new {$this->className}()));
+            }
         }
     }
     function save{$this->className}(\$page)

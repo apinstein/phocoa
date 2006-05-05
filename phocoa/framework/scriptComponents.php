@@ -9,16 +9,29 @@ function createModule($modName, $pageName)
 
 class module_{$modName} extends WFModule
 {
+    function sharedInstancesDidLoad()
+    {
+    }
+";
+
+    if ($pageName === NULL)
+    {
+        $moduleTemplate .= "
+    function defaultPage()
+    {
+        return 'defaultPage';
+    }
+";
+    }
+    else
+    {
+        $moduleTemplate .= "
     function defaultPage()
     {
         return '{$pageName}';
     }
 
-    // Uncomment additional functions as needed
-//    function sharedInstancesDidLoad()
-//    {
-//    }
-//
+//    uncomment as needed
 //    function {$pageName}_ParameterList()
 //    {
 //        return array();
@@ -31,9 +44,11 @@ class module_{$modName} extends WFModule
 //    function {$pageName}_PageDidLoad(\$page, \$params)
 //    {
 //    }
-}
-?>
 ";
+    }
+    $moduleTemplate .= "
+}
+?>";
 
     // check and make dir
     if (!file_exists("./$modName"))
