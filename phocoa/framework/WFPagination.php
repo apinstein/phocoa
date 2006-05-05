@@ -782,6 +782,11 @@ class WFPagedPropelQuery implements WFPagedData
     {
         $this->criteria = $criteria;
         $this->peerName = $peerName;
+        // There is a bug in call_user_func that causes PHP to crash if the peer being called isn't already loaded.
+        if (!class_exists($this->peerName))
+        {
+            WFWebApplication::autload($this->peerName);
+        }
     }
     function itemCount()
     {
@@ -806,7 +811,7 @@ class WFPagedPropelQuery implements WFPagedData
                 $criteria->addAscendingOrderByColumn(substr($sortKey, 1));
             }
         }
-		return call_user_func(array($this->peerName, 'doSelect'), $criteria);
+        return call_user_func(array($this->peerName, 'doSelect'), $criteria);
     }
 }
 
