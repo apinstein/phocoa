@@ -45,6 +45,10 @@ class WFSelect extends WFWidget
      */
     protected $contentLabels;
     /**
+     * @var assoc_array PLACEHOLDER so that we can use bindings for the setOptions function. Never has any real value.
+     */
+    protected $options;
+    /**
      * @var integer The number of items to show, if MULTIPLE is enabled. Default is 5.
      */
     protected $visibleItems;
@@ -89,6 +93,12 @@ class WFSelect extends WFWidget
                     'NullPlaceholder' => 'Select...'
                     )
                 );
+        $myBindings[] = new WFBindingSetup('options', 'List of the options (value => label) of each item in the select box.',
+                array(
+                    'InsertsNullPlaceholder' => false,
+                    'NullPlaceholder' => 'Select...'
+                    )
+                );
         return $myBindings;
     }
 
@@ -107,6 +117,12 @@ class WFSelect extends WFWidget
                 if ($options["InsertsNullPlaceholder"]) {
                     $defaultLabel = $options["NullPlaceholder"];
                     $boundValue = array_merge(array($defaultLabel), $boundValue);
+                }
+                break;
+            case 'options':
+                if ($options["InsertsNullPlaceholder"]) {
+                    $defaultLabel = $options["NullPlaceholder"];
+                    $boundValue = array_merge(array('' => $defaultLabel), $boundValue);
                 }
                 break;
         }
