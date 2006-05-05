@@ -17,6 +17,28 @@
 class WFKeyValueValidators extends WFObject
 {
     /**
+     *  Validate email addresses.
+     *
+     * @param mixed A reference to value to check. Passed by reference so that the implementation can normalize the data.
+     * @param boolean A reference to a boolean. This value will always be FALSE when the method is called. If the implementation edits the $value, set to TRUE.
+     * @param array An array of WFError objects describing the error. The array is empty by default; you can add new error entries.
+     * @return boolean TRUE indicates a valid value, FALSE indicates an error.
+     */
+    public static function validateEmail(&$value, &$edited, &$errors)
+    {
+        //  normalize
+        $value = trim($value);
+        $edited = true;
+
+        if (!preg_match('/^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$/', $value))
+        {
+            $errors[] = new WFError("That doesn't seem to be a email address. Please try again in the format 'email@domain.com'.");
+            return false;
+        }
+        return true;
+    }
+
+    /**
      *  Validate a phone number.
      *
      *  Pretty flexible; allows any character(s) as separators. Just tries to be sure that there are the right number of digits in the right number of groups.
@@ -49,6 +71,7 @@ class WFKeyValueValidators extends WFObject
                 return true;
         }
     }
+
     /**
      *  Validate a postal code.
      *
