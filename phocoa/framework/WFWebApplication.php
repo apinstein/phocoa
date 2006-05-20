@@ -92,6 +92,16 @@ class WFWebApplication extends WFObject
     }
 
     /**
+     *  Get the delegate for the WFWebApplication.
+     *
+     *  @return object WFObject An object implementing the {@link WFWebApplicationDelegate} informal protocol.
+     */
+    function delegate()
+    {
+        return $this->delegate;
+    }
+
+    /**
      * Bootstrap control of the application to the RequestController.
      *
      * The web framework's normal cycle is to instantiate the WFWebApplication then pass control to the WFRequestController to handle the request.
@@ -226,6 +236,16 @@ class WFWebApplication extends WFObject
         if (is_object($this->delegate) && method_exists($this->delegate, 'sessionWillStart'))
         {
             $this->delegate->sessionWillStart();
+        }
+    }
+    /**
+     *  Hook to provide opportunity for the web application to munge the session data after php's session_start() is called.
+     */
+    function sessionDidStart()
+    {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'sessionDidStart'))
+        {
+            $this->delegate->sessionDidStart();
         }
     }
 }

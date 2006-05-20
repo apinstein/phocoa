@@ -11,6 +11,7 @@ if (php_sapi_name() !== 'cli')
 {
     WFWebApplication::sharedWebApplication()->sessionWillStart();
     session_start();
+    WFWebApplication::sharedWebApplication()->sessionDidStart();
 }
 
 // This class is for shit right now; for now just let people access session manually.

@@ -51,6 +51,13 @@ class WFWebApplicationDelegate
     function sessionWillStart() {}
 
     /**
+     *  Called just after the session is started.
+     *
+     *  This gives applications a chance to set up session info.
+     */
+    function sessionDidStart() {}
+
+    /**
       * A callback function that your application can use to set up application config.
       *
       * This function is called just after the WFWebApplication is constructed.
