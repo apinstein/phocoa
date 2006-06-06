@@ -47,8 +47,10 @@ class WFTabContent extends WFObject
 
 /**
  * The WFTabView widget provides a tabbed-interface wrapper around several templates.
+ *
+ * The WFTabView implements all tab content on a single HTML page; clicking on a tab simply changes what's visible, it doens't round-trip to the server.
  * 
- * All templates must be designed for the same page; the sub-templates are simply chucks of what would normally be a single template.
+ * All templates must be designed for the same page; the sub-templates are simply chunks of what would normally be a single template.
  */
 class WFTabView extends WFWidget
 {
