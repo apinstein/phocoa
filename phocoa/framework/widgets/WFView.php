@@ -51,6 +51,10 @@ abstract class WFView extends WFObject
      * @var boolean Enabled. TRUE if the control is enabled (ie responds to input), FALSE otherwise.
      */
     protected $enabled;
+    /**
+     * @var array A list of the JavaScript actions for the widget. Mananged centrally; used by subclasses to allow actions to be attached.
+     */
+    protected $jsActions;
 
     /**
       * Constructor.
@@ -70,6 +74,7 @@ abstract class WFView extends WFObject
         $this->parent = NULL;
         $this->page = $page;
         $this->setId($id);
+        $this->jsActions = array();
     }
 
     /**
@@ -85,6 +90,7 @@ abstract class WFView extends WFObject
     {
         $newView = clone($this);
         $newView->setId($id);
+        $newView->setName($id);
         return $newView;
     }
 
@@ -110,6 +116,31 @@ abstract class WFView extends WFObject
     function id()
     {
         return $this->id;
+    }
+
+    /**
+     *  Set the "onClick" JavaScript code for the view.
+     *
+     *  @param string JavaScript code.
+     */
+    function setJSonClick($js)
+    {
+        $this->jsActions['onClick'] = $js;
+    }
+
+    /**
+     *  Get the HTML code for all JavaScript actions.
+     *
+     *  @return string The HTML code (space at beginning, no space at end) for use in attaching JavaScript actions to views.
+     */
+    function getJSActions()
+    {
+        $jsHTML = '';
+        foreach ($this->jsActions as $jsAction => $jsCode) {
+            $jsHTML .= " {$jsAction}=\"{$jsCode}\"";
+        }
+
+        return $jsHTML;
     }
     
     /**
@@ -180,6 +211,18 @@ abstract class WFView extends WFObject
         return $this->parent;
     }
 
+    /**
+     *  Remove a child view from the view hierarchy.
+     *
+     *  @param object WFView The view object to remove as a child of this view.
+     *  @return
+     *  @throws
+     */
+    function removeChild(WFView $view)
+    {
+        if (!isset($this->children[$view->id()])) throw( new Exception("The view id: '" . $view->id() . "' is not a child of this view.") );
+        unset($this->children[$view->id()]);
+    }
     /**
       * Add a child view to this view.
       *

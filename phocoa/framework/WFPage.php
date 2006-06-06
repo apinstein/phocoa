@@ -102,7 +102,9 @@ class WFPage extends WFObject
         if (!$this->module->invocation()->respondsToForms()) return NULL;
 
         $formName = NULL;
-        if (isset($_REQUEST['__invocationPath']) and $_REQUEST['__invocationPath'] == $this->module->invocation()->invocationPath() and $this->module->invocation()->pageName() == $this->pageName())
+        if (isset($_REQUEST['__modulePath'])
+            and $_REQUEST['__modulePath'] == ($this->module->invocation()->modulePath() . '/' . $this->pageName())
+            and $this->module->invocation()->pageName() == $this->pageName())
         {
             $formName = $_REQUEST['__formName'];
         }
@@ -218,6 +220,20 @@ class WFPage extends WFObject
 
         // add to our internal list
         $this->instances[$id] = $object;
+    }
+
+    /**
+     *  Remove an instance from the page.
+     *
+     *  Useful for dynamically created instances, if one needs to re-create them.
+     *
+     *  @param string $id The id of the page instance to remove.
+     *  @throws object Exception if the instance doesn't exist.
+     */
+    function removeInstance($id)
+    {
+        if (!isset($this->instances[$id])) throw( new Exception("Instance ID '$id' cannot be removed because it doesn't exist.") );
+        unset($this->instances[$id]);
     }
 
     /**
@@ -710,7 +726,21 @@ class WFPage extends WFObject
                     {
                         foreach ($parameterList as $id) {
                             try {
-                                $parameters[$id] = $this->outlet($id)->value();
+                                // see if there is an instance of the same name in the submitted form
+                                $instance = $this->outlet($id);
+                                if ($instance instanceof WFWidget)
+                                {
+                                    // walk up looking for parent
+                                    $parent = $instance->parent();
+                                    do {
+                                        if ($parent and $parent instanceof WFForm and $parent->name() == $this->submittedFormName())
+                                        {
+                                            $parameters[$id] = $this->outlet($id)->value();
+                                            break;
+                                        }
+                                        $parent = $parent->parent();
+                                    } while ($parent);
+                                }
                             } catch (Exception $e) {
                                 // ok if there's an exception, just means no outlet of that id.
                             }

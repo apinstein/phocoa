@@ -53,6 +53,11 @@ class WFForm extends WFWidget
         $this->method = WFForm::METHOD_POST;
     }
 
+    function setAction($action)
+    {
+        $this->action = $action;
+    }
+    
     function setMethod($method)
     {
         $this->method = $method;
@@ -61,7 +66,7 @@ class WFForm extends WFWidget
     function render($blockContent = NULL)
     {
         return "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" enctype="multipart/form-data">' .
-               "\n" . '<input type="hidden" name="__invocationPath" value="' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '" />' .
+               "\n" . '<input type="hidden" name="__modulePath" value="' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '" />' .
                //"\n" . '<input type="hidden" name="__currentModule" value="' . $this->page->module()->invocation()->modulePath() . '" />' .
                //"\n" . '<input type="hidden" name="__currentPage" value="' . $this->page->pageName() . '" />' .
                "\n" . '<input type="hidden" name="__formName" value="' . $this->id . '" />' .

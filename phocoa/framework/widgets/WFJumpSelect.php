@@ -43,6 +43,22 @@ class WFJumpSelect extends WFSelect
         $this->baseURL = NULL;
     }
 
+    function setupExposedBindings()
+    {
+        $myBindings = parent::setupExposedBindings();
+        $newValBinding = new WFBindingSetup('baseURL', 'The href value for the link.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
+
+        return $myBindings;
+    }
+
+    // WFJumpSelect does not push the value back... 
+    function canPushValueBinding()
+    {
+        return false;
+    }
     /**
       * Set the base URL for the WFJumpSelect.
       *
@@ -89,11 +105,12 @@ class WFJumpSelect extends WFSelect
             function __phocoaWFJumpSelectGoto(select)
             {
                 var index;
+                var initialSelection = \'' . $this->value . '\';
 
                 for(index=0; index<select.options.length; index++)
                     if(select.options[index].selected)
                     {
-                        if(select.options[index].value!="")
+                        if(select.options[index].value != initialSelection)
                         {
                             newURL = "' . $this->baseURL . '" + select.options[index].value; 
                             window.location.href = newURL;

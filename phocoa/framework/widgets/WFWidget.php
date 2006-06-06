@@ -549,6 +549,10 @@ abstract class WFWidget extends WFView
       * 
       * If the control is editable, and the subclass does not make use of the built-in value property, then should return FALSE.
       *
+      * NOTE: this callback is used *instead* of the read-only setting of the binding setup for the "value" binding only. This is a special case
+      * for the "value" property of WFWidget so that WFWidget subclasses can easily make themselves read-only without looking for their binding setup and editing
+      * the read-only attribute.
+      *
       * NOTE: contrast this with the {@link WFView::$enabled} setting. The canPushValueBinding setting is an inherent property of the widget class; enabled is a setting
       * that is toggleable at runtime.
       * 

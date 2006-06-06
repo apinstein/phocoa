@@ -79,7 +79,6 @@ class WFSelect extends WFWidget
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();
-        $myBindings[] = new WFBindingSetup('value', 'The selected value for non-multiple select boxes.');
         $myBindings[] = new WFBindingSetup('values', 'The selected values for multiple select boxes.');
         $myBindings[] = new WFBindingSetup('contentValues', 'List of the VALUES of each item in the select box.',
                 array(

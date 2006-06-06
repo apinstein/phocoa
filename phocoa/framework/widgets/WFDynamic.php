@@ -138,8 +138,8 @@ class WFDynamic extends WFWidget
      /*
      * Set whether or not each created widget will have the same name.
      *
-     * If {WFDynamic::$useUniqueNames} is true, all widgets will have this name.
-     * If {WFDynamic::$useUniqueNames} is false, each widget will be named "<basename>_<itemid>".
+     * If {WFDynamic::$useUniqueNames} is true, each widget will be named "<basename>_<itemid>".
+     * If {WFDynamic::$useUniqueNames} is false, all widgets will be named "<basename>".
      * Of course in either case, the ID's will all be uniq, "<basename>_<itemid>".
      *
      * @param boolean TRUE to make each widget have a unique name.
@@ -372,6 +372,16 @@ class WFDynamic extends WFWidget
      */
     function createWidgets()
     {
+        // remove existing widgets from page
+        foreach ($this->createdWidgets as $existingWidget) {
+            WFLog::log("Removing dynamically created widget: " . $existingWidget->id(), WFLog::WARN_LOG);
+            $this->page->removeInstance($existingWidget->id());
+            if ($this->parent)
+            {
+                $this->parent->removeChild($existingWidget);
+            }
+        }
+
         $arrayController = $this->arrayController;
         $widgetClass = $this->widgetClass;
         $widgetBaseName = $this->id;
