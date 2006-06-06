@@ -78,6 +78,7 @@ class WFSubmit extends WFWidget
                     ' id="' . $this->id() . '"' . 
                     ' name="action|' . $this->id() . '"' . 
                     ' value="' . $this->label() . '"' . 
+                    $this->getJSActions() . 
                     '/>';
     }
 
