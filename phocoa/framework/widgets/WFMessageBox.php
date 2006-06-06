@@ -89,7 +89,7 @@ class WFMessageBox extends WFWidget
             return "
 <div style=\"margin: 5px 0; padding: 0;\"><div class=\"phocoaWFMessageBox {$modeClass}\">
 <img class=\"phocoaWFMessageBox_icon\" src=\"{$imgSrc}\" />
-{$this->value}
+<div class=\"phocoaWFMessageBox_message\">{$this->value}</div>
 </div></div>
             ";
         }

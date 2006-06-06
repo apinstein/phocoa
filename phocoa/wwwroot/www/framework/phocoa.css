@@ -56,6 +56,9 @@ div.phocoaWFMessageBox {
     background-color: yellow;
     min-height: 48px;
 }
+div.phocoaWFMessageBox div.phocoaWFMessageBox_message {
+    margin-left: 65px;
+}
 img.phocoaWFMessageBox_icon {
     float: left;
     margin: 0 8px 0 5px;
