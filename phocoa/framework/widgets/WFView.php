@@ -119,6 +119,16 @@ abstract class WFView extends WFObject
     }
 
     /**
+     *  Set the "onBlur" JavaScript code for the view.
+     *
+     *  @param string JavaScript code.
+     */
+    function setJSonBlur($js)
+    {
+        $this->jsActions['onBlur'] = $js;
+    }
+
+    /**
      *  Set the "onClick" JavaScript code for the view.
      *
      *  @param string JavaScript code.

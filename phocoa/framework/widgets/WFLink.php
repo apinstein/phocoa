@@ -32,6 +32,7 @@ class WFLink extends WFWidget
      * @var string The label for the link.
      */
 	protected $label;
+    protected $target;
 
     /**
       * Constructor.
@@ -41,6 +42,7 @@ class WFLink extends WFWidget
         parent::__construct($id, $page);
         $this->class = NULL;
         $this->label = NULL;
+        $this->target = NULL;
     }
 
     function setupExposedBindings()
@@ -72,7 +74,12 @@ class WFLink extends WFWidget
             {
                 $class = " class=\"{$this->class}\" ";
             }
-            return "<a href=\"{$this->value}\" {$class}>{$this->label}</a>";
+            $target = NULL;
+            if ($this->target)
+            {
+                $target = " target=\"{$this->target}\" ";
+            }
+            return "<a href=\"{$this->value}\" {$class}{$target}>{$this->label}</a>";
         }
     }
 

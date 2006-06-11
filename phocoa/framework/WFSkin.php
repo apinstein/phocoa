@@ -159,6 +159,9 @@ define('SKIN_WRAPPER_TYPE_RAW',         2);
   */
 class WFSkin extends WFObject
 {
+    const SKIN_WRAPPER_TYPE_NORMAL  = 0;
+    const SKIN_WRAPPER_TYPE_MINIMAL = 1;
+    const SKIN_WRAPPER_TYPE_RAW     = 2;
     /**
      * @var string The skin delegate name to use for this instance.
      */

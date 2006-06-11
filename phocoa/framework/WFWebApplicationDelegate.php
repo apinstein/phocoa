@@ -16,6 +16,7 @@
  * settings for the application logic itself, NOT deployment configuration that changes between deployment locations (ie DEV, STAGING, PRODUCTION).
  * Deployment configuration settings are in the {@link webapp.conf .conf files}.
  *
+ * @todo Do we need sessionDidStartForFirstTime()?
  */
 class WFWebApplicationDelegate
 {

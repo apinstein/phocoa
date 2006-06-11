@@ -28,6 +28,10 @@ class WFLabel extends WFWidget
      * @var integer Number of chars after which the string should be ellipsised. Default UNLIMITED.
      */
 	protected $ellipsisAfterChars;
+    /**
+     * @var boolean TRUE to convert newlines to html BR entities. False to output string as text.
+     */
+    protected $textAsHTML;
 
     /**
       * Constructor.
@@ -37,6 +41,7 @@ class WFLabel extends WFWidget
         parent::__construct($id, $page);
         $this->value = NULL;
         $this->ellipsisAfterChars = NULL;
+        $this->textAsHTML = false;
     }
 
     function setupExposedBindings()
@@ -57,19 +62,27 @@ class WFLabel extends WFWidget
         }
         else
         {
+            if ($this->textAsHTML)
+            {
+                $text = str_replace("\n", "<br />", $this->value);
+            }
+            else
+            {
+                $text = $this->value;
+            }
         	if ( $this->ellipsisAfterChars == NULL )
         	{
-	            return $this->value;
+	            return $text;
 			}
 			else
 			{
-				if ( strlen( $this->value ) >= $this->ellipsisAfterChars )
+				if ( strlen( $text ) >= $this->ellipsisAfterChars )
 				{
-					return substr($this->value, 0, $this->ellipsisAfterChars) . '...';
+					return substr($text, 0, $this->ellipsisAfterChars) . '...';
 				}
 				else
 				{
-					return $this->value;
+					return $text;
 				}
 			}
         }

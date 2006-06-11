@@ -45,6 +45,17 @@ class WFModuleView extends WFWidget
         $this->targetRootModule = true;
     }
 
+    function setupExposedBindings()
+    {
+        $myBindings = parent::setupExposedBindings();
+        $newValBinding = new WFBindingSetup('invocationPath', 'The invocation path of the module to include.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
+
+        return $myBindings;
+    }
+
     /**
      *  Set the invocationPath that will be used for the module view.
      *
