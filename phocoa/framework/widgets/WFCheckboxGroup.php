@@ -23,6 +23,7 @@
  * In PHOCOA builder, set the value of the "values" property to "#module#checkboxGroupDefaultSelections".
  
  * @todo UPDATE with WFDynamic support a la WFRadioGroup. Actuallym look at both methods (WFSelectionCheckbox vs. WFRadioGroup+WFDynamic) and see if there's any real difference.
+ * @todo HMM.. I think WFCheckboxGroup already works just like WFRadioGroup.... need to check it out and document.
  *       Make the interface consistent for both widget types.
  */
 class WFCheckboxGroup extends WFWidget
