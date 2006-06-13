@@ -33,6 +33,8 @@ WFValueTransformer::setValueTransformerForName(new WFIsNotEmptyTransformer, 'WFI
  *
  * And you will see a nicely formatted list of all available bindings and options.
  *
+ * Formatter support: Using {@link value(), setValue()} will provide automatic formatter support. Generally, the idea is that setValue() will take the passed "raw" value and convert it into the "formatted" value. The {@link $value} member thus should always contain the "formatted" representation if the widget is using a formatter. Conversely, value() will take the "formatted" representation stored internally and turn it back into a "raw" value.
+ *
  * @todo Write a GUI editor to manage .instances and .config, using options from {@link exposedBinding()}. Switch to YAML?
  *
  * Implements:
@@ -154,6 +156,9 @@ abstract class WFWidget extends WFView
 
     /**
       * Get the formatted value for the passed string.
+      *
+      * If there was an error in the formatting, we return NULL as a flag so the caller knows that no value could be determined.
+      *
       * @param string The string from the UI.
       * @return mixed The value from the formatter, if there is one, or the original otherwise.
       */
@@ -167,6 +172,7 @@ abstract class WFWidget extends WFView
             if ($error->errorMessage() or $error->errorCode())
             {
                 $this->addError($error);
+                return NULL;
             }
         }
         return $theValue;

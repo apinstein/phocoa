@@ -19,7 +19,7 @@
  * Formatters should always allow EMPTY values cleanly. If the developer wants to enforce a non-empty value, that should be done via validation.
  *
  * @see WFWidget::setFormatter(), WFWidget::formatter()
- * @todo Should the valueForString() function be able to return NULL without indicating error? Maybe re-work this a bit... use exceptions, or pass-by-reference...
+ * @todo Now that valueForString() can return NULL as a legitimate value, need to look at existing formatters to make sure they're compatible.
  */
 abstract class WFFormatter extends WFObject
 {
@@ -53,11 +53,11 @@ abstract class WFFormatter extends WFObject
     /**
     * Retreive a value for the passed in string.
     *
-    * NOTE: with the current implementation it is not possible to return a "value" of NULL as a legitimate value, since it is currently used as a FLAG for error...
-    * 
+    * Errors on conversion are detected by the presence of an errorMessage or errorCode.
+    *
     * @param string The string value. Each subclass has algorithms for converting to the particular type of object represented.
     * @param object An empty WFError object. Fill out the {@link WFError::setErrorCode()} or the {@link WFError::setErrorMessage()} if there is an error converting.
-    * @return mixed The value represented for a string, or NULL if there was an error in the conversion. If NULL, $error should be filled out.
+    * @return mixed The value represented for a string. If there was an error in converting the string to a value, the return value will be ignored.
     *               For instance, a WFDateFormatter will return a UNIX EPOCH TIME, while a WFNumberFormatter will return float, int, etc.
     */
     abstract function valueForString($string, &$error);
@@ -218,6 +218,7 @@ class WFNumberFormatter extends WFFormatter
     const WFNumberFormatterNoStyle = 'None';
     const WFNumberFormatterDecimalStyle = 'Decimal';
     const WFNumberFormatterCurrencyStyle = 'Currency';
+    const WFNumberFormatterPercentStyle = 'Percent';
     private $style;
 
     private $currencySymbol;
@@ -252,6 +253,10 @@ class WFNumberFormatter extends WFFormatter
     function stringForValue($value)
     {
         switch ($this->style) {
+            case WFNumberFormatter::WFNumberFormatterPercentStyle:
+                if ($value == '') return NULL;
+                return number_format( ($value * 100) , $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep) . '%';
+                break;
             case WFNumberFormatter::WFNumberFormatterNoStyle:
                 if ($value == '') return '';
                 return $value;
@@ -317,6 +322,28 @@ class WFNumberFormatter extends WFFormatter
                     return $string;
                 }
                 break;
+            case WFNumberFormatter::WFNumberFormatterPercentStyle:
+                // clear out the percent symbol
+                $origString = $string;
+                $string = str_replace('%', '', $string);
+                // first check for illegal characters
+                if (preg_match("/[^0-9{$this->decimalPoint}{$this->thousandsSep}]/", $string))
+                {
+                    $error->setErrorMessage("Could not determine number for the string: '$origString' due to invalid characters.");
+                    return NULL;
+                }
+                // normalize string first
+                $string = preg_replace('/[^0-9\.]/', '', trim($string));
+                if ($string != '' and !is_numeric($string))
+                {
+                    $error->setErrorMessage("Could not determine number for the string: '$origString'.");
+                    return NULL;
+                }
+                else
+                {
+                    return ($string / 100);
+                }
+                break;
             default:
                 throw( new Exception("Unsupported WFNumberFormatter style: " . $this->style) );
         }
@@ -350,6 +377,77 @@ class WFNumberFormatter extends WFFormatter
     function setDecimalPoint($char)
     {
         $this->decimalPoint = $char;
+    }
+}
+
+/**
+ * The Boolean formatter converts between boolean values and YES / NO equivalents.
+ */
+class WFBooleanFormatter extends WFFormatter
+{
+    /**
+    * @var string The YES value.
+    */
+    protected $yesValue;
+    /**
+    * @var string The NO value.
+    */
+    protected $noValue;
+
+    function __construct()
+    {
+        parent::__construct();
+        $this->yesValue = 'Yes';
+        $this->noValue = 'No';
+    }
+
+    function stringForValue($value)
+    {
+        if ($value) return $this->yesValue;
+        return $this->noValue;
+    }
+
+    /**
+     * Convert a string value into the boolean equivalent.
+     */
+    function valueForString($string, &$error)
+    {
+        if ($string === NULL) return NULL;
+
+        $string = trim($string);
+        if (strtolower($string) == strtolower($this->yesValue))
+        {
+            return true;
+        }
+        else if (strtolower($string) == strtolower($this->noValue))
+        {
+            return false;
+        }
+        else
+        {
+            $error->setErrorMessage("Could not determine boolean for the string: '$string'. Value must be either '{$this->yesValue}'  or '{$this->noValue}'.");
+            return NULL;
+        }
+    }
+
+    /**
+    * Set the YES value.
+    *
+    * @param string
+    */
+    function setYesValue($s)
+    {
+        $this->yesValue = $s;
+    }
+
+    /**
+    * Set the NO value.
+    *
+    * @param string
+    */
+    function setnoValue($s)
+    {
+        $this->noValue = $s;
     }
 }
 ?>
