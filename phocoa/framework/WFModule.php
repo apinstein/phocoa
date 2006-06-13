@@ -13,11 +13,16 @@
  * The WFModuleInvocation object is a wrapper around WFModule. This allows the modules to be nicely decoupled from the callers. Thus, the http handler
  * can create a WFModuleInvocation based on the URL, while a WFModuleView can create one based on parameters set by a caller.
  *
+ * This is particularly useful for using the module infrastructure to render HTML for emails, etc.
+ *
  * WFModuleInvocation is also used to keep track of "composited" pages. That is, pages can contain arbitrarily nested pages {@link WFModuleView}. This allows easy
  * creation of portal-type environments and promotes re-use of pages as components. Since most reusable components of web pages are more complicated than
  * single widgets (ie WFView or WFWidget subclasses), the ability to use modules as components allows for the creation of re-usable components that
  * harness the power of the Module/Page system. This way, components can use bindings, formatters, GUI builder, etc and thus make it much easier
  * for developers to build re-usable components for their applications.
+ *
+ * The ROOT module always has a skin, and its output will be skinned by default. Sub-modules by default have no skin. Callers may be interested in 
+ * either the module's skin {@link skin()} on the "root" skin {@link rootSkin()} of the module.
  *
  * Developers may still want to develop new {@link WFWidget} and {@link WFView} subclasses, but these should be limited to their appropriate scope, which is
  * non-application specific UI widgets.
@@ -73,6 +78,10 @@ class WFModuleInvocation extends WFObject
      *              unless respondsToForms is set to FALSE, the skin itself will also respond to the search!
      */
     protected $respondsToForms;
+    /**
+      * @var object The {@link WFSkin} object for this invocation. By default, only ROOT invocations will be skinned.
+      */
+    protected $skin;
 
     /**
      *  Constructor used to create a new WFModuleInvocation.
@@ -98,12 +107,59 @@ class WFModuleInvocation extends WFObject
         $this->moduleName = NULL;
         $this->pageName = NULL;
         $this->module = NULL;
+        
+        // set up default skin as needed
+        if ($this->isRootInvocation())
+        {
+            $this->setSkinDelegate(WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
+        }
+        else
+        {
+            $this->skin = NULL;
+        }
 
         $this->respondsToForms = true;  // modules respond to forms by default
+
+        // set up module -- do this here so that we can interact with the module from the caller before execution
+        $this->extractComponentsFromInvocationPath();
     }
 
     /**
-     *  Should this invocation of this module respond to forms?
+     *  get the skin for this module invocation.
+     *
+     *  @return object WFSkin. The WFSkin object for this invocation, or NULL if there is none.
+     */
+    function skin()
+    {
+        return $this->skin;
+    }
+
+    /**
+     *  Get the skin used by the ROOT module of this module hierarchy.
+     *
+     *  @return object WFSkin. The WFSkin object for this invocation's root module, or NULL if there is none.
+     */
+    function rootSkin()
+    {
+        $root = $this->rootInvocation();
+        return $root->skin();
+    }
+
+    /**
+     *  set the skin delegate for this invocation.
+     *
+     *  @param string The name of the skin delegate to use.
+     *  @return object WFSkin The skin object set up with the passed delegate.
+     */
+    function setSkinDelegate($skinDelegate)
+    {
+        $this->skin = new WFSkin();
+        $this->skin->setDelegateName($skinDelegate);
+        return $this->skin;
+    }
+
+    /**
+     *  should this invocation of this module respond to forms?
      *
      *  @return boolean TRUE to respond to the form, FALSE otherwise.
      *  @see WFModuleInvocation::respondsToForms
@@ -136,6 +192,8 @@ class WFModuleInvocation extends WFObject
 
     /**
      *  Get the root invocation for this invocation. This may be the current invocation.
+     *
+     *  Please note that it is possible to have multiple "root" invocations -- this routine just finds the root of the "current" tree.
      *
      *  @return object WFModuleInvocation that is the "root" of this invocation tree.
      */
@@ -272,9 +330,6 @@ class WFModuleInvocation extends WFObject
      */
     function execute()
     {
-        // set up module
-        $this->extractComponentsFromInvocationPath();
-
         if ($this->module()->shouldProfile())
         {
             apd_set_pprof_trace(WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG));
@@ -292,6 +347,13 @@ class WFModuleInvocation extends WFObject
 
         // render
         $html = $this->module->responsePage()->render();
+
+        // skin if necessary
+        if ($this->skin)
+        {
+            $this->skin->setBody($html);
+            $html = $this->skin->render(false);
+        }
 
         return $html;
     }
@@ -554,8 +616,7 @@ abstract class WFModule extends WFObject
             switch ($e->getCode()) {
                 case WFAuthorizationException::TRY_LOGIN:
                     // NOTE: we pass the redir-url base64 encoded b/c otherwise Apache picks out the slashes!!!
-                    header("Location: " . WFRequestController::WFURL('login', 'promptLogin') . '/' . base64_encode(WWW_ROOT . '/' . $this->invocation->invocationPath()));
-                    exit;
+                    $this->doLoginRedirect();
                     break;
                 case WFAuthorizationException::DENY:
                     header("Location: " . WFRequestController::WFURL('login', 'notAuthorized'));
@@ -563,6 +624,15 @@ abstract class WFModule extends WFObject
                     break;
             }
         }
+    }
+
+    /**
+     *  Redirect the current request to the login page such that after successful login, the client is redirected back to this request.
+     */
+    function doLoginRedirect()
+    {
+        header("Location: " . WFRequestController::WFURL('login', 'promptLogin') . '/' . base64_encode(WWW_ROOT . '/' . $this->invocation->invocationPath()));
+        exit;
     }
 
     /**

@@ -11,17 +11,12 @@
 /**
  * The RequestController object is a singleton controller for the entire request-act-respond cycle.
  *
- * Basically, the WFRequestController bootstraps the request into a WFModuleInvocation, executes it, wraps it in a skin, an displays the output.
+ * Basically, the WFRequestController bootstraps the request into a WFModuleInvocation, executes it, and displays the output.
  *
  * It also has a top-level exception catcher for all uncaught exceptions and displays a friendly error message (or an informative one for development machines).
  */
 class WFRequestController extends WFObject
 {
-    /**
-      * @var object The {@link WFSkin} object for the current request. Modules that need to set items on the skin can do so
-      *             by getting the sharedRequestController, getting the skin object, and making changes.
-      */
-    protected $skin;
     /**
      * @var object The root WFModuleInvocation object used for the request.
      */
@@ -29,9 +24,6 @@ class WFRequestController extends WFObject
 
     function __construct()
     {
-        // set up skin
-        $this->skin = new WFSkin();
-        $this->skin->setDelegateName(WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
     }
 
     /**
@@ -65,9 +57,11 @@ class WFRequestController extends WFObject
 
         // display the error and exit
         $body_html = $exceptionPage->render(false);
-        $this->skin->setBody($body_html);
-        $this->skin->setTitle("An error has occurred.");
-        $this->skin->render();
+        $skin = new WFSkin();
+        $skin->setDelegateName(WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
+        $skin->setBody($body_html);
+        $skin->setTitle("An error has occurred.");
+        $skin->render();
         exit;
     }
 
@@ -79,7 +73,7 @@ class WFRequestController extends WFObject
      *
      * Will pass control onto the current module for processing.
      *
-     * Create a WFModuleInvocation based on the current HTTP Request, get the results, skin them, and output the completed web page.
+     * Create a WFModuleInvocation based on the current HTTP Request, get the results, and output the completed web page.
      *
      * @todo Handle 404 situation better -- need to be able to detect this nicely from WFModuleInvocation.. maybe an Exception subclass?
      * @todo PATH_INFO with multiple params, where one is blank, isn't working correctly. IE, /url/a//c gets turned into /url/a/c for PATH_INFO thus we skip a "null" param.
@@ -105,12 +99,8 @@ class WFRequestController extends WFObject
         try {
             $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL);
 
-            // get HTML result of the module
-            $body_html = $this->rootModuleInvocation->execute();
-
-            // display the skin
-            $this->skin->setBody($body_html);
-            $this->skin->render();
+            // get HTML result of the module, and output it
+            print $this->rootModuleInvocation->execute();
         } catch (Exception $e) {
             $this->handleException($e);
         }
@@ -129,10 +119,10 @@ class WFRequestController extends WFObject
     /**
       * Get a reference to this WFRequestController's skin object.
       *
-      * This is useful when a module wants to edit some of the skin configuration:
+      * This is useful when a module wants to edit some of the skin configuration for the current request:
       * Example:
-      * $skin =& WFRequestController::sharedSkin();
-      * $skin->setTemplateType(SKIN_WRAPPER_TYPE_MINIMAL);
+      * $skin = WFRequestController::sharedSkin();
+      * $skin->setTemplateType(WFSkin::SKIN_WRAPPER_TYPE_MINIMAL);
       * $skin->setTitle("Page title");
       *
       * @static
@@ -141,7 +131,8 @@ class WFRequestController extends WFObject
     function sharedSkin()
     {
         $rc = WFRequestController::sharedRequestController();
-        return $rc->skin;
+        $rootInv = $rc->rootModuleInvocation();
+        return $rootInv->skin();
     }
 
     /**

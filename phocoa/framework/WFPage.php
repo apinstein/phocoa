@@ -926,6 +926,9 @@ class WFPage extends WFObject
     function render()
     {
         if (!$this->isResponsePage()) throw( new Exception("Render called on a page that is not the responsePage.") );
+        
+        // there isn't always a skin; only on the ROOT invocation.
+        $skin = $this->module->invocation()->skin();
 
         // ensure that a template object is instantiated
         $this->prepareTemplate();
@@ -933,16 +936,19 @@ class WFPage extends WFObject
         // stuff a copy of the current page in the template...
         $this->template->assign('__page', $this);
         // stuff a copy of the skin in the template...
-        $this->template->assign('__skin', WFRequestController::sharedRequestController()->sharedSkin());
+        $this->template->assign('__skin', $skin);
 
         // pull bound values into all widgets based on bindings.
         $this->pullBindings();
 
-        // let the page set up stuff on the skin
-        $pageSkinSetupMethod = "{$this->pageName}_SetupSkin";
-        if ($this->module->invocation()->isRootInvocation() and method_exists($this->module, $pageSkinSetupMethod))
+        // let the page set up stuff on the skin, IFF there is a skin and a delegate method, and we're the root invocation (which now should be redundant with skin in invocation
+        if ($skin)
         {
-            $this->module->$pageSkinSetupMethod(WFRequestController::sharedRequestController()->sharedSkin());
+            $pageSkinSetupMethod = "{$this->pageName}_SetupSkin";
+            if ($this->module->invocation()->isRootInvocation() and method_exists($this->module, $pageSkinSetupMethod))
+            {
+                $this->module->$pageSkinSetupMethod($skin);
+            }
         }
 
         // return the rendered HTML of the page.
