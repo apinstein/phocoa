@@ -11,6 +11,16 @@
 /**
  * A Submit widget for our framework.
  *
+ * <b>PHOCOA Builder Setup:</b>
+ *
+ * <b>Required:</b><br>
+ * - {@link WFLink::$label label} The label for the button.
+ * - {@link WFLink::$postSubmitLabel postSubmitLabel} The label for the button that will be shown after the button is clicked. Requires JS.
+ * - {@link WFLink::$duplicateSubmitMessage duplicateSubmitMessage} The message that will be displayed if the submit button is pressed more than once. This also prevents duplicate submission.
+ * 
+ * <b>Optional:</b><br>
+ * - {@link WFLink::$class class} The class of the <a> tag.
+ *
  * Bindable Properties:
  *  label       The text value to display.
  */
@@ -28,6 +38,14 @@ class WFSubmit extends WFWidget
      * @var string THe image path to use. By default empty. If non-empty, turns the submit into an image submit.
      */
     protected $imagePath;
+    /**
+     * @var string The message to display if someone presses the button more than once.
+     */
+    protected $duplicateSubmitMessage;
+    /**
+     * @var string The new text for the button once submit is pressed.
+     */
+    protected $postSubmitLabel;
 
     /**
       * Constructor.
@@ -38,6 +56,8 @@ class WFSubmit extends WFWidget
         $this->action = $id;
         $this->label = "Submit";
         $this->imagePath = NULL;
+        $this->duplicateSubmitMessage = NULL;
+        $this->postSubmitLabel = NULL;
     }
 
     function setImagePath($path)
@@ -65,9 +85,45 @@ class WFSubmit extends WFWidget
         return $this->label;
     }
 
+    function setDuplicateMessage($str)
+    {
+        $this->duplicateSubmitMessage = $str;
+    }
+
     function render($blockContent = NULL)
     {
         if ($this->hidden) return NULL;
+
+        // onClick function
+        if ($this->duplicateSubmitMessage or $this->postSubmitLabel)
+        {
+            $duplicateSubmitMessage = ($this->duplicateSubmitMessage ? $this->duplicateSubmitMessage : '');
+            $postSubmitLabel = ($this->postSubmitLabel ? $this->postSubmitLabel : '');
+            $onClickFunc = "
+            <script type=\"text/javascript\">
+            var {$this->id}_isSubmitted = false;
+            function {$this->id}_onClick_handler()
+            {
+                duplicateSubmitMessage = '{$duplicateSubmitMessage}';
+                postSubmitLabel = '{$postSubmitLabel}';
+                btn = document.getElementById('{$this->id}');
+                if ({$this->id}_isSubmitted && duplicateSubmitMessage)
+                {
+                    alert(duplicateSubmitMessage);
+                    return false;
+                }
+                if (postSubmitLabel)
+                {
+                    btn.value = postSubmitLabel;
+                }
+                {$this->id}_isSubmitted = true;
+                return true;
+            }
+            </script>
+            ";
+            $this->page()->module()->invocation()->rootSkin()->addHeadString($onClickFunc);
+            $this->setJSonClick("return {$this->id}_onClick_handler();");
+        }
 
         // get there reference to the named item
         // set the name / value

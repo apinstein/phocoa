@@ -30,9 +30,11 @@
  * - {@link WFImage::$baseDir baseDir}
  * - {@link WFImage::$width width}
  * - {@link WFImage::$height height}
+ * - {@link WFImage::$alt alt}
  * - {@link WFImage::$border border}
  * - {@link WFImage::$align align}
  * - {@link WFImage::$link link}
+ * - {@link WFImage::$linkTarget linkTarget}
  * - {@link WFWidget::$class class}
  */
 class WFImage extends WFWidget
@@ -58,9 +60,17 @@ class WFImage extends WFWidget
       */
     protected $align;
     /**
+      * @var string The HTML alt string. Default "".
+      */
+    protected $alt;
+    /**
       * @var string The url of the link to surround the image with.
       */
     protected $link;
+    /**
+      * @var string The HTML "target" attribute of the link.
+      */
+    protected $linkTarget;
 
     /**
       * Constructor.
@@ -74,6 +84,7 @@ class WFImage extends WFWidget
         $this->border = 'border: 0;';
         $this->align = NULL;
         $this->link = NULL;
+        $this->linkTarget = NULL;
     }
 
     function setupExposedBindings()
@@ -83,6 +94,7 @@ class WFImage extends WFWidget
         $myBindings[] = new WFBindingSetup('baseDir', 'The base path to the image. Blank by default.');
         $myBindings[] = new WFBindingSetup('width', 'The width in pixels of the image, or blank.');
         $myBindings[] = new WFBindingSetup('height', 'The height in pixels of the image, or blank.');
+        $myBindings[] = new WFBindingSetup('alt', 'The alt tag.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
         $newValBinding = new WFBindingSetup('link', 'The url that the image should link to.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
         $newValBinding->setReadOnly(true);
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
@@ -112,6 +124,7 @@ class WFImage extends WFWidget
         else if ($this->height and !$this->width) $this->width = 'auto';
 
         $imgHTML = '<img src="' . $this->baseDir . $this->value . '"' .
+            ($this->alt ? " alt=\"{$this->alt}\"" : '') .
             ($this->align ? " align=\"{$this->align}\"" : '') .
             ($this->class ? " class=\"{$this->class}\"" : '') .
             ' style="' .
@@ -121,7 +134,8 @@ class WFImage extends WFWidget
             '" />';
         if ($this->link)
         {
-            return '<a href="' . $this->link . '">' . $imgHTML . '</a>';
+            $target = ($this->linkTarget ? " target=\"{$this->linkTarget}\"" : '');
+            return '<a href="' . $this->link . '"' . $target . '>' . $imgHTML . '</a>';
         }
         else
         {
