@@ -26,6 +26,10 @@ else
     }
 }
 
+// load the WFWebApplication so that it is initialized() before __autoload() is called for the first time.
+// if we don't do this, classes attempted to autoload from initialized() will cause a fatal error.
+WFWebApplication::sharedWebApplication();
+
 /**
  *  Base autoload handler for PHOCOA. 
  *
