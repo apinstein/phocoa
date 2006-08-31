@@ -679,11 +679,6 @@ class WFPage extends WFObject
             // parse config file - for each instance, see if there is a config setup for that instance ID and apply it.
             $this->loadConfig($configFile);
         }
-        // automatically generate .instances file
-        if (!file_exists($instancesFile) or filemtime($templateFile) > filemtime($instancesFile))
-        {
-            $this->createInstancesFile($templateFile);
-        }
 
         // restore UI state, if this is the requestPage
         // must happen AFTER config is loaded b/c some config options may affect how the widgets interpret the form data.
@@ -889,25 +884,6 @@ class WFPage extends WFObject
         $this->prepareTemplate();
 
         $this->template->assign($name, $value);
-    }
-
-    /**
-     * Create the .instances file dynamically by parsing the .tpl file.
-     * All .instances should be stored in APP_ROOT/runtime/.instances/{$this->module()->moduleName()}/{$this->pageName}.tpl
-     * @todo Automatically create .instances file from .tpl file.
-     * @param string The absolute path to the .tpl file for this page.
-     */
-    function createInstancesFile($templateFile)
-    {
-        return;
-        // read tpl file
-        // look for any tags (WFForm, WFLabel, etc ANYTHING that is a WFWidget subclass)
-        $allSmartyTags = array();
-        $tplSource = file_get_contents($templateFile);
-        preg_match_all("/\{\/?WF[^\}]*}/", $tplSource, $allSmartyTags);
-        // add array entry with class.
-        // if the tag is a block tag (WFForm) then add future items as CHILDREN until we hit {/WFForm}
-        // put all instances files in APP_ROOT/runtime/.instances/<moduleName>/<pageName>.instances
     }
 
     /**
