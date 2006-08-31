@@ -38,7 +38,7 @@ class css extends WFModule
         }
 
         // set the skin's wrapper information
-        $skin =& WFRequestController::sharedSkin();
+        $skin = $this->invocation->rootSkin();
         $skin->setDelegateName($skinTypeName);
         $skin->setSkin($skinName);
         $skin->setTemplateType(SKIN_WRAPPER_TYPE_RAW);

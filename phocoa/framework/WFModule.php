@@ -125,9 +125,12 @@ class WFModuleInvocation extends WFObject
     }
 
     /**
-     *  get the skin for this module invocation.
+     *  Get the skin for this module invocation.
+     *
+     *  This function should be used if you want to know if this module itself has a skin. Contrast with {@link rootSkin()}.
      *
      *  @return object WFSkin. The WFSkin object for this invocation, or NULL if there is none.
+     *  @see rootSkin()
      */
     function skin()
     {
@@ -137,7 +140,10 @@ class WFModuleInvocation extends WFObject
     /**
      *  Get the skin used by the ROOT module of this module hierarchy.
      *
+     *  This function should be used if you want access to the skin that will be wrapping the current page, regardless of where in the module hierarchy the caller is.
+     *
      *  @return object WFSkin. The WFSkin object for this invocation's root module, or NULL if there is none.
+     *  @see skin()
      */
     function rootSkin()
     {
@@ -447,23 +453,6 @@ class WFModuleInvocation extends WFObject
             $this->pageName = $this->module->defaultPage();
         }
         if (empty($this->pageName)) throw( new Exception("No page could be determined. Make sure you are supplying an page in the invocation path or have your module supply a defaultPage.") );
-
-        // was there a form submitted? If so, we need to determine if WE are the target of that form, and if so, override some data
-        // this may not be needed anymore now that the action param pulls its info from the invocation path
-//        if (!empty($_REQUEST['__formName']))
-//        {
-//            if (empty($_REQUEST['__currentModule'])) throw( new Exception("Form submitted contains no __currentModule info.") );
-//
-//            // is this invocation the target of the form?
-//            if ($_REQUEST['__currentModule'] == $this->modulePath)
-//            {
-//                // let page name from FORM override the URL page name; happens when actions change the form.
-//                if (!empty($_REQUEST['__currentPage']))
-//                {
-//                    $this->pageName = $_REQUEST['__currentPage'];
-//                }
-//            }
-//        }
 
         // redirect as needed - this doesn't make sense inside of WFModuleInvocation...
         // of course cannot have invocationParameters from invocationPath unless module and pageName are specified

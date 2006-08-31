@@ -122,19 +122,15 @@ class WFRequestController extends WFObject
     /**
       * Get a reference to this WFRequestController's skin object.
       *
-      * This is useful when a module wants to edit some of the skin configuration for the current request:
-      * Example:
-      * $skin = WFRequestController::sharedSkin();
-      * $skin->setTemplateType(WFSkin::SKIN_WRAPPER_TYPE_MINIMAL);
-      * $skin->setTitle("Page title");
-      *
       * @static
       * @return object A reference to the {@link WFSkin} object.
+      * @deprecated Use $module->rootSkin()
       */
     function sharedSkin()
     {
         $rc = WFRequestController::sharedRequestController();
         $rootInv = $rc->rootModuleInvocation();
+        if (!$rootInv) throw( new Exception("No root invocation, thus no shared skin..") );
         return $rootInv->skin();
     }
 

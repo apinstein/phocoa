@@ -22,7 +22,7 @@ class skininfo extends WFModule
     }
     function previewSkin_PageDidLoad($page, $parameters)
     {
-        $skin = WFRequestController::sharedSkin();
+        $skin = $this->invocation->rootSkin();
         $skin->setDelegateName($parameters['skinTypeName']);
         $skin->setSkin($parameters['skinName'], 'skinName');
         $page->assign('currentSkinType', $skin->delegateName());
@@ -55,7 +55,7 @@ class skininfo extends WFModule
     {
         $skinTypes = WFSkin::installedSkinTypes();
         $page->assign('skinTypes', $skinTypes);
-        $skin = WFRequestController::sharedSkin();
+        $skin = $this->invocation->rootSkin();
         if (!empty($parameters['skinTypeName']))
         {
             $skin->setDelegateName($parameters['skinTypeName']);

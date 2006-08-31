@@ -12,7 +12,7 @@ class widgets extends WFModule
         parent::__construct($invocation);
 
         // can easily set skin parameters for ALL views in this module in the constructor
-        $skin = WFRequestController::sharedSkin();
+        $skin = $this->invocation()->rootSkin();
         $skin->setTitle('PHOCOA Examples');
         $skin->addMetaKeywords(array('example', 'widgets', 'phocoa'));
     }
