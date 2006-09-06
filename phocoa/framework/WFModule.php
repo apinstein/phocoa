@@ -396,6 +396,7 @@ class WFModuleInvocation extends WFObject
                 {
                     $this->pageName = $pathInfoParts[$partsUsedBeforeModule + 1];
                 }
+                // parse out parameter data from URL
                 if (count($pathInfoParts) > 2)
                 {
                     $params = array_slice($pathInfoParts, $partsUsedBeforeModule + 2);
@@ -403,6 +404,10 @@ class WFModuleInvocation extends WFObject
                         if ($v === WFModuleInvocation::PARAMETER_NULL_VALUE)
                         {
                             $params[$k] = NULL;
+                        }
+                        else
+                        {
+                            $params[$k] = urldecode($v);
                         }
                     }
                     $this->invocationParameters = $params;
@@ -762,23 +767,25 @@ abstract class WFModule extends WFObject
         $instancesFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.instances';
         $configFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.config';
 
-        if (!file_exists($instancesFile)) return;
-        $moduleInfo = new ReflectionObject($this);
-        include($instancesFile);
-        foreach ($__instances as $id => $class) {
-            // enforce that the instance variable exists
-            try {
-                $moduleInfo->getProperty($id);
-            } catch (Exception $e) {
-                WFLog::log("shared.instances:: Module '" . get_class($this) . "' does not have property '$id' declared.", WFLog::WARN_LOG);
+        if (file_exists($instancesFile))
+        {
+            $moduleInfo = new ReflectionObject($this);
+            include($instancesFile);
+            foreach ($__instances as $id => $class) {
+                // enforce that the instance variable exists
+                try {
+                    $moduleInfo->getProperty($id);
+                } catch (Exception $e) {
+                    WFLog::log("shared.instances:: Module '" . get_class($this) . "' does not have property '$id' declared.", WFLog::WARN_LOG);
+                }
+
+                // instantiate, keep reference in shared instances
+                $this->__sharedInstances[$id] = $this->$id = new $class;
             }
 
-            // instantiate, keep reference in shared instances
-            $this->__sharedInstances[$id] = $this->$id = new $class;
+            // configure the new instances
+            $this->loadConfig($configFile);
         }
-
-        // configure the new instances
-        $this->loadConfig($configFile);
 
         // call the sharedInstancesDidLoad() callback
         $this->sharedInstancesDidLoad();
