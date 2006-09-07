@@ -164,7 +164,7 @@ class WFIncluding
                 'WFWidget' => 'framework/widgets/WFWidget.php',
                 'WFDieselKeyword' => 'framework/widgets/WFDieselKeyword.php',
                 'WFDieselNav' => 'framework/widgets/WFDieselNav.php',
-                'WFDieselFacet' => 'framework/widgets/WFDieselFacet2.php',
+                'WFDieselFacet' => 'framework/widgets/WFDieselFacet.php',
                 'WFDynarchMenu' => 'framework/widgets/WFDynarchMenu.php',
                 'WFDynamic' => 'framework/widgets/WFDynamic.php',
                 'WFSelectionCheckbox' => 'framework/widgets/WFSelectionCheckbox.php',

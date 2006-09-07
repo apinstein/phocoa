@@ -77,26 +77,27 @@ class WFYUITree extends WFWidget
         }
         else
         {
-            // set up JS stuff
             $yuiPath = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/yui';
-            $skin = $this->page()->module()->invocation()->rootSkin();
-            $skin->addHeadString('<script type="text/javascript" src="' . $yuiPath . '/yahoo/yahoo.js" ></script>');
-            $skin->addHeadString('<script type="text/javascript" src="' . $yuiPath . '/treeview/treeview.js" ></script>');
-            if ($this->dynamicallyLoadData)
-            {
-                $skin->addHeadString('<script type="text/javascript" src="' . $yuiPath . '/dom/dom.js" ></script>');
-                $skin->addHeadString('<script type="text/javascript" src="' . $yuiPath . '/connection/connection.js" ></script>');
-            }
-            $skin->addHeadString('<link rel="stylesheet" type="text/css" href="' . $yuiPath . '/treeview/assets/tree.css" />');
-            
+
             // set up basic HTML
             $html = "<div id=\"{$this->id}\"></div>\n";
             $tv = "treeView_{$this->id}";
             $script = "
 <script type=\"text/javascript\">
 //<![CDATA[
-var {$tv};
-function {$tv}_loadData(node, fnLoadComplete)
+// add js and css needed for this widget
+PHOCOA.importJS('{$yuiPath}/yahoo/yahoo.js');
+PHOCOA.importJS('{$yuiPath}/treeview/treeview.js');
+PHOCOA.importJS('{$yuiPath}/dom/dom.js');
+PHOCOA.importJS('{$yuiPath}/connection/connection.js');
+PHOCOA.importCSS('{$yuiPath}/treeview/assets/tree.css');
+</script>
+
+<script type=\"text/javascript\">
+//<![CDATA[
+
+WFYUITree_{$tv} = {};
+WFYUITree_{$tv}.{$tv}_loadData = function(node, fnLoadComplete)
 {
     var tNode = node;
     var pathParts = new Array();
@@ -109,14 +110,14 @@ function {$tv}_loadData(node, fnLoadComplete)
     path = pathParts.join('|');
     var url = '{$this->dynamicCallback}/' + path;
     var callback = {
-        success: {$tv}_loadDataHandleSuccess,
-        failure: {$tv}_loadDataHandleFailure,
+        success: WFYUITree_{$tv}.{$tv}_loadDataHandleSuccess,
+        failure: WFYUITree_{$tv}.{$tv}_loadDataHandleFailure,
         argument: { loadComplete: fnLoadComplete, node: node }
     };
     var transaction = YAHOO.util.Connect.asyncRequest('GET', url, callback);
 }
 
-function {$tv}_loadDataHandleSuccess(o)
+WFYUITree_{$tv}.{$tv}_loadDataHandleSuccess = function(o)
 {
     // process XML data - this is the only x-browser way I could find since Safari doesn't support XPath yet
     var xml = o.responseXML.documentElement;
@@ -133,14 +134,14 @@ function {$tv}_loadDataHandleSuccess(o)
     o.argument.loadComplete();
 }
 
-function {$tv}_loadDataHandleFailure(o)
+WFYUITree_{$tv}.{$tv}_loadDataHandleFailure = function(o)
 {
     alert('failed to load data');
 }
 
-function {$tv}_treeInit()
+WFYUITree_{$tv}.{$tv}_treeInit = function()
 {
-    {$tv} = new YAHOO.widget.TreeView('{$this->id}');
+    var {$tv} = new YAHOO.widget.TreeView('{$this->id}');
     var root = {$tv}.getRoot();
     var nodes = new Array();
 ";
@@ -188,7 +189,7 @@ function {$tv}_treeInit()
             // add dynamic loader if needed
             if ($this->dynamicallyLoadData)
             {
-                $script .= "{$tv}.setDynamicLoad({$tv}_loadData, 1);\n";
+                $script .= "{$tv}.setDynamicLoad(WFYUITree_{$tv}.{$tv}_loadData, 1);\n";
                 //throw( new WFException("dynamic loading not yet implemented"));
             }
             
@@ -196,7 +197,7 @@ function {$tv}_treeInit()
             $script .= "
     {$tv}.draw();
 }
-{$tv}_treeInit();
+WFYUITree_{$tv}.{$tv}_treeInit();
 //]]>
 </script>";
             // output script

@@ -39,8 +39,6 @@
  *
  * prop_id, type=Item_id, datatype=I    # configure "prop_id" as the item_id for the index items.
  *
- * @todo Add support for relevance ranks. Add a protected var that stores a map of relevance score by item id. Add relevanceScoreForItemId(). Need to use DieselResultSet to get at relevance score.
- * @todo Add support for sorting
  */
 class WFDieselSearch extends WFObject implements WFPagedData
 {
@@ -58,6 +56,9 @@ class WFDieselSearch extends WFObject implements WFPagedData
     protected $simpleQueryMode;
     protected $attributeQueries;
     protected $paginator;
+    protected $showAllOnBlankQuery;
+    protected $searchResultsRelevanceByItemID;
+    protected $loadTheseColumnsFromIndex;
 
     private $finalQueryString;
     private $legalComparatorList = array(
@@ -86,6 +87,25 @@ class WFDieselSearch extends WFObject implements WFPagedData
         $this->index = NULL;
         $this->paginator = NULL;
         $this->dpQueryStateParameterID = 'dpQueryState';
+        $this->showAllOnBlankQuery = true;
+        $this->resultObjectLoaderCallbackPropelMode = false;
+        $this->searchResultsRelevanceByItemID = array();
+        $this->loadTheseColumnsFromIndex = array("item_id");
+    }
+
+    /**
+     *  Set the columns of data to load from the index in the results.
+     *
+     *  Note that "item_id" will be added automatically to the columns of the result set as it is used internally.
+     *
+     *  @param array An array of column names. The column names must exist in the index.
+     *  @throws object Exception If the parameter is invalid.
+     */
+    function setLoadTheseColumnsFromIndex($colsArray)
+    {
+        if (!is_array($colsArray)) throw( new Exception("Column list must be array.") );
+        $allCols = array_merge(array("item_id"), $colsArray);
+        $this->loadTheseColumnsFromIndex = $allCols;
     }
 
     /**
@@ -107,21 +127,48 @@ class WFDieselSearch extends WFObject implements WFPagedData
         return $this->paginator;
     }
 
+    /**
+     *  Callback function for loading the items found by DP.
+     *
+     *  void myFunction( array(WFDieselHit), $sortKeys)
+     *
+     *  The callback should load the objects via setObject() on each WFDieselHit.
+     *
+     *  @param mixed The PHP-style callback function: either function name or array(className, methodName).
+     */
     function setResultObjectLoaderCallback($callbackF)
     {
+        if (!is_callable($callbackF)) throw( new Exception("Callback function is not valid.") );
         $this->resultObjectLoaderCallback = $callbackF;
+        $this->resultObjectLoaderCallbackPropelMode = false;
     }
-    function setResultObjectLoaderCallbackWithPropelPeer($peerName, $method = 'retrieveByPKs')
+
+    /**
+     *  Use a PropelPeer to load the items.
+     *
+     *  This method will use the "doSelect" method of the peer to load the items with the same sort criteria passed into the DP object.
+     *  Therefore, it's important that your "attribute" names in DP match the column names.
+     *
+     *  @param string Peer name.
+     *  @throws object Exception on bad name.
+     */
+    function setResultObjectLoaderCallbackWithPropelPeer($peerName)
     {
+        if ($peerName == NULL)
+        {
+            $this->resultObjectLoaderCallback = NULL;
+            $this->resultObjectLoaderCallbackPropelMode = NULL;
+            return;
+        }
+        
         // check that the callback exists -- with PHOCOA's autoload, we need to check the class explicitly
         if (!class_exists($peerName))
         {
             __autoload($peerName);
             if (!$class_exists($peerName)) throw( new Exception("Callback class '{$peerName}' does not exist.") );
         }
-        if (!is_callable($peerName, $method)) throw( new Exception("Callback method '{$method}' of class '{$peerName}' does not exist.") );
-
-        $this->resultObjectLoaderCallback = array($peerName, $method);
+        $this->resultObjectLoaderCallback = $peerName;
+        $this->resultObjectLoaderCallbackPropelMode = true;
     }
 
     function setIndex($indexPath)
@@ -131,6 +178,9 @@ class WFDieselSearch extends WFObject implements WFPagedData
             java_require(DIESELPOINT_JAR_FILES);
             $Index = new JavaClass("com.dieselpoint.search.Index");
             $this->index = $Index->getInstance($indexPath);
+
+            // prepare searcher
+            $this->prepareSearcher();
         } catch (JavaException $e) {
             $this->handleJavaException($e);
         }
@@ -185,7 +235,6 @@ class WFDieselSearch extends WFObject implements WFPagedData
             return $this->finalQueryString;
         }
 
-        $this->prepareSearcher();
         $dpqlItems = array();
 
         if ($this->simpleQueryString)
@@ -263,7 +312,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
         }
         else
         {
-            $this->finalQueryString = NULL;
+            if ($this->showAllOnBlankQuery)
+            {
+                $this->finalQueryString = 'doctype=xml';
+            }
+            else
+            {
+                $this->finalQueryString = NULL;
+            }
         }
         $this->hasBuiltQuery = true;
         return $this->finalQueryString;
@@ -271,8 +327,29 @@ class WFDieselSearch extends WFObject implements WFPagedData
 
     function addAttributeQuery($attribute, $comparator, $query)
     {
-        if (!in_array($comparator, array('EQ'))) throw( new Exception("Illegal comparator: " . $comparator) );
+        if (!in_array($comparator, array('EQ', 'GT', 'GE', 'LT', 'LE'))) throw( new Exception("Illegal comparator: " . $comparator) );
         $this->attributeQueries[] = "{$comparator}_{$attribute}={$query}";
+        //print "adding {$comparator}_{$attribute}={$query}<BR>";
+    }
+
+    function clearAttributeQueries($attribute)
+    {
+        //print "clearing $attribute";
+        //print_r($this->attributeQueries);
+        $newAttributeQueries = array();
+        foreach ($this->attributeQueries as $q) {
+            $matches = array();
+            if (preg_match('/^([A-Z]{2})_([^=]*)=(.*)$/', $q, $matches) and count($matches) == 4)
+            {
+                $attr = $matches[2];
+                if ($attr != $attribute)
+                {
+                    $newAttributeQueries[] = $q;
+                }
+            }
+        }
+        //print_r($newAttributeQueries);
+        $this->attributeQueries = $newAttributeQueries;
     }
 
     // get a pretty description of the passed attr's navigation description: ie, 100-200, House, etc
@@ -387,21 +464,36 @@ class WFDieselSearch extends WFObject implements WFPagedData
         foreach ($newAttributeQueries as $q) {
             $state[] = $q;
         }
-        return urlencode(join('|',$state));
+        //WFLog::log("done building state: " . print_r($state, true));
+        $rv =  urlencode(join('|',$state));
+        //WFLog::log("called u/j");
+        return $rv;
     }
 
     function resetQueryState()
     {
+        //print "Resetting QS<BR>";
         $this->simpleQueryString = NULL;
         $this->dpqlQueryString = NULL;
         $this->attributeQueries = array();
     }
 
-    function setQueryState($state)
+    /**
+     *  Set the query state to the passed state.
+     *
+     *  @param array The serialized state.
+     *  @param boolean TRUE to reset the query to empty before applying the passed state. If false, simpleQueryString and dpqlQueryString will be replaced
+     *  completely, but the attributeQueries will be additive.
+     */
+    function setQueryState($state, $reset = true)
     {
-        $this->resetQueryState();
+        if ($reset)
+        {
+            $this->resetQueryState();
+        }
 
         $query = urldecode($state);
+        //print "Restoring querystate: $query<BR>";
         $attrQueries = explode('|', $query);
         foreach ($attrQueries as $q) {
             //print "Extracting state from: $q<BR>";
@@ -434,9 +526,13 @@ class WFDieselSearch extends WFObject implements WFPagedData
     {
         if ($this->hasRunQuery()) return;
 
-        $this->prepareSearcher();
+        $this->buildQuery();
         //print "<br>About to query using: '{$this->finalQueryString}'";
         $this->searcher->setQueryString($this->finalQueryString);
+        if ($this->loadTheseColumnsFromIndex)
+        {
+            $this->searcher->addColumns(join(',', $this->loadTheseColumnsFromIndex));
+        }
         $this->searcher->execute();
         // if we have a paginator, we need to update the dpQueryState parameter so that pagination will work on the results.
         if ($this->paginator)
@@ -523,6 +619,25 @@ class WFDieselSearch extends WFObject implements WFPagedData
         }
     }
 
+    function setSort($attrID, $sortDir = NULL)
+    {
+        if ($sortDir)
+        {
+            $this->searcher->setSort($attrID, $sortDir);
+        }
+        else
+        {
+            $this->searcher->setSort($attrID);
+        }
+    }
+
+    /**
+     *  
+     *  @todo Factor out propel loading into self-contained custom callback function.
+     *  @param 
+     *  @return
+     *  @throws
+     */
     function itemsAtIndex($startIndex, $numItems, $sortKeys)
     {
         if ($this->hasQuery())
@@ -534,14 +649,70 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 if ($numItems == WFPaginator::PAGINATOR_PAGESIZE_ALL) throw( new Exception("Paginator page size is set to PAGINATOR_PAGESIZE_ALL when using Dieselpoint. Are you crazy?") );
                 $this->searcher->setNumberOfItemsOnAPage($numItems);
                 $this->searcher->setPageNumber($pageNum - 1);
-                $this->execute();
-                $allIDs = array();
-                foreach ($this->searcher->getItem_ids() as $itemId) {
-                    $allIDs[] = $itemId;
+                // sorting
+                if (count($sortKeys) > 1) throw( new Exception("Only 1-key sorting supported at this time.") );
+                else if (count($sortKeys) == 1)
+                {
+                    $sortKey = $sortKeys[0];
+                    $sortAttr = substr($sortKey, 1);
+                    if (substr($sortKey, 0, 1) == '-')
+                    {
+                        $this->searcher->setSort($sortAttr, -1);
+                    }
+                    else
+                    {
+                        $this->searcher->setSort($sortAttr);
+                    }
                 }
-                if (is_null($this->resultObjectLoaderCallback)) throw( new Exception("No resultObjectLoaderCallback exists. Install one with setResultObjectLoaderCallback or setResultObjectLoaderCallbackWithPropelPeer.") );
-                $objectsOnPage = call_user_func($this->resultObjectLoaderCallback, $allIDs);    // more efficient to grab all items in a single query
-                return $objectsOnPage;
+                // run search
+                $this->execute();
+                $allHits = array();
+                $allIDs = array();
+                $rs = $this->searcher->getResultSet();
+                if (!$rs) throw( new Exception("Invalid ResultSet returned.") );
+                while ($rs->next()) {
+                    $itemID = (string) $rs->getString(1);   // use (string) to force conversino from java bridge string object to native PHP tpe
+                    $allIDs[] = $itemID;
+                    $hit = new WFDieselHit($itemID, (string) $rs->getRelevanceScore());
+                    // load custom data
+                    for ($i = 1; $i < count($this->loadTheseColumnsFromIndex); $i++) {
+                        $hit->addData($this->loadTheseColumnsFromIndex[$i], (string) $rs->getString($i + 1));
+                    }
+                    $allHits[] = $hit;
+                }
+                
+                // we support three main ways to load the matching objects; Propel-backed, custom callbacks, and none (just returns the WFDieselHit arrays -- but still can load data from index)
+                if ($this->resultObjectLoaderCallbackPropelMode)
+                {
+                    // For propel-backed object loading, we need to use doSelect so we can preserve sorting.
+                    
+                    // determine primary key
+                    $c = new Criteria;
+                    $c->add($this->getPrimaryKeyColumnFromPropelPeer($this->resultObjectLoaderCallback), $allIDs, Criteria::IN);
+                    $tableName = eval( "return {$this->resultObjectLoaderCallback}::TABLE_NAME;" );
+                    foreach ($sortKeys as $sortKey) {
+                        $sortAttr = substr($sortKey, 1);
+                        if (substr($sortKey, 0, 1) == '-')
+                        {
+                            $c->addDescendingOrderByColumn($tableName . '.' . $sortAttr);
+                        }
+                        else
+                        {
+                            $c->addAscendingOrderByColumn($tableName . '.' . $sortAttr);
+                        }
+                    }
+                    $propelObjects = call_user_func(array($this->resultObjectLoaderCallback, "doSelect"), $c);    // more efficient to grab all items in a single query
+                    // map the propel objects back into the WFDieselHit's.
+                    for ($i = 0; $i < count($allHits); $i++) {
+                        $allHits[$i]->setObject($propelObjects[$i]);
+                    }
+                }
+                else if ($this->resultObjectLoaderCallback)
+                {
+                    // for custom mode, pass info on to callback and let it load up objects.
+                    call_user_func($this->resultObjectLoaderCallback, $allHits, $sortKeys);
+                }
+                return $allHits;
             } catch (JavaException $e) {
                 $this->handleJavaException($e);
             }
@@ -551,6 +722,103 @@ class WFDieselSearch extends WFObject implements WFPagedData
             return array();
         }
     }
+
+    /**
+     *  Get the primary key column name suitable for criteria for the given peer.
+     *
+     *  NOTE: only works for tables with a SINGLE primary key.
+     * 
+     *  @param string The peer name.
+     *  @return string The Criteria-compatible PK specifier.
+     *  @throws object Exception On error.
+     */
+    private function getPrimaryKeyColumnFromPropelPeer($peerName)
+    {
+        $dbName = eval( "return {$peerName}::DATABASE_NAME;" );
+        $tableName = eval( "return {$peerName}::TABLE_NAME;" );
+        $dbMap = Propel::getDatabaseMap($dbName);
+        if ($dbMap === null) {
+            throw new PropelException("\$dbMap is null");
+        }
+        
+        if ($dbMap->getTable($tableName) === null) {
+            throw new PropelException("\$dbMap->getTable() is null");
+        }
+        
+        $columns = $dbMap->getTable($tableName)->getColumns();
+        foreach(array_keys($columns) as $key) { 
+            if ($columns[$key]->isPrimaryKey()) {
+                $pkCol = $columns[$key];
+                break;
+            }
+        }
+
+        $criteriaSpecifier = $tableName . '.' . $pkCol->getColumnName();
+        return $criteriaSpecifier;
+    }
 }
 
+
+class WFDieselHit extends WFObject
+{
+    protected $relevanceScore;
+    protected $itemID;
+    /**
+     * @var mixed The object var is a placeholder for callbacks to put "objects" that map to the itemID into the WFDieselHit.
+     */
+    protected $object;
+    /**
+     * @var array An assoc-array of all data loaded from the index: "colName" => "value"
+     */
+    protected $data;
+
+    function __construct($itemID, $relevanceScore = NULL, $object = NULL)
+    {
+        $this->itemID = $itemID;
+        $this->relevanceScore = ($relevanceScore ? $relevanceScore : NULL);
+        $this->object = $object;
+        $this->data = array();
+    }
+
+    function addData($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+
+    function getData()
+    {
+        return $this->data;
+    }
+    
+    function getDataForCol($col)
+    {
+        if (!isset($this->data[$col])) throw( new Exception("Col: '$col' doesn't exist.") );
+        return $this->data[$col];
+    }
+
+    function setObject($o)
+    {
+        $this->object = $o;
+    }
+    function object()
+    {
+        return $this->object;
+    }
+
+    function relevanceScore()
+    {
+        return $this->relevanceScore;
+    }
+
+    function relevancePercent()
+    {
+        if ($this->relevanceScore == 0) return NULL;
+        return number_format($this->relevanceScore * 100, 0) . "%";
+    }
+
+    function itemID()
+    {
+        return $this->itemID;
+    }
+}
 ?>
