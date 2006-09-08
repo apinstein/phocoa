@@ -92,9 +92,10 @@ class WFModuleInvocation extends WFObject
      *  @param string The invocationPath for the module. The invocationPath is basically a way to specify the module to run, along with parameters.
      *                Example: path/to/my/module/pageName/param1/param2/paramN
      *  @param object WFModuleInvocation The parent WFModuleInvocation that is creating this invocation, or NULL if this is the root invocation.
+     *  @param string The name of the skin delegate to use. Default is NULL (no skin).
      *  @throws Various errors if the module could not be identified.
      */
-    function __construct($invocationPath, $parentInvocation)
+    function __construct($invocationPath, $parentInvocation, $skinDelegate = NULL)
     {
         parent::__construct();
 
@@ -109,9 +110,9 @@ class WFModuleInvocation extends WFObject
         $this->module = NULL;
         
         // set up default skin as needed
-        if ($this->isRootInvocation())
+        if ($this->isRootInvocation() and !is_null($skinDelegate))
         {
-            $this->setSkinDelegate(WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
+            $this->setSkinDelegate($skinDelegate);
         }
         else
         {

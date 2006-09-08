@@ -53,7 +53,7 @@ WFSession - still needs to be designed. The current design sucks.
 
 The page cycle is still really tricky... look at this further... ideas:
 1) Do we need a callback for "noaction?" or is "if ($page->hasSubmittedForm())" good enough inside of _PageDidLoad?
-2) Do we need more hooks? Do things happen in the right order? The way things are created, restored, etc, seems fragile. Lots of hacking occuring to make it work.
+2) Do we need more hooks? Do things happen in the right order? The way things are created, restored, etc, seems fragile. Light hacking occuring to make it work in some situations.
 
 ARCHITECTURAL THINGS TO INVESTIGATE
 Use of FilterIterator as predicate searching.
@@ -119,7 +119,7 @@ cd to webframework
 ctags -R
 
 Generating PHPDoc
-cd to webframework
+cd to phocoa 
 phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" -o HTML:frames:default --ignore test/ -d framework -f "smarty/plugins/*" -f "conf/webapp.conf"
 
 PROPEL

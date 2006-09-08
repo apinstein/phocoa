@@ -73,6 +73,8 @@ class module_tree extends WFModule
     function tree_SetupSkin($skin)
     {
         $skin->setTitle('YUI Tree View Example');
+        $skin->addHeadString('<script type="text/javascript" src="' . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/prototype.js"></script>');
+        $skin->addHeadString('<script type="text/javascript" src="' . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/phocoa.js"></script>');
     }
 }
 ?>
