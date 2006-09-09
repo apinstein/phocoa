@@ -266,7 +266,8 @@ class WFDieselFacet extends WFWidget
             {
                 if ($this->treeDataPath)
                 {
-                    $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $this->treeDataPath);
+                    $treeRootPath = ($this->treeRoot ? $this->treeRoot . "\t" . $this->treeDataPath : $this->treeDataPath);
+                    $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $treeRootPath);
                 }
                 else
                 {
