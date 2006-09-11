@@ -47,6 +47,15 @@ class WFDieselKeyword extends WFWidget
         }
     }
 
+    function isKeywordQuery()
+    {
+        if ($this->dieselSearch->getSimpleQuery())
+        {
+            return true;
+        }
+        return false;
+    }
+
     function facetSelectionHTML()
     {
         if ($this->dieselSearch->getSimpleQuery())

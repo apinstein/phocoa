@@ -186,7 +186,7 @@ class WFDieselNav extends WFWidget
                     // only show up to max facets; the rest go in the "more" list
                     if ($renderedCount >= $this->maxFacetsToShow)
                     {
-                        $moreChoicesListIDs[] = $id;
+                        $moreChoicesListIDs[$id] = true;
                         continue;
                     }
 
@@ -211,7 +211,7 @@ class WFDieselNav extends WFWidget
                     // only show up to max facets; the rest go in the "more" list
                     if ($renderedCount >= $this->maxFacetsToShow)
                     {
-                        $moreChoicesListIDs[] = $id;
+                        $moreChoicesListIDs[$id] = true;
                         continue;
                     }
 
@@ -230,7 +230,7 @@ class WFDieselNav extends WFWidget
             {
                 $html .= "<div class=\"phocoaWFDieselNav_MoreChoices\"><b>More Choices:</b>\n";
                 $first = true;
-                foreach ($moreChoicesListIDs as $id) {
+                foreach ($moreChoicesListIDs as $id => $nothing) {
                     if (isset($facetNavsByID[$id]))
                     {
                         $facetNav = $facetNavsByID[$id];
