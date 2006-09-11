@@ -78,3 +78,10 @@ div.phocoaWFMessageBox_Error {
 div.phocoaWFMessageBox_Confirm {
     border: 2px solid orange;
 }
+
+.phocoaWFDieselNav_MoreChoices a {
+    text-decoration: none;
+}
+.phocoaWFDieselNav_MoreChoices a:hover {
+    text-decoration: underline;
+}

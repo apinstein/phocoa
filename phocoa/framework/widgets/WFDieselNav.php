@@ -228,7 +228,7 @@ class WFDieselNav extends WFWidget
 
             if (count($moreChoicesListIDs))
             {
-                $html .= "<div><b>More Choices:</b><br />\n";
+                $html .= "<div class=\"phocoaWFDieselNav_MoreChoices\"><b>More Choices:</b>\n";
                 $first = true;
                 foreach ($moreChoicesListIDs as $id) {
                     if (isset($facetNavsByID[$id]))
@@ -237,7 +237,7 @@ class WFDieselNav extends WFWidget
                         if (!($facetNav instanceof WFDieselFacet)) continue;    // display only facets; skip keyword query
                         if (!$first)
                         {
-                            $html .= "&nbsp;&nbsp;|&nbsp;&nbsp;";
+                            $html .= ", ";
                         }
                         $html .= $facetNav->editFacetLink($facetNav->label());
                     }
