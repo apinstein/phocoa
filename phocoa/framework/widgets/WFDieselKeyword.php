@@ -10,6 +10,10 @@
 
 /**
  * A Dieselpoint Keyword search widget for our framework.
+ *
+ * NOTE: by default, whenever a keyword is entered (see {@link WFDieselpoint::setSimpleQuery() setSimpleQuery}, the 
+ * default sort will be set to sort by relevance instead of whatever the existing default is. Of course
+ * this can be overridden with the Paginator Sort controls.
  */
 class WFDieselKeyword extends WFWidget
 {

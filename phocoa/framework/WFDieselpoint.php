@@ -44,6 +44,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
 {
     const QUERY_STATE_SIMPLE_QUERY_ATTR_NAME = 'simpleQuery';
     const QUERY_STATE_DPQL_QUERY_ATTR_NAME = 'dpqlQuery';
+    const SORT_BY_RELEVANCE = '-relevance';
     protected $index;
     protected $searcher;
     protected $resultObjectLoaderCallback;
@@ -481,6 +482,11 @@ class WFDieselSearch extends WFObject implements WFPagedData
     /**
      *  Set the query state to the passed state.
      *
+     *  NOTE: if you are using WFDieselSearch with a paginator, and you get errors about "relevance" not being a
+     *  sort option when restoring state with setQueryState, make sure that you call setQueryState BEFORE
+     *  you call readPaginatorStateFromParams, as setQueryState will add the "relevance" sort option if the
+     *  query state includes a simpleQuery.
+     *
      *  @param array The serialized state.
      *  @param boolean TRUE to reset the query to empty before applying the passed state. If false, simpleQueryString and dpqlQueryString will be replaced
      *  completely, but the attributeQueries will be additive.
@@ -500,7 +506,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
             if (strncmp($q, WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME, strlen(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME)) == 0)
             {
                 //print "Extracting simpleQuery<BR>";
-                $this->simpleQueryString = substr($q, strlen(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME) + 1);
+                $this->setSimpleQuery(substr($q, strlen(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME) + 1));
             }
             else if (strncmp($q, WFDieselSearch::QUERY_STATE_DPQL_QUERY_ATTR_NAME, strlen(WFDieselSearch::QUERY_STATE_DPQL_QUERY_ATTR_NAME)) == 0)
             {
@@ -558,8 +564,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
 
     function setSimpleQuery($string, $mode = "any")
     {
-        $this->simpleQueryString = $string;
+        $this->simpleQueryString = trim($string);
         $this->simpleQueryMode = $mode;
+        // change the default sort to "relevance" sorting when there's a keyword query
+        if ($this->simpleQueryString and $this->paginator)
+        {
+            $this->paginator->setDefaultSortKeys(array(WFDieselSearch::SORT_BY_RELEVANCE));
+            $this->paginator->addSortOption(WFDieselSearch::SORT_BY_RELEVANCE, 'Relevance');
+        }
     }
     function getSimpleQuery()
     {
@@ -631,6 +643,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
         }
     }
 
+    function isRelevanceSort()
+    {
+        $sortAttr = (string) $this->searcher->getSort();
+        if (!$sortAttr) return true;
+        if ($sortAttr == substr(WFDieselSearch::SORT_BY_RELEVANCE, 0, 1)) return true;
+        return false;
+    }
+
     /**
      *  
      *  @todo Factor out propel loading into self-contained custom callback function.
@@ -649,7 +669,17 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 if ($numItems == WFPaginator::PAGINATOR_PAGESIZE_ALL) throw( new Exception("Paginator page size is set to PAGINATOR_PAGESIZE_ALL when using Dieselpoint. Are you crazy?") );
                 $this->searcher->setNumberOfItemsOnAPage($numItems);
                 $this->searcher->setPageNumber($pageNum - 1);
+                
                 // sorting
+                // remove the SORT_BY_RELEVANCE sortKey -- relevance sorting is triggered by the ABSENCE of a "setSort" call
+                $sortKeysToUse = array();
+                foreach ($sortKeys as $key) {
+                    if ($key != WFDieselSearch::SORT_BY_RELEVANCE)
+                    {
+                        $sortKeysToUse[] = $key;
+                    }
+                }
+                $sortKeys = $sortKeysToUse;
                 if (count($sortKeys) > 1) throw( new Exception("Only 1-key sorting supported at this time.") );
                 else if (count($sortKeys) == 1)
                 {
@@ -671,7 +701,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 $rs = $this->searcher->getResultSet();
                 if (!$rs) throw( new Exception("Invalid ResultSet returned.") );
                 while ($rs->next()) {
-                    $itemID = (string) $rs->getString(1);   // use (string) to force conversino from java bridge string object to native PHP tpe
+                    $itemID = (string) $rs->getString(1);   // use (string) to force conversion from java bridge string object to native PHP tpe
                     $allIDs[] = $itemID;
                     $hit = new WFDieselHit($itemID, (string) $rs->getRelevanceScore());
                     // load custom data
