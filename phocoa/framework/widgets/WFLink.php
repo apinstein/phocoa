@@ -19,6 +19,7 @@
  * 
  * <b>Optional:</b><br>
  * - {@link WFLink::$class class} The class of the <a> tag.
+ * - {@link WFLink::$title title} The title for the link. Supports ValuePattern binding.
  *
  * @todo Do we need a way to specify a module/page for creating links dynamically? Either a parseable syntax in the "value" field or additional properties?
  */
@@ -29,9 +30,16 @@ class WFLink extends WFWidget
      */
 	protected $class;
     /**
-     * @var string The label for the link.
+     * @var string The label for the link. The label is what the viewer sees as the link text.
      */
 	protected $label;
+    /**
+     * @var string The HTML title for the link. The title is often rendered as a "tooltip" by browsers.
+     */
+    protected $title;
+    /**
+     * @var string The HTML target for the link. Example: _blank, _self, _top etc.
+     */
     protected $target;
 
     /**
@@ -43,6 +51,7 @@ class WFLink extends WFWidget
         $this->class = NULL;
         $this->label = NULL;
         $this->target = NULL;
+        $this->title = NULL;
     }
 
     function setupExposedBindings()
@@ -53,7 +62,12 @@ class WFLink extends WFWidget
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $myBindings[] = $newValBinding;
 
-        $newValBinding = new WFBindingSetup('label', 'The label for the link.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding = new WFBindingSetup('label', 'The label for the link. The label is what the viewer sees as the link text.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
+
+        $newValBinding = new WFBindingSetup('title', 'The title for the link. The title is often rendered as a "tooltip" by browsers.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
         $newValBinding->setReadOnly(true);
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $myBindings[] = $newValBinding;
@@ -80,7 +94,8 @@ class WFLink extends WFWidget
                 $target = " target=\"{$this->target}\" ";
             }
             $label = ($this->label ? $this->label : $this->value);
-            return "<a href=\"{$this->value}\" {$class}{$target}>{$label}</a>";
+            $title = ($this->title ? " title=\"{$this->title}\" " : NULL);
+            return "<a href=\"{$this->value}\" {$class}{$target}{$title}>{$label}</a>";
         }
     }
 
