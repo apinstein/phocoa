@@ -42,6 +42,8 @@ class WFDieselFacet extends WFWidget
     const STYLE_MENU = 'menu';
     const STYLE_TREE = 'tree';
 
+    const UNLIMITED_ROWS = 1000;
+
     protected $isPopup;
     protected $popupSelections;
     
@@ -104,7 +106,9 @@ class WFDieselFacet extends WFWidget
      * @var integer Number of chars after which the facet value string should be ellipsised. Default 0 (UNLIMITED).
      */
 	protected $ellipsisAfterChars;
-
+    /**
+     * @var string For ajax callback of tree data... the path to the tree node whose kids need to be returned.
+     */
     protected $treeDataPath;
     protected $isTaxonomyAttribute;
     protected $width;
@@ -119,7 +123,7 @@ class WFDieselFacet extends WFWidget
         $this->rangeCount = 0;
         $Integer = new JavaClass('java.lang.Integer');
         $this->maxHits = $Integer->MAX_VALUE;
-        $this->maxRows = -1;            // unlimited by default
+        $this->maxRows = WFDieselFacet::UNLIMITED_ROWS;            // unlimited by default
         $this->showItemCounts = true;
         $this->label = NULL;
         $this->sortByFrequency = true;
@@ -152,7 +156,7 @@ class WFDieselFacet extends WFWidget
     function setIsPopup($b)
     {
         $this->isPopup = $b;
-        $this->maxRows = -1;
+        $this->maxRows = WFDieselFacet::UNLIMITED_ROWS;
         $this->sortByFrequency = false;
     }
 
@@ -336,16 +340,17 @@ class WFDieselFacet extends WFWidget
 
             // output facet nav
             try {
+                $Array = new JavaClass("java.lang.reflect.Array");
+
                 $facets = $this->prepareFacets();
                 if (gettype($facets) == 'array')
                 {
                     // need to fall through if facets is a php array (this is what we get if there are no kids)
                     // maybe need to return null if not in "send child data" mode?
                 }
-                else
+                else if ($Array->getLength($facets) == 0)
                 {
-                    $Array = new JavaClass("java.lang.reflect.Array");
-                    if ($Array->getLength($facets) == 0) return NULL;
+                    return NULL;
                 }
 
                 // sanity check
@@ -391,6 +396,14 @@ class WFDieselFacet extends WFWidget
                     default:
                         foreach ($facets as $facet) {
                             $html .= $this->facetHTML($facet);
+                        }
+                        if ($this->maxRows != WFDieselFacet::UNLIMITED_ROWS and $Array->getLength($facets) == $this->maxRows)
+                        {
+                            $html .= $this->editFacetLink('More...', $this->class);
+                        }
+                        else if ($this->maxRows == WFDieselFacet::UNLIMITED_ROWS and $Array->getLength($facets) == $this->maxRows)
+                        {
+                            $html .= "<p>There are too many choices to dislpay at this time. Please narrow your search by other criteria and try again.</p>";
                         }
                         break;
                 }
@@ -447,9 +460,13 @@ class WFDieselFacet extends WFWidget
         return "<a href=\"" . $this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID()) . "\">{$linkText}</a>";
     }
 
-    function editFacetLink($linkText = "Edit")
+    function editFacetLink($linkText = "Edit", $class = NULL)
     {
-        return "<a href=\"#\" onClick=\"doPopup('" . $this->id() . "', '" . $this->dieselSearch->getQueryState($this->attributeID()) . "', '" . addslashes($this->dieselSearch->getAttributeSelection($this->attributeID())) . "');\">{$linkText}</a>";
+        if ($class)
+        {
+            $class = " class=\"{$class}\" ";
+        }
+        return "<a href=\"#\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . $this->dieselSearch->getQueryState($this->attributeID()) . "', '" . addslashes($this->dieselSearch->getAttributeSelection($this->attributeID())) . "');\">{$linkText}</a>";
     }
 
     private function facetMenuHTML($facets)
@@ -623,7 +640,7 @@ class WFDieselFacet extends WFWidget
             $label = substr($label, 0, $this->ellipsisAfterChars) . '...';
         }
 
-        if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE))
+        if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE) and !$this->fakeOpenEndedRange)
         {
             $selected = $this->popupAttributeValueIsSelected((string) $attributeValue);
             $html .= "<span {$classHTML}><input type=\"checkbox\" name=\"{$this->name}[]\" value=\"{$attributeValue}\" id=\"{$this->id}_{$attributeValue}\" " . ($selected == true ? 'checked="checked"' : '') . "/><label for=\"{$this->id}_{$attributeValue}\">{$label}</label>";
