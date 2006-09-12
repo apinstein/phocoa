@@ -19,7 +19,7 @@
  * - {@link WFPaginatorNavigation::$paginator Paginator}
  * 
  * <b>Optional:</b><br>
- * - {@link WFPaginatorNavigation::$maxJumpPagesToShow}
+ * - {@link WFPaginatorNavigation::$maxJumpPagesToShow maxJumpPagesToShow}
  *
  * @todo Make sure that the pagination links work properly when this widget is in a composited view. Not sure how the params will work from __construct etc... 
  */
@@ -79,7 +79,7 @@ class WFPaginatorNavigation extends WFWidget
             if ($this->paginator->pageCount() > 1 and $this->maxJumpPagesToShow != 0)
             {
                 $firstJumpPage = max(1, $this->paginator->currentPage() - (floor($this->maxJumpPagesToShow / 2)));
-                $lastJumpPage = min($firstJumpPage + $this->maxJumpPagesToShow, $this->paginator->pageCount());
+                $lastJumpPage = min($firstJumpPage + ($this->maxJumpPagesToShow - 1), $this->paginator->pageCount());
                 $output .= " [ Jump to: ";
                 if ($firstJumpPage != 1)
                 {
@@ -121,7 +121,7 @@ class WFPaginatorNavigation extends WFWidget
             if ($this->paginator->pageCount() > 1 and $this->maxJumpPagesToShow != 0)
             {
                 $firstJumpPage = max(1, $this->paginator->currentPage() - (floor($this->maxJumpPagesToShow / 2)));
-                $lastJumpPage = min($firstJumpPage + $this->maxJumpPagesToShow, $this->paginator->pageCount());
+                $lastJumpPage = min($firstJumpPage + ($this->maxJumpPagesToShow - 1), $this->paginator->pageCount());
                 $output .= " [ Jump to: ";
                 if ($firstJumpPage != 1)
                 {
