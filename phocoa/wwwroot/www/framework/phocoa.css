@@ -79,9 +79,27 @@ div.phocoaWFMessageBox_Confirm {
     border: 2px solid orange;
 }
 
-.phocoaWFDieselNav_MoreChoices a {
+div.phocoaWFDieselNav_FilterInfo {
+    border: 1px solid black;
+    font-size: 13px;
+    margin: 5px;
+    padding: 8px;
+    height: 45px;
+    float: left;
+    width: auto;
+}
+div.phocoaWFDieselNav_Popup {
+    border: 1px solid black;
+    width: 500px;
+    height: 500px;
+    overflow: auto;
+    position: absolute;
+    background: white;
+    z-index: 10000;
+}
+div.phocoaWFDieselNav_MoreChoices a {
     text-decoration: none;
 }
-.phocoaWFDieselNav_MoreChoices a:hover {
+div.phocoaWFDieselNav_MoreChoices a:hover {
     text-decoration: underline;
 }
