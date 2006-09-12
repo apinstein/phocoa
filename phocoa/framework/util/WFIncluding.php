@@ -189,6 +189,7 @@ class WFIncluding
                 'WFUpload' => 'framework/widgets/WFUpload.php',
                 'WFPaginatorNavigation' => 'framework/widgets/WFPaginatorNavigation.php',
                 'WFPaginatorSortLink' => 'framework/widgets/WFPaginatorSortLink.php',
+                'WFPaginatorSortSelect' => 'framework/widgets/WFPaginatorSortSelect.php',
                 'WFPaginatorState' => 'framework/widgets/WFPaginatorState.php',
                 'WFModuleView' => 'framework/widgets/WFModuleView.php',
                 'WFTabView' => 'framework/widgets/WFTabView.php',

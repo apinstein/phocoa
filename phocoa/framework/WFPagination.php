@@ -192,6 +192,11 @@ class WFPaginator extends WFObject
         // assert params
         if (!($page instanceof WFPage)) throw( new Exception("Invalid page parameter.") );
         if (empty($paginatorState)) throw( new Exception("PaginatorState is empty.") );
+        // check mode
+        if (!($this->mode() == WFPaginator::MODE_URL)) throw( new Exception("urlForPaginatorState only valid for MODE_URL paginators.") );
+
+        // make paginatorState URL-safe
+        $paginatorState = str_replace('+', '%2B', $paginatorState);
         
         $params = $page->parameters();
         $module = $page->module();
@@ -288,6 +293,18 @@ class WFPaginator extends WFObject
     {
         if (!is_array($opts)) throw( new Exception("Sort options must be an array.") );
         $this->sortOptions = $opts;
+    }
+
+    /**
+     *  Add a sort option to the existing sort options.
+     *
+     *  @param string The sortKey of the option.
+     *                IMPORTANT: WFPaginator expects sort keys to be named +sortKey and -sortKey to indicate ascending or descending sort.
+     *  @param string The display name for the sort option.
+     */
+    function addSortOption($sortKey, $displayName)
+    {
+        $this->sortOptions[$sortKey] = $displayName;
     }
 
     /**
