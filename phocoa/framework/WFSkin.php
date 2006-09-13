@@ -327,7 +327,8 @@ class WFSkin extends WFObject
      */
     function addHeadString($string)
     {
-        $this->headStrings[] = $string;
+        // de-duplicate
+        $this->headStrings[$string] = $string;
     }
 
     /**
@@ -407,7 +408,7 @@ class WFSkin extends WFObject
         $smarty->assign('skinMetaKeywords', join(',', $this->metaKeywords));
         $smarty->assign('skinMetaDescription', $this->metaDescription);
         $smarty->assign('skinBody', $this->body);
-        $smarty->assign('skinHeadStrings', join("\n", $this->headStrings));
+        $smarty->assign('skinHeadStrings', join("\n", array_values($this->headStrings)));
 
         // set up shared directory URLs
         $smarty->assign('skinDir', $this->getSkinDir() );
