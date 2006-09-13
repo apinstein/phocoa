@@ -38,3 +38,33 @@ PHOCOA.importCSS = function(path) {
     newCSS.setAttribute('href', path);
     document.getElementsByTagName('head')[0].appendChild(newCSS);
 }
+
+// set up the runtime - this is the interface that you use to access objects added by phocoa from individual pages
+PHOCOA.runtime = PHOCOA.runtime || {};
+
+PHOCOA.runtime.addObject = function(o)
+{
+    // object list
+    if (!PHOCOA.runtime.objectList)
+    {
+        PHOCOA.runtime.objectList = {};
+    }
+
+    if (PHOCOA.runtime.objectList[o.id])
+    {
+        alert('error - cannot add duplicate object: ' + o.id);
+        return;
+    }
+    PHOCOA.runtime.objectList[o.id] = o;
+}
+
+PHOCOA.runtime.getObject = function(id)
+{
+    var o = null;
+    if (PHOCOA.runtime.objectList[id])
+    {
+        o = PHOCOA.runtime.objectList[id];
+    }
+    return o;
+}
+
