@@ -373,11 +373,11 @@ class WFDieselFacet extends WFWidget
                         break;
                     case WFDieselFacet::STYLE_TREE:
                         // set up "root" YUITree
-                        $tree = new WFYUITree('tree_' . $this->id(), $this->page);
+                        $tree = new WFYAHOO_widget_TreeView('tree_' . $this->id(), $this->page);
                         $items = array();
                         foreach ($facets as $facet) {
                             $label = str_replace("\n", '', $this->facetHTML($facet));
-                            $item = new WFYUITreeNode( (string) $facet->getAttributeValue(), $label);
+                            $item = new WFYAHOO_widget_TreeViewNode( (string) $facet->getAttributeValue(), $label);
                             $items[] = $item;
                         }
                         $tree->setValue($items);
@@ -385,7 +385,7 @@ class WFDieselFacet extends WFWidget
                         if ($this->treeDataPath)
                         {
                             // ajax callback -- send data
-                            WFYUITree::sendTree($items);
+                            WFYAHOO_widget_TreeView::sendTree($items);
                         }
                         else
                         {
