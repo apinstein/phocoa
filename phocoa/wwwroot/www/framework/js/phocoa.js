@@ -44,12 +44,7 @@ PHOCOA.runtime = PHOCOA.runtime || {};
 
 PHOCOA.runtime.addObject = function(o)
 {
-    // object list
-    if (!PHOCOA.runtime.objectList)
-    {
-        PHOCOA.runtime.objectList = {};
-    }
-
+    PHOCOA.runtime.setupObjectCache();
     if (PHOCOA.runtime.objectList[o.id])
     {
         alert('error - cannot add duplicate object: ' + o.id);
@@ -58,8 +53,18 @@ PHOCOA.runtime.addObject = function(o)
     PHOCOA.runtime.objectList[o.id] = o;
 }
 
+PHOCOA.runtime.setupObjectCache = function()
+{
+    // object list
+    if (!PHOCOA.runtime.objectList)
+    {
+        PHOCOA.runtime.objectList = {};
+    }
+}
+
 PHOCOA.runtime.getObject = function(id)
 {
+    PHOCOA.runtime.setupObjectCache();
     var o = null;
     if (PHOCOA.runtime.objectList[id])
     {

@@ -46,6 +46,8 @@ class WFDieselNav extends WFWidget
         $this->baseURL = NULL;
         $this->facetNavHeight = '100px';
         $this->searchAction = 'search';
+
+        //new WFYAHOO_widget_Panel('blah', $this->page);
     }
 
     function facetNavHeight()
@@ -91,16 +93,23 @@ class WFDieselNav extends WFWidget
         }
         else
         {
-            $this->page()->module()->invocation()->skin()->addHeadString('<script type="text/javascript" src="' . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/prototype.js"></script>');
+            //$this->page()->module()->invocation()->skin()->addHeadString('<script type="text/javascript" src="' . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/prototype.js"></script>');
 
             $html = NULL;
 
+            $popup = new WFYAHOO_widget_Panel("phocoaWFDieselNav_Popup_{$this->id}", $this->page);
+            $popup->setHeader('<div style="height: 10px"></div>');
+            $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
+            $popup->setValueForKey('400px', 'width');
+            $popup->setContext($this->id, 'tl', 'tl');
+            $html .= $popup->render();
             // js
             $html .= "
     <script type=\"text/javascript\">
     function doPopup(facetID, dpQueryState, facetSelections)
     {
-        Element.show('phocoaWFDieselNav_Popup_{$this->id}');
+        //Element.show('phocoaWFDieselNav_Popup_{$this->id}');
+        PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').show();
         Element.update('phocoaWFDieselNav_PopupContent_{$this->id}', 'Loading...');
         var url = '" . $this->baseURL() . "/' + dpQueryState + '//' + facetID + '|' + facetSelections.replace(/\//g, '%2F');
         var pars = '';
@@ -113,14 +122,6 @@ class WFDieselNav extends WFWidget
     }
     </script>
             ";
-
-            // set up "popup"
-            $html .= "
-            <div id=\"phocoaWFDieselNav_Popup_{$this->id}\" class=\"phocoaWFDieselNav_Popup\" style=\"display: none;\">
-            <div style=\"background: gray; border-bottom: 1px solid black; line-height: 18px; font-size: 15px; height: 18px; text-align: right;\"><a style=\"color: white; display: block;\" href=\"#\" onClick=\"cancelPopup();\">X</a></div>
-            <div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\"></div>
-            <input type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>
-            </div>\n";
 
             // show existing "filters" in proper order
             //$html .= '<table border="0" cellpadding="0" cellspacing="0"><tr>';

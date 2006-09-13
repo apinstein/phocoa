@@ -45,6 +45,10 @@ TODO
 - (DONE) Skins should be attached to the root invocation, not to the request. This way one can access the skin for the current module rather than only for the "current request".
 - (DONE) Need to make "skin" available from page. For things like email and sub-modules the "skin" desired is different, but widgets and such need to be able to add to "head" element etc. Figure something out for that.
 - Deprecate SKIN_WRAPPER_TYPE_* in favor of WFSkin::SKIN_WRAPPER_TYPE_*
+- Integrate YAHOO js library to the extent that events can be attached to widgets; build a nice infrastructure for that
+- Outline and Document Naming Conventions for widgets to use for javascript functions, id, etc
+- Decide on convention for loading JS files; should widgets document the needed files and require modules to load them, or should they try to always do it themselves?
+  - Seem to have a good way to load JS/CSS for widgets with the PHOCOA. stuff, but what about loading phocoa.js and prototype.js? Skin? Require modules to do it?
 
 WFState -- idea for a simple widget to help stuff state in a form. Would simply serialize passed data and put it into a hidden var... and restore state! with bindings!
 WFTabView -- rename to WFTabbedFormPanel? It must be in a form, and uses restoreState() from WFWidget, so this would make sense... also, remove "non-onepage" mode as we'll use a WFTabbedNavigationView for that.
