@@ -356,6 +356,22 @@
           <para>PHOCOA's request parameter system makes it easy declare a
           clean URL interface for any page.</para>
         </listitem>
+
+        <listitem>
+          <para>AJAX</para>
+
+          <para>Interactive web sites built with AJAX are becoming more
+          popular as web users demand that web applications become as
+          interactive and responsive as their desktop counterparts.</para>
+
+          <para><emphasis>This problem is typically solved using AJAX
+          libraries and writing a lot of JavaScript code and custom PHP pages
+          to deliver data.</emphasis></para>
+
+          <para>PHOCOA's AJAX implementation wraps industry standard AJAX
+          libraries such as prototype.js and Yahoo's YUI library to make it a
+          snap to build rich, interactive web pages.</para>
+        </listitem>
       </itemizedlist>
     </section>
   </chapter>
@@ -627,10 +643,11 @@ total 24
 
       <para>Each PHOCOA module is a single PHP file that contains a single
       WFModule subclass. There is a naming convention to the subclass names.
-      The subclass should be named "module_<dirName>" where <dirName> is the 
-      name of the directory that the module sits in. This helps prevent name collisions 
-      with other classes. This subclass will have specially named functions
-      that you create to set up pages and respond to user actions.</para>
+      The subclass should be named "module_&lt;dirName&gt;" where
+      &lt;dirName&gt; is the name of the directory that the module sits in.
+      This helps prevent name collisions with other classes. This subclass
+      will have specially named functions that you create to set up pages and
+      respond to user actions.</para>
 
       <para>Because each module has multiple pages, actions, etc., each module
       in PHOCOA is essentially a reusable web component. The components can be
@@ -1325,12 +1342,94 @@ $__config = array(
     </section>
 
     <section>
-      <title>Setting Page-Level Attributes</title>
+      <title>Compositing Architecture</title>
+
+      <para>Now that you're familiar with using PHOCOA and WFModule to build
+      web pages, you should be excited to know that all of the pages in each
+      <classname>WFModule</classname> you create is automatically a reusable
+      component.</para>
+
+      <para>Let's say you've built a simple module/page that displays links to
+      the 10 most recent blog posts on your site. Now of course this is an
+      excellent web page, but it'd also be great to include the same list
+      inside other pages.</para>
+
+      <para>This is easily accomplished with the
+      <classname>WFModuleView</classname> widget. This widget simply includes
+      the output of the specified module/page as a "snippet" of HTML code that
+      appears in another page. When you include a module/page with
+      <classname>WFModuleView</classname>, PHOCOA knows automatically that the
+      component will be used as a snippet, so the HTML code will not be
+      skinned.</para>
+
+      <para>To include another module as a subcomponent, simply create a
+      <classname>WFModuleView</classname> instance and set the
+      <property>invocationPath</property> property to the desired
+      subcomponent:</para>
+
+      <programlisting>// in your page's PageDidLoad method
+$recent10 = new WFModuleView('recent10', $page);
+$recent10-&gt;setInvocationPath('blog/list/recent/10')
+
+// in your page's tpl file
+&lt;p&gt;10 Most Recent Posts&lt;/p&gt;
+&lt;div&gt;{WFModuleView id="recent10"}&lt;/div&gt;</programlisting>
+
+      <para>As you can see, re-using module/page components couldn't be
+      easier.</para>
+    </section>
+
+    <section>
+      <title>Skin / Template System</title>
+
+      <para>PHOCOA's skin system provides a simple yet flexible way to control
+      the template being used to render each page. The skin system has three
+      layers:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para><emphasis>Skin Type (Skin Delegate) </emphasis>At the top
+            level is the Skin Type. Each skin type can have its own distinct
+            infrastructure of common components, which are managed by its Skin
+            Delegate. The skin type is not a layout in and of itself; rather
+            it is just an implementation of the layout from a semantic
+            perspective. The Skin Delegate provides an interface for the skins
+            (explained below) to access the data common to the layout. An
+            example of a skin type would be an "Admin" interface and a
+            "Public" interface for an application.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Skin</emphasis> Each skin is a concrete
+            implementation of an actual layout. There can be any number of
+            skins that implement layouts for each Skin Type.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Skin Theme</emphasis> Each skin is further
+            subdivided, optionally, into themes. Themes provide an easy way to
+            use the same basic layout (the Skin) while changing colorschemes,
+            graphics packages, etc.</para>
+          </listitem>
+        </itemizedlist>By default, a new PHOCOA application has a single Skin
+      Type (simple) and two Skins (simple1, simple2). Simple1 has only one
+      theme, while simple2 has two themes set up.</para>
+
+      <para>The bundled "SkinInfo" module provides an interactive browser for
+      the installed skins on any PHOCOA application to make it easy to
+      understand and browse the skin infrastructure.</para>
+    </section>
+
+    <section>
+      <title>Setting HTML Top-Level Attributes</title>
 
       <para>It is a best-practice to set up the Title, Meta Keywords, and Meta
       Description of each page to keep the information relevant and help with
       search engine optimization. PHOCOA provides a callback mechanism on a
       page-by-page basis to all you to edit this information.</para>
+
+      <para>Often times you'll also need to include additional head elements
+      like SCRIPT and CSS files.</para>
 
       <para>The prototype of the callback is:</para>
 
@@ -1344,7 +1443,94 @@ $__config = array(
         $skin-&gt;setTitle("Hello, World, from PHOCOA!");
         $skin-&gt;addMetaKeywords(array('keyword 1', 'keyword 2'));
         $skin-&gt;setMetaDescription('Hello world example module in PHOCOA.');
+        $skin-&gt;addHeadString('&lt;script type="text/javascript" src="/webapp/www/js/myJSFile.js"&gt;&lt;/script&gt;');
     }</programlisting>
+    </section>
+
+    <section>
+      <title>Security / Authentication</title>
+
+      <para>PHOCOA includes a simple yet extensible security architecture.
+      PHOCOA's WFAuthorizationManager is in charge of coordinating security
+      and authentication.</para>
+
+      <para>PHOCOA maintains a session object which is an instance of
+      <classname>WFAuthorizationInfo</classname>. This class contains basic
+      information about the currently logged in user (if there is one), such
+      as the user's id, is the user a "super-user", has the user authenticated
+      "recently", etc. This is enough information for most applications, but
+      if you have more complicated access control, you can subclass
+      <classname>WFAuthorizationInfo</classname> and add any information you
+      need for your system.</para>
+
+      <para>The basic granularity of security is at the module level. This
+      assumption is made since modules typically include related pages which
+      share the same access restrictions. Thus, usually a user that can access
+      one page in a module should be able to access all others.</para>
+
+      <para>Access control to a module is determined by the
+      <function>checkSecurity</function> method. The default implementation
+      allows unrestricted access. To secure access to a module, you simply
+      override the <function>checkSecurity</function> method in your WFModule
+      subclass. The only parameter to this function is the current
+      <classname>WFAuthorizationInfo</classname> instance, and you return
+      either <classname>WFAuthorizationManager::ALLOW</classname> or
+      <classname>WFAuthorizationManager::DENY</classname>. You can use
+      whatever logic you want to in this method to determine access
+      rights.</para>
+
+      <para><programlisting>function checkSecurity (WFAuthorizationInfo $authInfo)
+{
+    if ($authInfo-&gt;isSuperUser()) return WFAuthorizationManager::ALLOW;
+    return WFAuthorizationManager::DENY;
+}</programlisting>Of course, data security also is important at the object
+      level. For instance, a logged-in customer should only be able to edit
+      his own record. To implement security at this level, the programmer
+      should check the credentials of the logged in user against the data
+      being edited. If the logged in user should be denied access, this can be
+      done simply by throwing a
+      <classname>WFAuthorizationException</classname>.</para>
+
+      <para>PHOCOA automatically handles logins. When a client attempts to
+      access a module, and the <classname>checkSecurity</classname> method
+      returns <classname>DENY</classname>, PHOCOA will automatically handle
+      the situation. If the user is already logged in, they will be shown an
+      "Access Denied" message. If there is no logged in user, the client will
+      be redirected to the login page, and upon successful login, will be
+      redirected back to the original request.</para>
+
+      <para>PHOCOA's login system handles all of the details of login except
+      for determining if a given user/pass is valid, and setting up the
+      "permissions" for the user. Your application need only supply PHOCOA
+      with a <classname>WFAuthorizationDelegate</classname> instance to
+      provide that functionality.</para>
+
+      <para>Your application tells PHOCOA which
+      <classname>WFAuthorizationDelegate</classname> to use. We recommend that
+      you do this in the <function>WFWebApplication::initialize()</function>
+      delegate method. The <classname>WFAuthorizationDelegate</classname>
+      contains only one method:</para>
+
+      <programlisting>object WFAuthorizationInfo login (string $username, string $password, boolean $passIsToken)</programlisting>
+
+      <para>All this function needs to do is determine whether or not the
+      username/password combo is valid, and then create a WFAuthorizationInfo
+      instance for the user's session. Notice the
+      <varname>$passIsToken</varname> parameter; this is used for a "Remember
+      me" feature. If the user chooses to preserve his login info on his
+      computer, and the session times out, PHOCOA will automatically try to
+      log in the user again with a stored token. If this parameter is true,
+      the password will be a hash of the password stored in the user's cookie
+      rather than the actual password.</para>
+
+      <note>
+        <para>If you think need to use multiple delegates in your application,
+        we recommend that set a different <function>php_ini</function>
+        "session.name" for each delegate type. Since PHOCOA stores the
+        <classname>WFAuthorizationInfo</classname> instance in a session, it
+        is important to ensure that the proper instance is recalled for the
+        current request.</para>
+      </note>
     </section>
 
     <section>
@@ -1405,45 +1591,6 @@ $__config = array(
       formatter to the WFLabel. Want to use a formatString to combine multiple
       values? Use the ValuePattern binding! This is all done via the
       configuration file, not via coding.</para>
-
-      <bridgehead>PHOCOA's Skin System</bridgehead>
-
-      <para>PHOCOA's skin system provides a simple yet flexible way to control
-      the template being used to render each page. The skin system has three
-      layers:</para>
-
-      <para><itemizedlist>
-          <listitem>
-            <para><emphasis>Skin Type (Skin Delegate) </emphasis>At the top
-            level is the Skin Type. Each skin type can have its own distinct
-            infrastructure of common components, which are managed by its Skin
-            Delegate. The skin type is not a layout in and of itself; rather
-            it is just an implementation of the layout from a semantic
-            perspective. The Skin Delegate provides an interface for the skins
-            (explained below) to access the data common to the layout. An
-            example of a skin type would be an "Admin" interface and a
-            "Public" interface for an application.</para>
-          </listitem>
-
-          <listitem>
-            <para><emphasis>Skin</emphasis> Each skin is a concrete
-            implementation of an actual layout. There can be any number of
-            skins that implement layouts for each Skin Type.</para>
-          </listitem>
-
-          <listitem>
-            <para><emphasis>Skin Theme</emphasis> Each skin is further
-            subdivided, optionally, into themes. Themes provide an easy way to
-            use the same basic layout (the Skin) while changing colorschemes,
-            graphics packages, etc.</para>
-          </listitem>
-        </itemizedlist>By default, a new PHOCOA application has a single Skin
-      Type (simple) and two Skins (simple1, simple2). Simple1 has only one
-      theme, while simple2 has two themes set up.</para>
-
-      <para>The bundled "SkinInfo" module provides an interactive browser for
-      the installed skins on any PHOCOA application to make it easy to
-      understand and browse the skin infrastructure.</para>
     </section>
 
     <section>

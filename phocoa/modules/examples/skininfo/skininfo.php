@@ -18,14 +18,13 @@ class skininfo extends WFModule
     }
     function previewSkin_ParameterList()
     {
-        return array('skinTypeName', 'skinName', 'skinThemeName');
+        return array('skinTypeName', 'skinName', 'skinThemeName', 'skinTemplateType');
     }
     function previewSkin_PageDidLoad($page, $parameters)
     {
         $skin = $this->invocation->rootSkin();
         $skin->setDelegateName($parameters['skinTypeName']);
         $skin->setSkin($parameters['skinName'], 'skinName');
-        $page->assign('currentSkinType', $skin->delegateName());
 
         $this->skinName = $parameters['skinName'];
 
@@ -37,11 +36,21 @@ class skininfo extends WFModule
         {
             $this->skinThemeName = $parameters['skinThemeName'];
         }
-        
-        $skin->setValueForKey($this->skinThemeName, 'skinThemeName');
 
+        if (!empty($parameters['skinTemplateType']))
+        {
+            $skin->setTemplateType($parameters['skinTemplateType']);
+        }
+        
+        $skin->setTheme($this->skinThemeName, 'skinThemeName');
+
+        $page->assign('skinTypeName', $parameters['skinTypeName']);
         $page->assign('skinName', $parameters['skinName']);
+        $page->assign('themeName', $parameters['skinThemeName']);
+        $page->assign('skinTemplateType', $parameters['skinTemplateType']);
+
         $page->assign('skinThemes', $skin->valueForKey('skinManifestDelegate')->themes());
+        $page->assign('skinTemplates', $skin->templateTypes());
         $page->assign('skinDefaultTheme', $skin->valueForKey('skinManifestDelegate')->defaultTheme());
         $page->assign('skinThemeName', $skin->valueForKey('skinThemeName'));
         $page->assign('skinThemeVars', print_r($skin->valueForKey('skinManifestDelegate')->loadTheme($skin->valueForKey('skinThemeName')), true));

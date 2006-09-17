@@ -44,7 +44,6 @@ TODO
 - Improve 'default' template to a nice-looking one based on UberTemplate.
 - (DONE) Skins should be attached to the root invocation, not to the request. This way one can access the skin for the current module rather than only for the "current request".
 - (DONE) Need to make "skin" available from page. For things like email and sub-modules the "skin" desired is different, but widgets and such need to be able to add to "head" element etc. Figure something out for that.
-- Deprecate SKIN_WRAPPER_TYPE_* in favor of WFSkin::SKIN_WRAPPER_TYPE_*
 - Integrate YAHOO js library to the extent that events can be attached to widgets; build a nice infrastructure for that
 - Outline and Document Naming Conventions for widgets to use for javascript functions, id, etc
 - Decide on convention for loading JS files; should widgets document the needed files and require modules to load them, or should they try to always do it themselves?
@@ -58,6 +57,10 @@ WFSession - still needs to be designed. The current design sucks.
 The page cycle is still really tricky... look at this further... ideas:
 1) Do we need a callback for "noaction?" or is "if ($page->hasSubmittedForm())" good enough inside of _PageDidLoad?
 2) Do we need more hooks? Do things happen in the right order? The way things are created, restored, etc, seems fragile. Light hacking occuring to make it work in some situations.
+
+SYNCHRONIZING THE PHOCOA WWWROOT
+This command will synchronize the www/framework files from your phocoa release code.
+rsync -avz /path/to/phocoa-release/wwwroot/www/framework/ /path/to/myproject/wwwroot/www/framework
 
 ARCHITECTURAL THINGS TO INVESTIGATE
 Use of FilterIterator as predicate searching.
@@ -122,9 +125,9 @@ Generating tags files from the source: (BTW these are all good candiates for the
 cd to webframework
 ctags -R
 
-Generating PHPDoc
+Generating PHPDoc (PhpDocumentor 1.3.0 stable is suggested)
 cd to phocoa 
-phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" -o HTML:frames:default --ignore test/ -d framework -f "smarty/plugins/*" -f "conf/webapp.conf"
+/sw/bin/phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" --ignore 'test' -d 'docs/tutorials,framework,smarty/plugins' -f 'conf/webapp.conf'
 
 PROPEL
 To use propel, need to include the PHOCOA code and make Propel's BaseObject.php extend WFObject. Be sure to include via FRAMEWORK_DIR rather than hard-coded so that multiple instances can live on a single server.

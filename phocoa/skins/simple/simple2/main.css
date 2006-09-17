@@ -4,6 +4,7 @@ body {
     color: {/literal}{$skinThemeVars.textcolor}{literal};
     margin: 0;
     padding: 0;
+    width: 90%;
 }
 
 #header {

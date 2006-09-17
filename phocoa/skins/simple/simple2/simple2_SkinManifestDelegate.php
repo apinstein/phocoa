@@ -2,6 +2,7 @@
 
 class simple2_SkinManifestDelegate extends WFSkinManifestDelegate
 {
+    function templateTypes() { return array('min'); }
     function defaultTheme() { return 'default'; }
     function themes() { return array('default', 'alternative'); }
     function loadTheme($theme)

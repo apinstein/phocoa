@@ -102,8 +102,8 @@ class WFSkinDelegate
       * skin, skinTheme, metaDescription, metaKeywords, title etc.
       * Example:
       *
-      * $skin->setValueForKey('exampleskin2', 'skinName');
-      * $skin->setValueForKey('red', 'skinThemeName');
+      * $skin->setSkin('exampleskin2');
+      * $skin->setTheme('red', 'skinThemeName');
       * $skin->setMetaDescription('This is the default description.');
       * $skin->addMetaKeywords(array('more', 'keywords'));
       * $skin->setTitle('Page Title');
@@ -252,13 +252,26 @@ class WFSkin extends WFObject
       */
     function setTemplateType($templateType)
     {
-        $allowedTemplates = array(WFSkin::SKIN_WRAPPER_TYPE_NORMAL, WFSkin::SKIN_WRAPPER_TYPE_RAW);
-        // call skin delegate to get list of template types -- delegate implements application-specific logic.
-        if (is_object($this->delegate) && method_exists($this->delegate, 'templateTypes')) {
-            $allowedTemplates = array_merge($allowedTemplates, $this->delegate->templateTypes());
-        }
+        $allowedTemplates = $this->templateTypes();
         if (!in_array($templateType, $allowedTemplates)) throw( new WFException("Template type: '{$templateType}' does not exist for skin '" . $this->skinName() . "'.") );
         $this->templateType = $templateType;
+    }
+
+    /**
+     *  Get a list of all template types available for this skin.
+     *
+     *  This list will include WFSkin::SKIN_WRAPPER_TYPE_NORMAL, WFSkin::SKIN_WRAPPER_TYPE_RAW, and any custom template types manifested by the skin type delegate (skin manifest delegate).
+     *
+     *  @return array An array of strings with the names of all valid template types.
+     */
+    function templateTypes()
+    {
+        $allowedTemplates = array(WFSkin::SKIN_WRAPPER_TYPE_NORMAL, WFSkin::SKIN_WRAPPER_TYPE_RAW);
+        // call skin type delegate to get list of template types -- delegate implements application-specific logic.
+        if (is_object($this->skinManifestDelegate) && method_exists($this->skinManifestDelegate, 'templateTypes')) {
+            $allowedTemplates = array_merge($allowedTemplates, $this->skinManifestDelegate->templateTypes());
+        }
+        return $allowedTemplates;
     }
 
     /**
@@ -311,6 +324,16 @@ class WFSkin extends WFObject
     {
         $this->skinName = $skinName;
         $this->loadSkin();
+    }
+
+    /**
+     *  Set the theme to use.
+     *
+     *  @param string The name of the theme of the skin to use.
+     */
+    function setTheme($skinThemeName)
+    {
+        $this->skinThemeName = $skinThemeName;
     }
 
     /**

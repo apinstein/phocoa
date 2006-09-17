@@ -3,7 +3,8 @@
 <head>
 {$skinHead}
 </head>
-<body style="">
+<body>
+    <p><small>minimal, graphics-free version of this skin</small></p>
     <div id="header">
         {foreach name=mainMenu from=$skin->namedContent('mainMenu') key=name item=url}
             {if !$smarty.foreach.mainMenu.first} | {/if}
@@ -11,12 +12,12 @@
         {/foreach}
     </div>
 
-    <div style="width: 80%; margin: 15px auto; border: 2px solid brown; padding: 10px">
+    <div id="content">
     {$skinBody}
     </div>
 
     <div id="footer">
-    <p style="font-size: small;">{$skin->namedContent('copyright')}</p>
+    <p>{$skin->namedContent('copyright')}</p>
     </div>
 </body>
 </html>

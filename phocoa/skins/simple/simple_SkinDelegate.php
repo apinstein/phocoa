@@ -6,7 +6,7 @@ class simple_SkinDelegate
     function loadDefaults(&$skin)
     {
         // look at URL and determine skin.
-        $skin->setSkin('simple2');
+        $skin->setSkin('simple1');
 
         // set up other skin defaults
         $skin->setMetaDescription('Default Skin Type Description Goes Here');

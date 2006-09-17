@@ -32,6 +32,7 @@ function WFWebApplicationMain()
  * Right now it doesn't do a whole lot besides manage the shared application object and provide access to a few application defaults via the delegate.
  * Eventually it can be used to manage application-wide settings and state.
  *
+ * @tutorial WebApplication.pkg
  */
 class WFWebApplication extends WFObject
 {
