@@ -41,7 +41,7 @@ class css extends WFModule
         $skin = $this->invocation->rootSkin();
         $skin->setDelegateName($skinTypeName);
         $skin->setSkin($skinName);
-        $skin->setTemplateType(SKIN_WRAPPER_TYPE_RAW);
+        $skin->setTemplateType(WFSkin::SKIN_WRAPPER_TYPE_RAW);
         $skin->setValueForKey($skinThemeName, 'skinThemeName');
         // load the theme vars into our smarty for this module
         $this->requestPage->assign('skinThemeVars', $skin->valueForKey('skinManifestDelegate')->loadTheme($skinThemeName));
