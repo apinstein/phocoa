@@ -54,6 +54,14 @@ abstract class WFSkinManifestDelegate extends WFObject
      * @return assoc_array Various name/value pairs to be used in the templates for the skin.
      */
     function loadTheme($theme) { return array(); }
+
+    /**
+     *  Get a list of the additional template types (besides "normal") that are supported by this skin.
+     *
+     *  @return array An array of strings; each is a template type that is supported by this skin.
+     *                For each skin, there must be a template_<templateType>.tpl file for each manifested template type.
+     */
+    function templateTypes() { return array(); }
 }
 
 /**
@@ -100,14 +108,10 @@ class WFSkinDelegate
       * $skin->addMetaKeywords(array('more', 'keywords'));
       * $skin->setTitle('Page Title');
       *
-      * @param object The skin object to load defaults for.
+      * @param object WFSkin The skin object to load defaults for.
       */
     function loadDefaults($skin) {}
 }
-
-define('SKIN_WRAPPER_TYPE_NORMAL',      0);
-define('SKIN_WRAPPER_TYPE_MINIMAL',     1);
-define('SKIN_WRAPPER_TYPE_RAW',         2);
 
 /**
   * Main skin class for managing skin wrappers around the content.
@@ -153,15 +157,19 @@ define('SKIN_WRAPPER_TYPE_RAW',         2);
   * skinDirShared maps to skins/&lt;skinType&gt;/&lt;skinName&gt;/www/shared/
   * </pre>
   *
-  * @see WFSkinDelegate
-  * @see WFSkinManifestDelegate
-  * @todo Figure out better nomenclature for the 3 levels of skin funtionality; rework APIs.
+  * @see WFSkinDelegate, WFSkinManifestDelegate
   */
 class WFSkin extends WFObject
 {
-    const SKIN_WRAPPER_TYPE_NORMAL  = 0;
-    const SKIN_WRAPPER_TYPE_MINIMAL = 1;
-    const SKIN_WRAPPER_TYPE_RAW     = 2;
+    /**
+     * The "normal" templateType: template_normal.tpl
+     */
+    const SKIN_WRAPPER_TYPE_NORMAL  = 'normal';
+    /**
+     * The "raw" templateType: the exact page contents will be displayed; equivalent to using no skin.
+     */
+    const SKIN_WRAPPER_TYPE_RAW     = 'raw';
+
     /**
      * @var string The skin delegate name to use for this instance.
      */
@@ -199,7 +207,7 @@ class WFSkin extends WFObject
       */
     protected $metaDescription;
     /**
-      * @var integer Skin wrapper type. One of SKIN_WRAPPER_TYPE_NORMAL, SKIN_WRAPPER_TYPE_MINIMAL, SKIN_WRAPPER_TYPE_RAW.
+      * @var integer Skin wrapper type. One of {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, or a custom type.
       */
     protected $templateType;
     /**
@@ -216,7 +224,7 @@ class WFSkin extends WFObject
         $this->delegate = NULL;
         $this->skinManifestDelegate = NULL;
         $this->body = NULL;
-        $this->templateType = SKIN_WRAPPER_TYPE_NORMAL;
+        $this->templateType = WFSkin::SKIN_WRAPPER_TYPE_NORMAL;
 
         $this->title = NULL;
         $this->metaKeywords = array();
@@ -225,16 +233,32 @@ class WFSkin extends WFObject
     }
 
     /**
-      * Set the TYPE of skin template to use to wrap the content.
+      * Set the which template file of the current skin will be used to render the skin.
       *
-      * @param integer The template type to use. There are three supported types:
-      *     SKIN_WRAPPER_TYPE_NORMAL - Normal skin (template_normal.tpl)
-      *     SKIN_WRAPPER_TYPE_MINIMAL - Minimual skin (template_min.tpl)
-      *     SKIN_WRAPPER_TYPE_RAW - NO wrapper; just send exact body content.
+      * - (default) {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, which maps to "template.tpl".
+      * - {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, which will output the body contents only. This is logically equivalent to using no skin.
+      * - Any other string you pass will use the file "template_<template_type>.tpl in the skin directory.
+      *
+      * Potential uses for this include:
+      *
+      * - Using {@link WFSkin::SKIN_WRAPPER_TYPE_RAW} to return HTML snippets that will be used in AJAX callback
+      * - Using a custom "minimal" file that is used for popup windows where there is not enough real estate for the full skin.
+      * - Using a custom "mobile" file that would be used for mobile devices.
+      *
+      * Any custom templates must be manifested by the skin delegate {@link WFSkinDelegate::tempateTypes() templateTypes()} method.
+      *
+      * @param string The name of the template to use. One of {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, or a custom string.
+      * @throws object WFException if the template of the given name does not exist for this skin
       */
-    function setTemplateType($id)
+    function setTemplateType($templateType)
     {
-        $this->templateType = $id;
+        $allowedTemplates = array(WFSkin::SKIN_WRAPPER_TYPE_NORMAL, WFSkin::SKIN_WRAPPER_TYPE_RAW);
+        // call skin delegate to get list of template types -- delegate implements application-specific logic.
+        if (is_object($this->delegate) && method_exists($this->delegate, 'templateTypes')) {
+            $allowedTemplates = array_merge($allowedTemplates, $this->delegate->templateTypes());
+        }
+        if (!in_array($templateType, $allowedTemplates)) throw( new WFException("Template type: '{$templateType}' does not exist for skin '" . $this->skinName() . "'.") );
+        $this->templateType = $templateType;
     }
 
     /**
@@ -243,7 +267,7 @@ class WFSkin extends WFObject
      *  This function will look for the skin delegate in the appropriate place, instantiate it, and set it up for this skin instance.
      *
      *  @param string The NAME of the Skin Type.
-     *  @throws
+     *  @throws object Exception if the skin delegate does not exist, or it does not contain the skin delegate class.
      */
     function setDelegateName($skinDelegateName)
     {
@@ -418,16 +442,13 @@ class WFSkin extends WFObject
         $smarty->assign('skinHead', $smarty->fetch(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/head.tpl'));
 
         // set the template
-        switch ($this->templateType) {
-            case SKIN_WRAPPER_TYPE_NORMAL:
-                $smarty->setTemplate($skinTemplateDir . '/template_normal.tpl');
-                break;
-            case SKIN_WRAPPER_TYPE_MINIMAL:
-                $smarty->setTemplate($skinTemplateDir . '/template_minimal.tpl');
-                break;
-            case SKIN_WRAPPER_TYPE_RAW:
-                $smarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/template_raw.tpl');
-                break;
+        if ($this->templateType == WFSkin::SKIN_WRAPPER_TYPE_RAW)
+        {
+            $smarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/template_raw.tpl');
+        }
+        else
+        {
+            $smarty->setTemplate($skinTemplateDir . '/template_' . $this->templateType . '.tpl');
         }
 
         // pre-render callback

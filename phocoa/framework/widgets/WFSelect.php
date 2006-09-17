@@ -15,16 +15,31 @@
  *
  * <b>PHOCOA Builder Setup:</b>
  *
+ * Properties:
+ * {@link WFSelect::$width width}
+ * {@link WFSelect::$multiple multiple}
+ * {@link WFSelect::$visibleItems visibleItems}
+ * {@link WFSelect::$labelFormatter labelFormatter}
+ *
+ * Bindings:
  * <b>Required:</b><br>
  * - {@link WFWidget::$value value} or {@link WFSelect::$values values}, depending on {@link WFSelect::$multiple multiple}.
  * 
  * <b>Optional:</b><br>
- * - {@link WFSelect::$multiple multiple}
- * - {@link WFSelect::$contentValues contentValues}
- * - {@link WFSelect::$contentLabels contentLabels}
- * - {@link WFSelect::$labelFormatter labelFormatter}
- * - {@link WFSelect::setOptions() options}
- * - {@link WFSelect::$visibleItems visibleItems}
+ * - {@link WFSelect::$contentValues contentValues} Set the values for each option specified in contentLabels.
+ *  -  Binding Options:
+ *  -  InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
+ *  -  NullPlaceholder - string, the value of the "Null" placeholder item.
+ * 
+ * - {@link WFSelect::$contentLabels contentLabels} Set the labels for each option specified in contentValues.
+ *   - Binding Options:
+ *   - InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
+ *   - NullPlaceholder - string, the label of the "Null" placeholder item.
+ * 
+ * - {@link WFSelect::setOptions() options} Set both contentValues and contentLabels at the same time, from an associative array of format 'value' => 'label'.
+ *   - Binding Options:
+ *   - InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
+ *   - NullPlaceholder - string, the label of the "Null" placeholder item.
  */
 class WFSelect extends WFWidget
 {
