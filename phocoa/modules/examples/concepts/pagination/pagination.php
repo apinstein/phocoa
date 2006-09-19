@@ -45,7 +45,7 @@ class pagination extends WFModule
     }
     function exampleWithForm_PageDidLoad($page, $params)
     {
-        $this->paginator->enableModeForm('submit');
+        $this->paginator->setModeForm('submit');
 
         $page->outlet('numPeople')->setContentValues(array(0,1,10,100));
         $somePeople = array_slice($this->allPeople, 0, $page->outlet('numPeople')->value());
