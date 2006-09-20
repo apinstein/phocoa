@@ -86,6 +86,10 @@ class WFBindingSetup extends WFObject
     const WFBINDINGSETUP_PATTERN_OPTION_NAME = 'ValuePattern';
     const WFBINDINGSETUP_PATTERN_OPTION_VALUE = '%1%';
 
+    // NullPlaceholder stuff.
+    const WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER = 'InsertsNullPlaceholder';
+    const WFBINDINGSETUP_NULL_PLACEHOLDER = 'NullPlaceholder';
+
     /**
      * @var string The name of the bound proprety.
      */

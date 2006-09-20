@@ -16,10 +16,10 @@
  * <b>PHOCOA Builder Setup:</b>
  *
  * Properties:
- * {@link WFSelect::$width width}
- * {@link WFSelect::$multiple multiple}
- * {@link WFSelect::$visibleItems visibleItems}
- * {@link WFSelect::$labelFormatter labelFormatter}
+ * - {@link WFSelect::$width width}
+ * - {@link WFSelect::$multiple multiple}
+ * - {@link WFSelect::$visibleItems visibleItems}
+ * - {@link WFSelect::$labelFormatter labelFormatter}
  *
  * Bindings:
  * <b>Required:</b><br>
@@ -27,19 +27,23 @@
  * 
  * <b>Optional:</b><br>
  * - {@link WFSelect::$contentValues contentValues} Set the values for each option specified in contentLabels.
- *  -  Binding Options:
- *  -  InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
- *  -  NullPlaceholder - string, the value of the "Null" placeholder item.
+ *  <pre>Binding Options:
+ *  InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
+ *  NullPlaceholder - string, the value of the "Null" placeholder item.
+ *  </pre>
  * 
  * - {@link WFSelect::$contentLabels contentLabels} Set the labels for each option specified in contentValues.
- *   - Binding Options:
- *   - InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
- *   - NullPlaceholder - string, the label of the "Null" placeholder item.
+ *  <pre>Binding Options:
+ *   InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
+ *   NullPlaceholder - string, the label of the "Null" placeholder item.
+ *   ValuePattern - supports ValuePattern binding
+ *  </pre>
  * 
  * - {@link WFSelect::setOptions() options} Set both contentValues and contentLabels at the same time, from an associative array of format 'value' => 'label'.
- *   - Binding Options:
- *   - InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
- *   - NullPlaceholder - string, the label of the "Null" placeholder item.
+ *  <pre>Binding Options:
+ *   InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
+ *   NullPlaceholder - string, the label of the "Null" placeholder item.
+ *  </pre>
  */
 class WFSelect extends WFWidget
 {
@@ -97,20 +101,23 @@ class WFSelect extends WFWidget
         $myBindings[] = new WFBindingSetup('values', 'The selected values for multiple select boxes.');
         $myBindings[] = new WFBindingSetup('contentValues', 'List of the VALUES of each item in the select box.',
                 array(
-                    'InsertsNullPlaceholder' => false,
-                    'NullPlaceholder' => ''
+                    WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER => false,
+                    WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER => ''
                     )
                 );
-        $myBindings[] = new WFBindingSetup('contentLabels', 'List of the LABELS of each item in the select box.',
+        $newValBinding = new WFBindingSetup('contentLabels', 'List of the LABELS of each item in the select box.',
                 array(
-                    'InsertsNullPlaceholder' => false,
-                    'NullPlaceholder' => 'Select...'
+                    WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER => false,
+                    WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER => 'Select...',
+                    WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE,
                     )
                 );
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
         $myBindings[] = new WFBindingSetup('options', 'List of the options (value => label) of each item in the select box.',
                 array(
-                    'InsertsNullPlaceholder' => false,
-                    'NullPlaceholder' => 'Select...'
+                    WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER => false,
+                    WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER => 'Select...'
                     )
                 );
         return $myBindings;
@@ -122,20 +129,20 @@ class WFSelect extends WFWidget
 
         switch ($boundProperty) {
             case 'contentValues':
-                if ($options["InsertsNullPlaceholder"]) {
-                    $defaultValue = $options["NullPlaceholder"];
+                if ($options[WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER]) {
+                    $defaultValue = $options[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER];
                     $boundValue = array_merge(array($defaultValue), $boundValue);
                 }
                 break;
             case 'contentLabels':
-                if ($options["InsertsNullPlaceholder"]) {
-                    $defaultLabel = $options["NullPlaceholder"];
+                if ($options[WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER]) {
+                    $defaultLabel = $options[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER];
                     $boundValue = array_merge(array($defaultLabel), $boundValue);
                 }
                 break;
             case 'options':
-                if ($options["InsertsNullPlaceholder"]) {
-                    $defaultLabel = $options["NullPlaceholder"];
+                if ($options[WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER]) {
+                    $defaultLabel = $options[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER];
                     $boundValue = array_merge(array('' => $defaultLabel), $boundValue);
                 }
                 break;

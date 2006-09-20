@@ -406,7 +406,30 @@ abstract class WFWidget extends WFView
                         {
                             $valuePattern = $basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME];
                         }
-                        $boundValue = str_replace(array_keys($boundValueParts), array_values($boundValueParts), $valuePattern);
+                        // need to support mutli-value bindings for "magic" array mode bindings too
+                        if (is_array($boundValueParts['%1%']))
+                        {
+                            $boundValues = array();
+                            // special handling for InsertsNullPlaceholder - this way we can set up a single null placeholder like "Select..." and it won't look goofy when we process '%1%, %2%' ValuePatterns
+                            if ($basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER])
+                            {
+                                // use NullPlaceholder as the entire value, then remove it from the array so all parts are same array length
+                                $boundValues[] = array_shift($boundValueParts['%1%']);
+                            }
+                            $itemCount = count($boundValueParts['%1%']);
+                            for ($i = 0; $i < $itemCount; $i++) {
+                                $boundValueArrayParts = array();
+                                foreach (array_keys($boundValueParts) as $partPattern) {
+                                    $boundValueArrayParts[] = $boundValueParts[$partPattern][$i];
+                                }
+                                $boundValues[] = str_replace(array_keys($boundValueParts), $boundValueArrayParts, $valuePattern);
+                            }
+                            $boundValue = $boundValues;
+                        }
+                        else
+                        {
+                            $boundValue = str_replace(array_keys($boundValueParts), array_values($boundValueParts), $valuePattern);
+                        }
                         break;
                     default:
                         throw( new Exception("Support for bindingType " . $bindingSetup->bindingType() . " used by '$prop' is not yet implemented.") );
