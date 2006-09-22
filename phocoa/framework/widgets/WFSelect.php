@@ -355,6 +355,21 @@ class WFSelect extends WFWidget
 
         $output .= "\n</select>";
 
+        // when not enabled, no data will be submitted for the select, so we need to fake it with hidden fields
+        if (!$this->enabled())
+        {
+            if ($this->multiple)
+            {
+                foreach ($this->values as $v) {
+                    $output .= "<input type=\"hidden\" name=\"{$this->id}[]\" value=\"{$v}\" />\n";
+                }
+            }
+            else
+            {
+                $output .= "<input type=\"hidden\" name=\"{$this->id}\" value=\"{$this->value}\" />\n";
+            }
+        }
+
         return $output;
     }
 
