@@ -411,7 +411,7 @@ abstract class WFWidget extends WFView
                         {
                             $boundValues = array();
                             // special handling for InsertsNullPlaceholder - this way we can set up a single null placeholder like "Select..." and it won't look goofy when we process '%1%, %2%' ValuePatterns
-                            if ($basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER])
+                            if (isset($basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER]))
                             {
                                 // use NullPlaceholder as the entire value, then remove it from the array so all parts are same array length
                                 $boundValues[] = array_shift($boundValueParts['%1%']);

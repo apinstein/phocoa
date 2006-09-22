@@ -287,6 +287,10 @@ class WFObject implements WFKeyValueCoding
     {
         list($target, $targetKey) = $this->keyPathToTargetAndKey($keyPath);
 
+        if (!($target instanceof WFObject))
+        {
+            throw( new WFException("Target not an object at keypath: " . $keyPath . " for object " . get_class($this)) );
+        }
         return $target->validateValueForKey($value, $targetKey, $edited, $errors);
     }
 
