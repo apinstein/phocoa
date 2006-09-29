@@ -927,8 +927,18 @@ class WFPage extends WFObject
             }
         }
 
-        // return the rendered HTML of the page.
-        return $this->template->render(false);
+        // return the rendered HTML of the page. we do this in an output buffer so that if there's an error, we can display it cleanly in the skin rather than have a
+        // half-finished template dumped on screen (which is apparently what smarty does when an error is thrown from within it)
+        $html = NULL;
+        try {
+            ob_start();
+            $html = $this->template->render(false);
+            ob_end_clean();
+        } catch(Exception $e) {
+            ob_end_clean();
+            throw($e);
+        }
+        return $html;
     }
 
     /**
