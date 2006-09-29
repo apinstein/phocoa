@@ -135,6 +135,19 @@ class WFArrayController extends WFObjectController implements Iterator
     }
 
     /**
+     *  Is the given identifier selected in the array?
+     *
+     *  @param mixed ID information, either an array or a string/integer.
+     *  @return boolean
+     *  @throws object Exception
+     */
+    function identifierIsSelected($id)
+    {
+        $hash = $this->identifierHashForValues($id);
+        return $this->hashIsSelected($hash);
+    }
+
+    /**
      * Convert the passed id or id list into a single-string-id-key.
      * @param mixed ID information, either an array or a string/integer.
      * @return Given an array, will return a string containing all Identifiers joined by WFArrayController::ID_DELIMITER. Given a string or integer, will just return the string (this is the usual case for single-key ids). 
