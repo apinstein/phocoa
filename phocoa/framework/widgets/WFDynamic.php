@@ -552,16 +552,29 @@ class WFDynamic extends WFWidget
             // now that we've loaded all widget options (config), call the callback so that the widget can set itself up.
             $widget->allConfigFinishedLoading();
 
+            $this->restoreState();
             // have widget restore state, only if we've posted! otherwise it will grab improper state
-            if ($parentView and $parentView->page()->submittedFormName())
-            {
-                $widget->restoreState();
-            }
+            //if ($parentView and $parentView->page()->submittedFormName())
+            //{
+                //$widget->restoreState();
+            //}
 
             $currentIndex++;
         }
 
         return $this->createdWidgets;
+    }
+
+    function restoreState()
+    {
+        $parentView = $this->calculateParent();
+        // have widget restore state, only if we've posted! otherwise it will grab improper state
+        if ($parentView and $parentView->page()->submittedFormName())
+        {
+            foreach ($this->createdWidgets as $widget) {
+                $widget->restoreState();
+            }
+        }
     }
 }
 
