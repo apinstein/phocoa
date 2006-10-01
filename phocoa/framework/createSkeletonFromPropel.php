@@ -32,6 +32,13 @@ foreach ($options[0] as $optInfo) {
     $optValue = $optInfo[1];
     //print "Checking $optName :: $optValue\n";
     switch ($optName) {
+        case '--help':
+            print "Usage:
+            --phocoaConfFile=/path/to/webapp.conf
+            --tableName=table_name The exact name of the table in the database you want to build code for.
+            --columnName=column_name The KVC name of the column in the database you should use to search on, and that will be displayed anytime the object needs to be \"named\"
+            ";
+            break;
         case '--phocoaConfFile':
             $__config['phocoaConfFile'] = $optValue;
             break;

@@ -619,17 +619,17 @@ abstract class WFWidget extends WFView
         if ($value === '') $value = NULL;
         
         $edited = false;
-        WFLog::log("propagateValueToBinding() validating value $value for bound object for {$this->id} / $bindingName", WFLog::TRACE_LOG);
+        WFLog::log("propagateValueToBinding() validating value $value for bound object {$this} for {$this->id} / $bindingName", WFLog::TRACE_LOG);
         $errors = array();
         $valid = $binding->bindToObject()->validateValueForKeyPath($value, $binding->bindToKeyPath(), $edited, $errors);
         if ($valid)
         {
-            WFLog::log("propagateValueToBinding() Pushing value $value back to bound object for {$this->id} / $bindingName", WFLog::TRACE_LOG);
+            WFLog::log("propagateValueToBinding() Pushing value $value back to bound object {$this} for {$this->id} / $bindingName", WFLog::TRACE_LOG);
             $binding->bindToObject()->setValueForKeyPath($value, $binding->bindToKeyPath());
         }
         else
         {
-            WFLog::log("propagateValueToBinding() WILL NOT (did not validate) push value $value back to bound object for {$this->id} / $bindingName", WFLog::TRACE_LOG);
+            WFLog::log("propagateValueToBinding() WILL NOT (did not validate) push value $value back to bound object {$this} for {$this->id} / $bindingName", WFLog::TRACE_LOG);
 
             // keep all returned errors
             foreach ($errors as $err) {

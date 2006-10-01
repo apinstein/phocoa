@@ -22,9 +22,12 @@ Dependencies
 TODO
 
 1.0 Milestone:
-- Remove need for httpd.conf - by default allow /index.php/invPath.
+- Add new project support for httpd.conf vs. .htaccess (via RewriteRule)
+- Change setup of wwwroot/www/framework; instead of cp -R, maybe use a httpd.conf directive or a RewriteRule or a symlink to avoid having to "sync" the framework stuff?
+- Add pear channel support for installation
+  - dependencies; propel, phing, creole, etc
 - WFRequestControllerDelegate -> has callbacks to process paths before default option; allows people to implement URI mapping, pre-processing, error handlers (404) etc
-  -> Add WFRequestControllerException system; 404, 302, etc by throwing exceptions. 
+  -> Add WFRequestControllerException system; 404, 302, etc by throwing exceptions. How does this impact current WFRedirectRequestException?
 - Figure out a way to implement .ibpalette type functionality
   -> Creating widget bundles that are drop-in compatible
   -> Figure out better way for re-using modules so that they can be used as widgets of other pages: tricky life-cycle consequences
@@ -39,7 +42,7 @@ TODO
         - (DONE) Pattern: Ability to craft strings together from multiple values, a la formatstring: value="#%1% of %2% selected." The formatstring is set in the binding option "ValuePattern".
         - (NA) Argument: for target-action: can call a selector with multiple arguments (not required b/c our actions don't currently accept any arguments)
 - (DONE) Array operators: http://developer.apple.com/documentation/Cocoa/Conceptual/KeyValueCoding/Concepts/ArrayOperators.html
-- Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again?
+- Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
 - Move .config and .instances files to YAML to improve compatibility for people managing with text files and make other GUI editors easier to write.
 - Improve 'default' template to a nice-looking one based on UberTemplate.
 - (DONE) Skins should be attached to the root invocation, not to the request. This way one can access the skin for the current module rather than only for the "current request".
