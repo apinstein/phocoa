@@ -27,7 +27,7 @@
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
- * - {@link WFWidget::$value value} The value is the sort key that this item represents (setup without the +/-).
+ * - {@link WFWidget::$value value} The value is the {@link WFPaginator::setSortOptions() sort key} that this item represents (setup without the +/-).
  * - {@link WFPaginatorPageInfo::$paginator Paginator}
  * 
  * <b>Optional:</b><br>
@@ -61,6 +61,7 @@ class WFPaginatorSortLink extends WFWidget
     {
         if (!$this->paginator) throw( new Exception("No paginator assigned.") );
 
+        $imgSrc = $this->getWidgetWWWDir();
         $sortIndicator = NULL;
         $linkKey = "+{$this->value}";
         $sortKeys = $this->paginator->sortKeys();
@@ -68,11 +69,13 @@ class WFPaginatorSortLink extends WFWidget
         if (in_array("+{$this->value}", $sortKeys))
         {
             $sortIndicator = "+";
+            $sortIndicator = "<img src=\"{$imgSrc}/arrow-up.gif\" width=\"11\" height=\"6\" />";
             $linkKey = "-{$this->value}";
         }
         else if (in_array("-{$this->value}", $sortKeys))
         {
             $sortIndicator = "-";
+            $sortIndicator = "<img src=\"{$imgSrc}/arrow-dn.gif\" width=\"11\" height=\"6\" />";
             $linkKey = "+{$this->value}";
         }
 
@@ -80,7 +83,8 @@ class WFPaginatorSortLink extends WFWidget
 
         if ($this->paginator->mode() == WFPaginator::MODE_URL)
         {
-            $output = '<a href="' . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState(NULL, NULL, array($linkKey))) . '">' . $sortOptions[$linkKey] . $sortIndicator . '</a>';
+            $linkURL = $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState(NULL, NULL, array($linkKey)));
+            $output = "<a href=\"{$linkURL}\">{$sortOptions[$linkKey]}</a> <a href=\"{$linkURL}\">{$sortIndicator}</a>";
             if ($sortIndicator)
             {
                 return "<b>$output</b>";
@@ -89,7 +93,8 @@ class WFPaginatorSortLink extends WFWidget
         }
         else
         {
-            $output = '<a href="#" onClick="' . $this->paginator->jsForState($this->paginator->paginatorState(NULL, NULL, array($linkKey))) . '">' . $sortOptions[$linkKey] . $sortIndicator . '</a>';
+            $linkURL = $this->paginator->jsForState($this->paginator->paginatorState(NULL, NULL, array($linkKey)));
+            $output = "<a href=\"#\" onClick=\"{$linkURL}\">{$sortOptions[$linkKey]}</a> <a href=\"#\" onClick=\"{$linkURL}\">{$sortIndicator}</a>";
             if ($sortIndicator)
             {
                 return "<b>$output</b>";
