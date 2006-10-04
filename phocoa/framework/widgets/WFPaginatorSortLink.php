@@ -69,13 +69,13 @@ class WFPaginatorSortLink extends WFWidget
         if (in_array("+{$this->value}", $sortKeys))
         {
             $sortIndicator = "+";
-            $sortIndicator = "<img src=\"{$imgSrc}/arrow-up.gif\" width=\"11\" height=\"6\" />";
+            $sortIndicator = "<img src=\"{$imgSrc}/arrow-up.gif\" width=\"11\" height=\"6\" border=\"0\" />";
             $linkKey = "-{$this->value}";
         }
         else if (in_array("-{$this->value}", $sortKeys))
         {
             $sortIndicator = "-";
-            $sortIndicator = "<img src=\"{$imgSrc}/arrow-dn.gif\" width=\"11\" height=\"6\" />";
+            $sortIndicator = "<img src=\"{$imgSrc}/arrow-dn.gif\" width=\"11\" height=\"6\" border=\"0\" />";
             $linkKey = "+{$this->value}";
         }
 

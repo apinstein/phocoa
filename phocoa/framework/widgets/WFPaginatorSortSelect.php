@@ -63,6 +63,7 @@ class WFPaginatorSortSelect extends WFWidget
     function render($blockContent = NULL)
     {
         if (!$this->paginator) throw( new Exception("No paginator assigned.") );
+        if ($this->paginator->itemCount() == 0) return NULL;
 
         $html = '';
 

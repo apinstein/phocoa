@@ -165,8 +165,8 @@ class WFDieselSearch extends WFObject implements WFPagedData
         // check that the callback exists -- with PHOCOA's autoload, we need to check the class explicitly
         if (!class_exists($peerName))
         {
-            __autoload($peerName);
-            if (!$class_exists($peerName)) throw( new Exception("Callback class '{$peerName}' does not exist.") );
+            //__autoload($peerName); class exists should do this.
+            if (!class_exists($peerName)) throw( new Exception("Callback class '{$peerName}' does not exist.") );
         }
         $this->resultObjectLoaderCallback = $peerName;
         $this->resultObjectLoaderCallbackPropelMode = true;
@@ -329,8 +329,13 @@ class WFDieselSearch extends WFObject implements WFPagedData
     function addAttributeQuery($attribute, $comparator, $query)
     {
         if (!in_array($comparator, array('EQ', 'GT', 'GE', 'LT', 'LE'))) throw( new Exception("Illegal comparator: " . $comparator) );
-        $this->attributeQueries[] = "{$comparator}_{$attribute}={$query}";
-        //print "adding {$comparator}_{$attribute}={$query}<BR>";
+        // don't add duplicates
+        $aq = "{$comparator}_{$attribute}={$query}";
+        if (!in_array($aq, $this->attributeQueries))
+        {
+            $this->attributeQueries[] = $aq;
+            //print "adding {$comparator}_{$attribute}={$query}<BR>";
+        }
     }
 
     function clearAttributeQueries($attribute)

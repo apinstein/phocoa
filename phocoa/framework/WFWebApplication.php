@@ -61,6 +61,8 @@ class WFWebApplication extends WFObject
      *  This is the true "setup function"; use this instead of constructor for setup because the object is a singleton with callback,
      *  and down in the call stack of "init" are calls to get the singleton. 
      *  If this happens from the constructor, then the singleton accessor is called before it has a chance to save the singleton.
+     *
+     *  NOTE: assuming right now that this function is called exactly once... thus we use require() instead of require_once() for optimal performance with opcode caches.
      */
     private function init()
     {
@@ -71,10 +73,10 @@ class WFWebApplication extends WFObject
             $delegate_path = APP_ROOT . '/classes/' . WEBAPP_DELEGATE . '.php';
             if ( !file_exists($delegate_path) )
             {
-            	die("WFWebApplicationDelegate class file cannot be found: $delegate_path");
+                die("WFWebApplicationDelegate class file cannot be found: $delegate_path");
             }
             // include the application's delegate. This file should load any classes needed by the session.
-            WFIncluding::requireOnce( $delegate_path );
+            require($delegate_path);
             $delegate_class = WEBAPP_DELEGATE;
             if ( !class_exists($delegate_class) )
             {
@@ -82,8 +84,8 @@ class WFWebApplication extends WFObject
             }
             $this->delegate = new $delegate_class;
 
-            // load the session HERE
-            WFIncluding::requireOnce('framework/WFSession.php');
+            // load the session HERE - CANNOT DO THIS VIA AUTOLOAD! EXACT TIMING OF THIS IS VERY IMPORTANT
+            require('framework/WFSession.php');
 
             if (method_exists($this->delegate, 'initialize'))
             {

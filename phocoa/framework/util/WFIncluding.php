@@ -8,106 +8,10 @@
  */
 
 /**
- *  WFIncluding helps PHOCOA improve performance by providing autoload infrastructure and more efficient include_once and require_once routines.
- *
- *  WFIncluding contains static methods that re-implement require_once() and include_once() because the versions in PHP perform very poorly.
- *
- *  PHP's versions assume that the include_path could have changed since the first xxx_once() call, which means they re-search the include_path for the file anyway.
- *
- *  Our version keeps track of the include_path that existed when xxx_once() was called, eliminating this problem.
+ *  WFIncluding helps PHOCOA improve performance by providing autoload infrastructure.
  */
 class WFIncluding
 {
-    static protected $alreadyIncludedFiles = array();
-
-    /**
-     *  Our version of include_once. Since include_once is a language construct, we cannot use that name for our function name.
-     *
-     *  NOTE: one thing that this function fails to do that include_once does is deal with paths relative to the current script file.
-     *  For instance, include_once("FileA.php") from FileB.php where they're both in the same dir normally works. It will fail here
-     *  since we don't know where FileB.php is when we're called. So, to use includeOnce, you must supply a path that is absolute,
-     *  or relative to one of the include_path pieces, otherwise it will fail.
-     *
-     *  @return mixed The return value from include_once.
-     *  @param string The file to include. Can be absolute or relative to one of the paths in include_path.
-     */
-    static public function includeOnce($file)
-    {
-        // handle absolute paths - just let PHP do it.
-        $firstChr = substr($file, 0, 1);
-        if ($firstChr == '/' or $firstChr == '\\')
-        {
-            return include_once($testPath);
-        }
-
-        // handle includes relative to include_path
-        $include_path = ini_get('include_path');
-        $searchPaths = explode(':', $include_path);
-
-        if (isset(WFIncluding::$alreadyIncludedFiles[$include_path][$file]))
-        {
-            //print "Already included '$file'\n";
-            return NULL;
-        }
-
-        foreach ($searchPaths as $path) {
-            $testPath = "{$path}/{$file}";
-            if (file_exists($testPath))
-            {
-                //print "Including '$testPath'\n";
-                $retVal = include_once($testPath);
-                WFIncluding::$alreadyIncludedFiles[$include_path][$file] = true;
-                return $retVal;
-            }
-        }
-        //print "Couldn't include file '$file' because it wasn't found in: {$include_path}\n";
-        return NULL;
-    }
-
-    /**
-     *  Our version of require_once. Since require_once is a language construct, we cannot use that name for our function name.
-     *
-     *  NOTE: one thing that this function fails to do that include_once does is deal with paths relative to the current script file.
-     *  For instance, include_once("FileA.php") from FileB.php where they're both in the same dir normally works. It will fail here
-     *  since we don't know where FileB.php is when we're called. So, to use includeOnce, you must supply a path that is absolute,
-     *  or relative to one of the include_path pieces, otherwise it will fail.
-     *
-     *  @param string The file to require. Can be absolute or relative to one of the paths in include_path.
-     *  @return mixed The return value from include_once.
-     */
-    static public function requireOnce($file)
-    {
-        // handle absolute paths - just let PHP do it.
-        $firstChr = substr($file, 0, 1);
-        if ($firstChr == '/' or $firstChr == '\\')
-        {
-            return require_once($file);
-        }
-
-        // handle includes relative to include_path
-        $include_path = ini_get('include_path');
-        $searchPaths = explode(':', $include_path);
-
-        if (isset(WFIncluding::$alreadyIncludedFiles[$include_path][$file]))
-        {
-            //print "Already included '$file'\n";
-            return NULL;
-        }
-
-        foreach ($searchPaths as $path) {
-            $testPath = "{$path}/{$file}";
-            if (file_exists($testPath))
-            {
-                //print "Including '$testPath'\n";
-                $retVal = require_once($testPath);
-                WFIncluding::$alreadyIncludedFiles[$include_path][$file] = true;
-                return $retVal;
-            }
-        }
-        // if we get to here, one last-ditch effort to try to include it. This won't work, but it will at least fail the way require_once fails.
-        return require_once($file);
-    }
-
     /**
      *  PHOCOA autload callback.
      *
@@ -217,15 +121,16 @@ class WFIncluding
         if (isset($autoloadClassmapCache[$className]))
         {
             // including absolute paths is much faster than relative paths to the include_path dirs because one doesn't have to walk the include path.
-            // so, if it's a framework/ dir, then include it absolutely! Otherwise, let requireOnce figure it out.
+            // so, if it's a framework/ dir, then include it absolutely! Otherwise, let require figure it out.
             if (substr($autoloadClassmapCache[$className], 0, 10) == 'framework/')
             {
-                WFIncluding::requireOnce(FRAMEWORK_DIR . '/' . $autoloadClassmapCache[$className]);
+                $requirePath = FRAMEWORK_DIR . '/' . $autoloadClassmapCache[$className];
             }
             else
             {
-                WFIncluding::requireOnce($autoloadClassmapCache[$className]);
+                $requirePath = $autoloadClassmapCache[$className];
             }
+            require($requirePath);
             return true;
         }
 

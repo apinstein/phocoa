@@ -143,6 +143,7 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_treeInit = function()
             // add items
             // iterative algorithm for travesing nested list and creating JS to add all nodes in proper order
             // initailze itemStack with first level
+            $itemStack = array();
             foreach (array_reverse($this->value) as $child)
             {
                 $itemStack[] = $child;

@@ -287,11 +287,14 @@ class WFSkin extends WFObject
         $this->delegateName = $skinDelegateName;
         // change name to our convention
         $skinDelegateFileClassName = $skinDelegateName . '_SkinDelegate';
-        // find delegate in skins directory...
-        $skinsDir = WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS);
-        $skinDelegatePath = $skinsDir . '/' . $skinDelegateName . '/' . $skinDelegateFileClassName . '.php';
-        if (!file_exists($skinDelegatePath)) throw( new Exception("Skin Delegate {$skinDelegateName} file {$skinDelegatePath} does not exist.") );
-        WFIncluding::requireOnce($skinDelegatePath);
+        // load skin class -- in lieu of require_once, do this
+        if (!class_exists($skinDelegateFileClassName))
+        {
+            $skinsDir = WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS);
+            $skinDelegatePath = $skinsDir . '/' . $skinDelegateName . '/' . $skinDelegateFileClassName . '.php';
+            if (!file_exists($skinDelegatePath)) throw( new Exception("Skin Delegate {$skinDelegateName} file {$skinDelegatePath} does not exist.") );
+            require($skinDelegatePath);
+        }
         if (!class_exists($skinDelegateFileClassName)) throw( new Exception("Skin Delegate class {$skinDelegateFileClassName} does not exist.") );
         $this->setDelegate(new $skinDelegateFileClassName());
     }
@@ -355,9 +358,14 @@ class WFSkin extends WFObject
         // load the current skin
         $skinsDir = WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS);
         $skinManifestDelegateFileClassName = $this->skinName . '_SkinManifestDelegate';
-        $skinManifestDelegatePath = $skinsDir . '/' . $this->delegateName . '/' . $this->skinName . '/' . $skinManifestDelegateFileClassName . '.php';
-        if (!file_exists($skinManifestDelegatePath)) throw( new Exception("Skin manifest delegate file does not exist: $skinManifestDelegatePath.") );
-        WFIncluding::requireOnce($skinManifestDelegatePath);
+        
+        // in lieu of require_once
+        if (!class_exists($skinManifestDelegateFileClassName))
+        {
+            $skinManifestDelegatePath = $skinsDir . '/' . $this->delegateName . '/' . $this->skinName . '/' . $skinManifestDelegateFileClassName . '.php';
+            if (!file_exists($skinManifestDelegatePath)) throw( new Exception("Skin manifest delegate file does not exist: $skinManifestDelegatePath.") );
+            require($skinManifestDelegatePath);
+        }
 
         // instantiate the skin manifest delegate
         if (!class_exists($skinManifestDelegateFileClassName)) throw( new Exception("Skin manifest delegate class does not exist: {$skinManifestDelegateFileClassName}."));

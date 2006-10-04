@@ -3,9 +3,9 @@
 /**
  * PHOCOA has its own autload infrastructure that is handled by WFWebApplication. So, this is the only require_once() we need to use in all PHOCOA framework code outside of bootstrapping this file.
  */
-require_once('framework/util/WFIncluding.php');
-WFIncluding::requireOnce('framework/WFWebApplication.php'); // need this because it decleare the WFWebApplicationMain() entry point that is used to get things going.
-WFIncluding::requireOnce('framework/WFLog.php');    // need this for the PEAR_LOG_* constants below.
+require('framework/util/WFIncluding.php');
+require('framework/WFWebApplication.php'); // need this because it decleare the WFWebApplicationMain() entry point that is used to get things going.
+require('framework/WFLog.php');    // need this for the PEAR_LOG_* constants below.
 
 if (IS_PRODUCTION)
 {

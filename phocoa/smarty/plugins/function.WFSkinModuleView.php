@@ -24,8 +24,14 @@
 function smarty_function_WFSkinModuleView($params, $smarty)
 {
     if (empty($params['invocationPath'])) throw( new Exception("InvocationPath is required.") );
+
     $rc = WFRequestController::sharedRequestController();
-    $modInvocation = new WFModuleInvocation($params['invocationPath'], $rc->rootModuleInvocation());
+
+    // if there is no root invocation, then something bad has happened (probably an exception has been thrown during the main WFModuleInvocation setup), so just bail on any sub-modules.
+    $rootInv = $rc->rootModuleInvocation();
+    if (!$rootInv) return NULL;
+
+    $modInvocation = new WFModuleInvocation($params['invocationPath'], $rootInv);
     $modInvocation->setRespondsToForms(false);
     if (isset($params['targetRootModule']))
     {

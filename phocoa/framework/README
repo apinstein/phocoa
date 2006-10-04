@@ -2,7 +2,7 @@ README for the Cocoa-Style PHP Framework (PHOCOA)
 
 Both CLI and HTTP access to functionality is available. In the HTTP environment, everything is bootstrapped automatically, you need only write WFModule subclasses to add request handlers. On the CLI side, there is now an autoload mechanism in place. To bootstrap the PHOCOA environment, you need only include the webapp.conf file at the top of the CLI script. We recommend setting up and ENV PHOCOA_PROJECT_CONF with the absolute path to the webapp.conf file and then using this at the top of all CLI scripts:
 
-require_once $_ENV['PHOCOA_PROJECT_CONF'];
+require $_ENV['PHOCOA_PROJECT_CONF'];
 
 This will bootstrap the web application, load the application delegate, etc. PHOCOA's autoload mechanism will then call into your app to allow you to provide autoloading for your systems.
 
@@ -43,6 +43,8 @@ TODO
         - (NA) Argument: for target-action: can call a selector with multiple arguments (not required b/c our actions don't currently accept any arguments)
 - (DONE) Array operators: http://developer.apple.com/documentation/Cocoa/Conceptual/KeyValueCoding/Concepts/ArrayOperators.html
 - Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
+  - additional life cycle callbacks? look through page setup and do one for each major phase?
+  - maybe have WFDynamic's "observe" arrayControllers and automatically update themselves... also have "WFArrayController::stopSendingUpdates()" and WFArrayController::startSendingUpdates" (find cocoa equivalent)
 - Move .config and .instances files to YAML to improve compatibility for people managing with text files and make other GUI editors easier to write.
 - Improve 'default' template to a nice-looking one based on UberTemplate.
 - (DONE) Skins should be attached to the root invocation, not to the request. This way one can access the skin for the current module rather than only for the "current request".
@@ -63,7 +65,7 @@ The page cycle is still really tricky... look at this further... ideas:
 
 SYNCHRONIZING THE PHOCOA WWWROOT
 This command will synchronize the www/framework files from your phocoa release code.
-rsync -avz /path/to/phocoa-release/wwwroot/www/framework/ /path/to/myproject/wwwroot/www/framework
+rsync -avz --exclude="*.svn*" /path/to/phocoa-release/wwwroot/www/framework/ /path/to/myproject/wwwroot/www/framework
 
 ARCHITECTURAL THINGS TO INVESTIGATE
 Use of FilterIterator as predicate searching.
@@ -118,7 +120,7 @@ Informal protocols for delegates are typically defined (basically for documentat
 INCLUDES
 All script files should start with:
 
-require_once '../relative-path-to/conf/webapp.conf';
+require '../relative-path-to/conf/webapp.conf';
 
 This one include will set up the PHP include_path so that all remaining includes can be done as relative to the root directory of the project. This is true for CLI scripts as well.
 

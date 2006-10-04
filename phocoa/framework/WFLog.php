@@ -11,7 +11,7 @@
 /**
  * Includes
  */
-WFIncluding::requireOnce('Log.php');    // PEAR log
+require('Log.php');    // PEAR log
 
 /**
  * The WFLog class provides some static helper methods for logging things.

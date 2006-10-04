@@ -12,6 +12,12 @@
  * The Dieselpoint Faceted Navigation UI placeholder.
  * 
  * This widget coordinates all WFDieselFacet widgets (which are its children). It provides the "cookie trail" of the search and the overall search form.
+ *
+ * IMPORTANT: Any module/page using a DieselNav needs to have as its last 4 parameters:
+ *
+ * 'dpQueryState', 'paginatorState', 'doPopup', 'treeViewPath'
+ *
+ * You can have additional parameters, at the beginning, used with setBaseParams().
  * 
  * <b>PHOCOA Builder Setup:</b>
  *
@@ -30,6 +36,7 @@ class WFDieselNav extends WFWidget
     protected $facetNavOrder;
     protected $maxFacetsToShow;
     protected $baseURL;
+    protected $dpQueryStateParamName;
     protected $facetNavHeight;  // css
     protected $searchAction;
 
@@ -44,6 +51,7 @@ class WFDieselNav extends WFWidget
         $this->facetNavOrder = array();
         $this->maxFacetsToShow = 5;
         $this->baseURL = NULL;
+        $this->dpQueryStateParamName = 'dpQueryState';
         $this->facetNavHeight = '100px';
         $this->searchAction = 'search';
 
@@ -72,15 +80,22 @@ class WFDieselNav extends WFWidget
     function baseURL()
     {
         if ($this->baseURL) return $this->baseURL;
+
+        // calculate parameters up until our dpQueryState starts (after this point, we know what the last 4 params must be)
+        $baseURLParams = array();
+        foreach ($this->page()->parameters() as $pName => $value) {
+            if ($pName == $this->dpQueryStateParamName) break;
+            $baseURLParams[] = $value;
+        }
         
         // calculate base URL for links
         if ($this->page->module()->invocation()->targetRootModule() and !$this->page->module()->invocation()->isRootInvocation())
         {
-            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->rootInvocation()->invocationPath();
+            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->rootInvocation()->invocationPath() . '/' . join('/', $baseURLParams);
         }
         else
         {
-            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName();
+            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '/' . join('/', $baseURLParams);
         }
         return $this->baseURL;
     }

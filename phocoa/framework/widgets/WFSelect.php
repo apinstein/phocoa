@@ -95,6 +95,11 @@ class WFSelect extends WFWidget
         $this->labelFormatter = NULL;
     }
 
+    function setJSonChange($js)
+    {
+        $this->jsActions['onChange'] = $js;
+    }
+
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();
@@ -338,6 +343,7 @@ class WFSelect extends WFWidget
                     $multiple .
                     ($this->enabled() ? '' : ' disabled readonly ') .
                     ($this->width ? ' style="width: ' . $this->width . ';" ' : '') . 
+                    $this->getJSActions() . 
                     '>';
 
         $values = $this->contentValues();
