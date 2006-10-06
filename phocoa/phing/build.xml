@@ -32,10 +32,6 @@
         </if>
     </target>
 
-    <target name="newprojectforphocoadev" description="Create a new project workspace to work on phocoa." depends="newproject">
-        <!-- replace "modules" directory with a symlink to the modules directory -->
-    </target>
-
     <target name="newproject" description="Create a new project workspace." depends="prepare"> 
         <!-- Gather information -->
         <input propertyname="phocoa.project.name">Enter the name of the new project:</input>
