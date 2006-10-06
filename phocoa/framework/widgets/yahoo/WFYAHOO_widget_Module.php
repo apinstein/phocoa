@@ -134,7 +134,6 @@ class WFYAHOO_widget_Module extends WFYAHOO
 <script type=\"text/javascript\">
 //<![CDATA[
 var WFYAHOO_widget_Module_{$this->id} = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\", { visible: false } );
-WFYAHOO_widget_Module_{$this->id}.render();
 WFYAHOO_widget_Module_{$this->id}.setHeader(YAHOO.util.Dom.get('{$this->id}_header'));
 WFYAHOO_widget_Module_{$this->id}.setBody(YAHOO.util.Dom.get('{$this->id}_body'));
 WFYAHOO_widget_Module_{$this->id}.setFooter(YAHOO.util.Dom.get('{$this->id}_footer'));

@@ -33,6 +33,7 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
         $this->underlay = "shadow";
         $this->draggable = true;
         $this->modal = true;
+        $this->canClose = true;
 
         $this->importJS("{$this->yuiPath}/dragdrop/dragdrop.js");
         $this->importJS("{$this->yuiPath}/animation/animation.js");
@@ -57,6 +58,7 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
 
 var WFYAHOO_widget_Panel_{$this->id} = PHOCOA.runtime.getObject('{$this->id}');
 WFYAHOO_widget_Panel_{$this->id}.cfg.setProperty('underlay', '{$this->underlay}');
+WFYAHOO_widget_Panel_{$this->id}.cfg.setProperty('close', " . ($this->canClose ? 'true' : 'false') . ");
 WFYAHOO_widget_Panel_{$this->id}.cfg.setProperty('draggable', " . ($this->draggable ? 'true' : 'false') . ");
 WFYAHOO_widget_Panel_{$this->id}.cfg.setProperty('modal', " . ($this->modal ? 'true' : 'false') . ");
 
