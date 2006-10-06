@@ -1,6 +1,6 @@
 <?php
 
 $__instances = array(
-	'userinfo' => array('class' => 'WFLabel', 'children' => array()),
+	'userinfo' => array('class' => 'WFLabel'),
 );
 ?>

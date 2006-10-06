@@ -11,7 +11,19 @@ class login extends WFModule
     {
         $ac = WFAuthorizationManager::sharedAuthorizationManager();
         $ac->logout();
-        $this->setupResponsePage('promptLogin');
+        if ($ac->shouldShowLogoutConfirmation())
+        {
+            $this->setupResponsePage('showLogoutSuccess');
+        }
+        else
+        {
+            throw( new WFRedirectRequestException($ac->defaultLogoutContinueURL()) );
+        }
+    }
+    function showLogoutSuccess_PageDidLoad($page, $params)
+    {
+        $ac = WFAuthorizationManager::sharedAuthorizationManager();
+        $page->assign('continueURL', $ac->defaultLogoutContinueURL());
     }
 
     function promptLogin_ParameterList()
@@ -22,11 +34,35 @@ class login extends WFModule
     {
         $ac = WFAuthorizationManager::sharedAuthorizationManager();
         $authinfo = $ac->authorizationInfo();
-        $page->assign('showLogin', !$authinfo->isLoggedIn());
-        $page->assign('showLoginMessage', !empty($params['continueURL']));
+
+        // calculate continueURL
+        $continueURL = NULL;
         if (!empty($params['continueURL']))
         {
-            $page->outlet('continueURL')->setValue($params['continueURL']);
+            $continueURL = $params['continueURL'];
+        }
+        $page->outlet('continueURL')->setValue($params['continueURL']);
+
+        // if already logged in, bounce to home
+        if ($authinfo->isLoggedIn())
+        {
+            if (!$continueURL)
+            {
+                $continueURL = $ac->defaultLogoutContinueURL();
+            }
+            throw( new WFRedirectRequestException($continueURL) );
+        }
+        
+        // continue to normal promptLogin setup
+        $page->assign('loginMessage', $ac->loginMessage());
+        $page->assign('usernameLabel', $ac->usernameLabel());
+        $page->outlet('rememberMe')->setHidden( !$ac->shouldEnableRememberMe() );
+        $page->outlet('forgottenPasswordLink')->setHidden( !$ac->shouldEnableForgottenPasswordReset() );
+        $page->outlet('forgottenPasswordLink')->setValue( WFRequestController::WFURL('login', 'doForgotPassword') . '/' . $page->outlet('username')->value());
+
+        if (!$page->hasSubmittedForm())
+        {
+            $page->outlet('rememberMe')->setChecked( $ac->shouldRememberMeByDefault() );
         }
     }
 
@@ -36,25 +72,64 @@ class login extends WFModule
         $ok = $ac->login($page->outlet('username')->value(), $page->outlet('password')->value());
         if ($ok)
         {
+            // login was successful
+            // remember me stuff
+            // ...
+
+            // continue to next page
             if ($page->outlet('continueURL')->value())
             {
-                header("Location: " . base64_decode($page->outlet('continueURL')->value()));
+                $continueURL = base64_decode($page->outlet('continueURL')->value());
             }
             else
             {
-                header("Location: " . WFRequestController::WFURL('login', 'showLoginSuccess'));
+                $continueURL = $ac->defaultLoginContinueURL();
             }
-            exit;
+            throw( new WFRedirectRequestException($continueURL) );
         }
         else
         {
-            $page->addError(new WFError("Login username or password is not valid.") );
+            // login failed
+            $failMsg = $ac->loginFailedMessage($page->outlet('username')->value());
+            if (!is_array($failMsg))
+            {
+                $failMsg = array($failMsg);
+            }
+            foreach ($failMsg as $msg) {
+                $page->addError(new WFError($msg) );
+            }
         }
     }
 
     function promptLogin_SetupSkin($skin)
     {
         $skin->setTitle("Please log in.");
+    }
+
+    function doForgotPassword_ParameterList()
+    {
+        return array('username');
+    }
+    function doForgotPassword_PageDidLoad($page, $params)
+    {
+        $ac = WFAuthorizationManager::sharedAuthorizationManager();
+        $page->assign('username', $params['username']);
+        $page->assign('usernameLabel', $ac->usernameLabel());
+        try {
+            $okMessage = "The password for " . $ac->usernameLabel() . " {$params['username']} been reset. Your new password information has been emailed to the email address on file for your account.";
+            $newMessage = $ac->resetPassword($params['username']);
+            if ($newMessage)
+            {
+                $okMessage = $newMessage;
+            }
+            $page->assign('okMessage', $okMessage);
+            $page->assign('ok', true);
+        } catch (WFRedirectRequestException $e) {
+            throw($e);
+        } catch (WFException $e) {
+            $page->assign('ok', false);
+            $page->assign('errMessage', $e->getMessage());
+        }
     }
 
     function showLoginSuccess_SetupSkin($skin)

@@ -70,9 +70,11 @@ abstract class WFWidget extends WFView
     /**
       * @var boolean Whether or not the widget is hidden. Hidden controls WILL NOT BE IN THE HTML OUTPUT.
       *
-      * If you are looking for the Hidden HTML element type, see {@link WFHidden}.
+      * If you want to hide content related to a widget that should also be hidden if the widget is hidden, see {@link smarty_block_WFViewHiddenHelper}.
       *
-      * @todo Should this be moved up into WFView?
+      * If you are looking for the Hidden HTML input type, see {@link WFHidden}.
+      *
+      * @todo Should this be moved up into WFView? If so, make sure block.WFViewHiddenHelper.php still works.
       */
     protected $hidden;
     /**

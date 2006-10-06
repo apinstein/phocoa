@@ -26,6 +26,86 @@ class WFAuthorizationDelegate extends WFObject
       * @return object WFAuthorizationInfo Return an WFAuthorizationInfo with any additional security profile. This of course can be a subclass. Return NULL if login failed.
       */
     function login($username, $password, $passIsToken) {}
+
+    /**
+     *  The URL to continue to if the user logs in but there is no "continue to url" set.
+     *
+     *  If NULL, no redirect will be performed, and just a message saying "Login successful" will be seen.
+     *
+     *  @return string A URL to redirect to (will be done via {@link WFRedirectRequestException}). DEFAULT: NULL.
+     */
+    function defaultLoginContinueURL() {}
+
+    /**
+     *  The URL to continue to if the user logs out.
+     *
+     *  If NULL, no redirect will be performed, and just a message saying "Logout successful" will be seen.
+     *
+     *  @return string A URL to redirect to (will be done via {@link WFRedirectRequestException}). DEFAULT: NULL.
+     */
+    function defaultLogoutContinueURL() {}
+
+    /**
+     *  Should there be an interstitial "You have logged out successfully, click here to continue", or should logout immediately redirect to {@link WFAuthorizationDelegate::defaultLogoutContinueURL() defaultLogoutContinueURL()}?
+     *
+     *  @return boolean TRUE to show a logout interstitial. DEFAULT: true.
+     */
+    function shouldShowLogoutConfirmation() {}
+
+    /**
+     *  Should the login interface have a "remember me" checkbox?
+     *
+     *  @return boolean TRUE to enable "remember me" functionality. DEFAULT: false.
+     */
+    function shouldEnableRememberMe() {}
+
+    /**
+     *  If "remember me" is enabled with {@link WFAuthorizationDelegate::shouldEnableRememberMe() shouldEnableRememberMe}, should "remember me"
+     *  be checked by default?
+     *
+     *  @return boolean TRUE if the "remember me" checkbox should be checked by default. DEFAULT: false.
+     */
+    function shouldRememberMeByDefault() {}
+
+    /**
+     *  The login help message that should be displayed above the login box.
+     *
+     *  @return string The login message to display above the login box. DEFAULT: "You must log in to access the requested page."
+     */
+    function loginMessage() {}
+
+    /**
+     *  The label to use for the "username" field.
+     *
+     *  @return string The label for the username field. DEFAULT: "Username".
+     */
+    function usernameLabel() {}
+
+    /**
+     *  The message to display to a use on unsuccessful login.
+     *
+     *  @param string The username that the attempted login was for.
+     *  @return mixed string: The message to display on failed login. array of strings; Multiple messages to display (as list items). DEFAULT: string:"Login username or password is not valid."
+     */
+    function loginFailedMessage($username) {}
+
+    /**
+     *  Should a "forgot your password" link be shown?
+     *
+     *  @return boolean TRUE to enable forgotten password reset feature.
+     */
+    function shouldEnableForgottenPasswordReset() {}
+
+    /**
+     *  Reset the password for the given user.
+     *
+     *  @param string The username that the attempted login was for.
+     *  @return string The message to show the user on successful password reset. DEFAULT: "The password for <usernameLabel> <username> been reset. Your new password information has been emailed to the email address on file for your account."
+     *  @throws object WFException If the password cannot be reset, throw an error with the message to be displayed as the string.<br>
+     *          object WFRedirectRequestException If your reset password system is more complicated than can be handled by PHOCOA, feel free to redirect to another page to handle this.
+     */
+    function resetPassword($username) {}
+
 }
 
 /**
@@ -155,8 +235,7 @@ class WFAuthorizationException extends Exception
   *
   * @todo Do we need to encapsulate the "login" module in a method of WFAuthorizationManager so that applications can override the login module with their own?
   * @todo Remember-me logins not yet implemented.
-  * @todo Login page needs to have redirect-url support (default and passed-in)
-  * @todo verify login with garbled image (OPTIONAL)
+  * @todo captcha option
   */
 class WFAuthorizationManager extends WFObject
 {
@@ -276,6 +355,7 @@ class WFAuthorizationManager extends WFObject
       * @param string The password to use for the authentication.
       * @param boolean TRUE if the password is in "token" form; ie, not the clear-text password. Useful for remember-me logins or single-sign-on (SSO) setups.
       * @return boolean TRUE if login was successful, FALSE otherwise.
+      * @see WFAuthorizationDelegate::login()
       */
     function login($username, $password, $passIsToken = false)
     {
@@ -302,6 +382,231 @@ class WFAuthorizationManager extends WFObject
 
             return false;
         }
+    }
+
+    /**
+     *  The URL to continue to if the user logs in but there is no "continue to url" set.
+     *
+     *  Will call the login delegate method to get info as well.
+     *
+     *  @return string A URL to redirect to (will be done via {@link WFRedirectRequestException}). DEFAULT: NULL.
+     *  @see WFAuthorizationDelegate::defaultLoginContinueURL()
+     */
+    function defaultLoginContinueURL()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for defaultLoginContinueURL.") );
+
+        $continueURL = WFRequestController::WFURL('login', 'showLoginSuccess');
+        if (method_exists($this->authorizationDelegate, 'defaultLoginContinueURL'))
+        {
+            $dContinueURL = $this->authorizationDelegate->defaultLoginContinueURL();
+            if ($dContinueURL)
+            {
+                $continueURL = $dContinueURL;
+            }
+        }
+
+        return $continueURL;
+    }
+
+    /**
+     *  The URL to continue to if the user logs out.
+     *
+     *  Will call the login delegate method.
+     *
+     *  If NULL, no redirect will be performed, and just a message saying "Logout successful" will be seen.
+     *
+     *  @return string A URL to redirect to (will be done via {@link WFRedirectRequestException}). DEFAULT: NULL.
+     *  @see WFAuthorizationDelegate::defaultLogoutContinueURL()
+     */
+    function defaultLogoutContinueURL()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for defaultLogoutContinueURL.") );
+
+        $continueURL = WFRequestController::WFURL('login', 'showLogoutSuccess');
+        if (method_exists($this->authorizationDelegate, 'defaultLogoutContinueURL'))
+        {
+            $dContinueURL = $this->authorizationDelegate->defaultLogoutContinueURL();
+            if ($dContinueURL)
+            {
+                $continueURL = $dContinueURL;
+            }
+        }
+
+        return $continueURL;
+    }
+
+    /**
+     *  Should there be an interstitial "You have logged out successfully, click here to continue", or should logout immediately redirect to {@link WFAuthorizationDelegate::defaultLogoutContinueURL() defaultLogoutContinueURL()}?
+     *
+     *  Will call login delegate.
+     *
+     *  @return boolean TRUE to show a logout interstitial. DEFAULT: true.
+     *  @see WFAuthorizationDelegate::defaultLoginContinueURL()
+     */
+    function shouldShowLogoutConfirmation()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for shouldShowLogoutConfirmation.") );
+
+        $shouldShowLogoutConfirmation = true;
+        if (method_exists($this->authorizationDelegate, 'shouldShowLogoutConfirmation'))
+        {
+            $shouldShowLogoutConfirmation = $this->authorizationDelegate->shouldShowLogoutConfirmation();
+        }
+
+        return $shouldShowLogoutConfirmation;
+    }
+
+    /**
+     *  Should the login interface have a "remember me" checkbox?
+     *
+     *  Will call the login delegate method.
+     *
+     *  @return boolean TRUE to enable "remember me" functionality. DEFAULT: false.
+     *  @see WFAuthorizationDelegate::shouldEnableRememberMe()
+     */
+    function shouldEnableRememberMe()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for shouldEnableRememberMe.") );
+
+        $shouldEnableRememberMe = false;
+        if (method_exists($this->authorizationDelegate, 'shouldEnableRememberMe'))
+        {
+            $shouldEnableRememberMe = $this->authorizationDelegate->shouldEnableRememberMe();
+        }
+
+        return $shouldEnableRememberMe;
+    }
+
+    /**
+     *  If "remember me" is enabled with {@link WFAuthorizationDelegate::shouldEnableRememberMe() shouldEnableRememberMe}, should "remember me"
+     *  be checked by default?
+     *
+     *  Will call the login delegate method.
+     *
+     *  @return boolean TRUE if the "remember me" checkbox should be checked by default. DEFAULT: false.
+     *  @see WFAuthorizationDelegate::shouldRememberMeByDefault()
+     */
+    function shouldRememberMeByDefault()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for shouldRememberMeByDefault.") );
+
+        $shouldRememberMeByDefault = false;
+        if (method_exists($this->authorizationDelegate, 'shouldRememberMeByDefault'))
+        {
+            $shouldRememberMeByDefault = $this->authorizationDelegate->shouldRememberMeByDefault();
+        }
+
+        return $shouldRememberMeByDefault;
+    }
+
+    /**
+     *  The login help message that should be displayed above the login box.
+     *
+     *  Will call the login delegate method.
+     *
+     *  @return string The login message to display above the login box. DEFAULT: "You must log in to access the requested page."
+     *  @see WFAuthorizationDelegate::loginMessage()
+     */
+    function loginMessage()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for loginMessage.") );
+
+        $loginMessage = 'You must log in to access the requested page.';
+        if (method_exists($this->authorizationDelegate, 'loginMessage'))
+        {
+            $loginMessage = $this->authorizationDelegate->loginMessage();
+        }
+
+        return $loginMessage;
+    }
+
+    /**
+     *  The label to use for the "username" field.
+     *  
+     *  Will call the login delegate method.
+     *
+     *  @return string The label for the username field. DEFAULT: "Username".
+     *  @see WFAuthorizationDelegate::usernameLabel()
+     */
+    function usernameLabel()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for usernameLabel.") );
+
+        $usernameLabel = 'Username';
+        if (method_exists($this->authorizationDelegate, 'usernameLabel'))
+        {
+            $usernameLabel = $this->authorizationDelegate->usernameLabel();
+        }
+
+        return $usernameLabel;
+    }
+
+    /**
+     *  The message to display to a use on unsuccessful login.
+     *
+     *  Will call the login delegate method.
+     *
+     *  @param string The username that the attempted login was for.
+     *  @return mixed string: The message to display on failed login. array of strings; Multiple messages to display (as list items). DEFAULT: string:"Login username or password is not valid."
+     *  @see WFAuthorizationDelegate::loginFailedMessage()
+     */
+    function loginFailedMessage($username)
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for loginFailedMessage.") );
+
+        $loginFailedMessage = 'Login failed for ' . $this->usernameLabel() . ' "' . $username . '". Please check your ' . $this->usernameLabel() . ' and password and try again.';
+        if (method_exists($this->authorizationDelegate, 'loginFailedMessage'))
+        {
+            $loginFailedMessage = $this->authorizationDelegate->loginFailedMessage($username);
+        }
+
+        return $loginFailedMessage;
+    }
+
+    /**
+     *  Should a "forgot your password" link be shown?
+     *
+     *  Will call the login delegate method.
+     *
+     *  @return boolean TRUE to enable forgotten password reset feature.
+     *  @see WFAuthorizationManager::shouldEnableForgottenPasswordReset()
+     */
+    function shouldEnableForgottenPasswordReset()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for shouldEnableForgottenPasswordReset.") );
+
+        $shouldEnableForgottenPasswordReset = false;
+        if (method_exists($this->authorizationDelegate, 'shouldEnableForgottenPasswordReset'))
+        {
+            $shouldEnableForgottenPasswordReset = $this->authorizationDelegate->shouldEnableForgottenPasswordReset();
+        }
+
+        return $shouldEnableForgottenPasswordReset;
+    }
+
+    /**
+     *  Reset the password for the given user.
+     *
+     *  Your delegate method should craft an email or such to that user with the new password info.
+     *  If there is a problem (ie user doesn't exist) throw a WFException with an appropriate message to be displyed.
+     *  If not, just send your email and that's it. The default implementation will show an appropriate confirmation message.
+     *
+     *  Alternatively, if you have more complicated reset password logic you want to implement, throw a WFRedirectRequestException.
+     * 
+     *  Will call the login delegate method.
+     *
+     *  @param string The username that the attempted login was for.
+     *  @return string The message to show the user on successful password reset.
+     *  @throws object WFException If the password cannot be reset, throw an error with the message to be displayed as the string.<br>
+     *          object WFRedirectRequestException If your reset password system is more complicated than can be handled by PHOCOA, feel free to redirect to another page to handle this.
+     *  @see WFAuthorizationDelegate::resetPassword($username)
+     */
+    function resetPassword($username)
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for resetPassword.") );
+        if (!method_exists($this->authorizationDelegate, 'resetPassword')) throw( new Exception("WFAuthorizationDelegate::resetPassword() must be definied to use the password reset feature.") );
+        $this->authorizationDelegate->resetPassword($username);
     }
 }
 
