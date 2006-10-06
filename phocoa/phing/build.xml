@@ -65,7 +65,7 @@
             <fileset dir="${phocoa.basedir}">
                 <exclude name="**/.svn/**" />
                 <include name="classes/**" />
-                <include name="modules/**" />
+                <include name="modules" />
                 <include name="skins/**" />
                 <include name="wwwroot/index.php" />
             </fileset>

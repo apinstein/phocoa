@@ -31,8 +31,6 @@ TODO
 - Outline and Document Naming Conventions for widgets to use for javascript functions, id, etc
 - Decide on convention for loading JS files; should widgets document the needed files and require modules to load them, or should they try to always do it themselves?
   - Seem to have a good way to load JS/CSS for widgets with the PHOCOA. stuff, but what about loading phocoa.js and prototype.js? Skin? Require modules to do it?
-- Can we add a "module search path"? This would be used so that we can search for modules along multiple filesystem paths, and thus wouldn't need to copy framework modules
-  into project directories. Works great for bundled and contrib modules... what about the WWW widget dir? how would that work?
 - Add remember me support to login module; make sure needed support is in session code; test
 - Add pear channel support for installation
   - dependencies; propel, phing, creole, etc
@@ -43,6 +41,8 @@ TODO
   -> Figure out better way for re-using modules so that they can be used as widgets of other pages: tricky life-cycle consequences
   -> Basic idea that pages and views are handled the same way.
 - I18N infrastructure -> Like Cocoa; WFLocalizedStringForString:
+- (DONE) Can we add a "module search path"? This would be used so that we can search for modules along multiple filesystem paths, and thus wouldn't need to copy framework modules
+  into project directories. See WFWebApplication::addModulePath()
 - (DONE) prototypes for the WFDynamic controls so you can "configure" the default setup for a widget in a table, matrix, etc
 - Improve bindings support:
     - (DONE) Read only...

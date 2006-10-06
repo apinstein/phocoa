@@ -82,6 +82,10 @@ class WFModuleInvocation extends WFObject
       * @var object The {@link WFSkin} object for this invocation. By default, only ROOT invocations will be skinned.
       */
     protected $skin;
+    /**
+     * @var string The base modules directory that contains this module path. This is one of the paths in {@link WFWebApplication::modulePaths()}, or the APP_ROOT/modules directory.
+     */
+    protected $modulesDir;
 
     /**
      *  Constructor used to create a new WFModuleInvocation.
@@ -100,6 +104,7 @@ class WFModuleInvocation extends WFObject
         parent::__construct();
 
         $this->invocationPath = ltrim($invocationPath, '/');
+        if (!$this->invocationPath) throw( new Exception("invocationPath cannot be blank.") );
         $this->parentInvocation = $parentInvocation;
 
         $this->targetRootModule = true;
@@ -108,6 +113,7 @@ class WFModuleInvocation extends WFObject
         $this->moduleName = NULL;
         $this->pageName = NULL;
         $this->module = NULL;
+        $this->modulesDir = NULL;
         
         // set up default skin as needed
         if ($this->isRootInvocation() and !is_null($skinDelegate))
@@ -123,6 +129,32 @@ class WFModuleInvocation extends WFObject
 
         // set up module -- do this here so that we can interact with the module from the caller before execution
         $this->extractComponentsFromInvocationPath();
+    }
+
+    /**
+     *  Set the "modules" directory used to access this module.
+     *
+     *  This is not necessarily the entire path to the module; the entire path to the module is modulesDir() + modulePath()
+     *
+     *  @param string The modules directory.
+     *  @see WFModule::pathToModule()
+     */
+    function setModulesDir($d)
+    {
+        $this->modulesDir = $d;
+    }
+
+    /**
+     *  Get the "modules" directory used to access this module.
+     *
+     *  This is not necessarily the entire path to the module; the entire path to the module is modulesDir() + modulePath()
+     *
+     *  @return string The modules directory.
+     *  @see WFModule::pathToModule()
+     */
+    function modulesDir()
+    {
+        return $this->modulesDir;
     }
 
     /**
@@ -389,9 +421,17 @@ class WFModuleInvocation extends WFObject
         // walk path looking for the module -- keep "blank" entry when "//" encountered.
         $pathInfoParts = preg_split('/\//', trim($this->invocationPath, '/'), -1);
 
+        $modulesDirPath = WFWebApplication::appDirPath(WFWebApplication::DIR_MODULES);
+        foreach (WFWebApplication::sharedWebApplication()->modulePaths() as $prefix => $dir) {
+            if (strpos($this->invocationPath, $prefix) === 0)
+            {
+                $modulesDirPath = realpath($dir . '/..');
+            }
+        }
+
         //print_r($pathInfoParts);
         //print "URI: $<BR>";
-        $modulesDirPath = WFWebApplication::appDirPath(WFWebApplication::DIR_MODULES);
+        $foundModule = false;
         $modulePath = '';
         $partsUsedBeforeModule = 0;
         foreach ($pathInfoParts as $part) {
@@ -422,6 +462,8 @@ class WFModuleInvocation extends WFObject
                     }
                     $this->invocationParameters = $params;
                 }
+                $foundModule = true;
+                $this->setModulesDir($modulesDirPath);
                 //print "Found module {$this->moduleName} in {$this->modulePath}.";
                 //if ($this->pageName) print " Found page name: {$this->pageName}";
                 //print "<BR>";
@@ -432,10 +474,11 @@ class WFModuleInvocation extends WFObject
             {
                 $partsUsedBeforeModule++;
             }
-            else
-            {
-                throw( new Exception("Module 404: invocation path {$this->invocationPath} could not be found.") );
-            }
+        }
+
+        if (!$foundModule)
+        {
+            throw( new Exception("Module 404: invocation path '{$this->invocationPath}' could not be found.") );
         }
 
         if (empty($this->moduleName) or empty($this->pageName))
@@ -445,15 +488,6 @@ class WFModuleInvocation extends WFObject
         else
         {
             $needsRedirect = false;
-        }
-
-        if (empty($this->moduleName)) 
-        {
-            // get default from application config
-            $app = WFWebApplication::sharedWebApplication();
-            $defaultModulePath = $app->defaultModule();
-            $this->modulePath = ltrim($defaultModulePath, '/');
-            $this->moduleName = basename($defaultModulePath);
         }
 
         if (empty($this->moduleName)) throw( new Exception("Module 404: No module name could be determined from {$this->invocationPath}.") );
@@ -559,8 +593,14 @@ abstract class WFModule extends WFObject
         parent::__construct();
 
         if (!($invocation instanceof WFModuleInvocation)) throw( new Exception("Modules must be instantiated with a WFModuleInvocation.") );
-        $this->invocation = $invocation;
 
+        $this->invocation = $invocation;
+        $this->requestPage = NULL;
+        $this->resonsePage = NULL;
+    }
+
+    function init()
+    {
         // check security
         $this->runSecurityCheck();
 
@@ -705,8 +745,7 @@ abstract class WFModule extends WFObject
      */
     function pathToModule()
     {
-        $modDir = WFWebApplication::appDirPath(WFWebApplication::DIR_MODULES);
-        return $modDir . '/' . $this->invocation->modulePath();
+        return $this->invocation->modulesDir() . '/' . $this->invocation->modulePath();
     }
 
     /**
@@ -720,7 +759,7 @@ abstract class WFModule extends WFObject
     function factory($invocation)
     {
         $moduleName = $invocation->moduleName();
-        $modulesDirPath = WFWebApplication::appDirPath(WFWebApplication::DIR_MODULES);
+        $modulesDirPath = $invocation->modulesDir();
         $moduleFilePath = $modulesDirPath . '/' . $invocation->modulePath() . '/' . $moduleName . '.php';
 
         // load module subclass and instantiate
@@ -739,6 +778,7 @@ abstract class WFModule extends WFObject
         }
         else throw( new Exception("WFModule subclass (module_{$moduleName} or {$moduleName}) could not be found.") );
 
+        $module->init();
         return $module;
     }
 
@@ -773,7 +813,7 @@ abstract class WFModule extends WFObject
     function prepareSharedInstances()
     {
         $app = WFWebApplication::sharedWebApplication();
-        $modDir = $app->appDirPath(WFWebApplication::DIR_MODULES);
+        $modDir = $this->invocation()->modulesDir();
         $instancesFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.instances';
         $configFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.config';
 

@@ -29,9 +29,20 @@ class WFWebApplicationDelegate
     function autoload($className)
 
     /**
+     * Retrieve the default invocation path for the application.
+     *
+     * By specifying a complete path to a module/page, you can have mydomain.com/ actually display a page without redirecting.
+     *
+     * @return string The default invocation path for this web application.
+     */
+    function defaultInvocationPath() {}
+
+    /**
      * Retrieve the default module for the application.
      *
      * @return string The default module for this web application. You may specify either a module name (examplemodule) or a path to a module (path/to/examplemodule).
+     * @deprecated
+     * @see WFWebApplicationDelegate::defaultInvocationPath
      */
     function defaultModule() {}
 

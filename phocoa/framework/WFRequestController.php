@@ -97,6 +97,10 @@ class WFRequestController extends WFObject
         }
         
         try {
+            if ($modInvocationPath == '')
+            {
+                $modInvocationPath = WFWebApplication::sharedWebApplication()->defaultInvocationPath();
+            }
             $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL, WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
 
             // get HTML result of the module, and output it

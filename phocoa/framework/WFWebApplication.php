@@ -51,6 +51,10 @@ class WFWebApplication extends WFObject
      * @var object The delegate object for the application.
      */
     protected $delegate;
+    /**
+     * @var array An array containing module location information for modules not in APP_ROOT/modules. Format modulePath => moduleDir [absolute fs path]
+     */
+    protected $modulePaths;
 
     /**
      * Constructor
@@ -67,6 +71,7 @@ class WFWebApplication extends WFObject
     private function init()
     {
         $this->delegate = NULL;
+        $this->modulePaths = array();
         if (defined('WEBAPP_DELEGATE')) 
         {
             // load delegate
@@ -92,6 +97,33 @@ class WFWebApplication extends WFObject
                 $this->delegate->initialize();
             }
         }
+    }
+
+    /**
+     *  If you have installed modules outside of your project's modules directory, you can tell PHOCOA where to look for them with this function.
+     *
+     *  Examples:
+     *  <code>
+     *  WFWebApplication::sharedWebApplication()->addModulePath('login', FRAMEWORK_DIR . '/modules/login');
+     *  </code>
+     *
+     *  @param string The modulePath that must be matched to use the given module.
+     *  @param string The absoulte filesystem path of the location of the module.
+     */
+    function addModulePath($modulePath, $moduleDir)
+    {
+        $this->modulePaths[$modulePath] = $moduleDir;
+    }
+
+    /**
+     *  Get the list of extra modules activates for this webapp.
+     *
+     *  @return array An array of all modulePaths that have been added to this webapp.
+     *  @see WFWebApplication::$modulePaths
+     */
+    function modulePaths()
+    {
+        return $this->modulePaths;
     }
 
     /**
@@ -133,6 +165,9 @@ class WFWebApplication extends WFObject
 
     /**
       * Get the absolute path of one of the application directories.
+      *
+      * NOTE: this function should only return things inside of APP_ROOT.. presently DIR_SMARTY is an exception b/c we haven't
+      * yet implemented userland smarty templates...
       *
       * @param string One of the DIR_* constants.
       * @return string The absolute path of the passed directory type. NO TRAILING SLASH!! ADD IT YOURSELF.
@@ -200,15 +235,20 @@ class WFWebApplication extends WFObject
     }
 
     /**
-     * Get the default module for this web application. The default module is the module that will be run if the web root is accessed.
+     * Get the default invocationPath for this web application. The default module is the module that will be run if the web root is accessed.
      *
-     * The default module is provided by the {@link WFWebApplicationDelegate}.
+     * The default module is provided by the {@link WFWebApplicationDelegate::defaultInvocationPath()}.
      * 
-     * @return string The default module for this web application. Will be either a module name (examplemodule) or a path to a module (path/to/examplemodule).
+     * @return string The default invocationPath for this web application.
      */
-    function defaultModule()
+    function defaultInvocationPath()
     {
-        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultModule'))
+        if (is_object($this->delegate) && method_exists($this->delegate, 'defaultInvocationPath'))
+        {
+            return $this->delegate->defaultInvocationPath();
+        }
+        // support previous defaultModule delegate method too, if the new one isn't there... deprecate this in future
+        else if (is_object($this->delegate) && method_exists($this->delegate, 'defaultModule'))
         {
             return $this->delegate->defaultModule();
         }
