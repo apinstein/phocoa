@@ -1,0 +1,16 @@
+RewriteEngine On
+
+#enable a normal wwwroot
+RewriteRule ^/?www/?(.*) - [L]
+
+# enable normal www access to skins directory - WWWROOT for EACH SKIN WWWROOT in EACH SKIN DIR. Pieces are SkinType, SkinName, SkinThemeName, and path/to/resource
+# security thought... can people ../../.. their way to trouble? Apache 2 at least seems to prevent this, but I am not sure how.
+RewriteRule ^/?skins/([^/]*)/([^/]*)/([^/]*)/?(.*) /www/skins/$1/$2/www/$3/$4 [L]
+
+# show phpdoc documentation
+RewriteRule ^/?docs$ /docs/ [R,L]
+RewriteRule ^/?docs/?(.*) /www/docs/$1 [L]
+
+# allow / to run application - THIS ONE MUST BE LAST otherwise it will override the others!
+RewriteRule ^/?index.php.* - [L]
+RewriteRule ^/?(.*) /index.php/$1

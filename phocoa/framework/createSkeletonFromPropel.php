@@ -140,7 +140,7 @@ class SkeletonDumperPropel
             {
                 if ($part == 'modules')
                 {
-                    $this->modulePath = '/webapp';
+                    $this->modulePath = WWW_ROOT;
                     continue;
                 }
             }

@@ -2,15 +2,34 @@
 <!-- NOTE:: All paths should leave off trailing slash!!! -->
 <project name="phocoa" default="newproject" basedir=".">
     <!-- Set up tasks -->
+    <taskdef name="build-pear-package" classname="tasks.BuildPearPackage" />
+    <taskdef name="resolvepathexpandhome" classname="tasks.ResolvePathExpandHome" />
+    <taskdef name="symlink" classname="tasks.SymLink" />
 
     <!-- Targets -->
     <target name="prepare" description="Set up all directories and shared properties, etc." >
         <property name="phocoa.basedir" value="${project.basedir}/.." /> 
+        <resolvepath propertyName="phocoa.basedir" file="${phocoa.basedir}"/>
         <echo message="PHOCOA framework base dir at: ${phocoa.basedir}" />
     </target>
 
-    <target name="httpdconf" description="Output the Include statement to include a project's httpd.conf file.">
-        <echo message="Make sure your httpd.conf file contains the line: Include ${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/conf/httpd.conf" />
+    <target name="httpdconf" description="Explain HTTPD setup require for phocoa.">
+        <echo message="PHOCOA requires some httpd configurations to work its magic. You must either be able to edit httpd.conf, or have an apache with mod_rewrite enabled." />
+        <input propertyname="phocoa.project.httpdConfMode" defaultValue="1" >Select httpd configuration mode: 1=httpd.conf, 2=.htaccess</input>
+        <if>
+            <equals arg1="${phocoa.project.httpdConfMode}" arg2="1" />
+            <then>
+                <echo message="Make sure your httpd.conf file contains the line: Include ${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/conf/httpd.conf" />
+            </then>
+            <else>
+                <echo message="Installing .htaccess file" />
+                <move file="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/conf/.htaccess" tofile="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/.htaccess" />
+                <echo message="Setting up symlinks for www accesss" />
+                <symlink source="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/www/docs" destination="${phocoa.basedir}/docs/phpdocs" />
+                <symlink source="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/www/framework" destination="${phocoa.basedir}/wwwroot/www/framework" />
+                <symlink source="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/www/skins" destination="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/skins" />
+            </else>
+        </if>
     </target>
 
     <target name="newprojectforphocoadev" description="Create a new project workspace to work on phocoa." depends="newproject">
@@ -20,7 +39,8 @@
     <target name="newproject" description="Create a new project workspace." depends="prepare"> 
         <!-- Gather information -->
         <input propertyname="phocoa.project.name">Enter the name of the new project:</input>
-        <input propertyname="phocoa.project.container">Enter the path to create the new project in:</input>
+        <input propertyname="phocoa.project.containerInput">Enter the path to create the new project in:</input>
+        <resolvepathexpandhome propertyName="phocoa.project.container" file="${phocoa.project.containerInput}"/>
         <input propertyname="phocoa.project.servername" defaultValue="localhost">Enter the name of the server (ie dns name) that will host this application:</input>
         <input propertyname="phocoa.project.serverip" defaultValue="127.0.0.1">Enter the IP of the server that will host this application:</input>
         <input propertyname="phocoa.project.serverport" defaultValue="80">Enter the PORT of the server that will host this application:</input>
@@ -47,9 +67,10 @@
                 <include name="classes/**" />
                 <include name="modules/**" />
                 <include name="skins/**" />
-                <include name="wwwroot/**" />
+                <include name="wwwroot/index.php" />
             </fileset>
         </copy>
+        <mkdir dir="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/www" />
 
         <!-- Set up conf files -->
         <echo msg="Setting up configuration files..." />
@@ -75,8 +96,6 @@
     </target> 
 
     <!-- maybe we should have another phing build file for PHOCOA-DEV purposes with this target and others like regressions tests, etc. -->
-    <!-- Set up tasks -->
-    <taskdef name="build-pear-package" classname="tasks.BuildPearPackage" />
     <!-- The ouput package.xml of this task seems to fail, maybe try PearPackageTask -->
     <target name="buildpearpackage" depends="prepare" description="Build a PEAR package of .PHOCOA."> 
         <echo msg="Building PEAR package..." /> 
