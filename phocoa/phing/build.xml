@@ -90,6 +90,7 @@
         <echo message="1. Make sure that propel is available in your include_path. If not, edit webapp.conf and munge include_path." />
         <echo message="2. Add define('PROPEL_CONF', APP_ROOT . '/conf/${phocoa.project.name}-conf.php'); to your webapp.conf." />
         <echo message="3. Add Propel::init(PROPEL_CONF); to your WFWebApplicationDelegate's initialize() method." />
+        <echo message="4. Edit the propel/runtime/classes/propel/om/BaseObject.php BaseObject declaration to this: 'abstract class BaseObject extends WFObject'." />
         <input propertyname="db.generate" validArgs="yes,no" defaultValue="no">If your database already exists, we can generate a PHP interface to your database objects. Does your database already exist?</input>
         <if>
             <equals arg1="${db.generate}" arg2="1" />
