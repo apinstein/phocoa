@@ -53,6 +53,7 @@
     <target name="addpropel" description="Add propel support to this project." depends="prepareProject">
         <property userProperty="true" name="phocoa.propel.dir" value="${phocoa.project.dir}/propel-build" />
         <echo message="Setting up PHOCOA project for Propel in dir: ${phocoa.propel.dir}" />
+        <selectExecutable name="propel-gen" propertyName="propel.bin.propel-gen" />
         <mkdir dir="${phocoa.propel.dir}" />
         <input propertyname="propel.database" validArgs="pgsql,mysql,mssql,sqllite,ldap">Enter the database type:</input>
         <input propertyname="db.name">Enter the database name:</input>
@@ -83,14 +84,26 @@
                 </replacetokens>
             </filterchain>
         </copy>
-        <selectExecutable name="propel-gen" propertyName="propel.bin.propel-gen" />
-        <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} creole" passthru="true" />
-        <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} main" passthru="true" />
-        <echo message="Propel code generation complete." />
+        <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} convert-props" passthru="true" />
+        <echo message="Propel general setup complete." />
         <echo message="To complete propel integration, complete the following manual tasks:" />
         <echo message="1. Make sure that propel is available in your include_path. If not, edit webapp.conf and munge include_path." />
         <echo message="2. Add define('PROPEL_CONF', APP_ROOT . '/conf/${phocoa.project.name}-conf.php'); to your webapp.conf." />
         <echo message="3. Add Propel::init(PROPEL_CONF); to your WFWebApplicationDelegate's initialize() method." />
+        <input propertyname="db.generate" validArgs="yes,no" defaultValue="no">If your database already exists, we can generate a PHP interface to your database objects. Does your database already exist?</input>
+        <if>
+            <equals arg1="${db.generate}" arg2="1" />
+            <then>
+                <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} creole" passthru="true" />
+                <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} main" passthru="true" />
+                <echo message="Propel code generation complete." />
+            </then>
+            <else>
+                <echo message="Skipping Propel code generation. You can always generate your classes with Propel in the future:" />
+                <echo message="${propel.bin.propel-gen} ${phocoa.propel.dir} main" />
+            </else>
+        </if>
+        <echo message="Done adding Propel support." />
     </target>
 
     <!-- setup and config tasks -->
@@ -104,11 +117,11 @@
             </then>
             <else>
                 <echo message="Installing .htaccess file" />
-                <move file="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/conf/.htaccess" tofile="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/.htaccess" />
+                <move file="${phocoa.project.container}/${phocoa.project.name}/conf/.htaccess" tofile="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/.htaccess" />
                 <echo message="Setting up symlinks for www accesss" />
-                <symlink source="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/www/docs" destination="${phocoa.dir}/docs/phpdocs" />
-                <symlink source="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/www/framework" destination="${phocoa.dir}/wwwroot/www/framework" />
-                <symlink source="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/www/skins" destination="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/skins" />
+                <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/docs" destination="${phocoa.dir}/docs/phpdocs" />
+                <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/framework" destination="${phocoa.dir}/wwwroot/www/framework" />
+                <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/skins" destination="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/skins" />
             </else>
         </if>
     </target>
@@ -176,13 +189,14 @@
         <!-- Remind the user to set up the apache config properly. -->
         <phingcall target="httpdconf" />
 
-        <input propertyname="local.hasDB" defaultValue="yes" validArgs="yes,no">Will this project use database access via Propel?</input>
+        <input propertyname="local.usePropel" defaultValue="yes" validArgs="yes,no">Will this project use database access via Propel?</input>
         <if>
-            <equals arg1="${local.HasDB}" arg2="yes" />
+            <equals arg1="${local.usePropel}" arg2="1" />
             <then>
                 <phingcall target="addpropel" />
             </then>
         </if>
+        <echo msg="New Project setup complete." />
     </target> 
 
     <!-- administrative tasks for phocoa dev -->
