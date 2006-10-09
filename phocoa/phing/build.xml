@@ -3,9 +3,10 @@
 <project name="phocoa" default="newproject">
     <!-- Set up tasks -->
     <taskdef name="build-pear-package" classname="tasks.BuildPearPackage" />
-    <taskdef name="resolvepathexpandhome" classname="tasks.ResolvePathExpandHome" />
+    <taskdef name="realpathexpandhome" classname="tasks.RealPathExpandHome" />
     <taskdef name="symlink" classname="tasks.SymLink" />
     <taskdef name="writeconffile" classname="tasks.WriteConfFile" />
+    <taskdef name="selectExecutable" classname="tasks.SelectExecutable" />
 
     <!-- Targets -->
     <target name="prepareGeneral" description="General setup for all modes.">
@@ -20,10 +21,35 @@
             </then>
         </if>
         <echo message="PHOCOA project dir at: ${phocoa.project.dir}" />
+        <realpathexpandhome propertyName="phocoa.project.container" file="${phocoa.project.dir}/.."/>
+        <echo message="PHOCOA project container dir at: ${phocoa.project.container}" />
         <!-- attempt to load information from a file -->
         <property file="${phocoa.project.dir}/conf/build.properties" />
     </target>
 
+    <!-- phocoa project helper tasks -->
+    <target name="createModule" description="Create a new phocoa module in the project." depends="prepareProject">
+        <input propertyname="module.name">Module name:</input>
+        <input propertyname="module.defaultPage">Default page [blank for none]:</input>
+        <exec dir="${phocoa.pwd}" command="php5 ${phocoa.dir}/framework/createModule.php ${module.name} ${module.defaultPage}" passthru="true" />
+    </target>
+
+    <target name="createPage" description="Create a new phocoa page in the current module." depends="prepareProject">
+        <input propertyname="page.name">Page Name:</input>
+        <exec dir="${phocoa.pwd}" command="php5 ${phocoa.dir}/framework/createPage.php ${page.name}" passthru="true" />
+    </target>
+
+    <target name="createSkeletonFromPropel" description="Create a skeleton module for editing a table from Propel." depends="prepareProject">
+        <input propertyname="db.name" defaultValue="${phocoa.project.name}">Database Name:</input>
+        <input propertyname="db.table">Table Name:</input>
+        <input propertyname="db.column">Column name of single column that best describes the table:</input>
+        <input propertyname="db.module" defaultValue="${db.table}">Module Name:</input>
+        <php expression="require('${phocoa.project.dir}/conf/webapp.conf')" />
+        <exec dir="${phocoa.pwd}" command="php5 ${phocoa.dir}/framework/createModule.php ${db.module}" passthru="true" />
+        <exec dir="${phocoa.pwd}/${db.module}" command="php5 ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/webapp.conf --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${phocoa.project.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
+    </target>
+
+    <!-- phocoa propel integration tasks -->
     <target name="addpropel" description="Add propel support to this project." depends="prepareProject">
         <property userProperty="true" name="phocoa.propel.dir" value="${phocoa.project.dir}/propel-build" />
         <echo message="Setting up PHOCOA project for Propel in dir: ${phocoa.propel.dir}" />
@@ -35,7 +61,7 @@
         <input propertyname="db.host" defaultValue="localhost">Enter the database host:</input>
         <property userProperty="true" name="propel.project" value="${phocoa.project.name}" />
         <property userProperty="true" name="propel.database.url" value="${propel.database}://${db.user}:${db.pass}@${db.host}/${db.name}" />
-        <property userProperty="true" name="propel.targePackage" value="${phocoa.project.name}" />
+        <property userProperty="true" name="propel.targetPackage" value="${db.name}" />
         <property userProperty="true" name="propel.autoloadCoreClasses" value="1" />
         <property userProperty="true" name="propel.autoloadGeneratedClasses" value="1" />
         <property userProperty="true" name="propel.output.dir" value="${phocoa.propel.dir}" />
@@ -47,7 +73,7 @@
         <copy file="${phocoa.dir}/conf/propel-conf.xml" tofile="${phocoa.propel.dir}/runtime-conf.xml">
             <filterchain>
                 <replacetokens begintoken="##" endtoken="##">
-                    <token key="LOG_DIR" value="${phocoa.project.dir}/log" />
+                    <token key="LOG_DIR" value="${phocoa.project.container}/log" />
                     <token key="PHOCOA_PROJECT_NAME" value="${phocoa.project.name}" />
                     <token key="PROPEL_DATABASE" value="${propel.database}" />
                     <token key="DB_HOST" value="${db.host}" />
@@ -57,10 +83,17 @@
                 </replacetokens>
             </filterchain>
         </copy>
-        <exec command="propel-gen ${phocoa.propel.dir} creole" passthru="true" />
-        <exec command="propel-gen ${phocoa.propel.dir} main" passthru="true" />
+        <selectExecutable name="propel-gen" propertyName="propel.bin.propel-gen" />
+        <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} creole" passthru="true" />
+        <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} main" passthru="true" />
+        <echo message="Propel code generation complete." />
+        <echo message="To complete propel integration, complete the following manual tasks:" />
+        <echo message="1. Make sure that propel is available in your include_path. If not, edit webapp.conf and munge include_path." />
+        <echo message="2. Add define('PROPEL_CONF', APP_ROOT . '/conf/${phocoa.project.name}-conf.php'); to your webapp.conf." />
+        <echo message="3. Add Propel::init(PROPEL_CONF); to your WFWebApplicationDelegate's initialize() method." />
     </target>
 
+    <!-- setup and config tasks -->
     <target name="httpdconf" description="Explain HTTPD setup require for phocoa." depends="prepareProject">
         <echo message="PHOCOA requires some httpd configurations to work its magic. You must either be able to edit httpd.conf, or have an apache with mod_rewrite enabled." />
         <input propertyname="phocoa.project.httpdConfMode" defaultValue="1">Select httpd configuration mode: 1=httpd.conf, 2=.htaccess</input>
@@ -97,8 +130,8 @@
     <target name="newproject" description="Create a new project workspace." depends="prepareGeneral"> 
         <!-- Gather information -->
         <input propertyname="phocoa.project.name">Enter the name of the new project:</input>
-        <input propertyname="phocoa.project.containerInput" defaultValue="${phocoa.pwd}">Enter the path to create the new project in:</input>
-        <resolvepathexpandhome propertyName="phocoa.project.container" file="${phocoa.project.containerInput}/${phocoa.project.name}"/>
+        <input propertyname="local.containerInput" defaultValue="${phocoa.pwd}">Enter the path to create the new project in:</input>
+        <realpathexpandhome propertyName="phocoa.project.container" file="${local.containerInput}/${phocoa.project.name}"/>
         <!-- since the phocoa.project.dir property is already defined (via cmd line), we must do some tricks to "update" the property since phing makes all props R/O by default -->
         <property name="phocoa.project.dir" value="${phocoa.project.container}/${phocoa.project.name}" override="true" userProperty="true" />
         <input propertyname="phocoa.project.servername" defaultValue="localhost">Enter the name of the server (ie dns name) that will host this application:</input>
@@ -142,8 +175,17 @@
 
         <!-- Remind the user to set up the apache config properly. -->
         <phingcall target="httpdconf" />
+
+        <input propertyname="local.hasDB" defaultValue="yes" validArgs="yes,no">Will this project use database access via Propel?</input>
+        <if>
+            <equals arg1="${local.HasDB}" arg2="yes" />
+            <then>
+                <phingcall target="addpropel" />
+            </then>
+        </if>
     </target> 
 
+    <!-- administrative tasks for phocoa dev -->
     <!-- maybe we should have another phing build file for PHOCOA-DEV purposes with this target and others like regressions tests, etc. -->
     <!-- The ouput package.xml of this task seems to fail, maybe try PearPackageTask -->
     <target name="buildpearpackage" depends="prepareGeneral" description="Build a PEAR package of PHOCOA."> 

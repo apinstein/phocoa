@@ -78,7 +78,6 @@ if (!isset($__config['phocoaPageName']))
 {
     $__config['phocoaPageName'] = $__config['pageType'];
 }
-if (!in_array($__config['pageType'], SkeletonDumperPropel::pageTypes())) throw( new Exception("pageType must be one of: " . join(',', SkeletonDumperPropel::pageTypes())) );
 
 // include the web app to bootstrap phocoa
 require_once $__config['phocoaConfFile'];
@@ -100,18 +99,41 @@ Propel::init($__config['propelConfFile']);
 $propelDBMap = Propel::getDatabaseMap($__config['propelDatabaseName']);
 
 $sdp = new SkeletonDumperPropel($propelDBMap, $__config['tableName'], $__config['columnName']);
-switch ($__config['pageType']) {
-    case 'edit':
-        $sdp->updateEditPage($__config['phocoaPageName']);
-        break;
-    case 'search':
-        $sdp->updateSearchPage($__config['phocoaPageName']);
-        break;
-    case 'detail':
-        $sdp->updateDetailPage($__config['phocoaPageName']);
-        break;
+$moduleCode = array();
+$pageNames = explode(',', $__config['phocoaPageName']);
+$pageTypes = explode(',', $__config['pageType']);
+if (!(count($pageTypes) == count($pageNames))) throw( new Exception("Must have 1 phocoaPageName for each pageType entry.") );
+for ( $i = 0; $i < count($pageTypes); $i++) {
+    $pageType = $pageTypes[$i];
+    $pageName = $pageNames[$i];
+    if (!in_array($pageType, SkeletonDumperPropel::pageTypes())) throw( new Exception("pageType must be one of: " . join(',', SkeletonDumperPropel::pageTypes())) );
+    switch ($pageType) {
+        case 'edit':
+            $moduleCode[] = $sdp->updateEditPage($pageName);
+            break;
+        case 'search':
+            $moduleCode[] = $sdp->updateSearchPage($pageName);
+            break;
+        case 'detail':
+            $moduleCode[] = $sdp->updateDetailPage($pageName);
+            break;
+    }
 }
-print "\n";
+$moduleName = basename(getcwd());
+$file = "<?php
+class module_{$moduleName} extends WFModule
+{
+    function defaultPage() { return 'search'; }
+
+    ";
+foreach ($moduleCode as $code) {
+    $file .= "\n$code\n";
+}
+    $file .= "
+}
+?>";
+file_put_contents('./suggested_code.php', $file);
+print "Suggested module code in suggested_code.php\n";
 
 class SkeletonDumperPropel
 {
@@ -385,7 +407,7 @@ document.forms.{$formID}.query.focus();
         }
 
         // suggested module code
-        print "Suggested module code:
+        return "
     function {$pageName}_ParameterList()
     {
         return array('paginatorState');
@@ -494,7 +516,7 @@ document.forms.{$formID}.query.focus();
         }
 
         // suggested module code
-        print "Suggested module code:
+        return "
     function {$pageName}_ParameterList()
     {
         return array('id');
@@ -667,7 +689,7 @@ document.forms.{$formID}.query.focus();
         // suggested module code
         $deleteSuccessPageName = 'deleteSuccess';
         $confirmDeletePageName = 'confirmDelete';
-        print "Suggested module code:
+        return "
     // this function should throw an exception if the user is not permitted to edit (add/edit/delete) in the current context
     function verifyEditingPermission()
     {

@@ -43,18 +43,21 @@ fi
 # echo "PHOCOA_HOME: $PHOCOA_HOME"
 
 # determine if we're running from a phocoa project dir or "general" (for creating new projects)
+# starting with the current directory, go "up" looking for ./conf/webapp.conf. If never found, we're in "general" mode, identified by PHOCOA_PROJECT_CONF=""
+while [ `pwd` != '/' ]; do
+    if [ -r './conf/webapp.conf' ]; then
+        if [ -n "$PHOCOA_PROJECT_CONF" ] && [ "$PHOCOA_PROJECT_CONF" != "`pwd`/conf/webapp.conf" ]; then
+            echo "FATAL: PHOCOA_PROJECT_CONF in ENV ($PHOCOA_PROJECT_CONF) is outside of the current project."
+            exit 1
+        fi
+        PHOCOA_PROJECT_CONF="`pwd`/conf/webapp.conf"
+        break
+    fi
+    cd ..
+done
+cd "$PHOCOA_RUN_FROM_DIR"
 if [ -z "$PHOCOA_PROJECT_CONF" ]; then
     PHOCOA_PROJECT_CONF=
-
-    # starting with the current directory, go "up" looking for ./conf/webapp.conf. If never found, we're in "general" mode, identified by PHOCOA_PROJECT_CONF=""
-    while [ `pwd` != '/' ]; do
-        if [ -r './conf/webapp.conf' ]; then
-            PHOCOA_PROJECT_CONF="`pwd`/conf/webapp.conf"
-            break
-        fi
-        cd ..
-    done
-    cd "$PHOCOA_RUN_FROM_DIR"
 fi
 if [ -z "$PHOCOA_PROJECT_CONF" ]; then
     # echo "PHOCOA_PROJECT_CONF: none"

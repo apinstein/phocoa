@@ -34,7 +34,6 @@ class WriteConfFile extends Task {
         $text = NULL;
         $props = $this->project->getUserProperties();
         foreach ($props as $k => $v) {
-            print "Processing $k => $v\n";
             if (preg_match("/^{$this->namespace}\./", $k))
             {
                 $text .= "{$k} = {$v}\n";
