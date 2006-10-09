@@ -1,0 +1,86 @@
+#!/bin/sh
+# Shell wrapper for PHOCOA
+#
+# This script will do the following:
+# - check for PHING_COMMAND env, if found, use it.
+#   - if not found assume php is on the path
+# - check for PHOCOA_HOME env, if found use it
+#   - if not look for it
+PHOCOA_RUN_FROM_DIR=`pwd`
+if [ -z "$PHOCOA_HOME" ] ; then
+
+  # echo "WARNING: PHOCOA_HOME environment not set. Attempting to guess."
+
+  # try to find PHOCOA
+  
+  ## resolve links - $0 may be a link to phing's home
+  PRG="$0"
+  progname=`basename "$0"`
+
+  # need this for relative symlinks
+  dirname_prg=`dirname "$PRG"`
+  cd "$dirname_prg"
+  
+  while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+  done
+  cd "$PHOCOA_RUN_FROM_DIR"
+  
+  PHOCOA_HOME=`dirname "$PRG"`/..
+
+  # make it fully qualified
+  PHOCOA_HOME=`cd "$PHOCOA_HOME" && pwd`
+  
+  # make it available in PHP via getenv("PHOCOA_HOME")
+  export PHOCOA_HOME
+fi
+# echo "PHOCOA_HOME: $PHOCOA_HOME"
+
+# determine if we're running from a phocoa project dir or "general" (for creating new projects)
+if [ -z "$PHOCOA_PROJECT_CONF" ]; then
+    PHOCOA_PROJECT_CONF=
+
+    # starting with the current directory, go "up" looking for ./conf/webapp.conf. If never found, we're in "general" mode, identified by PHOCOA_PROJECT_CONF=""
+    while [ `pwd` != '/' ]; do
+        if [ -r './conf/webapp.conf' ]; then
+            PHOCOA_PROJECT_CONF="`pwd`/conf/webapp.conf"
+            break
+        fi
+        cd ..
+    done
+    cd "$PHOCOA_RUN_FROM_DIR"
+fi
+if [ -z "$PHOCOA_PROJECT_CONF" ]; then
+    # echo "PHOCOA_PROJECT_CONF: none"
+    PHOCOA_PROJECT_DIR=
+    PHOCOA_PROJECT_NAME=
+else
+    # echo "PHOCOA_PROJECT_CONF: $PHOCOA_PROJECT_CONF"
+    # determine phocoa project dir
+    PD=`dirname $PHOCOA_PROJECT_CONF`/..
+    PHOCOA_PROJECT_DIR=`cd "$PD" && pwd`
+    PHOCOA_PROJECT_NAME=`basename $PHOCOA_PROJECT_DIR`
+    # echo "PHOCOA_PROJECT_DIR: $PHOCOA_PROJECT_DIR"
+fi
+
+
+if (test -z "$PHING_COMMAND") ; then
+    # echo "WARNING: PHING_COMMAND environment not set. (Assuming phing on PATH)"
+    export PHING_COMMAND="phing"
+fi
+
+# if no phing target entered, do -list rather than execute the default target
+PHOCOA_CMD=$*
+if [ -z "$PHOCOA_CMD" ]; then
+    PHOCOA_CMD=-list
+fi
+
+CMD="$PHING_COMMAND -f $PHOCOA_HOME/phing/build.xml -Dusing.phocoa.make=true -Dphocoa.pwd=$PHOCOA_RUN_FROM_DIR -Dphocoa.dir=$PHOCOA_HOME -Dphocoa.project.name=$PHOCOA_PROJECT_NAME -Dphocoa.project.dir=$PHOCOA_PROJECT_DIR $PHOCOA_CMD"
+echo $CMD
+$CMD
