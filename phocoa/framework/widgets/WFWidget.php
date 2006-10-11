@@ -436,6 +436,11 @@ abstract class WFWidget extends WFView
                     default:
                         throw( new Exception("Support for bindingType " . $bindingSetup->bindingType() . " used by '$prop' is not yet implemented.") );
                 }
+                // adjust for NullPlaceholder
+                if ( ($boundValue === NULL or $boundValue === '') and (isset($basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER])) )
+                {
+                    $boundValue = $basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER];
+                }
                 WFLog::log("Using value '$boundValue' for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
                 $this->setValueForKey($boundValue, $prop);  // must do this to allow accessors to be called!
             } catch (Exception $e) {
