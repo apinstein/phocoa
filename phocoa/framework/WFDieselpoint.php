@@ -158,7 +158,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
         if ($peerName == NULL)
         {
             $this->resultObjectLoaderCallback = NULL;
-            $this->resultObjectLoaderCallbackPropelMode = NULL;
+            $this->resultObjectLoaderCallbackPropelMode = false;
             return;
         }
         
@@ -796,14 +796,20 @@ class WFDieselSearch extends WFObject implements WFPagedData
 
 class WFDieselHit extends WFObject
 {
+    /**
+     * @var integer The relevance of the hit, on a scale of 0-100.
+     */
     protected $relevanceScore;
+    /**
+     * @var mixed The unique itemId of the hit.
+     */
     protected $itemID;
     /**
      * @var mixed The object var is a placeholder for callbacks to put "objects" that map to the itemID into the WFDieselHit.
      */
     protected $object;
     /**
-     * @var array An assoc-array of all data loaded from the index: "colName" => "value"
+     * @var object WFDieselHitDataObject - A KVC-compliant proxy object so we can bind to DP result data. Bindings like: object.description, object.pkId
      */
     protected $data;
 
@@ -812,12 +818,12 @@ class WFDieselHit extends WFObject
         $this->itemID = $itemID;
         $this->relevanceScore = ($relevanceScore ? $relevanceScore : NULL);
         $this->object = $object;
-        $this->data = array();
+        $this->data = new WFDieselHitDataObject;
     }
 
     function addData($key, $value)
     {
-        $this->data[$key] = $value;
+        $this->data->addData($key, $value);
     }
 
     function getData()
@@ -827,8 +833,7 @@ class WFDieselHit extends WFObject
     
     function getDataForCol($col)
     {
-        if (!isset($this->data[$col])) throw( new Exception("Col: '$col' doesn't exist.") );
-        return $this->data[$col];
+        return $this->data->getDataForCol($col);
     }
 
     function setObject($o)
@@ -854,6 +859,34 @@ class WFDieselHit extends WFObject
     function itemID()
     {
         return $this->itemID;
+    }
+}
+
+class WFDieselHitDataObject extends WFObject
+{
+    /**
+     * @var array An assoc-array of all data loaded from the index: "colName" => "value"
+     */
+    protected $data;
+
+    function addData($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+
+    function getData()
+    {
+        return $this->data;
+    }
+    
+    function getDataForCol($col)
+    {
+        if (!isset($this->data[$col])) throw( new Exception("Col: '$col' doesn't exist.") );
+        return $this->data[$col];
+    }
+    function valueForKey($key)
+    {
+        return $this->getDataForCol($key);
     }
 }
 ?>
