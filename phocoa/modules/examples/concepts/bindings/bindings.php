@@ -1,9 +1,15 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
-require_once APP_ROOT . '/modules/examples/widgets/exampleClasses.php';
 
 class bindings extends WFModule
 {
+    function __construct($inv)
+    {
+        parent::__construct($inv);
+        $path = $this->pathToModule() . '/../../widgets/exampleClasses.php';
+        require $path;
+    }
+
     function defaultPage()
     {
         return 'example';
