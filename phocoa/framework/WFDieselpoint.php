@@ -738,9 +738,29 @@ class WFDieselSearch extends WFObject implements WFPagedData
                     }
                     $propelObjects = call_user_func(array($this->resultObjectLoaderCallback, "doSelect"), $c);    // more efficient to grab all items in a single query
                     // map the propel objects back into the WFDieselHit's.
-                    for ($i = 0; $i < count($allHits); $i++) {
-                        $allHits[$i]->setObject($propelObjects[$i]);
+                    // we have to gracefully deal with the situation that an item in the index isn't in the database
+                    // when this happens we auto-prune the item from our dp index and remove that item from our hit.
+                    $propelObjectsById = array();
+                    $itemIDsToPrune = array();
+                    foreach ($propelObjects as $obj) {
+                        $propelObjectsById[$obj->getPrimaryKey()] = $obj;
                     }
+                    $existingHits = array();
+                    foreach ($allHits as $hit) {
+                        if (!isset($propelObjectsById[$hit->itemID()]))
+                        {
+                            $itemIDsToPrune[] = $hit->itemID();
+                            continue;
+                        }
+                        $hit->setObject($propelObjectsById[$hit->itemID()]);
+                        $existingHits[] = $hit;
+                    }
+                    // prune missing items
+                    foreach ($itemIDsToPrune as $id) {
+                        //print "Pruning item id $id<BR>";
+                        $this->index->deleteItem($id);  // no need to save() index; happens automatically on its closing
+                    }
+                    $allHits = $existingHits;
                 }
                 else if ($this->resultObjectLoaderCallback)
                 {
