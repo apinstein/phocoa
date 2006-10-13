@@ -20,6 +20,8 @@
  *   In case it's not obvious, "%1%" is substituted with the value from the "value" binding, and "%n%" is substituted with the value from "value<N>" binding. N starts at 2 and goes up consecutively.
  * 
  * <b>Optional:</b><br>
+ *
+ * @todo Should we not insert script directly and instead have a callback from onLoad event to set up the module?
  */
 class WFYAHOO_widget_Module extends WFYAHOO
 {
@@ -35,6 +37,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
     protected $x;
     protected $y;
     protected $context;
+    protected $effects;
 
     protected $containerClass;
 
@@ -57,6 +60,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->x = NULL;
         $this->y = NULL;
         $this->context = NULL;
+        $this->effects = array();
         
         $this->containerClass = 'Module';
 
@@ -86,13 +90,6 @@ class WFYAHOO_widget_Module extends WFYAHOO
         return $myBindings;
     }
 
-    function setContext($id, $elementCorner, $contextCorner)
-    {
-        $this->context['id'] = $id;
-        $this->context['elementCorner'] = $elementCorner;
-        $this->context['contextCorner'] = $contextCorner;
-    }
-
     function setHeader($html)
     {
         $this->header = $html;
@@ -106,6 +103,63 @@ class WFYAHOO_widget_Module extends WFYAHOO
     function setFooter($html)
     {
         $this->footer = $html;
+    }
+
+    function setFixedCenter($b)
+    {
+        $this->fixedcenter = $b;
+    }
+
+    function addEffect($e)
+    {
+        $this->effects[] = $e;
+    }
+
+    /**
+     *  Set the width of the module.
+     *
+     *  @param string Width in CSS terms: 240px, 5in, etc.
+     */
+    function setWidth($w)
+    {
+        $this->width = $w;
+    }
+
+    /**
+     *  Set the height of the module.
+     *
+     *  @param string Height in CSS terms: 240px, 5in, etc.
+     */
+    function setHeight($w)
+    {
+        $this->height = $w;
+    }
+
+    function setZIndex($i)
+    {
+        $this->zIndex = $i;
+    }
+
+    function setIFrame($b)
+    {
+        $this->iframe = $b;
+    }
+
+    function setX($x)
+    {
+        $this->x = $x;
+    }
+
+    function setY($y)
+    {
+        $this->y = $y;
+    }
+
+    function setContext($id, $elementCorner, $contextCorner)
+    {
+        $this->context['id'] = $id;
+        $this->context['elementCorner'] = $elementCorner;
+        $this->context['contextCorner'] = $contextCorner;
     }
 
     function render($blockContent = NULL)
@@ -124,7 +178,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
   <div class=\"bd\"></div> 
   <div class=\"ft\"></div> 
 </div>
-<div style=\"visibility: hidden\">
+<div style=\"display: none\">
     <div id=\"{$this->id}_header\">" . $this->header . "<div style=\"height: 11px;\"></div></div>
     <div id=\"{$this->id}_body\">" . $this->body . "</div>
     <div id=\"{$this->id}_footer\">" . $this->footer . "</div>

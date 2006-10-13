@@ -39,6 +39,7 @@ class WFDieselNav extends WFWidget
     protected $dpQueryStateParamName;
     protected $facetNavHeight;  // css
     protected $searchAction;
+    protected $showLoadingMessage;
 
     /**
       * Constructor.
@@ -54,8 +55,7 @@ class WFDieselNav extends WFWidget
         $this->dpQueryStateParamName = 'dpQueryState';
         $this->facetNavHeight = '100px';
         $this->searchAction = 'search';
-
-        //new WFYAHOO_widget_Panel('blah', $this->page);
+        $this->showLoadingMessage = true;
     }
 
     function facetNavHeight()
@@ -75,6 +75,11 @@ class WFDieselNav extends WFWidget
     function setDieselSearch($ds)
     {
         $this->dieselSearch = $ds;
+    }
+
+    function showLoadingMessage()
+    {
+        return $this->showLoadingMessage;
     }
 
     function baseURL()
@@ -112,9 +117,25 @@ class WFDieselNav extends WFWidget
 
             $html = NULL;
 
+            if ($this->showLoadingMessage)
+            {
+                // set up loading container
+                $loading = new WFYAHOO_widget_Panel("phocoaWFDieselNav_Loading_{$this->id}", $this->page);
+                $loading->setBody('<div style="padding: 10px; font-size: 20px; line-height: 25px;">Searching... please wait...</div><div style="text-align: center; margin-top: 20px;"><img src="' . $this->getWidgetWWWDir() . '/loading.gif" align="center" /></div>');
+                $loading->setWidth('400px');
+                $loading->setHeight('125px');
+                $loading->setFixedCenter(true);
+                $loading->setCanClose(false);
+                $loading->setModal(true);
+                $loading->setDraggable(false);
+                $loading->setZIndex(100);
+                $html .= $loading->render();
+            }
+
+            // set up popup container
             $popup = new WFYAHOO_widget_Panel("phocoaWFDieselNav_Popup_{$this->id}", $this->page);
             $popup->setHeader('<div style="height: 10px"></div>');
-            $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
+            $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input " . ($this->showLoadingMessage ? 'onClick="cancelPopup(); showLoading();"' : NULL) . " type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
             $popup->setValueForKey('400px', 'width');
             $popup->setContext($this->id, 'tl', 'tl');
             $html .= $popup->render();
@@ -135,11 +156,22 @@ class WFDieselNav extends WFWidget
     {
         Element.hide('phocoaWFDieselNav_Popup_{$this->id}');
     }
+    ";
+    
+            if ($this->showLoadingMessage)
+            {
+                $html .= "
+    function showLoading()
+    {
+        PHOCOA.runtime.getObject('phocoaWFDieselNav_Loading_{$this->id}').show();
+    }
+    ";
+            }
+            $html .= "
     </script>
             ";
 
             // show existing "filters" in proper order
-            //$html .= '<table border="0" cellpadding="0" cellspacing="0"><tr>';
             // prepare a list of children, keyed by ID
             $facetNavsByID = array();
             foreach ($this->children() as $facetNav) {
@@ -149,7 +181,8 @@ class WFDieselNav extends WFWidget
             $renderedList = array();
             // keep track of each item as rendered so we don't do it 2x
             $selectionRenderedList = array();
-            // render "filters"
+            
+            // 1. render current selections / filters
             // first do items in desired order
             foreach ($this->facetNavOrder as $id) {
                 if (!isset($facetNavsByID[$id])) throw( new Exception("Specified WFDieselFacet of id {$id} does not exist.") );
@@ -178,16 +211,13 @@ class WFDieselNav extends WFWidget
                 }
             }
             $html .= "<br clear=\"all\" />\n";
-            //$html .= '</tr></table>';
 
-            // render all children, in desired order
+            // 2. Render "expanded" facets
             // prepare a list of children, keyed by ID
             $facetNavsByID = array();
             foreach ($this->children() as $facetNav) {
                 $facetNavsByID[$facetNav->id()] = $facetNav;
             }
-            // keep track of each item as rendered so we don't do it 2x
-            //$renderedList = array();
             $renderedCount = 0;
             $moreChoicesListIDs = array();
             // render widgets
@@ -242,11 +272,14 @@ class WFDieselNav extends WFWidget
             }
             $html .= "\n</tr></table>\n";
 
+            // 3. display "more choices" as needed
             if (count($moreChoicesListIDs))
             {
                 $html .= "<div class=\"phocoaWFDieselNav_MoreChoices\"><b>More Choices:</b>\n";
                 $first = true;
                 foreach ($moreChoicesListIDs as $id => $nothing) {
+                    // skip already rendered items
+                    if (isset($renderedList[$id])) continue;
                     if (isset($facetNavsByID[$id]))
                     {
                         $facetNav = $facetNavsByID[$id];

@@ -457,7 +457,12 @@ class WFDieselFacet extends WFWidget
     
     function removeFacetLink($linkText = "Remove")
     {
-        return "<a href=\"" . $this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID()) . "\">{$linkText}</a>";
+        $showLoadingJS = NULL;
+        if ($this->parent()->showLoadingMessage())
+        {
+            $showLoadingJS = " onClick=\"showLoading();\" ";
+        }
+        return "<a {$showLoadingJS} href=\"" . $this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID()) . "\">{$linkText}</a>";
     }
 
     function editFacetLink($linkText = "Edit", $class = NULL)
@@ -472,6 +477,18 @@ class WFDieselFacet extends WFWidget
     private function facetMenuHTML($facets)
     {
         $baseLink = $this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID);
+        $showLoadingJS = NULL;
+        if ($this->parent()->showLoadingMessage())
+        {
+            if ($this->isPopup)
+            {
+                $showLoading .= "cancelPopup();\nshowLoading();";
+            }
+            else
+            {
+                $showLoadingJS = "showLoading();";
+            }
+        }
         $html = '
             <script language="JavaScript">
             <!--
@@ -486,6 +503,7 @@ class WFDieselFacet extends WFWidget
                         if(select.options[index].value != initialSelection)
                         {
                             newURL = "' . $baseLink . '|EQ_' . $this->attributeID . '=" + select.options[index].value; 
+                            ' . $showLoadingJS . '
                             window.location.href = newURL;
                         }
                         break;
@@ -640,6 +658,18 @@ class WFDieselFacet extends WFWidget
             $label = substr($label, 0, $this->ellipsisAfterChars) . '...';
         }
 
+        $showLoadingJS = NULL;
+        if ($this->parent()->showLoadingMessage())
+        {
+            if ($this->isPopup)
+            {
+                $showLoadingJS = " onClick=\"cancelPopup(); showLoading();\" ";
+            }
+            else
+            {
+                $showLoadingJS = " onClick=\"showLoading();\" ";
+            }
+        }
         if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE) and !$this->fakeOpenEndedRange)
         {
             $selected = $this->popupAttributeValueIsSelected((string) $attributeValue);
@@ -653,7 +683,7 @@ class WFDieselFacet extends WFWidget
         else
         {
             $link = $this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID, $newAttrQueries);
-            $html .= "<span {$classHTML}><a href=\"{$link}\"$fullLabelAsTooltip>{$label}</a>";
+            $html .= "<span {$classHTML}><a {$showLoadingJS} href=\"{$link}\"$fullLabelAsTooltip>{$label}</a>";
             if ($this->showItemCounts)
             {
                 $html .= ' (' . $facet->getHits() . ')';

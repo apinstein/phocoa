@@ -22,6 +22,7 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
     protected $underlay;
     protected $draggable;
     protected $modal;
+    protected $canClose;
 
     /**
       * Constructor.
@@ -38,6 +39,21 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
         $this->importJS("{$this->yuiPath}/dragdrop/dragdrop.js");
         $this->importJS("{$this->yuiPath}/animation/animation.js");
         $this->importCSS("{$this->yuiPath}/container/assets/container.css");
+    }
+
+    function setDraggable($b)
+    {
+        $this->draggable = $b;
+    }
+
+    function setModal($b)
+    {
+        $this->modal = $b;
+    }
+
+    function setCanClose($b)
+    {
+        $this->canClose = $b;
     }
 
     function render($blockContent = NULL)
