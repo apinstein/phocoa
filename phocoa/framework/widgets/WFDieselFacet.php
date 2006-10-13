@@ -471,7 +471,7 @@ class WFDieselFacet extends WFWidget
         {
             $class = " class=\"{$class}\" ";
         }
-        return "<a href=\"#\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . $this->dieselSearch->getQueryState($this->attributeID()) . "', '" . addslashes($this->dieselSearch->getAttributeSelection($this->attributeID())) . "');\">{$linkText}</a>";
+        return "<a href=\"#{$this->id}\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . $this->dieselSearch->getQueryState($this->attributeID()) . "', '" . addslashes($this->dieselSearch->getAttributeSelection($this->attributeID())) . "');\">{$linkText}</a>";
     }
 
     private function facetMenuHTML($facets)
