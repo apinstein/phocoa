@@ -482,7 +482,7 @@ class WFDieselFacet extends WFWidget
         {
             if ($this->isPopup)
             {
-                $showLoading .= "cancelPopup();\nshowLoading();";
+                $showLoadingJS .= "cancelPopup();\nshowLoading();";
             }
             else
             {

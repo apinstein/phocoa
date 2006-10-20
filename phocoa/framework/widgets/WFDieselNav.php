@@ -146,7 +146,7 @@ class WFDieselNav extends WFWidget
     {
         //Element.show('phocoaWFDieselNav_Popup_{$this->id}');
         PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').show();
-        Element.update('phocoaWFDieselNav_PopupContent_{$this->id}', 'Loading...');
+        Element.update('phocoaWFDieselNav_PopupContent_{$this->id}', '<div style=\"padding: 10px; font-size: 20px; line-height: 25px;\">Loading... please wait...</div><div style=\"text-align: center; margin-top: 20px;\"><img src=\"" . $this->getWidgetWWWDir() . "/loading.gif\" align=\"center\" /></div>');
         var url = '" . $this->baseURL() . "/' + dpQueryState + '//' + facetID + '|' + facetSelections.replace(/\//g, '%2F');
         var pars = '';
         var target = 'phocoaWFDieselNav_PopupContent_{$this->id}';
