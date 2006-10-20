@@ -173,7 +173,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
             $html = parent::render($blockContent);
             // set up basic HTML
             $html .= "
-<div id=\"{$this->id}\" style=\"visibility: hidden\">
+<div id=\"{$this->id}\">
   <div class=\"hd\"></div> 
   <div class=\"bd\"></div> 
   <div class=\"ft\"></div> 
@@ -187,17 +187,23 @@ class WFYAHOO_widget_Module extends WFYAHOO
             $script = "
 <script type=\"text/javascript\">
 //<![CDATA[
-var WFYAHOO_widget_Module_{$this->id} = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\", { visible: false } );
-WFYAHOO_widget_Module_{$this->id}.setHeader(YAHOO.util.Dom.get('{$this->id}_header'));
-WFYAHOO_widget_Module_{$this->id}.setBody(YAHOO.util.Dom.get('{$this->id}_body'));
-WFYAHOO_widget_Module_{$this->id}.setFooter(YAHOO.util.Dom.get('{$this->id}_footer'));
-WFYAHOO_widget_Module_{$this->id}.cfg.setProperty('fixedcenter', " . ($this->fixedcenter ? 'true' : 'false') . ");
-WFYAHOO_widget_Module_{$this->id}.cfg.setProperty('iframe', " . ($this->iframe ? 'true' : 'false') . ");
-" . ($this->context ? "WFYAHOO_widget_Module_{$this->id}.cfg.setProperty('context', [ '{$this->context['id']}', '{$this->context['elementCorner']}', '{$this->context['contextCorner']}' ] )" : NULL ) . "
-" . ($this->width ? "WFYAHOO_widget_Module_{$this->id}.cfg.setProperty('width', '{$this->width}')" : NULL ) . "
-" . ($this->height ? "WFYAHOO_widget_Module_{$this->id}.cfg.setProperty('height', '{$this->height}')" : NULL ) . "
-" . ($this->zIndex ? "WFYAHOO_widget_Module_{$this->id}.cfg.setProperty('zIndex', '{$this->zIndex}')" : NULL ) . "
-PHOCOA.runtime.addObject(WFYAHOO_widget_Module_{$this->id});
+YAHOO.namespace('phocoa.widgets.module');
+YAHOO.phocoa.widgets.module.init_{$this->id} = function() {
+    var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\", { visible: false } );
+    module.setHeader(YAHOO.util.Dom.get('{$this->id}_header'));
+    module.setBody(YAHOO.util.Dom.get('{$this->id}_body'));
+    module.setFooter(YAHOO.util.Dom.get('{$this->id}_footer'));
+    module.render();
+    module.cfg.setProperty('fixedcenter', " . ($this->fixedcenter ? 'true' : 'false') . ");
+    module.cfg.setProperty('iframe', " . ($this->iframe ? 'true' : 'false') . ");
+    " . ($this->context ? "module.cfg.setProperty('context', [ '{$this->context['id']}', '{$this->context['elementCorner']}', '{$this->context['contextCorner']}' ] )" : NULL ) . "
+    " . ($this->width ? "module.cfg.setProperty('width', '{$this->width}')" : NULL ) . "
+    " . ($this->height ? "module.cfg.setProperty('height', '{$this->height}')" : NULL ) . "
+    " . ($this->zIndex ? "module.cfg.setProperty('zIndex', '{$this->zIndex}')" : NULL ) . "
+    PHOCOA.runtime.addObject(module);
+}
+" . 
+( (get_class($this) == 'WFYAHOO_widget_Module') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.module.init_{$this->id});" : NULL ) . "
 //]]>
 </script>";
             // output script

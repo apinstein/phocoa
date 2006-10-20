@@ -72,12 +72,17 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
 <script type=\"text/javascript\">
 //<![CDATA[
 
-var WFYAHOO_widget_Panel_{$this->id} = PHOCOA.runtime.getObject('{$this->id}');
-WFYAHOO_widget_Panel_{$this->id}.cfg.setProperty('underlay', '{$this->underlay}');
-WFYAHOO_widget_Panel_{$this->id}.cfg.setProperty('close', " . ($this->canClose ? 'true' : 'false') . ");
-WFYAHOO_widget_Panel_{$this->id}.cfg.setProperty('draggable', " . ($this->draggable ? 'true' : 'false') . ");
-WFYAHOO_widget_Panel_{$this->id}.cfg.setProperty('modal', " . ($this->modal ? 'true' : 'false') . ");
-
+YAHOO.namespace('phocoa.widgets.panel');
+YAHOO.phocoa.widgets.panel.init_{$this->id} = function() {
+    YAHOO.phocoa.widgets.module.init_{$this->id}();
+    var panel = PHOCOA.runtime.getObject('{$this->id}');
+    panel.cfg.setProperty('underlay', '{$this->underlay}');
+    panel.cfg.setProperty('close', " . ($this->canClose ? 'true' : 'false') . ");
+    panel.cfg.setProperty('draggable', " . ($this->draggable ? 'true' : 'false') . ");
+    panel.cfg.setProperty('modal', " . ($this->modal ? 'true' : 'false') . ");
+}
+" .
+( (get_class($this) == 'WFYAHOO_widget_Panel') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.panel.init_{$this->id});" : NULL ) . "
 //]]>
 </script>";
             // output script
