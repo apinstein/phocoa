@@ -124,7 +124,7 @@ class WFDieselNav extends WFWidget
                 $loading->setBody('<div style="padding: 10px; font-size: 20px; line-height: 25px;">Searching... please wait...</div><div style="text-align: center; margin-top: 20px;"><img src="' . $this->getWidgetWWWDir() . '/loading.gif" align="center" /></div>');
                 $loading->setWidth('400px');
                 $loading->setHeight('125px');
-                $loading->setFixedCenter(true);
+                $loading->setFixedCenter(false);
                 $loading->setCanClose(false);
                 $loading->setModal(true);
                 $loading->setDraggable(false);

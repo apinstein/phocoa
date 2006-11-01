@@ -471,7 +471,9 @@ class WFDieselFacet extends WFWidget
         {
             $class = " class=\"{$class}\" ";
         }
-        return "<a href=\"#{$this->id}\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . $this->dieselSearch->getQueryState($this->attributeID()) . "', '" . addslashes($this->dieselSearch->getAttributeSelection($this->attributeID())) . "');\">{$linkText}</a>";
+        // _nogo is to prevent browser from "scrolling" to this link; _nogo isn't a valid id.
+        // return false on the onClick to prevent the js action from adding to the browser history
+        return "<a href=\"#{$this->id}_nogo\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . $this->dieselSearch->getQueryState($this->attributeID()) . "', '" . addslashes($this->dieselSearch->getAttributeSelection($this->attributeID())) . "'); return false;\">{$linkText}</a>";
     }
 
     private function facetMenuHTML($facets)

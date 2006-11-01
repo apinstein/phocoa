@@ -58,9 +58,10 @@ class WFDieselSearch extends WFObject implements WFPagedData
     protected $attributeQueries;
     protected $paginator;
     protected $showAllOnBlankQuery;
+    protected $showAllDPQL;
     protected $searchResultsRelevanceByItemID;
     protected $loadTheseColumnsFromIndex;
-
+    
     private $finalQueryString;
     private $legalComparatorList = array(
                                             'EQ' => '=', 
@@ -89,6 +90,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
         $this->paginator = NULL;
         $this->dpQueryStateParameterID = 'dpQueryState';
         $this->showAllOnBlankQuery = true;
+        $this->showAllDPQL = 'doctype=xml';
         $this->resultObjectLoaderCallbackPropelMode = false;
         $this->searchResultsRelevanceByItemID = array();
         $this->loadTheseColumnsFromIndex = array("item_id");
@@ -315,7 +317,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
         {
             if ($this->showAllOnBlankQuery)
             {
-                $this->finalQueryString = 'doctype=xml';
+                $this->finalQueryString = $this->showAllDPQL;
             }
             else
             {
@@ -324,6 +326,12 @@ class WFDieselSearch extends WFObject implements WFPagedData
         }
         $this->hasBuiltQuery = true;
         return $this->finalQueryString;
+    }
+
+    function isShowAll()
+    {
+        if (!$this->hasRunQuery()) throw( new Exception("Only call isShowAll() after the query has been run.") );
+        return ( $this->finalQueryString == $this->showAllDPQL );
     }
 
     function addAttributeQuery($attribute, $comparator, $query)

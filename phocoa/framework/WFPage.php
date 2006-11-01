@@ -201,6 +201,17 @@ class WFPage extends WFObject
     }
 
     /**
+     *  Determine if there is a page instance for the given id.
+     *
+     *  @param string The id of the instance to get.
+     *  @return boolean TRUE if there is an instance of that id, false otherwise.
+     */
+    function hasOutlet($id)
+    {
+        return ( isset($this->instances[$id]) );
+    }
+
+    /**
      * Add an instance to our page.
      *
      * Use this function to add dynamically created instances to the page.
@@ -720,24 +731,22 @@ class WFPage extends WFObject
                     if ($this->hasSubmittedForm())
                     {
                         foreach ($parameterList as $id) {
-                            try {
-                                // see if there is an instance of the same name in the submitted form
-                                $instance = $this->outlet($id);
-                                if ($instance instanceof WFWidget)
-                                {
-                                    // walk up looking for parent
-                                    $parent = $instance->parent();
-                                    do {
-                                        if ($parent and $parent instanceof WFForm and $parent->name() == $this->submittedFormName())
-                                        {
-                                            $parameters[$id] = $this->outlet($id)->value();
-                                            break;
-                                        }
-                                        $parent = $parent->parent();
-                                    } while ($parent);
-                                }
-                            } catch (Exception $e) {
-                                // ok if there's an exception, just means no outlet of that id.
+                            if (!$this->hasOutlet($id)) continue;
+                            // see if there is an instance of the same name in the submitted form
+                            $instance = $this->outlet($id);
+                            if ($instance instanceof WFWidget)
+                            {
+                                // walk up looking for parent
+                                $parent = $instance->parent();
+                                do {
+                                    if ($parent and $parent instanceof WFForm and $parent->name() == $this->submittedFormName())
+                                    {
+                                        $parameters[$id] = $this->outlet($id)->value();
+                                        break;
+                                    }
+                                    if (!is_object($parent)) throw( new Exception("Error processing parameter overload for parameter id: '$id': found widget of same id, but cannot determine the form that it belongs to. Are you sure that widget id: '$id' is in a WFForm?") );
+                                    $parent = $parent->parent();
+                                } while ($parent);
                             }
                         }
                     }
