@@ -807,11 +807,8 @@ class WFPagedPropelQuery implements WFPagedData
     }
     function itemCount()
     {
-        $criteria = clone $this->criteria;
-        $criteria->setOffset(0);
-        $criteria->setLimit(0);
-        $criteria->clearOrderByColumns();   // no need to waste time sorting to get a count
-		return call_user_func(array($this->peerName, 'doCount'), $criteria);
+        return call_user_func(array($this->peerName, 'doCount'), $this->criteria); // this is crashing on php5.1.6 IFF apd is enabled.
+        //return eval("{$this->peerName}::doCount(\$this->criteria)");    // if we have to use this on a machine with apd, might need to use the (slower) eval method
     }
     function itemsAtIndex($startIndex, $numItems, $sortKeys)
     {
