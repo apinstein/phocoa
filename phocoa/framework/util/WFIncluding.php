@@ -32,8 +32,10 @@ class WFIncluding
         {
              $autoloadClassmapCache = array(
                 'Smarty' => 'smarty/Smarty.class.php',
+                'Spyc' => 'libs/spyc.php5',
 
                 'Mail_Mailer' => 'framework/Mailer.php',
+                'WFYaml' => 'framework/util/WFYaml.php',
                 'WFMenuTree' => 'framework/WFMenuItem.php',
                 'WFMenuTreeBuilding' => 'framework/WFMenuItem.php',
                 'WFMenuItem' => 'framework/WFMenuItem.php',

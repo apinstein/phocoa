@@ -814,27 +814,73 @@ abstract class WFModule extends WFObject
     {
         $app = WFWebApplication::sharedWebApplication();
         $modDir = $this->invocation()->modulesDir();
-        $instancesFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.instances';
-        $configFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.config';
+        $moduleInfo = new ReflectionObject($this);
 
-        if (file_exists($instancesFile))
+        $yamlFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.yaml';
+        if (file_exists($yamlFile))
         {
-            $moduleInfo = new ReflectionObject($this);
-            include($instancesFile);
-            foreach ($__instances as $id => $class) {
-                // enforce that the instance variable exists
+            $yamlConfig = WFYaml::load($yamlFile);
+            foreach ($yamlConfig as $id => $instInfo) {
                 try {
                     $moduleInfo->getProperty($id);
                 } catch (Exception $e) {
-                    WFLog::log("shared.instances:: Module '" . get_class($this) . "' does not have property '$id' declared.", WFLog::WARN_LOG);
+                    WFLog::log("shared.yaml:: Module '" . get_class($this) . "' does not have property '$id' declared.", WFLog::WARN_LOG);
                 }
 
                 // instantiate, keep reference in shared instances
-                $this->__sharedInstances[$id] = $this->$id = new $class;
-            }
+                WFLog::log("instantiating shared instance id '$id'", WFLog::TRACE_LOG);
+                $this->__sharedInstances[$id] = $this->$id = new $instInfo['class'];
 
-            // configure the new instances
-            $this->loadConfig($configFile);
+                WFLog::log("loading config for shared instance id '$id'", WFLog::TRACE_LOG);
+                // get the instance to apply config to
+                if (!isset($this->$id)) throw( new Exception("Couldn't find shared instance with ID '$id' to configure.") );
+                $configObject = $this->$id;
+
+                // atrributes
+                if (isset($instInfo['properties']))
+                {
+                    foreach ($instInfo['properties'] as $keyPath => $value) {
+                        switch (gettype($value)) {
+                            case "boolean":
+                            case "integer":
+                            case "double":
+                            case "string":
+                            case "NULL":
+                                // these are all OK, fall through
+                                break;
+                            default:
+                                throw( new Exception("Config value for shared instance id::property '$id::$keyPath' is not a vaild type (" . gettype($value) . "). Only boolean, integer, double, string, or NULL allowed.") );
+                                break;
+                        }
+                        WFLog::log("SharedConfig:: Setting '$id' property, $keyPath => $value", WFLog::TRACE_LOG);
+                        $configObject->setValueForKeyPath($value, $keyPath);
+                    }
+                }
+            }
+        }
+        else
+        {
+            $instancesFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.instances';
+            $configFile = $modDir . '/' . $this->invocation->modulePath() . '/shared.config';
+
+            if (file_exists($instancesFile))
+            {
+                include($instancesFile);
+                foreach ($__instances as $id => $class) {
+                    // enforce that the instance variable exists
+                    try {
+                        $moduleInfo->getProperty($id);
+                    } catch (Exception $e) {
+                        WFLog::log("shared.instances:: Module '" . get_class($this) . "' does not have property '$id' declared.", WFLog::WARN_LOG);
+                    }
+
+                    // instantiate, keep reference in shared instances
+                    $this->__sharedInstances[$id] = $this->$id = new $class;
+                }
+
+                // configure the new instances
+                $this->loadConfigPHP($configFile);
+            }
         }
 
         // call the sharedInstancesDidLoad() callback
@@ -876,8 +922,9 @@ abstract class WFModule extends WFObject
      *
      * @param string The absolute path to the config file.
      * @throws Various errors if configs are encountered for for non-existant instances, etc. A properly config'd page should never throw.
+     * @see loadConfigYAML
      */
-    protected function loadConfig($configFile)
+    protected function loadConfigPHP($configFile)
     {
         // be graceful; if there is no config file, no biggie, just don't load config!
         if (!file_exists($configFile)) return;

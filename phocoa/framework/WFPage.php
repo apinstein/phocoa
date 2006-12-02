@@ -272,7 +272,7 @@ class WFPage extends WFObject
      * @param assoc_array The manifest info for the instance. 'class' is the class of the instance, and 'children' contains child items (widgets only!)
      * @return object The instantiated object.
      */
-    protected function initInstance($id, $instanceManifest) {
+    protected function initInstancePHP($id, $instanceManifest) {
         // determine the class
         if (!isset($instanceManifest['class'])) throw( new Exception("Instance ID '$id' declared without a class. FATAL!") );
         $class = $instanceManifest['class'];
@@ -298,7 +298,148 @@ class WFPage extends WFObject
 
             // recurse into children
             foreach ($instanceManifest['children'] as $id => $childInstanceManifest) {
-                $childInstance = $this->initInstance($id, $childInstanceManifest);
+                $childInstance = $this->initInstancePHP($id, $childInstanceManifest);
+                $object->addChild($childInstance);
+            }
+        }
+
+        return $object;
+    }
+
+    protected function initInstanceYAML($id, $instanceManifest) {
+        // determine the class
+        if (!isset($instanceManifest['class'])) throw( new Exception("Instance ID '$id' declared without a class. FATAL!") );
+        $class = $instanceManifest['class'];
+
+        WFLog::log("Instantiating object id '$id'", WFLog::TRACE_LOG);
+        // we want to see if the class is a WFView subclass before instantiating (so that we can be sure our 'new' call below calls an existing prototype).
+        // bug in PHP's is_subclass_of() causes segfault sometimes if the class needs to be autoloaded, so in 5.1.0 PHP stops calling autoload.
+        // Thus, the fix is to load the class ourselves if needed before checking the inheritance.
+        if (!class_exists($class))
+        {
+            __autoload($class);
+        }
+        if (!is_subclass_of($class, 'WFView')) throw( new Exception("Only WFView objects can be instantiated in the .instances file. Object id '$id' is of class '$class'.") );
+
+        // NOTE!! We don't need to call addInstance() for widgets, as the WFWidget constructor does this automatically.
+        // instantiate widget
+        $object = new $class($id, $this);
+
+        // configure widget
+        WFLog::log("loading config for id '$id'", WFLog::TRACE_LOG);
+        // get the instance to apply config to
+        $configObject = $object;
+        $config = $instanceManifest['config'];
+        try {
+            $configObject = $this->outlet($id);
+        } catch (Exception $e) {
+            throw( new Exception("Attempt to load config for instance ID '$id' failed because it does not exist.") );
+        }
+
+        // atrributes
+        if (isset($config['properties']))
+        {
+            foreach ($config['properties'] as $keyPath => $value) {
+                switch (gettype($value)) {
+                    case "boolean":
+                    case "integer":
+                    case "double":
+                    case "string":
+                    case "NULL":
+                        // these are all OK, fall through
+                        break;
+                    default:
+                        throw( new Exception("Config value for WFView instance id::property '$id::$keyPath' is not a vaild type (" . gettype($value) . "). Only boolean, integer, double, string, or NULL allowed.") );
+                        break;
+                }
+                if (is_string($value) and strncmp($value, "#module#", 8) == 0)
+                {
+                    $module_prop_name = substr($value, 8);
+                    WFLog::log("Setting '$id' property, $keyPath => shared object: $module_prop_name", WFLog::TRACE_LOG);
+                    $configObject->setValueForKeyPath($this->module->valueForKey($module_prop_name), $keyPath);
+                }
+                else
+                {
+                    WFLog::log("Setting '$id' property, $keyPath => $value", WFLog::TRACE_LOG);
+                    $configObject->setValueForKeyPath($value, $keyPath);
+                }
+            }
+        }
+        // bindings
+        if (isset($config['bindings']))
+        {
+            foreach ($config['bindings'] as $bindProperty => $bindingInfo) {
+                WFLog::log("Binding '$id' property '$bindProperty' to {$bindingInfo['instanceID']} => {$bindingInfo['modelKeyPath']}", WFLog::TRACE_LOG);
+
+                // determine object to bind to:
+                if (!is_string($bindingInfo['instanceID'])) throw( new Exception("'$bindProperty' binding parameter instanceID is not a string.") );
+                if (!isset($bindingInfo['instanceID'])) throw( new Exception("No instance id specified for binding object id '{$id}', property '{$bindProperty}'.") );
+                // let objects be bound to the module, like "File's Owner" kinda thing...
+                if ($bindingInfo['instanceID'] == '#module#')
+                {
+                    $bindToObject = $this->module;
+                }
+                else
+                {
+                    $bindToObject = $this->module->valueForKey($bindingInfo['instanceID']);
+                }
+                // at this point we should have an object...
+                if (!is_object($bindToObject)) throw( new Exception("Module instance var '{$bindingInfo['instanceID']}' does not exist for binding object id '{$id}', property '{$bindProperty}'.") );
+
+                // now calculate full modelKeyPath from controllerKey and modelKeyPath (simple concatenation).
+                $fullKeyPath = '';
+                if (isset($bindingInfo['controllerKey']))
+                {
+                    if (!is_string($bindingInfo['controllerKey'])) throw( new Exception("'$bindProperty' binding parameter controllerKey is not a string.") );
+                    $fullKeyPath .= $bindingInfo['controllerKey'];
+                }
+                if (isset($bindingInfo['modelKeyPath']))
+                {
+                    if (!is_string($bindingInfo['modelKeyPath'])) throw( new Exception("'$bindProperty' binding parameter modelKeyPath is not a string.") );
+                    if (!empty($fullKeyPath)) $fullKeyPath .= '.';
+                    $fullKeyPath .= $bindingInfo['modelKeyPath'];
+                }
+                if (empty($fullKeyPath)) throw( new Exception("No keyPath specified for binding object id '{$id}', property '{$bindProperty}'.") );
+
+                // process options
+                $options = NULL;
+                if (isset($bindingInfo['options']))
+                {
+                    // check type of all options
+                    foreach ($bindingInfo['options'] as $key => $value) {
+                        switch (gettype($value)) {
+                            case "boolean":
+                            case "integer":
+                            case "double":
+                            case "string":
+                            case "NULL":
+                                // these are all OK, fall through
+                                break;
+                            default:
+                                throw( new Exception("Binding option '$key' for WFView instance id::property '$id::$bindProperty' is not a vaild type (" . gettype($value) . "). Only boolean, integer, double, string, or NULL allowed.") );
+                                break;
+                        }
+                    }
+                    $options = $bindingInfo['options'];
+                }
+
+                try {
+                    $configObject->bind($bindProperty, $bindToObject, $fullKeyPath, $options);
+                } catch (Exception $e) {
+                    print_r($bindingInfo);
+                    throw($e);
+                }
+            }
+        }
+
+        // determine widgets contained by this widget
+        if (isset($instanceManifest['children']))
+        {
+            if (!is_array($instanceManifest['children'])) throw( new Exception("Widget ID '$id' children list is not an array.") );
+
+            // recurse into children
+            foreach ($instanceManifest['children'] as $id => $childInstanceManifest) {
+                $childInstance = $this->initInstanceYAML($id, $childInstanceManifest);
                 $object->addChild($childInstance);
             }
         }
@@ -675,20 +816,38 @@ class WFPage extends WFObject
 
         // calculate various file paths
         $basePagePath = $this->module->pathToPage($this->pageName);
+        $yamlFile = $basePagePath . '.yaml';
         $instancesFile = $basePagePath . '.instances';
         $configFile = $basePagePath . '.config';
         $templateFile = $basePagePath . '.tpl';
 
-        // parse instances file and instantiate all objects be graceful -- no need to have fatal error if there are no instances
-        if (file_exists($instancesFile))
+        if (file_exists($yamlFile))
         {
-            include($instancesFile);
-            foreach ($__instances as $id => $instanceManifest) {
-                $this->initInstance($id, $instanceManifest);
+            WFLog::log("Loading YAML config: {$pageName}.yaml", WFLog::TRACE_LOG);
+            $yamlConfig = WFYaml::load($yamlFile);
+            //print_r($yamlConfig);
+            foreach ($yamlConfig as $id => $instanceManifest) {
+                $this->initInstanceYAML($id, $instanceManifest);
             }
+            // after all config info is loaded, certain widget types need to "update" things...
+            // since we don't control the order of property loading (that would get way too complex) we just handle some things at the end of the loadConfig
+            foreach ( $this->widgets() as $widgetID => $widget ) {
+                $widget->allConfigFinishedLoading();
+            }
+        }
+        else
+        {
+            // parse instances file and instantiate all objects be graceful -- no need to have fatal error if there are no instances
+            if (file_exists($instancesFile))
+            {
+                include($instancesFile);
+                foreach ($__instances as $id => $instanceManifest) {
+                    $this->initInstancePHP($id, $instanceManifest);
+                }
 
-            // parse config file - for each instance, see if there is a config setup for that instance ID and apply it.
-            $this->loadConfig($configFile);
+                // parse config file - for each instance, see if there is a config setup for that instance ID and apply it.
+                $this->loadConfig($configFile);
+            }
         }
 
         // restore UI state, if this is the requestPage
