@@ -15,6 +15,9 @@
  *
  * This field automatically preserves the sortKeys and pageSize attributes when re-submitting the form de-novo so that the user doens't have to keep re-sorting to his preferred state.
  *
+ * Also, this state is smart enough so that if the user submits a form with a button OTHER than {@link WFPagination::setModeForm() the MODE_FORM submission button}, the paginator state
+ * is *presevered* so that the action function for that button will have the appropriate data loaded.
+ *
  * <b>Required:</b><br>
  * - {@link WFPaginatorNavigation::$paginator Paginator}
  * 
@@ -48,8 +51,39 @@ class WFPaginatorState extends WFWidget
 
     function render($blockContent = NULL)
     {
+        if ($this->paginator->mode() == WFPaginator::MODE_FORM)
+        {
+            $this->importJS("{$this->yuiPath}/yahoo/yahoo.js");
+            $this->importJS("{$this->yuiPath}/event/event.js");
+        }
+        $html = parent::render($blockContent);
         // When restoring the value, only put back the SORT KEYS and PAGE SIZE; the page num should be RESET.
-        return '<input type="hidden" id="' . $this->id . '" name="' . $this->name . '" value="' . $this->paginator->paginatorState(WFPaginator::PAGINATOR_FIRST_PAGE) . '" />';
+        $button = '<input type="hidden" id="' . $this->id . '" name="' . $this->name . '" value="' . $this->paginator->paginatorState() . '" />';
+        $js = NULL;
+        if ($this->paginator->mode() == WFPaginator::MODE_FORM)
+        {
+            // js function to set paginator to go to first page when the MODE_FORM submit button is pressed.
+            $paginatorResetJSFunctionName = "__WFPaginatorState_gotoFirstPage_{$this->id}";
+            // do not go to first page if the submit button was pressed by paginator MODE_FORM
+            $paginatorModeFormSubmissionVarName = $this->paginator->jsPaginatorStateModeFormSubmissionVarName();
+            $js = $this->jsStartHTML() . '
+            var ' . $paginatorModeFormSubmissionVarName . ' = false;
+            function ' . $this->paginator->jsPaginatorStateModeFormGoToStateFunctionName() . '(state)
+            {
+                ' . $this->paginator->jsPaginatorStateModeFormSubmissionVarName() . ' = true;
+                document.getElementById("' . $this->id . '").value = state;
+                document.getElementById("' . $this->paginator->submitID() . '").click();
+            }
+            function ' . $paginatorResetJSFunctionName . '()
+            {
+                if (' . $paginatorModeFormSubmissionVarName . ' == true) return;
+                var submitID = \'' . $this->paginator->submitID() . '\';
+                document.getElementById("' . $this->paginator->paginatorStateParameterID() . '").value = "' . $this->paginator->paginatorState(WFPaginator::PAGINATOR_FIRST_PAGE) . '";
+            }
+            YAHOO.util.Event.addListener("' . $this->paginator->submitID() . '", "click", ' . $paginatorResetJSFunctionName . ');
+            ' . $this->jsEndHTML();
+        }
+        return $html . $js . $button;
     }
 
     function canPushValueBinding() { return false; }

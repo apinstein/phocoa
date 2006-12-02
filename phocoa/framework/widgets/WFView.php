@@ -27,7 +27,10 @@
  *      (etc)</pre>
  *
  * Since we're a web framework, all views eventually know how to render themselves into HTML.
+ * 
  * Views have no maintained state. Anything that needs to maintain state should be a {@link WFWidget} subclass.
+ * 
+ * WFView contains the basic infrastructure support the YUI library, which is PHOCOA's Javascript and AJAX layer.
  */
 abstract class WFView extends WFObject
 {
@@ -52,7 +55,23 @@ abstract class WFView extends WFObject
      */
     protected $enabled;
     /**
-     * @var array A list of the JavaScript actions for the widget. Mananged centrally; used by subclasses to allow actions to be attached.
+     * @var assoc_array An array whose keys are the paths to javascript files to be included.
+     */
+    protected $jsImports;
+    /**
+     * @var assoc_array An array whose keys are the paths to css files to be included.
+     */
+    protected $cssImports;
+    /**
+     * @var string The to the YUI library.
+     */
+    protected $yuiPath;
+    /**
+     * @var boolean TRUE to include JS files in a less-efficient, but more-debuggable way.
+     */
+    protected $jsDebug;
+    /**
+     * @var array A list of the JavaScript actions for the widget. Mananged centrally; used by subclasses to allow actions to be attached. DEPRECATE FOR YAHOO JS STUFF!
      */
     protected $jsActions;
 
@@ -75,6 +94,12 @@ abstract class WFView extends WFObject
         $this->page = $page;
         $this->setId($id);
         $this->jsActions = array();
+
+        // YUI integration
+        $this->jsDebug = false;
+        $this->yuiPath = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/yui';
+        $this->jsImports = array();
+        $this->cssImports = array();
     }
 
     /**
@@ -116,6 +141,96 @@ abstract class WFView extends WFObject
     function id()
     {
         return $this->id;
+    }
+
+    /**
+     *  Import a JS source file.
+     *
+     *  In *debug* mode, this will be imported by adding a <script> tag to the head element, for improved debug-ability.
+     *  In normal mode, this will be imported by using an AJAX request to synchronously download the source file, then eval() it.
+     *
+     *  The eval() method has improved flexibility, because it can be used even on widget code loaded from AJAX calls with
+     *  prototype's Element.update + evalScripts: true, thus allowing the loading of JS files only exactly when needed.
+     *
+     *  However, it has the downside of requiring that the js code is eval-clean (that is, unless you assign your functions to variables they will not "exist").
+     *
+     *  @param string The JS file path to include.
+     */
+    protected function importJS($path)
+    {
+        if ($this->jsDebug)
+        {
+            $this->page->module()->invocation()->rootSkin()->addHeadString("<script type=\"text/javascript\" src=\"{$path}\" ></script>");
+        }
+        else
+        {
+            $this->jsImports[$path] = $path;
+        }
+    }
+
+    /**
+     *  Import a CSS source file.
+     *
+     *  In *debug* mode, this will be imported by adding a <link> tag to the head element, for improved debug-ability.
+     *  In normal mode, this will be imported by using an AJAX request to synchronously download the source file, then eval() it.
+     *
+     *  The advantage of the latter is that CSS files can be programmatically added via javascript code, even from code that is returned
+     *  from AJAX calls.
+     *
+     *  @param string The css file path to include.
+     */
+    protected function importCSS($path)
+    {
+        if ($this->jsDebug)
+        {
+            $this->page->module()->invocation()->rootSkin()->addHeadString("<link rel=\"stylesheet\" type=\"text/css\" href=\"{$path}\" />");
+        }
+        else
+        {
+            $this->cssImports[$path] = $path;
+        }
+    }
+
+    private function getImportJS()
+    {
+        if (empty($this->jsImports)) return;
+        $script = $this->jsStartHTML();
+        foreach ($this->jsImports as $path => $nothing) {
+            $script .= "PHOCOA.importJS('{$path}');\n";
+        }
+        $script .= $this->jsEndHTML();
+        return $script;
+    }
+
+    private function getImportCSS()
+    {
+        if (empty($this->cssImports)) return;
+        $script = $this->jsStartHTML();
+        foreach ($this->cssImports as $path => $nothing) {
+            $script .= "PHOCOA.importCSS('{$path}');\n";
+        }
+        $script .= $this->jsEndHTML();
+        return $script;
+    }
+
+    /**
+     *  Helper function to get the proper "start" block for using Javascript in a web page.
+     *
+     *  @return string HTML code for the "start" block of a JS script section.
+     */
+    function jsStartHTML()
+    {
+        return "\n" . '<script type="text/javascript">//<![CDATA[' . "\n";
+    }
+
+    /**
+     *  Helper function to get the proper "end" block for using Javascript in a web page.
+     *
+     *  @return string HTML code for the "end" block of a JS script section.
+     */
+    function jsEndHTML()
+    {
+        return "\n" . '//]]></script>' . "\n";
     }
 
     /**
@@ -256,11 +371,23 @@ abstract class WFView extends WFObject
     /**
       * Render the view into HTML.
       *
+      * Subclasses need to start their output with the result of the super's render() method.
+      *
       * @param string $blockContent For block views (ie have open and close tags)r, the ready-to-use HTML content that goes inside this view.
       *                             For non-block views (ie single tag only) will always be null.
       * @return string The final HTML output for the view.
       */
-    abstract function render($blockContent = NULL);
+    function render($blockContent = NULL)
+    {
+        if ($this->jsDebug)
+        {
+            return NULL;
+        }
+        else
+        {
+            return $this->getImportJS() . $this->getImportCSS();
+        }
+    }
 }
 
 ?>

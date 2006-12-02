@@ -161,6 +161,26 @@ class WFPaginator extends WFObject
     }
 
     /**
+     *  Get the id of the submit button used for pagination in MODE_FORM.
+     *
+     *  @return string The ID of the submit button used for MODE_FORM.
+     */
+    function submitID()
+    {
+        return $this->submitID;
+    }
+
+    /**
+     *  Get the id of the paginatorState widget.
+     *
+     *  @return string The ID of the paginatorState widget.
+     */
+    function paginatorStateParameterID()
+    {
+        return $this->paginatorStateParameterID;
+    }
+
+    /**
      *  Provide alternate values for the page's params that will be used with {@link urlForPaginatorState() urlForPaginatorState}.
      *
      *  @param string The ID of the parameter.
@@ -694,6 +714,27 @@ class WFPaginator extends WFObject
     }
 
     /**
+     *  Get the name of the js function which the various paginator widgets use when MODE_FORM is active to "go" to the correct paginator state.
+     *
+     *  @return string The name of the js function.
+     */
+    function jsPaginatorStateModeFormGoToStateFunctionName()
+    {
+        return "__WFPaginatorState_PaginatorModeFormGoToState_{$this->paginatorStateParameterID}";
+    }
+
+    /**
+     *  Get the name of the js var which the various paginator widgets use when MODE_FORM is active to determine whether the "submit" button
+     *  has been pressed by a user, or by the {@link jsPaginatorStateModeFormGoToStateFunctionName()} function.
+     *
+     *  @return string The name of the js var.
+     */
+    function jsPaginatorStateModeFormSubmissionVarName()
+    {
+        return "__WFPaginatorState_PaginatorModeFormSubmission_{$this->paginatorStateParameterID}";
+    }
+
+    /**
      *  Get the javascript code for the onClick of a link needed to effect the given pasinatorState. For MODE_FORM only.
      *
      *  @param $state string The result of {@link WFPaginator::paginatorState()}.
@@ -704,7 +745,7 @@ class WFPaginator extends WFObject
     {
         if (!$this->paginatorStateParameterID) throw( new Exception("No paginatorStateParameterID entered.") );
         if (!$this->submitID) throw( new Exception("No submitID entered.") );
-        return "document.getElementById('" . $this->paginatorStateParameterID . "').value = '$state'; document.getElementById('" . $this->submitID . "').click(); return false;";
+        return $this->jsPaginatorStateModeFormGoToStateFunctionName() . "('{$state}');";
     }
 
 }
