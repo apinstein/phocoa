@@ -4,8 +4,8 @@ var tabList = new Array({foreach name=enum_tabs from=$__tabView->tabs() item=tab
 {literal}
 function activateTab(tabMode)
 {   
-    for (theTabIndex in tabList) {
-        theTab = tabList[theTabIndex];
+    for (i = 0; i < tabList.length; i++) {
+        theTab = tabList[i];
         tabContentsID = 'tabDiv_' + theTab;
         tabContents = document.getElementById(tabContentsID);
         tabLinkID = 'tabLink_' + theTab;
