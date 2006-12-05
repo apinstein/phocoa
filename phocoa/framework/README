@@ -22,6 +22,7 @@ Dependencies
 TODO
 
 1.0 Milestone:
+- Do we need namespacing for modules? What if you have 2 "included" modules on a page that both have a widget with id=name? Things won't work right... right?
 - E_STRICT support
 - Fix bug in base64_encode -- this is *NOT* URL safe as base64 uses / character! see WFModule / showcase EncryptionUtil hexencode/hexdecode
 - Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?

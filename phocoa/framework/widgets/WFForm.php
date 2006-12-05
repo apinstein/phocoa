@@ -43,11 +43,13 @@ class WFForm extends WFWidget
 
         if ($this->page->module()->invocation()->targetRootModule() and !$this->page->module()->invocation()->isRootInvocation())
         {
+            // invocation path of "root" module
             $this->action = WWW_ROOT . '/' . $this->page->module()->invocation()->rootInvocation()->invocationPath();
         }
         else
         {
-            $this->action = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName();
+            // invocation path of the current page, with the current invocation paramenters (these can be overridden by form variables of the same name)
+            $this->action = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . $this->page->module()->invocation()->parametersAsPathInfo();
         }
 
         $this->method = WFForm::METHOD_POST;
