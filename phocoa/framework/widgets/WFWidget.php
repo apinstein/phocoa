@@ -342,6 +342,7 @@ abstract class WFWidget extends WFView
      */
     final function pullBindings()
     {
+        $skipReadWriteBindings = (count($this->errors) > 0);
         foreach ($this->bindings as $prop => $binding) {
             if ($prop != $binding->bindingSetup()->boundProperty())
             {
@@ -349,8 +350,9 @@ abstract class WFWidget extends WFView
                 continue;
             }
             WFLog::log("pullBindings() -- processing binding for widget '{$this->id}', local property '$prop', to keyPath " . $binding->bindToKeyPath(), WFLog::TRACE_LOG);
-            // DO NOT RE-BIND IF THE VALUE WAS AN ERROR! WANT TO SHOW THE BAD VALUE!
-            if (count($this->errors) > 0)
+            // DO NOT RE-BIND IF THE BOUND VALUE WAS AN ERROR! WANT TO SHOW THE BAD VALUE!
+            // Of course, R/O bindings cannot have errors, so we will still bind them...
+            if ($skipReadWriteBindings and !$binding->bindingSetup()->readOnly())
             {
                 WFLog::log("skipping pullBindings for {$this->id} / $prop because the value is an error.", WFLog::TRACE_LOG);
                 continue;

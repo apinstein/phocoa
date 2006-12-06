@@ -1,5 +1,6 @@
 <?php
 
+require_once($_ENV['PHOCOA_PROJECT_CONF']);
 require_once 'Console/Getopt.php';
 require_once('propel/engine/database/model/NameFactory.php');
 require_once('propel/engine/database/model/NameGenerator.php');

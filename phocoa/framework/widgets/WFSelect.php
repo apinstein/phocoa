@@ -104,12 +104,14 @@ class WFSelect extends WFWidget
     {
         $myBindings = parent::setupExposedBindings();
         $myBindings[] = new WFBindingSetup('values', 'The selected values for multiple select boxes.');
-        $myBindings[] = new WFBindingSetup('contentValues', 'List of the VALUES of each item in the select box.',
+        $newValBinding = new WFBindingSetup('contentValues', 'List of the VALUES of each item in the select box.',
                 array(
                     WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER => false,
                     WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER => ''
                     )
                 );
+        $newValBinding->setReadOnly(true);
+        $myBindings[] = $newValBinding;
         $newValBinding = new WFBindingSetup('contentLabels', 'List of the LABELS of each item in the select box.',
                 array(
                     WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER => false,
@@ -118,13 +120,16 @@ class WFSelect extends WFWidget
                     )
                 );
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $newValBinding->setReadOnly(true);
         $myBindings[] = $newValBinding;
-        $myBindings[] = new WFBindingSetup('options', 'List of the options (value => label) of each item in the select box.',
+        $newValBinding = new WFBindingSetup('options', 'List of the options (value => label) of each item in the select box.',
                 array(
                     WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER => false,
                     WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER => 'Select...'
                     )
                 );
+        $newValBinding->setReadOnly(true);
+        $myBindings[] = $newValBinding;
         return $myBindings;
     }
 
