@@ -9,6 +9,7 @@
 PHOCOA_RUN_FROM_DIR=`pwd`
 if [ -z "$PHOCOA_HOME" ] ; then
 
+  # we never really expect PHOCOA_HOME to be set... we get this info from the path to this executable
   # echo "WARNING: PHOCOA_HOME environment not set. Attempting to guess."
 
   # try to find PHOCOA
@@ -69,6 +70,7 @@ else
     PD=`dirname $PHOCOA_PROJECT_CONF`/..
     PHOCOA_PROJECT_DIR=`cd "$PD" && pwd`
     PHOCOA_PROJECT_NAME=`basename $PHOCOA_PROJECT_DIR`
+    export PHOCOA_PROJECT_CONF=$PHOCOA_PROJECT_CONF
     # echo "PHOCOA_PROJECT_DIR: $PHOCOA_PROJECT_DIR"
 fi
 

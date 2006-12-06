@@ -2,7 +2,7 @@
 <!-- NOTE:: All paths should leave off trailing slash!!! -->
 <project name="phocoa" default="newproject">
     <!-- Set up tasks -->
-    <taskdef name="build-pear-package" classname="tasks.BuildPearPackage" />
+    <!-- taskdef name="build-pear-package" classname="tasks.BuildPearPackage" /-->
     <taskdef name="realpathexpandhome" classname="tasks.RealPathExpandHome" />
     <taskdef name="symlink" classname="tasks.SymLink" />
     <taskdef name="writeconffile" classname="tasks.WriteConfFile" />
@@ -14,6 +14,7 @@
     </target>
 
     <target name="prepareProject" description="Pre-flight for working on a PHOCOA project. Loads build.properties file." depends="prepareGeneral">
+        <php expression="$_ENV['_']" returnProperty="phocoa.project.php" />
         <if>
             <equals arg1="${phocoa.project.dir}" arg2="" />
             <then>
@@ -31,12 +32,12 @@
     <target name="createModule" description="Create a new phocoa module in the project." depends="prepareProject">
         <input propertyname="module.name">Module name:</input>
         <input propertyname="module.defaultPage">Default page [blank for none]:</input>
-        <exec dir="${phocoa.pwd}" command="php5 ${phocoa.dir}/framework/createModule.php ${module.name} ${module.defaultPage}" passthru="true" />
+        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createModule.php ${module.name} ${module.defaultPage}" passthru="true" />
     </target>
 
     <target name="createPage" description="Create a new phocoa page in the current module." depends="prepareProject">
         <input propertyname="page.name">Page Name:</input>
-        <exec dir="${phocoa.pwd}" command="php5 ${phocoa.dir}/framework/createPage.php ${page.name}" passthru="true" />
+        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createPage.php ${page.name}" passthru="true" />
     </target>
 
     <target name="createSkeletonFromPropel" description="Create a skeleton module for editing a table from Propel." depends="prepareProject">
@@ -45,8 +46,12 @@
         <input propertyname="db.column">Column name of single column that best describes the table:</input>
         <input propertyname="db.module" defaultValue="${db.table}">Module Name:</input>
         <php expression="require('${phocoa.project.dir}/conf/webapp.conf')" />
-        <exec dir="${phocoa.pwd}" command="php5 ${phocoa.dir}/framework/createModule.php ${db.module}" passthru="true" />
-        <exec dir="${phocoa.pwd}/${db.module}" command="php5 ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/webapp.conf --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${phocoa.project.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
+        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createModule.php ${db.module}" passthru="true" />
+        <exec dir="${phocoa.pwd}/${db.module}" command="${phocoa.project.php} ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/webapp.conf --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${phocoa.project.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
+    </target>
+
+    <target name="shell" description="Start an interactive PHP shell bootstrapped to the current PHOCOA project." depends="prepareProject">
+        <php expression="passthru('${phocoa.project.php} ${phocoa.dir}/framework/util/shell.php')" />
     </target>
 
     <!-- phocoa propel integration tasks -->
