@@ -244,7 +244,7 @@ class WFDieselFacet extends WFWidget
     function prepareFacets()
     {
         // load facet data
-        $facetGenerator = new Java("com.dieselpoint.search.FacetGenerator", $this->dieselSearch->getGeneratorObject());
+        $facetGenerator = $this->dieselSearch->getGeneratorObject();
         if ($this->rangeCount)
         {
             $facetGenerator->setRangeCount($this->rangeCount);

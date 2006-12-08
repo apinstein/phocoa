@@ -45,6 +45,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
     const QUERY_STATE_SIMPLE_QUERY_ATTR_NAME = 'simpleQuery';
     const QUERY_STATE_DPQL_QUERY_ATTR_NAME = 'dpqlQuery';
     const SORT_BY_RELEVANCE = '-relevance';
+
     protected $index;
     protected $searcher;
     protected $resultObjectLoaderCallback;
@@ -592,16 +593,23 @@ class WFDieselSearch extends WFObject implements WFPagedData
     }
 
     /**
-     *  Get the appropriate object for facetGenerator.
+     *  Get a FacetGenerator object.
      *
      *  If there is no query, then the FacetGenerator works off of the entire index. If there is a query, it works off the results.
      *
-     *  @return object mixed Returns an Index if there is no query, or a Searcher if there is one.
+     *  @return object A FacetGenerator object [Java].
      */
     function getGeneratorObject()
     {
-        if ($this->hasQuery()) return $this->searcher;
-        return $this->index();
+        if ($this->hasQuery())
+        {
+            $gObj = $this->searcher;
+        }
+        else
+        {
+            $gObj = $this->index();
+        }
+        return new Java("com.dieselpoint.search.FacetGenerator", $gObj);
     }
 
     function getTotalItems()
