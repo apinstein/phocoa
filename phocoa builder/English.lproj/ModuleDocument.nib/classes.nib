@@ -12,6 +12,7 @@
             CLASS = ModuleMainWindowController; 
             LANGUAGE = ObjC; 
             OUTLETS = {
+                pageController = id; 
                 pageInstanceBindingController = id; 
                 pageInstancesController = id; 
                 saveProgress = id; 

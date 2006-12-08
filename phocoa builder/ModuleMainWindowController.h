@@ -14,6 +14,7 @@
     IBOutlet    id sharedInstancesController;
     IBOutlet    id pageInstancesController;
     IBOutlet    id pageInstanceBindingController;
+    IBOutlet    id pageController;
 }
 
 - (void) startSaveProgress;

@@ -35,6 +35,18 @@
     [saveProgress stopAnimation: self];
 }
 
+- (void)windowDidLoad
+{
+    // due to some non-understood bug, often there will be a page selected, but the page instances will be "empty" until you
+    // touch the page instances UI or de-select and re-select the page
+    // thus, for now we clear the selection so that this doesn't occur
+    // don't unsderstand why this bug exists for pages but not shared instances
+    // could possibly be a bug in the 
+    [pageController setSelectedObjects: [NSArray array]];
+    [pageController selectNext: nil];
+        
+}
+
 - (NSArray*) subclassList
 {
     return [WFViewSubclassList subclasses];
@@ -75,7 +87,5 @@
     // add the binding to the controller
     [pageInstanceBindingController addObject: binding];
 }
-
-
 
 @end

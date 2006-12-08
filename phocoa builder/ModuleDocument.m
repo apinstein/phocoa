@@ -96,8 +96,9 @@
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)windowController 
 {
+    // THIS NEVER GETS CALLED....???
     [super windowControllerDidLoadNib:windowController];
-    // user interface preparation code
+    // user interface preparation code    
 }
 
 - (void)dealloc {
@@ -222,7 +223,7 @@
     {
         NSString    *sharedConfigXML = [self getXMLRepresentationOfPHPFile: sharedConfigPath];
         scXML = [[NSXMLDocument alloc] initWithXMLString: sharedConfigXML options: 0 error: &err];
-    }
+    }            
     
     // now parse all shared instances
     NSString    *sharedInstancePath = [moduleDir stringByAppendingPathComponent: @"shared.instances"];
@@ -232,29 +233,37 @@
         
         NSXMLDocument *siXML = [[NSXMLDocument alloc] initWithXMLString: sharedInstancesXML options: 0 error: &err];
         NSArray *instances = [[siXML rootElement] children];
-        int i, count = [instances count];
-        for (i=0; i < count; i++) 
-		{
+        int i;
+        int count = [instances count];
+        for (i=0; i < count; i++) {
+            
             NSXMLNode *child = [instances objectAtIndex:i];
-            NSString    *xpq = [NSString stringWithFormat: @"//%@/properties/*", [child name]];
-             NSArray    *configs = [NSArray array];
-             if (scXML)
-             {
-                 configs = [scXML nodesForXPath: xpq error: &err];
-             }
+            NSString    *xpq = [NSString stringWithFormat: @"//%@/properties/*", [child name]]; // this line screws up XCode autoindenting below
+            NSArray    *configs = [NSArray array];
+            if (scXML)
+            {
+                configs = [scXML nodesForXPath: xpq error: &err];
+            }
              
-			 // create the shared instance.. instance!
-			 SharedInstance  *si = [SharedInstance sharedInstanceFromXMLNode: child withConfig: configs context: [self managedObjectContext]];
-			 NSMutableSet *sharedInstances = [module mutableSetValueForKey:@"sharedInstances"];
-			 [sharedInstances addObject: si];
+			// create the shared instance.. instance!
+			SharedInstance  *si = [SharedInstance sharedInstanceFromXMLNode: child withConfig: configs context: [self managedObjectContext]];
+			NSMutableSet *sharedInstances = [module mutableSetValueForKey:@"sharedInstances"];
+			[sharedInstances addObject: si];
         }
     }
 	
 	// read pages
 	NSDirectoryEnumerator *dirEn = [[NSFileManager defaultManager] enumeratorAtPath: [module valueForKey: @"path"]];
 	[dirEn skipDescendents];
-	NSString   *file;
+	NSString        *file;
+    NSMutableSet    *pages = [module mutableSetValueForKey: @"pages"];
 	while (file = [dirEn nextObject]) {
+        // skip .myTemplate.tpl files (webdav artifact)
+        NSArray     *components = [file pathComponents];
+        NSString    *fileName = [components objectAtIndex: ([components count] - 1)];
+        unichar     firstChar = [fileName characterAtIndex: 0];
+        if (firstChar == '.') continue;
+        
 		if ([[file pathExtension] isEqualToString: @"tpl"])
 		{
 			NSString   *pageBasePath = [[module valueForKey: @"path"] stringByAppendingPathComponent: [file stringByDeletingPathExtension]];
@@ -264,7 +273,6 @@
 												
 			NSLog(@"Processing page: %@", pageName);
 			[page setValue: pageName forKey: @"name"];
-			NSMutableSet *pages = [module mutableSetValueForKey: @"pages"];
 			[pages addObject: page];
 			
 			// open page config, if there is one
@@ -300,7 +308,7 @@
 					NSMutableSet *pageInstances = [page mutableSetValueForKey: @"instances"];
 					[pageInstances addObject: pi];
 				}
-			}
+            }
 			else
 			{
 				NSLog(@"No instances file found for page '%@' at: %@", pageName, pageInstancesPath);
@@ -337,7 +345,7 @@
     [managedObjectContext processPendingChanges];
     [[managedObjectContext undoManager] removeAllActions];
     [self updateChangeCount:NSChangeCleared];
-    
+
     return YES;
 }
 
