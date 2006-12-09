@@ -13,6 +13,8 @@
  * The WFKeyValueValidators class provides a bunch of commonly used validators.
  *
  * @see WFObject::validateValueForKey() , WFObject::validateValueForKeyPath()
+ * @todo Should we standardize the 4th parameter of all of these functions to take in an array of options? For instance ('required' => true, 'country' => 'US')O
+ *       This will provide a more consistent interface and make the canned validators ready if we decide to be able to add validation via configuration
  */
 class WFKeyValueValidators extends WFObject
 {

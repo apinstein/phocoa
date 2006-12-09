@@ -325,21 +325,14 @@ class WFPage extends WFObject
         // instantiate widget
         $object = new $class($id, $this);
 
-        // configure widget
-        WFLog::log("loading config for id '$id'", WFLog::TRACE_LOG);
-        // get the instance to apply config to
-        $configObject = $object;
-        $config = $instanceManifest['config'];
-        try {
-            $configObject = $this->outlet($id);
-        } catch (Exception $e) {
-            throw( new Exception("Attempt to load config for instance ID '$id' failed because it does not exist.") );
-        }
-
-        // atrributes
-        if (isset($config['properties']))
+        // set up object properties
+        if (isset($instanceManifest['properties']))
         {
-            foreach ($config['properties'] as $keyPath => $value) {
+            // configure widget
+            WFLog::log("loading properties for id '$id'", WFLog::TRACE_LOG);
+
+            // atrributes
+            foreach ($instanceManifest['properties'] as $keyPath => $value) {
                 switch (gettype($value)) {
                     case "boolean":
                     case "integer":
@@ -356,19 +349,19 @@ class WFPage extends WFObject
                 {
                     $module_prop_name = substr($value, 8);
                     WFLog::log("Setting '$id' property, $keyPath => shared object: $module_prop_name", WFLog::TRACE_LOG);
-                    $configObject->setValueForKeyPath($this->module->valueForKey($module_prop_name), $keyPath);
+                    $object->setValueForKeyPath($this->module->valueForKey($module_prop_name), $keyPath);
                 }
                 else
                 {
                     WFLog::log("Setting '$id' property, $keyPath => $value", WFLog::TRACE_LOG);
-                    $configObject->setValueForKeyPath($value, $keyPath);
+                    $object->setValueForKeyPath($value, $keyPath);
                 }
             }
         }
-        // bindings
-        if (isset($config['bindings']))
+        // set up bindings
+        if (isset($instanceManifest['bindings']))
         {
-            foreach ($config['bindings'] as $bindProperty => $bindingInfo) {
+            foreach ($instanceManifest['bindings'] as $bindProperty => $bindingInfo) {
                 WFLog::log("Binding '$id' property '$bindProperty' to {$bindingInfo['instanceID']} => {$bindingInfo['modelKeyPath']}", WFLog::TRACE_LOG);
 
                 // determine object to bind to:
@@ -424,7 +417,7 @@ class WFPage extends WFObject
                 }
 
                 try {
-                    $configObject->bind($bindProperty, $bindToObject, $fullKeyPath, $options);
+                    $object->bind($bindProperty, $bindToObject, $fullKeyPath, $options);
                 } catch (Exception $e) {
                     print_r($bindingInfo);
                     throw($e);
@@ -432,7 +425,7 @@ class WFPage extends WFObject
             }
         }
 
-        // determine widgets contained by this widget
+        // set up children
         if (isset($instanceManifest['children']))
         {
             if (!is_array($instanceManifest['children'])) throw( new Exception("Widget ID '$id' children list is not an array.") );

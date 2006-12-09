@@ -22,6 +22,9 @@ Dependencies
 TODO
 
 1.0 Milestone:
+- Add page->setTemplate() to allow system to use alternate .tpl file -- easier for confirm/thanks pages
+- Have the newproject script make -dev and -production and -staging versions of conf files
+- Add an interactive PHP shell for exploring your projects. DONE
 - Do we need namespacing for modules? What if you have 2 "included" modules on a page that both have a widget with id=name? Things won't work right... right?
 - E_STRICT support
 - Fix bug in base64_encode -- this is *NOT* URL safe as base64 uses / character! see WFModule / showcase EncryptionUtil hexencode/hexdecode
@@ -29,8 +32,8 @@ TODO
   - additional life cycle callbacks? look through page setup and do one for each major phase?
   - maybe have WFDynamic's "observe" arrayControllers and automatically update themselves... also have "WFArrayController::stopSendingUpdates()" and WFArrayController::startSendingUpdates" (find cocoa equivalent)
 - Move .config and .instances files to YAML to improve compatibility for people managing with text files and make other GUI editors easier to write. DONE
-  - Convert existing projects to YAML setup with new converters
-  - Update PHOCOA Builder to use syck/yaml parser directly, thus skipping the PHP interaction to read the files
+  - Convert existing projects to YAML setup with new converters. DONE
+  - Update PHOCOA Builder to use syck/yaml parser directly, thus skipping the PHP interaction to read the files. DONE
 - Improve 'default' template to a nice-looking one based on UberTemplate.
 - Integrate YAHOO js library to the extent that events can be attached to widgets; build a nice infrastructure for that
   - deprecate current js action handlers? dunno...
