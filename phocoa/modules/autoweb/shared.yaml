@@ -1,0 +1,7 @@
+---
+records: 
+  class: 'WFArrayController'
+paginator: 
+  class: 'WFPaginator'
+  properties: 
+    pageSize: '20'

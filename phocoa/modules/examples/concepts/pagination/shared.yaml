@@ -1,0 +1,12 @@
+---
+paginator: 
+  class: 'WFPaginator'
+  properties: 
+    pageSize: '10'
+    itemPhraseSingular: 'Dude'
+    itemPhrasePlural: 'Dudes'
+people: 
+  class: 'WFArrayController'
+  properties: 
+    classIdentifiers: 'id'
+    class: 'Person'

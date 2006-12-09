@@ -1,6 +1,0 @@
-<?php
-
-$__instances = array(
-	'city' => array('class' => 'WFJumpSelect', 'children' => array()),
-);
-?>

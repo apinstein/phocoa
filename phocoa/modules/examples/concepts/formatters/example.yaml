@@ -1,0 +1,33 @@
+---
+creationDTS: 
+  class: 'WFLabel'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'creationDTS'
+wealth: 
+  class: 'WFLabel'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'wealth'
+formattedCreationDTS: 
+  class: 'WFLabel'
+  properties: 
+    formatter: '#module#unixDateFormatter'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'creationDTS'
+formattedWealth: 
+  class: 'WFLabel'
+  properties: 
+    formatter: '#module#currencyFormatter'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'wealth'

@@ -1,0 +1,33 @@
+---
+pageInfo: 
+  class: 'WFPaginatorPageInfo'
+  properties: 
+    paginator: '#module#paginator'
+personInfo: 
+  class: 'WFDynamic'
+  properties: 
+    arrayController: '#module#people'
+    widgetClass: 'WFLabel'
+    simpleBindKeyPath: 'name'
+pageSort: 
+  class: 'WFPaginatorSortLink'
+  properties: 
+    value: 'sort'
+    paginator: '#module#paginator'
+pageNav: 
+  class: 'WFPaginatorNavigation'
+  properties: 
+    paginator: '#module#paginator'
+form: 
+  class: 'WFForm'
+  children: 
+    paginatorState: 
+      class: 'WFPaginatorState'
+      properties: 
+        paginator: '#module#paginator'
+    numPeople: 
+      class: 'WFSelect'
+      properties: 
+        value: '100'
+    submit: 
+      class: 'WFSubmit'

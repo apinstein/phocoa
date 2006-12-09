@@ -23,22 +23,11 @@
 <hr>
 
 <p>Shared instances are objects that are shared among two or more pages in a module. The shared instances mechanism allows multi-page processes to easily share the same instances. For this module, we have 2 shared instances, a WFUNIXDateFormatter, and our ExampleEmail object. PHOCOA automatically instantiates shared objects as members of your module subclass.</p>
-<h3>shared.instances file</h3>
+<h3>shared.yaml file</h3>
 <pre>
-$__instances = array(
-	'dateSentFormatter' => 'WFUNIXDateFormatter',
-	'email' => 'ExampleEmail',
-);
-</pre>
-<h3>shared.config file</h3>
-<pre>
-$__config = array(
-	'dateSentFormatter' => array(
-		'properties' => array(
-			'formatString' => 'F j, Y, g:i a',
-		),
-	),
-);
+{php}
+echo file_get_contents(FRAMEWORK_DIR . '/modules/examples/emailform/shared.yaml');
+{/php}
 </pre>
 
 {capture name="emailTPL"}
@@ -53,70 +42,16 @@ $__config = array(
 </table>
 {/literal}
 {/capture}
-<h3>.tpl file</h3>
+<h3>compose.tpl file</h3>
 <pre>
 {$smarty.capture.emailTPL|escape:'html'}
 </pre>
     
-<h3>.instances file</h3>
+<h3>compose.yaml file</h3>
 <pre>
-$__instances = array(
-	'form' => array('class' => 'WFForm', 'children' => array(
-        'subject' => array('class' => 'WFTextField', 'children' => array()),
-        'message' => array('class' => 'WFTextArea', 'children' => array()),
-        'submit' => array('class' => 'WFSubmit', 'children' => array()),
-        'email' => array('class' => 'WFTextField', 'children' => array()),
-        )
-    ),
-);
-</pre>
-    
-<h3>.config file</h3>
-<pre>
-$__config = array(
-	'subject' => array(
-		'properties' => array(
-			'size' => '50',
-		),
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'email',
-				'controllerKey' => '',
-				'modelKeyPath' => 'subject',
-			),
-		),
-	),
-	'message' => array(
-		'properties' => array(
-			'rows' => '10',
-			'cols' => '50',
-		),
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'email',
-				'controllerKey' => '',
-				'modelKeyPath' => 'message',
-			),
-		),
-	),
-	'submit' => array(
-		'properties' => array(
-			'label' => 'Send Email',
-		),
-	),
-	'email' => array(
-		'properties' => array(
-			'size' => '50',
-		),
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'email',
-				'controllerKey' => '',
-				'modelKeyPath' => 'toEmail',
-			),
-		),
-	),
-);
+{php}
+echo file_get_contents(FRAMEWORK_DIR . '/modules/examples/emailform/compose.yaml');
+{/php}
 </pre>
 
 <h3>Module Code</h3>

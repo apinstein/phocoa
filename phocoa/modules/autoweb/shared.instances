@@ -1,7 +1,0 @@
-<?php
-
-$__instances = array(
-	'records' => 'WFArrayController',
-	'paginator' => 'WFPaginator',
-);
-?>

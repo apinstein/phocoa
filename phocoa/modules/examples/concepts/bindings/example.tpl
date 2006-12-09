@@ -17,18 +17,15 @@ You can simply bind the "value" property of myTextField to the "value" property 
 $myTextField->bind('value', $myDataObject, 'author.name');
 </pre>
 
-While you can set up bindings programmatically, you usually use the PHOCOA configuration system to set up bindings:
+While you can set up bindings programmatically, you usually use the PHOCOA configuration system to set up bindings (via the .yaml file for the page):
 
 <pre>
-	'myTextField' => array(
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'myDataObject',
-				'controllerKey' => 'selection',
-				'modelKeyPath' => 'author.name',
-			),
-		),
-	),
+	myTextField:
+		bindings:
+			value:
+				instanceID: myDataObject
+				controllerKey: selection
+				modelKeyPath: author.name
 </pre>
 
 Typically this configuration is setup in the GUI PHOCOA Builder application.</p>

@@ -1,0 +1,20 @@
+---
+pageNav: 
+  class: 'WFPaginatorNavigation'
+  properties: 
+    paginator: '#module#paginator'
+pageSort: 
+  class: 'WFPaginatorSortLink'
+  properties: 
+    value: 'sort'
+    paginator: '#module#paginator'
+pageInfo: 
+  class: 'WFPaginatorPageInfo'
+  properties: 
+    paginator: '#module#paginator'
+personInfo: 
+  class: 'WFDynamic'
+  properties: 
+    simpleBindKeyPath: 'name'
+    arrayController: '#module#people'
+    widgetClass: 'WFLabel'

@@ -1,0 +1,21 @@
+---
+loginForm: 
+  class: 'WFForm'
+  children: 
+    password: 
+      class: 'WFPassword'
+    username: 
+      class: 'WFTextField'
+    rememberMe: 
+      class: 'WFCheckbox'
+    continueURL: 
+      class: 'WFHidden'
+    login: 
+      class: 'WFSubmit'
+      properties: 
+        action: 'doLogin'
+        label: 'Login'
+forgottenPasswordLink: 
+  class: 'WFLink'
+  properties: 
+    label: 'Forgot your password?'

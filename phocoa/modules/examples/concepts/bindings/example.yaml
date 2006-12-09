@@ -1,0 +1,121 @@
+---
+hideIfEmpty: 
+  class: 'WFLabel'
+  properties: 
+    value: >
+      'You have already set your favorite
+      colors.'
+  bindings: 
+    hidden: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'favoriteColors'
+      options: 
+        valueTransformer: 'WFIsEmpty'
+hideIfNotEmpty: 
+  class: 'WFLabel'
+  properties: 
+    value: >
+      'You have no favorite colors on file with
+      us.'
+  bindings: 
+    hidden: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsEmptyArray'
+      options: 
+        valueTransformer: 'WFIsNotEmpty'
+valuePattern: 
+  class: 'WFLabel'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'name'
+      options: 
+        ValuePattern: '%1% has %2% favorite colors.'
+    value2: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'favoriteColors.@count'
+multMultEnabledOff: 
+  class: 'WFTextField'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'name'
+    enabled: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsTrue'
+    enabled2: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsFalse'
+multMultEnabledOn: 
+  class: 'WFTextField'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'name'
+    enabled: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsTrue'
+    enabled2: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'alsoReturnsTrue'
+multMultHiddenOff: 
+  class: 'WFLabel'
+  properties: 
+    value: 'This should be hidden.'
+  bindings: 
+    hidden: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsFalse'
+    hidden2: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsTrue'
+multMultHiddenOn: 
+  class: 'WFLabel'
+  properties: 
+    value: 'This should be visible.'
+  bindings: 
+    hidden: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsFalse'
+    hidden2: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'alsoReturnsFalse'
+multOneOff: 
+  class: 'WFLabel'
+  properties: 
+    value: 'This should be hidden.'
+  bindings: 
+    hidden: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsTrue'
+multOneOn: 
+  class: 'WFLabel'
+  properties: 
+    value: 'This should be visible.'
+  bindings: 
+    hidden: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'returnsFalse'
+simpleBinding: 
+  class: 'WFLabel'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'name'

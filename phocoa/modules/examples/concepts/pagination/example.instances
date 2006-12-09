@@ -1,9 +1,0 @@
-<?php
-
-$__instances = array(
-	'personInfo' => array('class' => 'WFDynamic', 'children' => array()),
-	'pageSort' => array('class' => 'WFPaginatorSortLink', 'children' => array()),
-	'pageInfo' => array('class' => 'WFPaginatorPageInfo', 'children' => array()),
-	'pageNav' => array('class' => 'WFPaginatorNavigation', 'children' => array()),
-);
-?>

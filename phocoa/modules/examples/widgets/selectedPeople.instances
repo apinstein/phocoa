@@ -1,6 +1,0 @@
-<?php
-
-$__instances = array(
-	'selectedPeople' => array('class' => 'WFDynamic', 'children' => array()),
-);
-?>

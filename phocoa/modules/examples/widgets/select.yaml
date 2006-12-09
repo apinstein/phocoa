@@ -1,0 +1,16 @@
+---
+city: 
+  class: 'WFSelect'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'cityID'
+    contentLabels: 
+      instanceID: 'cities'
+      controllerKey: 'arrangedObjects'
+      modelKeyPath: 'name'
+    contentValues: 
+      instanceID: 'cities'
+      controllerKey: 'arrangedObjects'
+      modelKeyPath: 'id'

@@ -1,0 +1,9 @@
+---
+pageInfo: 
+  class: 'WFPaginatorPageInfo'
+  properties: 
+    paginator: '#module#paginator'
+pageNav: 
+  class: 'WFPaginatorNavigation'
+  properties: 
+    paginator: '#module#paginator'

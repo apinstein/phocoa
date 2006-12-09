@@ -18,84 +18,24 @@ Subject: {WFLabel id="subject"}<br />
 Message: {WFLabel id="message"}
 {/literal}
 {/capture}
-<h3>.tpl file</h3>
+<h3>emailSuccess.tpl file</h3>
 <pre>
 {$smarty.capture.emailTPL|escape:'html'}
 </pre>
     
-<h3>.instances file</h3>
+<h3>emailSuccess.yaml file</h3>
 <pre>
-$__instances = array(
-	'timestamp' => array('class' => 'WFLabel', 'children' => array()),
-	'message' => array('class' => 'WFLabel', 'children' => array()),
-	'subject' => array('class' => 'WFLabel', 'children' => array()),
-	'email' => array('class' => 'WFLabel', 'children' => array()),
-);
+{php}
+echo file_get_contents(FRAMEWORK_DIR . '/modules/examples/emailform/emailSuccess.yaml');
+{/php}
 </pre>
-    
-<h3>.config file</h3>
-<pre>
-$__config = array(
-	'timestamp' => array(
-		'properties' => array(
-			'formatter' => '#module#dateSentFormatter',
-		),
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'email',
-				'controllerKey' => '',
-				'modelKeyPath' => 'sendTimestamp',
-			),
-		),
-	),
-	'message' => array(
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'email',
-				'controllerKey' => '',
-				'modelKeyPath' => 'message',
-			),
-		),
-	),
-	'subject' => array(
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'email',
-				'controllerKey' => '',
-				'modelKeyPath' => 'subject',
-			),
-		),
-	),
-	'email' => array(
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'email',
-				'controllerKey' => '',
-				'modelKeyPath' => 'toEmail',
-			),
-		),
-	),
-);
-</pre>
-
 
 <p>The module code and shared instances are the same as the previous screen, just repeated for convenience. Both pages are part of the same module.</p>
-<h3>shared.instances file</h3>
+<h3>shared.yaml file</h3>
 <pre>
-$__instances = array(
-	'dateSentFormatter' => 'WFUNIXDateFormatter',
-	'email' => 'ExampleEmail',
-);
-</pre>
-<h3>shared.config file</h3>
-<pre>
-$__config = array(
-	'dateSentFormatter' => array(
-		'properties' => array(
-			'formatString' => 'F j, Y, g:i a',
-		),
-	),
-);
+{php}
+echo file_get_contents(FRAMEWORK_DIR . '/modules/examples/emailform/shared.yaml');
+{/php}
 </pre>
 
 <h3>Module Code</h3>

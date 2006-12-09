@@ -1,6 +1,0 @@
-<?php
-
-$__instances = array(
-	'bio' => array('class' => 'WFTextArea', 'children' => array()),
-);
-?>

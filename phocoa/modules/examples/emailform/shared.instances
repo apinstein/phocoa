@@ -1,7 +1,0 @@
-<?php
-
-$__instances = array(
-	'dateSentFormatter' => 'WFUNIXDateFormatter',
-	'email' => 'ExampleEmail',
-);
-?>

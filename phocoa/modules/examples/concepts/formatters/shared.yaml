@@ -1,0 +1,13 @@
+---
+unixDateFormatter: 
+  class: 'WFUNIXDateFormatter'
+  properties: 
+    formatString: 'Y M d'
+currencyFormatter: 
+  class: 'WFNumberFormatter'
+  properties: 
+    decimalPlaces: '0'
+person: 
+  class: 'WFObjectController'
+  properties: 
+    class: 'Person'

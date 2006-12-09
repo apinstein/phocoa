@@ -1,0 +1,8 @@
+---
+name: 
+  class: 'WFTextField'
+  bindings: 
+    value: 
+      instanceID: 'person'
+      controllerKey: 'selection'
+      modelKeyPath: 'name'

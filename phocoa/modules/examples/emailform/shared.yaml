@@ -1,0 +1,7 @@
+---
+dateSentFormatter: 
+  class: 'WFUNIXDateFormatter'
+  properties: 
+    formatString: 'F j, Y, g:i a'
+email: 
+  class: 'ExampleEmail'

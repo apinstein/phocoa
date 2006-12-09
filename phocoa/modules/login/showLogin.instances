@@ -1,6 +1,0 @@
-<?php
-
-$__instances = array(
-	'userinfo' => array('class' => 'WFLabel'),
-);
-?>
