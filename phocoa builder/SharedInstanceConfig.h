@@ -14,6 +14,6 @@
 
 }
 
-+ (SharedInstanceConfig*) nameValuePairFromXMLNode: (NSXMLNode*) node context: (NSManagedObjectContext*) context;
++ (SharedInstanceConfig*) sharedInstance: (NSString*) name value: (NSString*) value context: (NSManagedObjectContext*) context;
 
 @end

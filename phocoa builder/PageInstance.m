@@ -21,76 +21,110 @@
     return NO;
 }
 
-- (void) instanceToPHPArray: (NSMutableString*) instancesOut
-{
-    if ([[self valueForKey: @"children"] count] == 0)
-    {
-        [instancesOut appendFormat: @"\n\t'%@' => array('class' => '%@'),", [self valueForKey: @"instanceID"], [self valueForKey: @"instanceClass"]];
-    }
-    else
-    {
-        [instancesOut appendFormat: @"\n\t'%@' => array('class' => '%@', 'children' => array(", [self valueForKey: @"instanceID"], [self valueForKey: @"instanceClass"]];
-        NSEnumerator    *instEn = [[self valueForKey: @"children"] objectEnumerator];
-        PageInstance    *inst;
-        while (inst = [instEn nextObject]) {
-            [inst instanceToPHPArray: instancesOut];
-        }
-        [instancesOut appendString: @")),"];
-    }
-}
-
-+ (PageInstance*) pageInstanceFromXMLNode: (NSXMLNode*) node withConfig: (NSXMLNode*) configXML context: (NSManagedObjectContext*) context
++ (PageInstance*) pageInstance: (NSString*) instanceId withConfig: (NSDictionary*) config context: (NSManagedObjectContext*) context
 {
 	// set up new page instance
     PageInstance  *inst = [NSEntityDescription
 								insertNewObjectForEntityForName: @"PageInstance"
 										 inManagedObjectContext: context];
-    [inst setValue: [node name] forKey: @"instanceID"];
-    
-    // extract class
-    NSError     *err;
-    NSString    *xpq = [NSString stringWithFormat: @"./class"];
-    NSArray     *classNodes = [node nodesForXPath: xpq error: &err];
-    [inst setValue: [[classNodes objectAtIndex: 0] stringValue] forKey: @"instanceClass"];
+    [inst setValue: instanceId forKey: @"instanceID"];
+    [inst setValue: [config objectForKey: @"class"] forKey: @"instanceClass"];
 	
-    // extract config
-    if (configXML)
+	// set up config
+    NSDictionary    *configProperties = [config objectForKey: @"properties"];
+    if (configProperties)
     {
-        NSString    *xpq;
-		
-		// search for the properties for this instance
-		xpq = [NSString stringWithFormat: @"//%@/properties/*", [node name]];
-		 NSArray     *configs = [configXML nodesForXPath: xpq error: &err];
-		 
-		 NSEnumerator    *configEn = [configs objectEnumerator];
-		 NSXMLNode       *configNode;
-		 while (configNode = [configEn nextObject])
-		 {
-			 [[inst mutableSetValueForKey: @"config"] addObject: [PageInstanceConfig pageInstanceConfigFromXMLNode: configNode context: context]];
-		 }
-         
-         // search for bindings for this instance
-         xpq = [NSString stringWithFormat: @"//%@/bindings/*", [node name]];
-		  NSArray     *bindings = [configXML nodesForXPath: xpq error: &err];
-          
-          NSEnumerator    *bindingsEn = [bindings objectEnumerator];
-          NSXMLNode       *bindingNode;
-          while (bindingNode = [bindingsEn nextObject])
-		  {
-              [[inst mutableSetValueForKey: @"bindings"] addObject: [PageInstanceBinding pageInstanceBindingFromXMLNode: bindingNode context: context]];
-          }
+        NSEnumerator    *configEn = [configProperties keyEnumerator];
+        NSString        *configProp;
+        while (configProp = [configEn nextObject]) {
+            PageInstanceConfig	*config = [PageInstanceConfig configWithName: configProp value: [configProperties valueForKey: configProp]  context: context];
+            NSMutableSet *configs = [inst mutableSetValueForKey: @"config"];
+            [configs addObject: config];
+        }    
+    }
+    
+    // set up bindings
+    NSDictionary    *bindings = [config objectForKey: @"bindings"];
+    if (bindings)
+    {
+        NSEnumerator    *bindingsEn = [bindings keyEnumerator];
+        NSString        *bindProperty;
+        while (bindProperty = [bindingsEn nextObject]) {
+            PageInstanceBinding	*binding = [PageInstanceBinding bindProperty: bindProperty withSetup: [bindings valueForKey: bindProperty]  context: context];
+            NSMutableSet *bindings = [inst mutableSetValueForKey: @"bindings"];
+            [bindings addObject: binding];
+        }    
     }
 		  
-		  // recurse into children
-		  xpq = [NSString stringWithFormat: @"./children/*"];
-		   NSArray     *childNodes = [node nodesForXPath: xpq error: &err];
-		   int i, count = [childNodes count];
-		   for (i=0; i < count; i++) {
-			   PageInstance    *childPageInstance = [PageInstance pageInstanceFromXMLNode: [childNodes objectAtIndex: i] withConfig: configXML context: context];
-			   [[inst mutableSetValueForKey: @"children"] addObject: childPageInstance];
-		   }    
-		   
-		   return inst;
+    // recurse into children
+    NSDictionary    *children = [config objectForKey: @"children"];
+    if (children)
+    {
+        NSEnumerator    *childrenEn = [children keyEnumerator];
+        NSString        *childInstanceId;
+        while (childInstanceId = [childrenEn nextObject]) {
+            PageInstance    *childPageInstance = [PageInstance pageInstance: childInstanceId withConfig: [children objectForKey: childInstanceId] context: context];
+            [[inst mutableSetValueForKey: @"children"] addObject: childPageInstance];
+        }
+    }
+     
+    return inst;
+}
+
+- (NSDictionary*) configAsDictionary
+{
+    NSMutableDictionary     *picDict = [NSMutableDictionary dictionary];
+    NSSet                   *pageInstanceConfig = [self valueForKey: @"config"];
+    NSEnumerator            *picEn = [pageInstanceConfig objectEnumerator];
+    PageInstanceConfig      *pic;
+    while ( pic = [picEn nextObject] ) {
+        [picDict setObject: [pic valueForKey: @"value"] forKey: [pic valueForKey: @"name"]];
+    }
+    return picDict;
+}
+
+- (NSDictionary*) bindingsAsDictionary
+{
+    NSMutableDictionary     *bDict = [NSMutableDictionary dictionary];
+    NSSet                   *bindings = [self valueForKey: @"bindings"];
+    NSEnumerator            *bEn = [bindings objectEnumerator];
+    PageInstanceBinding     *b;
+    while ( b = [bEn nextObject] ) {
+        [bDict setObject: [b bindingAsDictionary] forKey: [b valueForKey: @"bindProperty"]];
+    }
+    return bDict;
+}
+
+- (NSDictionary*) childrenAsDictionary
+{
+    NSMutableDictionary     *cDict = [NSMutableDictionary dictionary];
+    NSSet                   *children = [self valueForKey: @"children"];
+    NSEnumerator            *cEn = [children objectEnumerator];
+    PageInstance            *cInst;
+    while ( cInst = [cEn nextObject] ) {
+        [cDict setObject: [cInst instanceAsDictionary] forKey: [cInst valueForKey: @"instanceID"]];
+    }
+    return cDict;
+}
+
+- (NSDictionary*) instanceAsDictionary
+{
+    NSMutableDictionary     *picDict = [NSMutableDictionary dictionary];
+    [picDict setValue: [self valueForKey: @"instanceClass"] forKey: @"class"];
+    
+    if ([[self valueForKey: @"config"] count] > 0)
+    {
+        [picDict setValue: [self configAsDictionary] forKey: @"properties"];
+    }
+    if ([[self valueForKey: @"bindings"] count] > 0)
+    {
+        [picDict setValue: [self bindingsAsDictionary] forKey: @"bindings"];
+    }
+    if ([[self valueForKey: @"children"] count] > 0)
+    {
+        [picDict setValue: [self childrenAsDictionary] forKey: @"children"];
+    }
+    return picDict;
 }
 
 @end

@@ -18,6 +18,6 @@
 
 - (BOOL) isPrototype;
 
-- (void) instanceToPHPArray: (NSMutableString*) instancesOut;
-+ (PageInstance*) pageInstanceFromXMLNode: (NSXMLNode*) node withConfig: (NSXMLNode*) configXML context: (NSManagedObjectContext*) context;
+- (NSDictionary*) instanceAsDictionary;
++ (PageInstance*) pageInstance: (NSString*) instanceId withConfig: (NSDictionary*) config context: (NSManagedObjectContext*) context;
 @end

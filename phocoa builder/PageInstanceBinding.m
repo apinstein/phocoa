@@ -11,40 +11,48 @@
 
 @implementation PageInstanceBinding
 
-+ (PageInstanceBinding*) pageInstanceBindingFromXMLNode: (NSXMLNode*) node context: (NSManagedObjectContext*) context;
++ (PageInstanceBinding*) bindProperty: (NSString*) bindProperty withSetup: (NSDictionary*) bindingSetup context: (NSManagedObjectContext*) context
 {
     PageInstanceBinding  *binding = [NSEntityDescription
 											insertNewObjectForEntityForName: @"PageInstanceBinding"
 													 inManagedObjectContext: context];
     
-    [binding setValue: [node name] forKey: @"bindProperty"];
+    [binding setValue: bindProperty forKey: @"bindProperty"];
+    [binding setValue: [bindingSetup objectForKey: @"instanceID"] forKey: @"bindToSharedInstanceID"];
+    [binding setValue: [bindingSetup objectForKey: @"controllerKey"] forKey: @"controllerKey"];
+    [binding setValue: [bindingSetup objectForKey: @"modelKeyPath"] forKey: @"modelKeyPath"];
     
-    // need to grab all of the bindings config from node:
-    NSError     *err;
-    NSString    *xpq;
-    NSArray     *xpr;
-    
-    xpq = [NSString stringWithFormat: @"./instanceID"];
-    xpr = [node nodesForXPath: xpq error: &err];
-    [binding setValue: [[xpr objectAtIndex: 0] stringValue] forKey: @"bindToSharedInstanceID"];
-    
-    xpq = [NSString stringWithFormat: @"./controllerKey"];
-    xpr = [node nodesForXPath: xpq error: &err];
-    [binding setValue: [[xpr objectAtIndex: 0] stringValue] forKey: @"controllerKey"];
-    
-    xpq = [NSString stringWithFormat: @"./modelKeyPath"];
-    xpr = [node nodesForXPath: xpq error: &err];
-    [binding setValue: [[xpr objectAtIndex: 0] stringValue] forKey: @"modelKeyPath"];
-    
-    xpq = [NSString stringWithFormat: @"./options/*"];
-	 xpr = [node nodesForXPath: xpq error: &err];
-	 NSEnumerator   *optionEn = [xpr objectEnumerator];
-     NSXMLNode      *optionNode;
-	 while (optionNode = [optionEn nextObject])
-	 {
-         [[binding mutableSetValueForKey: @"options"] addObject: [PageInstanceBindingOption pageInstanceBindingOptionFromXMLNode: optionNode context: context]];
-	 }
+    NSDictionary    *bindingOptions = [bindingSetup objectForKey: @"options"];
+    NSEnumerator    *optionEn = [bindingOptions keyEnumerator];
+    NSString        *optionName;
+    while (optionName = [optionEn nextObject])
+	{
+         [[binding mutableSetValueForKey: @"options"] addObject: [PageInstanceBindingOption bindingOption: optionName withValue: [bindingOptions objectForKey: optionName] context: context]];
+	}
 	 
-	 return binding;    
+	return binding;    
+}
+
+- (NSDictionary*) bindingAsDictionary
+{
+    NSMutableDictionary     *bDict = [NSMutableDictionary dictionary];
+    [bDict setValue: [self valueForKey: @"bindToSharedInstanceID"] forKey: @"instanceID"];
+    [bDict setValue: [self valueForKey: @"controllerKey"] forKey: @"controllerKey"];
+    [bDict setValue: [self valueForKey: @"modelKeyPath"] forKey: @"modelKeyPath"];
+    
+    // binding options
+    NSSet       *options = [self valueForKey: @"options"];
+    if ([options count] > 0)
+    {
+        NSMutableDictionary         *optionDict = [NSMutableDictionary dictionary];
+        NSEnumerator                *optionEn = [options objectEnumerator];
+        PageInstanceBindingOption   *option;
+        while ( option = [optionEn nextObject] ) {
+            [optionDict setObject: [option valueForKey: @"value"] forKey: [option valueForKey: @"name"]];
+        }
+        [bDict setValue: optionDict forKey: @"options"];
+    }
+    
+    return bDict;
 }
 @end

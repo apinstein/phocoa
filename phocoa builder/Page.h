@@ -14,6 +14,6 @@
 }
 
 - (NSString*) tplFilePath;
-- (void) saveSetupToDirectory: (NSString*) dir;
+- (void) saveSetupToDirectory: (NSString*) moduleDirPath;
 
 @end

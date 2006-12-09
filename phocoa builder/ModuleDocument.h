@@ -6,13 +6,14 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "Module.h"
 #import "SharedInstance.h"
 #import "Page.h"
 #import "PageInstance.h"
 #import "ModuleMainWindowController.h"
 
 @interface ModuleDocument : NSPersistentDocument {
-    NSManagedObject             *module;
+    Module                      *module;
     ModuleMainWindowController  *mainWindow;
 }
 

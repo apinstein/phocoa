@@ -13,4 +13,4 @@ TODO:
 3. Saving back out to all appropriate files.
 4. Editable / Saveable .tpl editing.
 5. Ability to toggle inspectors?
-6. IMPORTANT:: Make the order of keys in the output file consistent to minimize the "diff" when only one item is changed.
+6. The preference for php command is probably no longer needed, unless we want to build-in the YAML converter

@@ -11,6 +11,7 @@
 #import "PageInstanceConfig.h"
 #import "PageInstanceBinding.h"
 #import "PageInstanceBindingOption.h"
+#import "YAML/YAML.h"
 
 @implementation Page
 
@@ -44,104 +45,32 @@
     return allInstances;    
 }
 
-- (void) saveSetupToDirectory: (NSString*) dir
+- (NSDictionary*) pageInstancesDictionary
+{
+    NSMutableDictionary     *piDict = [NSMutableDictionary dictionary];
+    NSSet                   *pageInstances = [self valueForKey: @"instances"];
+    NSEnumerator            *piEn = [pageInstances objectEnumerator];
+    PageInstance            *pi;
+    while ( pi = [piEn nextObject] ) {
+        [piDict setObject: [pi instanceAsDictionary] forKey: [pi valueForKey: @"instanceID"]];
+    }
+    return piDict;
+}
+
+- (void) saveSetupToDirectory: (NSString*) moduleDirPath
 {
     NSLog(@"Saving setup for page: %@", [self valueForKey: @"name"]);
-    BOOL        wroteFile;
-    NSError     *err;
-    NSMutableString    *configOut = [NSMutableString string], *instancesOut = [NSMutableString string];
+
+    // convert page setup to YAML
+    NSString    *pageYAML = [[self pageInstancesDictionary] yamlDescription];
     
-    // process the config file
-    [configOut appendString: @"<?php\n\n$__config = array("]; // open main array
-    
-    // need to get a list of ALL instances; not just top-level
-    NSEnumerator    *instanceEn = [[self allInstances] objectEnumerator];
-    PageInstance    *instance;
-    while (instance = [instanceEn nextObject]) {
-        // skip instances that have NO config (bindings or properties)
-        if ([[instance valueForKey: @"bindings"] count] == 0 && [[instance valueForKey: @"config"] count] == 0) continue;
-        
-        [configOut appendFormat: @"\n\t'%@' => array(", [instance valueForKey: @"instanceID"]]; // open instance ID
-        
-        // manifest the config (properties & bindings) for this instance
-        // properties
-        if ([[instance valueForKey: @"config"] count] > 0)
-        {
-            [configOut appendString: @"\n\t\t'properties' => array("]; // open properties array
-            
-            NSEnumerator *configEn = [[instance valueForKey: @"config"] objectEnumerator];
-            PageInstanceConfig  *config;
-            while (config = [configEn nextObject]) {
-                if ([[config valueForKey: @"encapsulate"] boolValue] == YES)
-                {
-                    [configOut appendFormat: @"\n\t\t\t'%@' => '%@',", [config valueForKey: @"name"], [config valueForKey: @"escapedValue"]];
-                }
-                else
-                {
-                    [configOut appendFormat: @"\n\t\t\t'%@' => %@,", [config valueForKey: @"name"], [config valueForKey: @"escapedValue"]];
-                }
-            }
-            
-            [configOut appendString: @"\n\t\t),"]; // close properties array
-        }
-        
-        // bindings
-        if ([[instance valueForKey: @"bindings"] count] > 0)
-        {
-            [configOut appendString: @"\n\t\t'bindings' => array("]; // open bindings array
-            
-            NSEnumerator *bindingEn = [[instance valueForKey: @"bindings"] objectEnumerator];
-            PageInstanceBinding *binding;
-            while (binding = [bindingEn nextObject]) {
-                [configOut appendFormat: @"\n\t\t\t'%@' => array(", [binding valueForKey: @"bindProperty"]]; // open bound prop array
-                [configOut appendFormat: @"\n\t\t\t\t'instanceID' => '%@',", ([binding valueForKey: @"bindToSharedInstanceID"] ? [binding valueForKey: @"bindToSharedInstanceID"] : @"")];
-                [configOut appendFormat: @"\n\t\t\t\t'controllerKey' => '%@',", ([binding valueForKey: @"controllerKey"] ? [binding valueForKey: @"controllerKey"] : @"") ];
-                [configOut appendFormat: @"\n\t\t\t\t'modelKeyPath' => '%@',", ([binding valueForKey: @"modelKeyPath"] ? [binding valueForKey: @"modelKeyPath"] : @"")];
-                
-                if ([[binding valueForKey: @"options"] count] > 0)
-                {
-                    [configOut appendString: @"\n\t\t\t\t'options' => array("]; // open options array
-                    
-                    NSEnumerator    *bindOptEn = [[binding valueForKey: @"options"] objectEnumerator];
-                    PageInstanceBindingOption   *bindOpt;
-                    while (bindOpt = [bindOptEn nextObject]) {
-                        [configOut appendFormat: @"\n\t\t\t\t\t'%@' => '%@',", [bindOpt valueForKey: @"name"], [bindOpt valueForKey: @"value"]];
-                    }
-                    
-                    [configOut appendString: @"\n\t\t\t\t),"]; // close options array                    
-                }
-                
-                [configOut appendString: @"\n\t\t\t),"]; // close bound prop array
-            }
-            
-            [configOut appendString: @"\n\t\t),"]; // close bindings array
-        }
-        
-        [configOut appendString: @"\n\t),"]; // close instance id
-    }
-    [configOut appendString: @"\n);\n?>\n"]; // close main array
-                                             // output file
-    NSString    *configOutFileName = [NSString stringWithFormat: @"%@.config", [self valueForKey: @"name"]];
-    wroteFile = [configOut writeToFile: [dir stringByAppendingPathComponent: configOutFileName] atomically: YES encoding: NSASCIIStringEncoding error: &err];
+    NSError *err;
+    BOOL    wroteFile;
+    NSString    *pageYAMLPath = [moduleDirPath stringByAppendingPathComponent: [NSString stringWithFormat: @"%@.yaml", [self valueForKey: @"name"]]];
+    wroteFile = [pageYAML writeToFile: pageYAMLPath atomically: YES encoding: NSUTF8StringEncoding error: &err];
     if (!wroteFile)
     {
-        NSLog(@"Failed writing %@, reason: %@.", configOutFileName, err);
-    }
-    
-    // process the instances file
-    [instancesOut appendString: @"<?php\n\n$__instances = array("];
-    NSEnumerator    *instEn = [[self valueForKey: @"instances"] objectEnumerator];
-    PageInstance    *inst;
-    while (inst = [instEn nextObject]) {
-        [inst instanceToPHPArray: instancesOut];
-    }
-    [instancesOut appendString: @"\n);\n?>\n"];
-    // output file
-    NSString    *instancesOutFileName = [NSString stringWithFormat: @"%@.instances", [self valueForKey: @"name"]];
-    wroteFile = [instancesOut writeToFile: [dir stringByAppendingPathComponent: instancesOutFileName] atomically: YES encoding: NSASCIIStringEncoding error: &err];
-    if (!wroteFile)
-    {
-        NSLog(@"Failed writing %@, reason: %@.", instancesOutFileName, err);
+        NSLog(@"Failed writing %@, reason: %@.", pageYAML, err);
     }
 }
 

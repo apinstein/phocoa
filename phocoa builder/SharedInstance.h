@@ -13,5 +13,7 @@
 
 }
 
-+ (SharedInstance*) sharedInstanceFromXMLNode: (NSXMLNode*) siNode withConfig: (NSArray*) configNodes context: (NSManagedObjectContext*) context;
++ (SharedInstance*) sharedInstance: (NSString*) instanceId withConfig: (NSDictionary*) config context: (NSManagedObjectContext*) context;
+- (id) toYAML;
+- (NSDictionary*) configAsDictionary;
 @end

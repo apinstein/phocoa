@@ -14,6 +14,7 @@
 
 }
 
-+ (PageInstanceBinding*) pageInstanceBindingFromXMLNode: (NSXMLNode*) node context: (NSManagedObjectContext*) context;
++ (PageInstanceBinding*) bindProperty: (NSString*) bindProperty withSetup: (NSDictionary*) bindingSetup context: (NSManagedObjectContext*) context;
+- (NSDictionary*) bindingAsDictionary;
 
 @end

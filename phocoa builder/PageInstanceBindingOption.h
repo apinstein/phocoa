@@ -13,6 +13,6 @@
 
 }
 
-+ (PageInstanceBindingOption*) pageInstanceBindingOptionFromXMLNode: (NSXMLNode*) node context: (NSManagedObjectContext*) context;
++ (PageInstanceBindingOption*) bindingOption: (NSString*) name withValue: (NSString*) value context: (NSManagedObjectContext*) context;
 
 @end

@@ -19,7 +19,6 @@
 		E102D76A0917202F003C92AB /* PageInstanceConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D7690917202F003C92AB /* PageInstanceConfig.m */; };
 		E102D77F091720F4003C92AB /* PageInstanceBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D77E091720F4003C92AB /* PageInstanceBinding.m */; };
 		E102D7A2091721C3003C92AB /* PageInstanceBindingOption.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D7A1091721C3003C92AB /* PageInstanceBindingOption.m */; };
-		E10C52E9091070770014B582 /* phocoa_serializer.php in Resources */ = {isa = PBXBuildFile; fileRef = E10C52E8091070770014B582 /* phocoa_serializer.php */; };
 		E10C52F6091071430014B582 /* SharedInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C52F5091071430014B582 /* SharedInstance.m */; };
 		E10C5349091076D40014B582 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C5348091076D40014B582 /* AppDelegate.m */; };
 		E10C536F091079370014B582 /* SharedInstanceConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C536E091079370014B582 /* SharedInstanceConfig.m */; };
@@ -30,8 +29,26 @@
 		E12657EE092A387C004EF40F /* WFViewSubclasses.plist in Resources */ = {isa = PBXBuildFile; fileRef = E12657ED092A387B004EF40F /* WFViewSubclasses.plist */; };
 		E12657F1092A3889004EF40F /* WFViewSubclassList.m in Sources */ = {isa = PBXBuildFile; fileRef = E12657F0092A3888004EF40F /* WFViewSubclassList.m */; };
 		E193CA8709172F4200132276 /* README in Resources */ = {isa = PBXBuildFile; fileRef = E193CA8609172F4200132276 /* README */; };
-		E1EE70DC091D768C009C71E1 /* TaskWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = E1EE70DB091D768C009C71E1 /* TaskWrapper.m */; };
+		E1AA528C0B2A195A00DA6FB1 /* YAML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1AA52840B2A195A00DA6FB1 /* YAML.framework */; };
+		E1AA53290B2A2C0300DA6FB1 /* YAML.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1AA52840B2A195A00DA6FB1 /* YAML.framework */; };
+		E1AA563B0B2B398000DA6FB1 /* Module.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1AA56390B2B398000DA6FB1 /* Module.h */; };
+		E1AA563C0B2B398000DA6FB1 /* Module.m in Sources */ = {isa = PBXBuildFile; fileRef = E1AA563A0B2B398000DA6FB1 /* Module.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E1AA53270B2A2BF500DA6FB1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			comments = "Copy the YAML framework into the application's bundle.";
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E1AA53290B2A2C0300DA6FB1 /* YAML.framework in CopyFiles */,
+				E1AA563B0B2B398000DA6FB1 /* Module.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		089C1660FE840EACC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -57,7 +74,6 @@
 		E102D77E091720F4003C92AB /* PageInstanceBinding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageInstanceBinding.m; sourceTree = "<group>"; };
 		E102D7A0091721C3003C92AB /* PageInstanceBindingOption.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageInstanceBindingOption.h; sourceTree = "<group>"; };
 		E102D7A1091721C3003C92AB /* PageInstanceBindingOption.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageInstanceBindingOption.m; sourceTree = "<group>"; };
-		E10C52E8091070770014B582 /* phocoa_serializer.php */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.php; path = phocoa_serializer.php; sourceTree = "<group>"; };
 		E10C52F4091071430014B582 /* SharedInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedInstance.h; sourceTree = "<group>"; };
 		E10C52F5091071430014B582 /* SharedInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SharedInstance.m; sourceTree = "<group>"; };
 		E10C5347091076D40014B582 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -75,8 +91,9 @@
 		E12657EF092A3888004EF40F /* WFViewSubclassList.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = WFViewSubclassList.h; sourceTree = "<group>"; };
 		E12657F0092A3888004EF40F /* WFViewSubclassList.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = WFViewSubclassList.m; sourceTree = "<group>"; };
 		E193CA8609172F4200132276 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		E1EE70DA091D768C009C71E1 /* TaskWrapper.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TaskWrapper.h; sourceTree = "<group>"; };
-		E1EE70DB091D768C009C71E1 /* TaskWrapper.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = TaskWrapper.m; sourceTree = "<group>"; };
+		E1AA52840B2A195A00DA6FB1 /* YAML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = YAML.framework; sourceTree = "<group>"; };
+		E1AA56390B2B398000DA6FB1 /* Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Module.h; sourceTree = "<group>"; };
+		E1AA563A0B2B398000DA6FB1 /* Module.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Module.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +103,7 @@
 			files = (
 				775DFF38067A968500C5B868 /* Cocoa.framework in Frameworks */,
 				E10C55B90915BC040014B582 /* WebKit.framework in Frameworks */,
+				E1AA528C0B2A195A00DA6FB1 /* YAML.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,8 +160,6 @@
 				2A37F4ACFDCFA73011CA2CEA /* ModuleDocument.m */,
 				E10C5347091076D40014B582 /* AppDelegate.h */,
 				E10C5348091076D40014B582 /* AppDelegate.m */,
-				E1EE70DA091D768C009C71E1 /* TaskWrapper.h */,
-				E1EE70DB091D768C009C71E1 /* TaskWrapper.m */,
 				E126547009297009004EF40F /* FixedNSTreeController.h */,
 				E126547109297009004EF40F /* FixedNSTreeController.m */,
 				E12657EF092A3888004EF40F /* WFViewSubclassList.h */,
@@ -165,7 +181,6 @@
 			isa = PBXGroup;
 			children = (
 				E12657ED092A387B004EF40F /* WFViewSubclasses.plist */,
-				E10C52E8091070770014B582 /* phocoa_serializer.php */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */,
 				2A37F4B4FDCFA73011CA2CEA /* ModuleDocument.nib */,
@@ -178,6 +193,7 @@
 		2A37F4C3FDCFA73011CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E1AA52840B2A195A00DA6FB1 /* YAML.framework */,
 				1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */,
 				1058C7A8FEA54F5311CA2CBB /* Other Frameworks */,
 			);
@@ -196,6 +212,8 @@
 		E102D72B09171D0C003C92AB /* Core Data Instances */ = {
 			isa = PBXGroup;
 			children = (
+				E1AA56390B2B398000DA6FB1 /* Module.h */,
+				E1AA563A0B2B398000DA6FB1 /* Module.m */,
 				E10C52F4091071430014B582 /* SharedInstance.h */,
 				E10C52F5091071430014B582 /* SharedInstance.m */,
 				E10C536D091079370014B582 /* SharedInstanceConfig.h */,
@@ -232,6 +250,7 @@
 				8D15AC2B0486D014006FF6A4 /* Resources */,
 				8D15AC300486D014006FF6A4 /* Sources */,
 				8D15AC330486D014006FF6A4 /* Frameworks */,
+				E1AA53270B2A2BF500DA6FB1 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -267,7 +286,6 @@
 				8D15AC2D0486D014006FF6A4 /* MainMenu.nib in Resources */,
 				8D15AC2E0486D014006FF6A4 /* ModuleDocument.nib in Resources */,
 				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
-				E10C52E9091070770014B582 /* phocoa_serializer.php in Resources */,
 				E193CA8709172F4200132276 /* README in Resources */,
 				E12657EE092A387C004EF40F /* WFViewSubclasses.plist in Resources */,
 			);
@@ -292,9 +310,9 @@
 				E102D76A0917202F003C92AB /* PageInstanceConfig.m in Sources */,
 				E102D77F091720F4003C92AB /* PageInstanceBinding.m in Sources */,
 				E102D7A2091721C3003C92AB /* PageInstanceBindingOption.m in Sources */,
-				E1EE70DC091D768C009C71E1 /* TaskWrapper.m in Sources */,
 				E126547209297009004EF40F /* FixedNSTreeController.m in Sources */,
 				E12657F1092A3889004EF40F /* WFViewSubclassList.m in Sources */,
+				E1AA563C0B2B398000DA6FB1 /* Module.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,8 +361,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -371,8 +391,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
@@ -396,8 +418,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_2 = "\"$(SRCROOT)\"";
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
@@ -424,8 +448,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (
-					ppc,
 					i386,
+					ppc,
 				);
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};

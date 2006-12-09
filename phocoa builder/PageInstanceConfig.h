@@ -13,6 +13,6 @@
 
 }
 
-+ (PageInstanceConfig*) pageInstanceConfigFromXMLNode: (NSXMLNode*) node context: (NSManagedObjectContext*) context;
++ (PageInstanceConfig*) configWithName: (NSString*) name value: (NSString*) value context: (NSManagedObjectContext*) context;
 
 @end
