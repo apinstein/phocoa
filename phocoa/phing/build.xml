@@ -18,7 +18,7 @@
         <if>
             <equals arg1="${phocoa.project.dir}" arg2="" />
             <then>
-                <fail message="Project dir must be defined to run project tasks. CD into the project and try again." />
+                <fail message="Project dir must be defined to run project tasks. CD into the project and try again, or use -Dphocoa.project.dir=." />
             </then>
         </if>
         <echo message="PHOCOA project dir at: ${phocoa.project.dir}" />
