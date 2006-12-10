@@ -75,8 +75,6 @@ class RealPathExpandHome extends Task {
             throw new BuildException("You must specify a path to resolve", $this->getLocation());
         }
         
-		$fs = FileSystem::getFileSystem();
-		
         $path = $this->file;
         if (isset($_ENV['HOME']))
         {

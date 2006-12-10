@@ -13,14 +13,17 @@
         <echo message="PHOCOA framework base dir at: ${phocoa.dir}" />
     </target>
 
+    <!-- this target should be called by all targets that expect the project to already exist. if it doesn't already exist, this target will bail. -->
     <target name="prepareProject" description="Pre-flight for working on a PHOCOA project. Loads build.properties file." depends="prepareGeneral">
-        <php expression="$_ENV['_']" returnProperty="phocoa.project.php" />
+        <available file="${phocoa.project.dir}" property="projectDirExists" type="dir" value="1" />
+        <echo message="${projectDirExists}" />
         <if>
-            <equals arg1="${phocoa.project.dir}" arg2="" />
+            <isfalse value="projectDirExists" />
             <then>
-                <fail message="Project dir must be defined to run project tasks. CD into the project and try again, or use -Dphocoa.project.dir=." />
+                <fail message="Project must already exist to run this task. No project found at ${phocoa.project.dir}." />
             </then>
         </if>
+        <php expression="$_ENV['_']" returnProperty="phocoa.project.php" />
         <echo message="PHOCOA project dir at: ${phocoa.project.dir}" />
         <realpathexpandhome propertyName="phocoa.project.container" file="${phocoa.project.dir}/.."/>
         <echo message="PHOCOA project container dir at: ${phocoa.project.container}" />
@@ -132,7 +135,8 @@
         </if>
     </target>
 
-    <target name="setupProjectContainer" description="Set up the container dir for the project." depends="prepareProject">
+    <target name="setupProjectContainer" description="Set up the container dir for the project.">
+        <fail unless="phocoa.project.container" message="phocoa.project.container must be defined." />
         <!-- Create a reasonable directory structure -->
         <echo msg="Creating project container directories and setting up permissions" /> 
         <mkdir dir="${phocoa.project.container}" />
@@ -195,9 +199,9 @@
         <!-- Remind the user to set up the apache config properly. -->
         <phingcall target="httpdconf" />
 
-        <input propertyname="local.usePropel" defaultValue="yes" validArgs="yes,no">Will this project use database access via Propel?</input>
+        <input propertyname="local.usePropel" validArgs="yes,no" defaultValue="yes">Will this project use database access via Propel?</input>
         <if>
-            <equals arg1="${local.usePropel}" arg2="1" />
+            <istrue value="${local.usePropel}" />
             <then>
                 <phingcall target="addpropel" />
             </then>
