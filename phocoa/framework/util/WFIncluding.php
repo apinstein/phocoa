@@ -52,6 +52,7 @@ class WFIncluding
                 'WFView' => 'framework/widgets/WFView.php',
                 'WFException' => 'framework/WFException.php',
                 'WFBinding' => 'framework/WFBinding.php',
+                'WFBindingSetup' => 'framework/WFBinding.php',
                 'WFSmarty' => 'framework/WFSmarty.php',
                 'WFAuthorizationDelegate' => 'framework/WFAuthorization.php',
                 'WFAuthorizationInfo' => 'framework/WFAuthorization.php',

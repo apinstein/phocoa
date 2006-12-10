@@ -100,6 +100,16 @@ class WFSelect extends WFWidget
         $this->jsActions['onChange'] = $js;
     }
 
+    public static function exposedProperties()
+    {
+        return array(
+            'multiple' => array('true', 'false'),
+            'visibleItems' => array(),
+            'width' => array(),
+            'labelFormatter' => array()
+            );
+    }
+
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();
