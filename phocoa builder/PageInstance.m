@@ -7,9 +7,25 @@
 //
 
 #import "PageInstance.h"
+#import "WFViewPhocoaBuilderIntegration.h"
 
 
 @implementation PageInstance
+
+- (NSArray*) instancePropertyList
+{
+    return [[WFViewPhocoaBuilderIntegration sharedWFViewPhocoaBuilderIntegration] propertyListForClass: [self valueForKey: @"instanceClass"]];
+}
+
+- (NSArray*) instanceBindPropertyList
+{
+    return [[WFViewPhocoaBuilderIntegration sharedWFViewPhocoaBuilderIntegration] bindingListForClass: [self valueForKey: @"instanceClass"]];
+}
+
+- (NSArray*) bindToSharedInstanceIdList
+{
+    return [[WFViewPhocoaBuilderIntegration sharedWFViewPhocoaBuilderIntegration] bindToSharedInstanceIdList];
+}
 
 - (BOOL) isPrototype
 {

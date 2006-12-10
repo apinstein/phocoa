@@ -7,9 +7,15 @@
 //
 
 #import "PageInstanceConfig.h"
+#import "WFViewPhocoaBuilderIntegration.h"
 
 
 @implementation PageInstanceConfig
+
+- (NSArray*) instancePropertyListValues
+{
+    return [[WFViewPhocoaBuilderIntegration sharedWFViewPhocoaBuilderIntegration] propertyListValuesForClass: [self valueForKeyPath: @"pageInstance.instanceClass"] property: [self valueForKey: @"name"]];
+}
 
 + (PageInstanceConfig*) configWithName: (NSString*) name value: (NSString*) value context: (NSManagedObjectContext*) context
 {

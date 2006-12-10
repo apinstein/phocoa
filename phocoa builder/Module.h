@@ -16,5 +16,6 @@
 
 - (NSDictionary*) sharedInstancesDictionary;
 - (void) saveSetupToDirectory: (NSString*) moduleDirPath;
+- (NSArray*) listOfSharedInstanceIDs;
 
 @end

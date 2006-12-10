@@ -8,7 +8,7 @@
 
 #import "ModuleMainWindowController.h"
 #import "PageInstance.h"
-#import "WFViewSubclassList.h"
+#import "WFViewPhocoaBuilderIntegration.h"
 
 @implementation ModuleMainWindowController
 
@@ -44,12 +44,20 @@
     // could possibly be a bug in the 
     [pageController setSelectedObjects: [NSArray array]];
     [pageController selectNext: nil];
+    
+    [pageController setSortDescriptors: [NSArray arrayWithObject: [[NSSortDescriptor alloc] initWithKey: @"name" ascending: YES] ]];
         
 }
 
 - (NSArray*) subclassList
 {
-    return [WFViewSubclassList subclasses];
+    return [[WFViewPhocoaBuilderIntegration sharedWFViewPhocoaBuilderIntegration] WFViewList];
+}
+
+
+- (NSArray*) controllerKeyList
+{
+    return [[WFViewPhocoaBuilderIntegration sharedWFViewPhocoaBuilderIntegration] controllerKeyList];
 }
 
 // inserts a new binding with default values based on the currently selected shared instance

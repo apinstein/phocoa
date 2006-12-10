@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+<key>WFSelect</key>
+    <dict>
+    <key>properties</key>
+<dict>
+<key>multiple</key>
+<array>
+<string>true</string>
+<string>false</string>
+</array>
+<key>visibleItems</key>
+<array/>
+<key>width</key>
+<array/>
+<key>labelFormatter</key>
+<array/>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>values</string>
+<string>contentValues</string>
+<string>contentLabels</string>
+<string>options</string>
+</array></dict><key>WFCheckbox</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>value</string>
+<string>label</string>
+<string>checkedValue</string>
+<string>uncheckedValue</string>
+</array></dict><key>WFCheckboxGroup</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>values</string>
+</array></dict><key>WFDieselKeyword</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>maxLength</string>
+<string>size</string>
+</array></dict><key>WFDieselNav</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFDynamic</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFDynarchMenu</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFForm</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFHidden</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>value</string>
+</array></dict><key>WFHTMLArea</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>width</string>
+<string>height</string>
+</array></dict><key>WFImage</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>value</string>
+<string>baseDir</string>
+<string>width</string>
+<string>height</string>
+<string>alt</string>
+<string>link</string>
+</array></dict><key>WFJumpSelect</key>
+    <dict>
+    <key>properties</key>
+<dict>
+<key>multiple</key>
+<array>
+<string>true</string>
+<string>false</string>
+</array>
+<key>visibleItems</key>
+<array/>
+<key>width</key>
+<array/>
+<key>labelFormatter</key>
+<array/>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>values</string>
+<string>contentValues</string>
+<string>contentLabels</string>
+<string>options</string>
+<string>baseURL</string>
+</array></dict><key>WFLabel</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>value</string>
+</array></dict><key>WFLink</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>value</string>
+<string>label</string>
+<string>title</string>
+</array></dict><key>WFMessageBox</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>value</string>
+</array></dict><key>WFModuleView</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>invocationPath</string>
+</array></dict><key>WFPaginatorNavigation</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFPaginatorPageInfo</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+</array></dict><key>WFPaginatorSortLink</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFPaginatorSortSelect</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFPaginatorState</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFPassword</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>maxLength</string>
+<string>size</string>
+</array></dict><key>WFRadio</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>label</string>
+<string>selectedValue</string>
+</array></dict><key>WFRadioGroup</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>value</string>
+</array></dict><key>WFSelect</key>
+    <dict>
+    <key>properties</key>
+<dict>
+<key>multiple</key>
+<array>
+<string>true</string>
+<string>false</string>
+</array>
+<key>visibleItems</key>
+<array/>
+<key>width</key>
+<array/>
+<key>labelFormatter</key>
+<array/>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>values</string>
+<string>contentValues</string>
+<string>contentLabels</string>
+<string>options</string>
+</array></dict><key>WFSelectionCheckbox</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFSubmit</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>label</string>
+</array></dict><key>WFTabContent</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+</array></dict><key>WFTabView</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFTextArea</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>rows</string>
+<string>columns</string>
+</array></dict><key>WFTextField</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>maxLength</string>
+<string>size</string>
+</array></dict><key>WFTimeSelect</key>
+    <dict>
+    <key>properties</key>
+<dict>
+<key>multiple</key>
+<array>
+<string>true</string>
+<string>false</string>
+</array>
+<key>visibleItems</key>
+<array/>
+<key>width</key>
+<array/>
+<key>labelFormatter</key>
+<array/>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>values</string>
+<string>contentValues</string>
+<string>contentLabels</string>
+<string>options</string>
+</array></dict><key>WFUpload</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFYAHOO_widget_Module</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>header</string>
+<string>body</string>
+<string>footer</string>
+</array></dict><key>WFYAHOO_widget_Panel</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+<string>header</string>
+<string>body</string>
+<string>footer</string>
+</array></dict><key>WFYAHOO_widget_TreeView</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+<string>value</string>
+<string>hidden</string>
+<string>enabled</string>
+</array></dict><key>WFYAHOO_widget_TreeViewNode</key>
+    <dict>
+    <key>properties</key>
+<dict>
+</dict><key>bindings</key>
+<array>
+</array></dict>
+</dict>
+</plist>

@@ -26,13 +26,14 @@
 		E10C54D70915AD8E0014B582 /* Page.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C54D60915AD8E0014B582 /* Page.m */; };
 		E10C55B90915BC040014B582 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E10C55B80915BC040014B582 /* WebKit.framework */; };
 		E126547209297009004EF40F /* FixedNSTreeController.m in Sources */ = {isa = PBXBuildFile; fileRef = E126547109297009004EF40F /* FixedNSTreeController.m */; };
-		E12657EE092A387C004EF40F /* WFViewSubclasses.plist in Resources */ = {isa = PBXBuildFile; fileRef = E12657ED092A387B004EF40F /* WFViewSubclasses.plist */; };
-		E12657F1092A3889004EF40F /* WFViewSubclassList.m in Sources */ = {isa = PBXBuildFile; fileRef = E12657F0092A3888004EF40F /* WFViewSubclassList.m */; };
 		E193CA8709172F4200132276 /* README in Resources */ = {isa = PBXBuildFile; fileRef = E193CA8609172F4200132276 /* README */; };
 		E1AA528C0B2A195A00DA6FB1 /* YAML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1AA52840B2A195A00DA6FB1 /* YAML.framework */; };
 		E1AA53290B2A2C0300DA6FB1 /* YAML.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1AA52840B2A195A00DA6FB1 /* YAML.framework */; };
 		E1AA563B0B2B398000DA6FB1 /* Module.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1AA56390B2B398000DA6FB1 /* Module.h */; };
 		E1AA563C0B2B398000DA6FB1 /* Module.m in Sources */ = {isa = PBXBuildFile; fileRef = E1AA563A0B2B398000DA6FB1 /* Module.m */; };
+		E1AA5A430B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1AA5A410B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.h */; };
+		E1AA5A440B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.m in Sources */ = {isa = PBXBuildFile; fileRef = E1AA5A420B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.m */; };
+		E1AA5A990B2BDDB700DA6FB1 /* WFViewPhocoaBuilderIntegration.plist in Resources */ = {isa = PBXBuildFile; fileRef = E1AA5A980B2BDDB700DA6FB1 /* WFViewPhocoaBuilderIntegration.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -45,6 +46,7 @@
 			files = (
 				E1AA53290B2A2C0300DA6FB1 /* YAML.framework in CopyFiles */,
 				E1AA563B0B2B398000DA6FB1 /* Module.h in CopyFiles */,
+				E1AA5A430B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,13 +89,13 @@
 		E10C55B80915BC040014B582 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
 		E126547009297009004EF40F /* FixedNSTreeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FixedNSTreeController.h; sourceTree = "<group>"; };
 		E126547109297009004EF40F /* FixedNSTreeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixedNSTreeController.m; sourceTree = "<group>"; };
-		E12657ED092A387B004EF40F /* WFViewSubclasses.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = WFViewSubclasses.plist; sourceTree = "<group>"; };
-		E12657EF092A3888004EF40F /* WFViewSubclassList.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = WFViewSubclassList.h; sourceTree = "<group>"; };
-		E12657F0092A3888004EF40F /* WFViewSubclassList.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = WFViewSubclassList.m; sourceTree = "<group>"; };
 		E193CA8609172F4200132276 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		E1AA52840B2A195A00DA6FB1 /* YAML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = YAML.framework; sourceTree = "<group>"; };
 		E1AA56390B2B398000DA6FB1 /* Module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Module.h; sourceTree = "<group>"; };
 		E1AA563A0B2B398000DA6FB1 /* Module.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Module.m; sourceTree = "<group>"; };
+		E1AA5A410B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WFViewPhocoaBuilderIntegration.h; sourceTree = "<group>"; };
+		E1AA5A420B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WFViewPhocoaBuilderIntegration.m; sourceTree = "<group>"; };
+		E1AA5A980B2BDDB700DA6FB1 /* WFViewPhocoaBuilderIntegration.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = WFViewPhocoaBuilderIntegration.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,8 +164,8 @@
 				E10C5348091076D40014B582 /* AppDelegate.m */,
 				E126547009297009004EF40F /* FixedNSTreeController.h */,
 				E126547109297009004EF40F /* FixedNSTreeController.m */,
-				E12657EF092A3888004EF40F /* WFViewSubclassList.h */,
-				E12657F0092A3888004EF40F /* WFViewSubclassList.m */,
+				E1AA5A410B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.h */,
+				E1AA5A420B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -180,7 +182,7 @@
 		2A37F4B8FDCFA73011CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				E12657ED092A387B004EF40F /* WFViewSubclasses.plist */,
+				E1AA5A980B2BDDB700DA6FB1 /* WFViewPhocoaBuilderIntegration.plist */,
 				2A37F4B9FDCFA73011CA2CEA /* Credits.rtf */,
 				2A37F4B6FDCFA73011CA2CEA /* MainMenu.nib */,
 				2A37F4B4FDCFA73011CA2CEA /* ModuleDocument.nib */,
@@ -287,7 +289,7 @@
 				8D15AC2E0486D014006FF6A4 /* ModuleDocument.nib in Resources */,
 				8D15AC2F0486D014006FF6A4 /* InfoPlist.strings in Resources */,
 				E193CA8709172F4200132276 /* README in Resources */,
-				E12657EE092A387C004EF40F /* WFViewSubclasses.plist in Resources */,
+				E1AA5A990B2BDDB700DA6FB1 /* WFViewPhocoaBuilderIntegration.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -311,8 +313,8 @@
 				E102D77F091720F4003C92AB /* PageInstanceBinding.m in Sources */,
 				E102D7A2091721C3003C92AB /* PageInstanceBindingOption.m in Sources */,
 				E126547209297009004EF40F /* FixedNSTreeController.m in Sources */,
-				E12657F1092A3889004EF40F /* WFViewSubclassList.m in Sources */,
 				E1AA563C0B2B398000DA6FB1 /* Module.m in Sources */,
+				E1AA5A440B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

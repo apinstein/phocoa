@@ -8,8 +8,14 @@
 
 #import "Module.h"
 #import "YAML/YAML.h"
+#import "WFViewPhocoaBuilderIntegration.h"
 
 @implementation Module
+
++ (void) initialize
+{
+//    [self setKeys: [NSArray arrayWithObject: @"sharedInstances"] triggerChangeNotificationsForDependentKey: @"bindToSharedInstanceIdList"];
+}
 
 - (NSDictionary*) sharedInstancesDictionary
 {
@@ -21,6 +27,11 @@
         [siDict setObject: [si toYAML] forKey: [si valueForKey: @"instanceID"]];
     }
     return siDict;
+}
+
+- (NSArray*) listOfSharedInstanceIDs
+{
+    return [[self valueForKeyPath: @"sharedInstances.instanceID"] allObjects];
 }
 
 - (void) saveSetupToDirectory: (NSString*) moduleDirPath

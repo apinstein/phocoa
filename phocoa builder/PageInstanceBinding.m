@@ -7,6 +7,7 @@
 //
 
 #import "PageInstanceBinding.h"
+#import "WFViewPhocoaBuilderIntegration.h"
 
 
 @implementation PageInstanceBinding
