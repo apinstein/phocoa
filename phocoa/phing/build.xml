@@ -165,12 +165,12 @@
             <fileset dir="${phocoa.dir}">
                 <exclude name="**/.svn/**" />
                 <include name="classes/**" />
-                <include name="modules" />
                 <include name="skins/**" />
                 <include name="wwwroot/index.php" />
             </fileset>
         </copy>
         <mkdir dir="${phocoa.project.dir}/wwwroot/www" />
+        <mkdir dir="${phocoa.project.dir}/modules" />
 
         <!-- Set up conf files -->
         <echo msg="Setting up configuration files..." />
