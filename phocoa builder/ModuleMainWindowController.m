@@ -10,6 +10,10 @@
 #import "PageInstance.h"
 #import "WFViewPhocoaBuilderIntegration.h"
 
+@interface ModuleMainWindowController (Private)
+- (void) registerAsObserver;
+@end
+
 @implementation ModuleMainWindowController
 
 - (NSManagedObjectContext*) managedObjectContext
@@ -46,6 +50,8 @@
     [pageController selectNext: nil];
     
     [pageController setSortDescriptors: [NSArray arrayWithObject: [[NSSortDescriptor alloc] initWithKey: @"name" ascending: YES] ]];
+    
+    [self registerAsObserver];
         
 }
 
@@ -95,5 +101,26 @@
     // add the binding to the controller
     [pageInstanceBindingController addObject: binding];
 }
+
+#pragma mark -- Detecting changes to page instance class --
+- (void) registerAsObserver
+{
+    [pageInstancesController addObserver: self
+           forKeyPath: @"selection.instanceClass" 
+              options: nil
+              context: NULL];
+}
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if ([keyPath isEqual:@"selection.instanceClass"]) {
+        // send fake selection changed event for the page instances hierarchy controller so that the proeprty list updates
+        [[pageInstanceTablePropertyColumn dataCell] removeAllItems];
+        if ([pageInstancesController selectionIndexPath])
+        {
+            [[pageInstanceTablePropertyColumn dataCell] addItemsWithObjectValues: [ [[pageInstancesController selectedObjects] objectAtIndex: 0] instancePropertyList] ];            
+        }
+    }
+}
+
 
 @end

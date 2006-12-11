@@ -53,7 +53,8 @@
 - (NSArray*) propertyListForClass: (NSString*) className
 {
     NSDictionary    *classProps = [[self integrationInfo] valueForKeyPath: [NSString stringWithFormat: @"%@.properties", className]];
-    return [classProps allKeys];
+    NSLog(@"class: %@, options: %@", className, classProps);
+    return [[classProps allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
 }
 
 - (NSArray*) propertyListValuesForClass: (NSString*) className property: (NSString*) propertyName
@@ -63,7 +64,7 @@
 
 - (NSArray*) bindingListForClass: (NSString*) class
 {
-    return [[self integrationInfo] valueForKeyPath: [NSString stringWithFormat: @"%@.bindings", class]];
+    return [[[self integrationInfo] valueForKeyPath: [NSString stringWithFormat: @"%@.bindings", class]] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
 }
 
 - (NSArray*) bindToSharedInstanceIdList
@@ -74,17 +75,17 @@
     id          module = [dc currentDocument];
     [instanceList addObjectsFromArray: [[module valueForKey: @"module"] listOfSharedInstanceIDs]
         ];
-    return instanceList;
+    return [instanceList sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
 }
 
 - (NSArray*) controllerKeyList
 {
-    return [NSArray arrayWithObjects: @"content", @"selection", @"selectedObjects", @"arrangedObjects" , nil];
+    return [[NSArray arrayWithObjects: @"content", @"selection", @"selectedObjects", @"arrangedObjects" , nil] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
 }
 
 - (NSArray*) WFViewList
 {
-    return [integrationInfo allKeys];
+    return [[integrationInfo allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
 }
 
 

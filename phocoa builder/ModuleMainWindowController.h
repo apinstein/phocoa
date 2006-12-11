@@ -15,6 +15,7 @@
     IBOutlet    id pageInstancesController;
     IBOutlet    id pageInstanceBindingController;
     IBOutlet    id pageController;
+    IBOutlet    id pageInstanceTablePropertyColumn;
 }
 
 - (void) startSaveProgress;

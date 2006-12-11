@@ -20,4 +20,7 @@
 
 - (NSDictionary*) instanceAsDictionary;
 + (PageInstance*) pageInstance: (NSString*) instanceId withConfig: (NSDictionary*) config context: (NSManagedObjectContext*) context;
+
+- (NSArray*) instancePropertyList;
+
 @end

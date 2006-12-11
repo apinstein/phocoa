@@ -3,7 +3,6 @@
 require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
 
 $classesToExport = array(
-    'WFSelect',
     'WFCheckbox',
     'WFCheckboxGroup',
     'WFDieselKeyword',
@@ -57,6 +56,14 @@ foreach ($classesToExport as $class) {
     if (is_callable(array($class, 'exposedProperties')))
     {
         $exposedProperties = call_user_func( array($class, 'exposedProperties') );
+        // fix integer keys into keys... this allows exposedProperties to return ('myProp' => array(1,2,3), 'myProp2', 'myProp3')
+        foreach ( array_keys($exposedProperties) as $k ) {
+            if (gettype($k) == 'integer')
+            {
+                $exposedProperties[$exposedProperties[$k]] = NULL;
+                unset($exposedProperties[$k]);
+            }
+        }
         foreach ($exposedProperties as $prop => $values) {
             $plist .= "<key>{$prop}</key>\n";
             if ($values)
