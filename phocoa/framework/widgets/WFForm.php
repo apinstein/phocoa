@@ -55,6 +55,15 @@ class WFForm extends WFWidget
         $this->method = WFForm::METHOD_POST;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'action',
+            'method'
+            ));
+    }
+
     function setAction($action)
     {
         $this->action = $action;

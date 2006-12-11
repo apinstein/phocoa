@@ -87,6 +87,21 @@ class WFImage extends WFWidget
         $this->linkTarget = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'baseDir',
+            'width',
+            'height',
+            'border',
+            'align',
+            'alt',
+            'link',
+            'linkTarget'
+            ));
+    }
+
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

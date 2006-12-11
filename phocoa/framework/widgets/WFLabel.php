@@ -44,6 +44,14 @@ class WFLabel extends WFWidget
         $this->textAsHTML = false;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'ellipsisAfterChars',
+            'textAsHTML',
+            ));
+    }
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

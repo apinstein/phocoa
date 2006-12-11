@@ -47,6 +47,17 @@ class WFTimeSelect extends WFSelect
         $this->generateOptions();
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'incrementsPerHour' => array('1', '2', '4', '12', '60'),
+            'startTime',
+            'endTime',
+            'formatString',
+            ));
+    }
+
     /**
       * Mark the current options as invalid; done because we've changed one of the inputs startTime, endTime, incrementsPerHour, or formatString.
       * 

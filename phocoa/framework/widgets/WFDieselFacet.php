@@ -99,10 +99,6 @@ class WFDieselFacet extends WFWidget
      */
     protected $showAllText;
     /**
-     * @var string The CSS class of the span that encloses each facet.
-     */
-    protected $class;
-    /**
      * @var integer Number of chars after which the facet value string should be ellipsised. Default 0 (UNLIMITED).
      */
 	protected $ellipsisAfterChars;
@@ -138,6 +134,27 @@ class WFDieselFacet extends WFWidget
         $this->popupSelections = array();
         $this->treeDataPath = null;
         $this->width = NULL;
+    }
+
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'facetStyle' => array('list', 'menu', 'tree'),
+            'treeRoot',
+            'defaultTreePosition',
+            'attributeID',
+            'dieselSearch',
+            'rangeCount',
+            'fakeOpenEndedRange' => array('list', 'menu', 'tree'),
+            'showItemCounts',
+            'maxHits',
+            'maxRows',
+            'label',
+            'sortByFrequency' => array('list', 'menu', 'tree'),
+            'ellipsisAfterChars',
+            'width',
+            ));
     }
 
     function setTreeDataPath($path)

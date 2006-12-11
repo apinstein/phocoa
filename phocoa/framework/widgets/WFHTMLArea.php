@@ -27,6 +27,15 @@ class WFHTMLArea extends WFWidget
         $this->height = '400';
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'width',
+            'height',
+            ));
+    }
+
     function value()
     {
         return $this->value;

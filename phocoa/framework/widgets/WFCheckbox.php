@@ -174,6 +174,18 @@ class WFCheckbox extends WFWidget
         }
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'checked' => array('true', 'false'),
+            'checkedValue',
+            'uncheckedValue',
+            'groupMode' => array('true', 'false'),
+            'label',
+            ));
+    }
+
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

@@ -35,6 +35,15 @@ class WFDieselKeyword extends WFWidget
         $this->dieselSearch = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'maxLength',
+            'size',
+            ));
+    }
+
     function setDieselSearch($ds)
     {
         $this->dieselSearch = $ds;

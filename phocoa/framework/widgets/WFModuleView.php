@@ -45,6 +45,14 @@ class WFModuleView extends WFWidget
         $this->targetRootModule = true;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'invocationPath',
+            'targetRootModule' => array('true', 'false'),
+            ));
+    }
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

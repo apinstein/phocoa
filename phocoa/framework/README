@@ -22,6 +22,7 @@ Dependencies
 TODO
 
 1.0 Milestone:
+- Add a WFViewPhocoaBuilderIntegration interface to house the informal protocol for making the PHOCOA builder more useful; add support to all widgets. DONE
 - Add page->setTemplate() to allow system to use alternate .tpl file -- easier for confirm/thanks pages
 - Have the newproject script make -dev and -production and -staging versions of conf files
 - Add an interactive PHP shell for exploring your projects. DONE
@@ -34,7 +35,10 @@ TODO
 - Move .config and .instances files to YAML to improve compatibility for people managing with text files and make other GUI editors easier to write. DONE
   - Convert existing projects to YAML setup with new converters. DONE
   - Update PHOCOA Builder to use syck/yaml parser directly, thus skipping the PHP interaction to read the files. DONE
-- Improve 'default' template to a nice-looking one based on UberTemplate.
+- Improve 'default' template to a nice-looking
+    - Ubertemplate
+    - Menu based on YUI
+      - WFTreeController
 - Integrate YAHOO js library to the extent that events can be attached to widgets; build a nice infrastructure for that
   - deprecate current js action handlers? dunno...
   - support tooltips on all wfview objects

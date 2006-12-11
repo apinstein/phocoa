@@ -38,6 +38,14 @@ class WFPaginatorState extends WFWidget
         parent::__construct($id, $page);
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'paginator',
+            ));
+    }
+
     function restoreState()
     {
         //  must call super

@@ -52,6 +52,13 @@ class WFMessageBox extends WFWidget
         $this->mode = $m;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'mode',
+            ));
+    }
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

@@ -135,6 +135,19 @@ class WFDynamic extends WFWidget
         $this->oneShotSeparatorHTML = '<br />';
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'arrayController',
+            'widgetClass',
+            'useUniqueNames',
+            'simpleBindKeyPath',
+            'oneShotMode',
+            'oneShotSeparatorHTML'
+            ));
+    }
+
      /*
      * Set whether or not each created widget will have the same name.
      *

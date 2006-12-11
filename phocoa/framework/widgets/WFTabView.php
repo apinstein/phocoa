@@ -98,6 +98,16 @@ class WFTabView extends WFWidget
         $this->debugShowAllTabs = false;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'defaultTabID',
+            'onePageMode',
+            'debugShowAllTabs',
+            ));
+    }
+
     function debugShowAllTabs()
     {
         return $this->debugShowAllTabs;

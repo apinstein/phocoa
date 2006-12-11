@@ -19,6 +19,18 @@ class WFObject implements WFKeyValueCoding
     {
     }
 
+    /**
+     *  Empty placeholder for exposedProperties setup.
+     *
+     *  Subclasses should call parent and merge results.
+     *
+     *  @return array
+     */
+    public static function exposedProperties()
+    {
+        return array();
+    }
+
     function valueForKey($key)
     {
         if ($key == NULL) WFException::raise(WFUndefinedKeyException, "NULL key Exception");

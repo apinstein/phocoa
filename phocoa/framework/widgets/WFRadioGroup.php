@@ -45,6 +45,14 @@ class WFRadioGroup extends WFWidget
         $this->defaultValue = NULL;
     }
 
+
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'defaultValue',
+            ));
+    }
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

@@ -27,6 +27,15 @@ class WFPassword extends WFWidget
         $this->enabled = true;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'maxLength',
+            'size',
+            ));
+    }
+
     function restoreState()
     {
         //  must call super

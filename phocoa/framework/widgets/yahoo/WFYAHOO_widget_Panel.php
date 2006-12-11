@@ -41,6 +41,17 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
         $this->importCSS("{$this->yuiPath}/container/assets/container.css");
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'underlay' => array('shadow', 'none', 'matte'),
+            'draggable' => array('true', 'false'),
+            'modal' => array('true', 'false'),
+            'canClose' => array('true', 'false'),
+            ));
+    }
+
     function setDraggable($b)
     {
         $this->draggable = $b;

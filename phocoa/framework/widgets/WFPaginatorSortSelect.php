@@ -48,6 +48,15 @@ class WFPaginatorSortSelect extends WFWidget
         $this->loadOnSelect = true;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'paginator',
+            'loadOnSelect',
+            ));
+    }
+
     function setPaginator($p)
     {
         if (!($p instanceof WFPaginator)) throw( new Exception("Argument must be a WFPaginator.") );

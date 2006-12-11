@@ -51,7 +51,14 @@ class WFTextField extends WFWidget
             '/>';
     }
 
-    /********************* BINDINGS SETUP ************************/
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'maxLength',
+            'size',
+            ));
+    }
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

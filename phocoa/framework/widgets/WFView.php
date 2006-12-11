@@ -102,6 +102,12 @@ abstract class WFView extends WFObject
         $this->cssImports = array();
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array('enabled'));
+    }
+
     /**
      *  Create a clone of the WFView with a new ID.
      *

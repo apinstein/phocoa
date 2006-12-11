@@ -35,7 +35,7 @@ WFValueTransformer::setValueTransformerForName(new WFIsNotEmptyTransformer, 'WFI
  *
  * Formatter support: Using {@link value(), setValue()} will provide automatic formatter support. Generally, the idea is that setValue() will take the passed "raw" value and convert it into the "formatted" value. The {@link $value} member thus should always contain the "formatted" representation if the widget is using a formatter. Conversely, value() will take the "formatted" representation stored internally and turn it back into a "raw" value.
  *
- * @todo Write a GUI editor to manage .instances and .config, using options from {@link exposedBinding()}. Switch to YAML?
+ * @todo Should the class property be moved up to WFView? Probably yes
  *
  * Implements:
  *  {@link WFKeyValueBindingCreation} - Provides a base implementation of bindings support.
@@ -99,6 +99,12 @@ abstract class WFWidget extends WFView
         $this->value = NULL;
         $this->hidden = false;
         $this->class = NULL;
+    }
+
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array('value', 'formatter', 'hidden', 'class'));
     }
 
     /**

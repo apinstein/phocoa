@@ -58,6 +58,19 @@ class WFDieselNav extends WFWidget
         $this->showLoadingMessage = true;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'dieselSearch',
+            'facetNavOrder',
+            'maxFacetsToShow',
+            'facetNavHeight',
+            'showLoadingMessage' => array('true', 'false'),
+            'searchAction',
+            ));
+    }
+
     function facetNavHeight()
     {
         return $this->facetNavHeight;

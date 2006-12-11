@@ -41,6 +41,13 @@ class WFPaginatorPageInfo extends WFView
         $this->paginator = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'paginator',
+            ));
+    }
     function render($blockContent = NULL)
     {
         if (!$this->paginator) throw( new Exception("No paginator assigned.") );

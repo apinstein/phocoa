@@ -46,6 +46,15 @@ class WFTextArea extends WFWidget
             '>' . $this->value . '</textarea>';
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'cols',
+            'rows',
+            ));
+    }
+
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

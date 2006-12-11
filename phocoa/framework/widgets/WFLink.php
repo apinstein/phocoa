@@ -26,10 +26,6 @@
 class WFLink extends WFWidget
 {
     /**
-     * @var string The class for the link.
-     */
-	protected $class;
-    /**
      * @var string The label for the link. The label is what the viewer sees as the link text.
      */
 	protected $label;
@@ -48,12 +44,20 @@ class WFLink extends WFWidget
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
-        $this->class = NULL;
         $this->label = NULL;
         $this->target = NULL;
         $this->title = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'label',
+            'title',
+            'target',
+            ));
+    }
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

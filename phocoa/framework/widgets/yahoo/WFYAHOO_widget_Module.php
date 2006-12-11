@@ -69,6 +69,20 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->importJS("{$this->yuiPath}/container/container.js");
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'fixedcenter',
+            'width',
+            'height',
+            'zIndex',
+            'iframe' => array('true', 'false'),
+            'x',
+            'y',
+            ));
+    }
+
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

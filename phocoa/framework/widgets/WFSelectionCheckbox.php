@@ -49,6 +49,13 @@ class WFSelectionCheckbox extends WFDynamic
         $this->labelKeyPath = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'labelKeyPath',
+            ));
+    }
 
     /**
      *  Create the dynamic widgets.

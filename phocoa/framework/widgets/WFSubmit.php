@@ -60,6 +60,18 @@ class WFSubmit extends WFWidget
         $this->postSubmitLabel = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'action',
+            'label',
+            'imagePath',
+            'duplicateSubmitMessage',
+            'postSubmitLabel',
+            ));
+    }
+
     function setImagePath($path)
     {
         $this->imagePath = $path;

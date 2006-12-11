@@ -44,6 +44,14 @@ class WFPaginatorNavigation extends WFWidget
         $this->maxJumpPagesToShow = 10;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'paginator',
+            'maxJumpPagesToShow',
+            ));
+    }
     /**
      *  Get the phrase for the links in format "N item(s)"
      *

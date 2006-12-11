@@ -54,6 +54,15 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         $this->importCSS("{$this->yuiPath}/treeview/assets/tree.css");
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'dynamicallyLoadData' => array('true', 'false'),
+            'dynamicCallback',
+            ));
+    }
+
     /**
      *  Set the base URL used for the dynamic data loading.
      *

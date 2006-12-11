@@ -102,12 +102,13 @@ class WFSelect extends WFWidget
 
     public static function exposedProperties()
     {
-        return array(
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
             'multiple' => array('true', 'false'),
-            'visibleItems' => array(),
-            'width' => array(),
-            'labelFormatter' => array()
-            );
+            'visibleItems',
+            'width',
+            'labelFormatter',
+            ));
     }
 
     function setupExposedBindings()

@@ -55,6 +55,16 @@ class WFRadio extends WFWidget
         $this->setLabel('');
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'selected' => array('true', 'false'),
+            'selectedValue',
+            'label',
+            ));
+    }
+
     function setSelectedValue($v)
     {
         $this->selectedValue = $v;

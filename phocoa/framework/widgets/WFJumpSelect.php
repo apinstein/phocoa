@@ -43,6 +43,13 @@ class WFJumpSelect extends WFSelect
         $this->baseURL = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'baseURL',
+            ));
+    }
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();

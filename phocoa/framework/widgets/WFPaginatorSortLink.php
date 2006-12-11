@@ -51,6 +51,14 @@ class WFPaginatorSortLink extends WFWidget
         $this->paginator = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+            'paginator',
+            ));
+    }
+
     function setPaginator($p)
     {
         if (!($p instanceof WFPaginator)) throw( new Exception("Argument must be a WFPaginator.") );
