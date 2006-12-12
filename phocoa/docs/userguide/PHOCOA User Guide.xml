@@ -617,11 +617,11 @@ drwxrwxrwx    3 alanpins staff         102 Oct 17 15:02 runtime</screen>
 
       <screen>$ ls -l helloworld/helloworld
 total 20
-drwxrwxr-x  3 apinstein ttimobile 4096 May 31 07:35 classes
-drwxrwxr-x  2 apinstein ttimobile 4096 May 31 11:12 conf
-drwxrwsr-x  9 apache    ttimobile 4096 May 30 15:53 modules
-drwxrwxr-x  5 apinstein ttimobile 4096 May 30 18:14 skins
-drwxrwxr-x  3 apinstein ttimobile 4096 May 31 09:00 wwwroot</screen>
+drwxrwxr-x  3 alanpins staff 4096 May 31 07:35 classes
+drwxrwxr-x  2 alanpins staff 4096 May 31 11:12 conf
+drwxrwsr-x  9 alanpins staff 4096 May 30 15:53 modules
+drwxrwxr-x  5 alanpins staff 4096 May 30 18:14 skins
+drwxrwxr-x  3 alanpins staff 4096 May 31 09:00 wwwroot</screen>
 
       <para>The <emphasis>classes</emphasis> directory is where all of your
       classes go. These are classes specific to your application.</para>
@@ -645,7 +645,7 @@ drwxrwxr-x  3 apinstein ttimobile 4096 May 31 09:00 wwwroot</screen>
 
       <para>First thing to do is configure the framework.</para>
 
-      <screen>$ ls -l helloworld/helloworld/conf                                                                                                                                 alanpinstein@g5:~/dev/sandbox
+      <screen>$ ls -l helloworld/helloworld/conf
 total 24
 -rw-r--r--   1 alanpins  staff  1272 May 18 14:24 httpd.conf
 -rw-r--r--   1 alanpins  staff  1561 May 18 12:58 webapp.conf</screen>
@@ -780,8 +780,7 @@ Default page [blank for none]: helloworld
      [exec] Writing helloworld/helloworld.php
      [exec] Done building module helloworld!
      [exec] Writing helloworld.tpl
-     [exec] Writing helloworld.instances
-     [exec] Writing helloworld.config
+     [exec] Writing helloworld.yaml
      [exec] Done!
 
 BUILD FINISHED
@@ -809,23 +808,22 @@ Total time: 9.0093 seconds
 
       <para>Next, let's examine the helloworld page.</para>
 
-      <para>Each page in PHOCOA has three parts. The .tpl file (the HTML
-      Smarty template), the .instances file (contains a list of all WFView
-      instances used in the template), and the .config file (contains the
-      configuration of the WFView instances declared in the .instances file).
-      PHOCOA needs a list of all UI instances used in the view so that it can
-      work its magic in maintaining state, etc. The .config file is used to
-      configure each widget, for instance by specifying labels, sizes,
-      formatters, and other attributes. The .config file is also used to set
-      up Bindings, which is how PHOCOA links UI widget data to your model.
-      Don't worry about these details for now, though; we'll explain further
-      as we go along.</para>
+      <para>Each page in PHOCOA has two parts. The .tpl file (the HTML Smarty
+      template), and the .yaml file (contains a list of all instances used in
+      the template, along with their configuration). PHOCOA needs a list of
+      all UI instances used in the view so that it can work its magic in
+      maintaining state, etc. The .yaml file is used to configure each widget
+      by specifying properties, for instance by specifying labels, sizes,
+      formatters, and other attributes. The .yaml file is also used to set up
+      Bindings, which is how PHOCOA links UI widget data to your model. Don't
+      worry about these details for now, though; we'll explain further as we
+      go along.</para>
 
       <para>PHOCOA includes a Phing task to add a page to an existing module
       as well. This script should be run from inside the module directory that
       you want to add the page to.</para>
 
-      <screen>$ phocoa createPage                                                                                     alanpinstein@iMac.local:~/dev/sandbox/helloworld/helloworld/modules/helloworld
+      <screen>$ phocoa createPage
 phing -f /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml -Dusing.phocoa.make=true -Dphocoa.pwd=/Users/alanpinstein/dev/sandbox/helloworld/helloworld/modules/helloworld -Dphocoa.dir=/Users/alanpinstein/dev/sandbox/phocoa/phocoa -Dphocoa.project.name=helloworld -Dphocoa.project.dir=/Users/alanpinstein/dev/sandbox/helloworld/helloworld createPage
 Buildfile: /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml
 
@@ -1079,38 +1077,32 @@ Total time: 1.6136 second</screen>
           rendering.</para>
         </tip></para>
 
-      <para>So, to set up the bindings we're going to edit the
-      helloWorld.config file, to the following:</para>
+      <para>So, to set up the bindings we're going to edit the helloWorld.yaml
+      file, to the following:</para>
 
-      <para><programlisting>$__config = array(
-              'subject' =&gt; array(
-                  'bindings' =&gt; array(
-                      'value' =&gt; array(
-                          'instanceID' =&gt; 'email',
-                          'controllerKey' =&gt; '',
-                          'modelKeyPath' =&gt; 'subject',
-                          ),
-                      ),
-                  ),
-              'message' =&gt; array(
-                  'bindings' =&gt; array(
-                      'value' =&gt; array(
-                          'instanceID' =&gt; 'email',
-                          'controllerKey' =&gt; '',
-                          'modelKeyPath' =&gt; 'message',
-                          ),
-                      ),
-                  ),
-              'email' =&gt; array(
-                  'bindings' =&gt; array(
-                      'value' =&gt; array(
-                          'instanceID' =&gt; 'email',
-                          'controllerKey' =&gt; '',
-                          'modelKeyPath' =&gt; 'toEmail',
-                          ),
-                      ),
-                  ),
-              ); </programlisting></para>
+      <para><programlisting>form: 
+  class   : WFForm
+  children: 
+    email  : 
+      bindings: 
+        value: 
+          instanceID  : email
+          modelKeyPath: toEmail
+      class   : WFTextField
+    message: 
+      bindings: 
+        value: 
+          instanceID  : email
+          modelKeyPath: message
+      class   : WFTextArea
+    subject: 
+      bindings: 
+        value: 
+          instanceID  : email
+          modelKeyPath: subject
+      class   : WFTextField
+    submit : 
+      class: WFSubmit</programlisting></para>
 
       <note>
         <para>Once again, if you're using PHOCOA Builder, you can do this
@@ -1179,7 +1171,7 @@ function setValueForKey($value, $key);</programlisting></para>
 }</programlisting>
 
       <para>As mentioned previously, because of the setup we did in
-      shared.instances, we're guaranteed to have an instance variable in our
+      shared.yaml, we're guaranteed to have an instance variable in our
       helloworld class populated with an ExampleEmail instance. So we need
       only to tell it to send!</para>
 
@@ -1405,8 +1397,8 @@ subject:
       <function>setValueForKey()</function> call.</para>
 
       <para>So, in emailSuccess.yaml, we can set the "formatter" property to
-      the formatter we instantiated in shared.instances by editing the
-      'timestamp' entry:</para>
+      the formatter we instantiated in shared.yaml by editing the 'timestamp'
+      entry:</para>
 
       <programlisting>timestamp: 
   bindings  : 
