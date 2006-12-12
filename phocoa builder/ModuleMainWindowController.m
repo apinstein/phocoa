@@ -12,6 +12,7 @@
 
 @interface ModuleMainWindowController (Private)
 - (void) registerAsObserver;
+- (void) unregisterAsObserver;
 @end
 
 @implementation ModuleMainWindowController
@@ -52,7 +53,11 @@
     [pageController setSortDescriptors: [NSArray arrayWithObject: [[NSSortDescriptor alloc] initWithKey: @"name" ascending: YES] ]];
     
     [self registerAsObserver];
-        
+}
+
+- (void) windowWillClose: (NSNotification *) aNotification
+{
+    [self unregisterAsObserver];
 }
 
 - (NSArray*) subclassList
@@ -110,6 +115,12 @@
               options: nil
               context: NULL];
 }
+
+- (void) unregisterAsObserver
+{
+    [pageInstancesController removeObserver: self forKeyPath: @"selection.instanceClass"];
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([keyPath isEqual:@"selection.instanceClass"]) {

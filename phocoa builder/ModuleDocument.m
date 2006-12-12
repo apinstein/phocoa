@@ -136,7 +136,7 @@
 {
 	NSLog(@"loading module data from files in: %@", [module valueForKey: @"path"]);
 	
-    NSDictionary    *yamlOptions = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool: NO], @"implicit_typing", [NSNumber numberWithBool: NO], @"taguri_expansion",  nil];
+    NSDictionary    *yamlOptions = [NSDictionary dictionaryWithObjectsAndKeys: [NSNumber numberWithBool: NO], @"implicit_typing", [NSNumber numberWithBool: YES], @"taguri_expansion",  nil];
 	NSString		*moduleDir = [module valueForKey: @"path"];
 	NSFileManager	*fm = [NSFileManager defaultManager];
 	NSError			**err;
