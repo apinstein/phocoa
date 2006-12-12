@@ -116,20 +116,7 @@ HTML Goes Here.
     }
     else
     {
-        $configFile = "<?php
-        /* vim: set expandtab tabstop=4 shiftwidth=4 syntax=php: */
-        \$__config = array(
-                );
-
-        ?>";
-
-        $instancesFile = "<?php
-        /* vim: set expandtab tabstop=4 shiftwidth=4 syntax=php: */
-
-        \$__instances = array(
-                );
-
-        ?>";
+        $configFile = "";
 
         $templateFile = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
 HTML Goes Here.
@@ -146,24 +133,14 @@ HTML Goes Here.
         print "Skipping .tpl file because it already exists.\n";
     }
 
-    if (!file_exists($pageName . '.instances'))
+    if (!file_exists($pageName . '.yaml'))
     {
-        print "Writing {$pageName}.instances\n";
-        file_put_contents($pageName . '.instances', $instancesFile);
+        print "Writing {$pageName}.yaml\n";
+        file_put_contents($pageName . '.yaml', $configFile);
     }
     else
     {
-        print "Skipping .instances file because it already exists.\n";
-    }
-
-    if (!file_exists($pageName . '.config'))
-    {
-        print "Writing {$pageName}.config\n";
-        file_put_contents($pageName . '.config', $configFile);
-    }
-    else
-    {
-        print "Skipping .config file because it already exists.\n";
+        print "Skipping .yaml file because it already exists.\n";
     }
 
     print "Done!\n";
