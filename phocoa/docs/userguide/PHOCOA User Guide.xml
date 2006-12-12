@@ -22,12 +22,16 @@
       processing, etc. Most of your time will be spent designing your GUI and
       writing application-specific logic rather than dealing with form data,
       database calls, etc.</para>
+
+      <para>As much as possible, PHOCOA aims to make it so that as much of the
+      code you write as possible is specific to your own application.</para>
     </section>
 
     <section>
       <title>External Technologies</title>
 
-      <para>PHOCOA relies on several technologies to work its magic:</para>
+      <para>PHOCOA relies on several major technologies to work its
+      magic:</para>
 
       <itemizedlist>
         <listitem>
@@ -43,8 +47,7 @@
         </listitem>
       </itemizedlist>
 
-      <para>PHOCOA itself provides the controller layer of the MVC
-      architecture.</para>
+      <para>A complete list of dependencies is available.</para>
     </section>
 
     <section>
@@ -69,6 +72,11 @@
           <para>Bindings - provides the ability to "bind" UI objects to data
           objects and thereby elimintate the need to write glue code to move
           data between the model and the view layers.</para>
+        </listitem>
+
+        <listitem>
+          <para>PHOCOA Builder - a GUI app (for Mac OS X) that lets you easily
+          configure the UI and bindings for your application.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -399,10 +407,34 @@
     <section>
       <title>Installation and Configuration</title>
 
+      <para>PHOCOA requires that you have the following installed on your
+      system:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>PHP5</para>
+        </listitem>
+
+        <listitem>
+          <para>phing</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Installing PHP5 is beyond the scope of this documentation.
+      Installing phing with the following commands:</para>
+
+      <screen>pear channel-discover pear.phing.info
+pear install phing/phing</screen>
+
       <para>The PHOCOA framework is contained in its own directory. Your
       PHOCOA-based web application will live in its own directory, separate
       from the framework code. This makes it easy to keep the two separated
       for purposes of backup, upgrading, etc.</para>
+
+      <note>
+        <para>Eventually we will create a pear channel for installing
+        phocoa.</para>
+      </note>
 
       <bridgehead>PHOCOA Directory Structure</bridgehead>
 
@@ -439,7 +471,7 @@ drwxr-xr-x    5 alanpins staff         170 Aug  2 10:34 wwwroot</screen>
         documentation. Use PHPDOC to build the docs with the following
         command. Eventually, this will be set up as a Phing task. The docs are
         also available online at <ulink
-        url="???">http://phocoa.com/docs/</ulink>.</para>
+        url="http://phocoa.com/docs">http://phocoa.com/docs/</ulink>.</para>
 
         <screen>$ cd phocoa
 $ phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" -o HTML:frames:default \
@@ -450,9 +482,8 @@ $ phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" -o HTML:f
       framework's code.</para>
 
       <para>The <emphasis>modules</emphasis> directory contains modules that
-      are used by the core framework, or are bundled with the framework. These
-      will be copied to your application's modules directory during
-      install.</para>
+      are used by the core framework, or are bundled with the
+      framework.</para>
 
       <para>The <emphasis>phing</emphasis> directory contains the phing
       buildfiles for PHOCOA.</para>
@@ -467,65 +498,92 @@ $ phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" -o HTML:f
 
       <para>The <emphasis>wwwroot</emphasis> directory is the public wwwroot.
       This wwwroot contains the bootstrapping code for a PHOCOA application
-      and a directory for all public www documents. This will be copied to
-      your application's wwwroot directory on install.</para>
+      and a directory for all public www documents.</para>
 
-      <bridgehead>Using Phing to Start a New Project</bridgehead>
+      <bridgehead>Using <command>phocoa</command> to Start a New
+      Project</bridgehead>
 
-      <para>PHOCOA uses Phing to help with managing your web application.
-      Let's create a new project.</para>
+      <para>PHOCOA comes with a shell script to help you manage common PHOCOA
+      tasks. This script is aptly named <command>phocoa</command>. The phocoa
+      command is located at phocoa/phing/phocoa. We recommend that you alias
+      it to avoid having to type the entire path each time.</para>
 
-      <screen>phing -f phocoa/phing/build.xml
+      <para>Let's use <command>phocoa</command> to build a new project.</para>
 
+      <screen>$ phocoa newproject
+phing -f /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml -Dusing.phocoa.make=true -Dphocoa.pwd=/Users/alanpinstein/dev/sandbox -Dphocoa.dir=/Users/alanpinstein/dev/sandbox/phocoa/phocoa -Dphocoa.project.name= -Dphocoa.project.dir= newproject
 Buildfile: /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml
 
-phocoa &gt; prepare:
-     [echo] PHOCOA framework base dir at: /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/..
+phocoa &gt; prepareGeneral:
+     [echo] PHOCOA framework base dir at: /Users/alanpinstein/dev/sandbox/phocoa/phocoa
 
 phocoa &gt; newproject:
-Enter the name of the new project: helloworld
-Enter the path to create the new project in: /Users/alanpinstein/dev/sandbox 
+Enter the name of the new project: [] helloworld
+Enter the path to create the new project in: [/Users/alanpinstein/dev/sandbox] 
+[realpathexpandhome] Resolved /Users/alanpinstein/dev/sandbox/helloworld to /Users/alanpinstein/dev/sandbox/helloworld
 Enter the name of the server (ie dns name) that will host this application: [localhost] 
 Enter the IP of the server that will host this application: [127.0.0.1] 
 Enter the PORT of the server that will host this application: [80] 
-     [echo] Creating a template for new project in /Users/alanpinstein/dev/sandbox/helloworld
-     [echo] Creating project directories and setting up permissions...
+[phingcall] Calling Buildfile '/Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml' with target 'setupProjectContainer'
+
+phocoa &gt; setupProjectContainer:
+     [echo] Creating project container directories and setting up permissions
     [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld
-    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/helloworld
     [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/log
     [chmod] Changed file mode on '/Users/alanpinstein/dev/sandbox/helloworld/log' to 777
     [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/runtime
     [chmod] Changed file mode on '/Users/alanpinstein/dev/sandbox/helloworld/runtime' to 777
     [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/runtime/smarty/templates_c
     [chmod] Changed file mode on '/Users/alanpinstein/dev/sandbox/helloworld/runtime/smarty/templates_c' to 777
+     [echo] Creating project directory: /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/helloworld
      [echo] Copying PHOCOA templates...
-     [copy] Copying 905 files to /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+     [copy] Copying 9 files to /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/helloworld/wwwroot/www
+    [mkdir] Created dir: /Users/alanpinstein/dev/sandbox/helloworld/helloworld/modules
      [echo] Setting up configuration files...
-     [copy] Copying 2 files to /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+     [copy] Copying 3 files to /Users/alanpinstein/dev/sandbox/helloworld/helloworld
 [filter:ReplaceTokens] Replaced "##SERVER_IP##" with "127.0.0.1"
 [filter:ReplaceTokens] Replaced "##SERVER_PORT##" with "80"
 [filter:ReplaceTokens] Replaced "##SERVER_NAME##" with "localhost"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_BASE_DIR##" with "/Users/alanpinstein/dev/sandbox/phocoa/phocoa"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
-[filter:ReplaceTokens] Replaced "##PHOCOA_BASE_DIR##" with "/Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/.."
+[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
+[filter:ReplaceTokens] Replaced "##PHOCOA_BASE_DIR##" with "/Users/alanpinstein/dev/sandbox/phocoa/phocoa"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_CONTAINER_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_CONTAINER_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
-[filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
-[filter:ReplaceTokens] Replaced "##PHOCOA_BASE_DIR##" with "/Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/.."
+[filter:ReplaceTokens] Replaced "##PHOCOA_BASE_DIR##" with "/Users/alanpinstein/dev/sandbox/phocoa/phocoa"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_CONTAINER_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_CONTAINER_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld"
 [filter:ReplaceTokens] Replaced "##PHOCOA_APP_DIR##" with "/Users/alanpinstein/dev/sandbox/helloworld/helloworld"
 [phingcall] Calling Buildfile '/Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml' with target 'httpdconf'
 
+phocoa &gt; prepareGeneral:
+     [echo] PHOCOA framework base dir at: /Users/alanpinstein/dev/sandbox/phocoa/phocoa
+
+phocoa &gt; prepareProject:
+     [echo] 1
+      [php] Evaluating PHP expression: $_ENV['_']
+     [echo] PHOCOA project dir at: /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+[realpathexpandhome] Resolved /Users/alanpinstein/dev/sandbox/helloworld/helloworld/.. to /Users/alanpinstein/dev/sandbox/helloworld
+     [echo] PHOCOA project container dir at: /Users/alanpinstein/dev/sandbox/helloworld
+ [property] Loading /Users/alanpinstein/dev/sandbox/helloworld/helloworld/conf/build.properties
+ [property] Unable to find property file: /Users/alanpinstein/dev/sandbox/helloworld/helloworld/conf/build.properties... skipped
+
 phocoa &gt; httpdconf:
-     [echo] Make sure your httpd.conf file contains the line: Include /Users/alanpinstein/dev/sandbox/helloworld/helloworld/conf/httpd.conf
+     [echo] PHOCOA requires some httpd configurations to work its magic. You must either be able to edit httpd.conf, or have an apache with mod_rewrite enabled.
+Select httpd configuration mode: 1=httpd.conf, 2=.htaccess [1] 
+     [echo] Make sure your httpd.conf file contains the line: Include /Users/alanpinstein/dev/sandbox/helloworld/helloworld/helloworld/conf/httpd.conf
+Will this project use database access via Propel?(yes/no) [1] no
+     [echo] New Project setup complete.
 
 BUILD FINISHED
 
-Total time: 2 minutes  51.07 seconds
+Total time: 8.7973 seconds
 </screen>
 
       <para>You should now have a directory <emphasis>helloworld</emphasis>
@@ -547,9 +605,10 @@ drwxrwxrwx    3 alanpins staff         102 Oct 17 15:02 runtime</screen>
 
       <para><note>
           <para>This "inner" directory is the root directory of your PHOCOA
-          application, and is what you should check in to your version control
-          system. The log/ and runtime/ directories are typically not
-          versioned resources.</para>
+          application code, and is what you should check in to your version
+          control system. The log/ and runtime/ directories are not versioned
+          resources, thus we keep them one level up in the directory structure
+          for organizational purposes.</para>
         </note></para>
 
       <bridgehead>Application Directory Structure</bridgehead>
@@ -688,24 +747,49 @@ total 24
     <section>
       <title>Building "Hello, World!"</title>
 
-      <para>Let's put PHOCOA to work with a simple example. We start out by
-      creating a new module, "helloworld".</para>
+      <para>Let's put PHOCOA to work with a simple example. We will start out
+      by creating a new module, "helloworld".</para>
 
-      <note>
-        <para>Your new project alread has a completed helloworld module, so
-        we'll just explain how it was built.</para>
-      </note>
+      <para>First, cd into the modules subdirectory.</para>
 
-      <para>To create a new module, we have a Phing task to help us:</para>
+      <screen>$ cd helloworld/helloworld/modules</screen>
 
-      <screen>$ php5 /Users/alanpinstein/dev/sandbox/phocoa/phocoa/framework/createModule.php helloworld helloworld</screen>
+      <para>To create a new module, we have a <command>phocoa</command>
+      command to help us:</para>
 
-      <note>
-        <para>This script isn't yet wrapped by Phing yet so we just run the
-        script directly.</para>
-      </note>
+      <screen>$ phocoa createModule
+phing -f /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml -Dusing.phocoa.make=true -Dphocoa.pwd=/Users/alanpinstein/dev/sandbox/helloworld/helloworld/modules -Dphocoa.dir=/Users/alanpinstein/dev/sandbox/phocoa/phocoa -Dphocoa.project.name=helloworld -Dphocoa.project.dir=/Users/alanpinstein/dev/sandbox/helloworld/helloworld createModule
+Buildfile: /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml
 
-      <para>The createModule task automatically creates a new module with a
+phocoa &gt; prepareGeneral:
+     [echo] PHOCOA framework base dir at: /Users/alanpinstein/dev/sandbox/phocoa/phocoa
+
+phocoa &gt; prepareProject:
+     [echo] 1
+      [php] Evaluating PHP expression: $_ENV['_']
+     [echo] PHOCOA project dir at: /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+[realpathexpandhome] Resolved /Users/alanpinstein/dev/sandbox/helloworld/helloworld/.. to /Users/alanpinstein/dev/sandbox/helloworld
+     [echo] PHOCOA project container dir at: /Users/alanpinstein/dev/sandbox/helloworld
+ [property] Loading /Users/alanpinstein/dev/sandbox/helloworld/helloworld/conf/build.properties
+ [property] Unable to find property file: /Users/alanpinstein/dev/sandbox/helloworld/helloworld/conf/build.properties... skipped
+
+phocoa &gt; createModule:
+Module name: helloworld
+Default page [blank for none]: helloworld
+     [exec] Executing command: /opt/local/bin/php /Users/alanpinstein/dev/sandbox/phocoa/phocoa/framework/createModule.php helloworld helloworld 2&gt;&amp;1
+     [exec] Writing helloworld/helloworld.php
+     [exec] Done building module helloworld!
+     [exec] Writing helloworld.tpl
+     [exec] Writing helloworld.instances
+     [exec] Writing helloworld.config
+     [exec] Done!
+
+BUILD FINISHED
+
+Total time: 9.0093 seconds
+</screen>
+
+      <para>The createModule command automatically creates a new module with a
       single page.</para>
 
       <para><programlisting>class module_helloworld extends WFModule
@@ -723,7 +807,7 @@ total 24
       "defautPage()". This method simply tells the system what page to load if
       none is specified.</para>
 
-      <para>Next, let's examine the helloWorld page.</para>
+      <para>Next, let's examine the helloworld page.</para>
 
       <para>Each page in PHOCOA has three parts. The .tpl file (the HTML
       Smarty template), the .instances file (contains a list of all WFView
@@ -737,37 +821,44 @@ total 24
       Don't worry about these details for now, though; we'll explain further
       as we go along.</para>
 
-      <important>
-        <para>In the following examples, the contents of .instances and
-        .config files will be shown. These files are PHP files and need to
-        have the PHP tags: <code>&lt;?php ... ?&gt;</code> surrounding any PHP
-        code you see, but for brevity they have been left out.</para>
-      </important>
-
       <para>PHOCOA includes a Phing task to add a page to an existing module
       as well. This script should be run from inside the module directory that
       you want to add the page to.</para>
 
-      <screen>$ php5 /Users/alanpinstein/dev/sandbox/phocoa/phocoa/framework/createPage.php helloworld</screen>
+      <screen>$ phocoa createPage                                                                                     alanpinstein@iMac.local:~/dev/sandbox/helloworld/helloworld/modules/helloworld
+phing -f /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml -Dusing.phocoa.make=true -Dphocoa.pwd=/Users/alanpinstein/dev/sandbox/helloworld/helloworld/modules/helloworld -Dphocoa.dir=/Users/alanpinstein/dev/sandbox/phocoa/phocoa -Dphocoa.project.name=helloworld -Dphocoa.project.dir=/Users/alanpinstein/dev/sandbox/helloworld/helloworld createPage
+Buildfile: /Users/alanpinstein/dev/sandbox/phocoa/phocoa/phing/build.xml
 
-      <note>
-        <para>This script isn't yet wrapped by Phing yet so we just run the
-        script directly.</para>
-      </note>
+phocoa &gt; prepareGeneral:
+     [echo] PHOCOA framework base dir at: /Users/alanpinstein/dev/sandbox/phocoa/phocoa
 
-      <note>
-        <para>The createModule script uses the createPage script to create the
-        default page. The helloworld module already has a helloworld page, so
-        you don't need to run it again.</para>
-      </note>
+phocoa &gt; prepareProject:
+     [echo] 1
+      [php] Evaluating PHP expression: $_ENV['_']
+     [echo] PHOCOA project dir at: /Users/alanpinstein/dev/sandbox/helloworld/helloworld
+[realpathexpandhome] Resolved /Users/alanpinstein/dev/sandbox/helloworld/helloworld/.. to /Users/alanpinstein/dev/sandbox/helloworld
+     [echo] PHOCOA project container dir at: /Users/alanpinstein/dev/sandbox/helloworld
+ [property] Loading /Users/alanpinstein/dev/sandbox/helloworld/helloworld/conf/build.properties
+ [property] Unable to find property file: /Users/alanpinstein/dev/sandbox/helloworld/helloworld/conf/build.properties... skipped
+
+phocoa &gt; createPage:
+Page Name: test
+     [exec] Executing command: /opt/local/bin/php /Users/alanpinstein/dev/sandbox/phocoa/phocoa/framework/createPage.php test 2&gt;&amp;1
+     [exec] Writing test.tpl
+     [exec] Writing test.yaml
+     [exec] Done!
+
+BUILD FINISHED
+
+Total time: 1.6136 second</screen>
 
       <para>Now, edit the helloWorld.tpl file with a classic message:</para>
 
       <para><programlisting>Hello, World! </programlisting></para>
 
       <para>That's all that's needed to make a simple web page in PHOCOA.
-      Simply load up the URL for this page: http://localhost/webapp/helloworld
-      and you should see the helloworld page!</para>
+      Simply load up the URL for this page: http://localhost/helloworld and
+      you should see the helloworld page!</para>
     </section>
 
     <section>
@@ -782,57 +873,66 @@ total 24
       creation of user-friendly forms that automatically remember their state
       and show errors on a per-field basis.</para>
 
-      <para>Our example also includes a form, which you should have seen when
-      you loaded the URL. Let's examine the helloWorld.tpl file to see how the
-      form is set up:</para>
+      <para>Our next task will be to create a form.</para>
+
+      <para>PHOCOA uses smarty as its template language. We've included a
+      number of extra smarty tags for use with PHOCOA.</para>
+
+      <para>Create the following in your helloworld.tpl to build a simple
+      email form:</para>
 
       <programlisting>
         {WFForm id="form"} 
-        Email: {WFTextField id="email"} 
+        To Email: {WFTextField id="email"}
         {WFSubmit id="submit"} 
         {/WFForm} 
       </programlisting>
 
-      <para>Now we need to declare these three widgets in the .instances
-      file.</para>
+      <para>PHOCOA requires that all widgets be declared in the
+      "configuration" for each page. The configuration for the page is stored
+      in the .yaml file corresponding to the tpl file, so in this case, it's
+      helloworld.yaml.</para>
+
+      <para>Let's declare these three widgets.</para>
+
+      <note>
+        <para>The .yaml files use a language call YAML to configure the data.
+        YAML is an excellent human-readable, human-editable configuration
+        language.</para>
+      </note>
 
       <para><tip>
           <para>If you're using Mac OS X Tiger, you can use the PHOCOA Builder
-          application to manage the .instances and .config files
-          graphically.<screenshot>
+          application to manage the .yaml files graphically.<screenshot>
               <screeninfo>PHOCOA Builder</screeninfo>
 
               <mediaobject>
                 <imageobject>
-                  <imagedata fileref="PHOCOA%20Builder.png" />
+                  <imagedata fileref="img-pb1.jpg" />
                 </imageobject>
               </mediaobject>
             </screenshot></para>
-        </tip>The end result should be that the helloWorld.instances file
-      looks like:</para>
+        </tip>The end result should be that the helloWorld.yaml file looks
+      like:</para>
 
-      <programlisting>
-        $__instances = array( 
-            'form' =&gt; array('class' =&gt; 'WFForm', 'children' =&gt; array( 
-                'submit' =&gt; array('class' =&gt; 'WFSubmit'), 
-                'email' =&gt; array('class' =&gt; 'WFTextField'),
-                )
-            )
-        ); 
-      </programlisting>
+      <programlisting>form: 
+  class   : WFForm
+  children: 
+    email  : 
+      class: WFTextField
+    submit : 
+      class: WFSubmit</programlisting>
 
-      <para>The format of the .instances file is a PHP associative array, with
-      the first level of keys being the instance ID. The instance ID is the
-      unique ID for this page for the given instance. Then, for each instance,
-      you must declare the class, and optionally children. As you can see
-      above, WFForm is a container widget that contains other widgets. You can
-      tell this because the {WFForm} tag in the .tpl file has a closing
-      tag.</para>
+      <para>The format of the .yaml file is a nested array of instances by ID.
+      Each instance must have a class attribute. Each instance may also have
+      <property>properties</property>, <property>bindings</property>, or
+      <property>children</property> attributes. The chidren attribute contains
+      more of the same, to build a nested structure of instances.</para>
 
-      <para>When PHOCOA processes the .instances file, it will create an
-      instance of the given class for the given ID. The rest of the system
-      then can interact with the widgets by ID. In code, you can access a
-      widget with:</para>
+      <para>When PHOCOA processes the .yaml file, it will create an instance
+      of the given class for the given ID. The rest of the system then can
+      interact with the widgets by ID. In code, you can access a widget
+      with:</para>
 
       <programlisting> $myTextField = $page-&gt;outlet('MyTextFieldInstanceID');</programlisting>
 
@@ -849,7 +949,8 @@ total 24
       <programlisting> function helloWorld_submit_Action($page) {} </programlisting>
 
       <para>For now, our action method won't do anything. However, we have to
-      declare it or the framework will throw an exception.</para>
+      declare it or the framework will throw an exception when we press the
+      corresponding button.</para>
 
       <para>So, now load the page again and you should see a form. Enter in
       some data and press the submit button. You will notice that the form
@@ -870,15 +971,15 @@ total 24
       the data in a more human-readable way than it is stored, for instance,
       timestamps.</para>
 
-      <para>The glue layer between the GUI and the model is another huge
-      benefit of PHOCOA. Based on Apple's Controller Layer, PHOCOA automates
-      the process of moving data between the GUI elements and the data layer.
-      Instead of writing code to move the data between the layers, the PHOCOA
-      controller layer does this automatically. All you have to do is
-      configure the GUI elements to "bind" them to your model objects. This is
-      done without any coding, and once it's done, the controller layer
-      automatically keeps your GUI in sync with your data as well as
-      automatically providing data validation and error handling.</para>
+      <para>The glue layer between the GUI and the model is a huge benefit of
+      PHOCOA. Based on Apple's Controller Layer, PHOCOA automates the process
+      of moving data between the GUI elements and the data layer. Instead of
+      writing code to move the data between the layers, the PHOCOA controller
+      layer does this automatically. All you have to do is configure the GUI
+      elements to "bind" them to your model objects. This is done without any
+      coding, and once it's done, the controller layer automatically keeps
+      your GUI in sync with your data as well as automatically providing data
+      validation and error handling.</para>
 
       <para>To extend our example and really explore PHOCOA, we're going to
       build a classic web application, a form-to-email page.</para>
@@ -915,17 +1016,19 @@ total 24
       </programlisting>
 
       <para>Since we've added components to the page, we need to declare them
-      in the helloWorld.instances file, which should now look like:</para>
+      in the helloworld.yaml file, which should now look like:</para>
 
-      <programlisting>$__instances = array(
-                'form' =&gt; array('class' =&gt; 'WFForm', 'children' =&gt; array(
-                      'subject' =&gt; array('class' =&gt; 'WFTextField'),
-                      'message' =&gt; array('class' =&gt; 'WFTextArea'),
-                      'submit' =&gt; array('class' =&gt; 'WFSubmit'),
-                      'email' =&gt; array('class' =&gt; 'WFTextField'),
-                      )
-                 ),
-              );</programlisting>
+      <programlisting>form: 
+  class   : WFForm
+  children: 
+    email  : 
+      class: WFTextField
+    message: 
+      class: WFTextArea
+    subject: 
+      class: WFTextField
+    submit : 
+      class: WFSubmit</programlisting>
 
       <para>Now, of course we need to link the form elements to our new
       ExampleEmail class. This is where PHOCOA starts to get really
@@ -933,24 +1036,33 @@ total 24
       happen!</para>
 
       <para>First off, we will need an instance of the ExampleEmail class,
-      right? Well, just like there is the helloWorld.instances file, there is
-      also a mechanism for instantiating objects for the module. These are
-      called Shared Instances, and they are conceptually similar to
-      instantiating objects in a nib file in Cocoa. You can create a
-      shared.instances file, and configure those instances with a
-      shared.config file. All instances declared in shared.instances will be
-      created automatically when your module is initialized.</para>
+      right? Well, just like there is the helloWorld.yaml file, there is also
+      a mechanism for instantiating objects for the module. These are called
+      Shared Instances, and they are conceptually similar to instantiating
+      objects in a nib file in Cocoa. You create a shared.yaml file, and
+      instantiate and configure those instances there. All instances declared
+      in shared.yaml will be created automatically when your module is
+      initialized.</para>
 
       <para>So, let's set up an ExampleEmail instance! Create a file called
-      shared.instances, and enter the following:</para>
+      shared.yaml, and enter the following:</para>
 
-      <programlisting>$__instances = array( 'email' =&gt; 'ExampleEmail',); </programlisting>
+      <programlisting>email: 
+  class: ExampleEmail</programlisting>
 
       <para>Of course, once again if you're on Mac OS X Tiger, you can use
-      PHOCOA Builder to create a shared instance.</para>
+      PHOCOA Builder to create a shared instance. Simply press the "Add"
+      button in the "Shared Instances" area and enter in the instance ID and
+      class.</para>
 
       <para>Now we are guaranteed to have an instance of ExampleEmail set up
       as an instance variable of our helloworld class.</para>
+
+      <note>
+        <para>Shared instances are simply instance variables of the module
+        class. Thus, you can access the email instance we've just created in
+        your module code via <code>$this-&gt;email</code>.</para>
+      </note>
 
       <para>Next up, we need to link the form elements to the members of our
       ExampleEmail class. For this, we need to introduce a concept called
@@ -1000,8 +1112,16 @@ total 24
                   ),
               ); </programlisting></para>
 
-      <para>Once again, if you're using PHOCOA Builder, you can do this
-      graphically.</para>
+      <note>
+        <para>Once again, if you're using PHOCOA Builder, you can do this
+        graphically. Note that PHOCOA Builder has pick-lists for many of the
+        fields to help you with the process. Also, when you add a binding,
+        PHOCOA Builder guesses that you want to bind to the currently selected
+        shared instance, and uses the ID of the page instance as the model key
+        for the binding. Thus, if you make the ID's of the page instances the
+        same as the property names you will bind to, PHOCOA Builder saves you
+        time by pre-selecting the correct binding settings.</para>
+      </note>
 
       <para>To explain what's happening here, let's look at subject first. We
       create a 'bindings' key for 'subject', and declare that we want to bind
@@ -1015,7 +1135,8 @@ total 24
       call Key-Value Coding. This again will be familiar to Cocoa developers.
       Basically, the idea is that classes have a number of properties (their
       members / instance variables). Key-Value Coding provides a generic
-      mechanism for accessing or mutating these members. The following generic
+      mechanism for accessing or mutating these members. This is very similar
+      to the __get() and __set() capabilities in PHP5. The following generic
       functions:</para>
 
       <para><programlisting>function valueForKey($key);
@@ -1038,10 +1159,11 @@ function setValueForKey($value, $key);</programlisting></para>
       <para>The <function>valueForKey</function> /
       <function>setValueForKey</function> functions try a variety of
       approaches to access the property's data. First, they will use accessors
-      with a particular naming convention: <function>&lt;key&gt;()</function>
-      and <function>set&lt;Key&gt;()</function> where &lt;key&gt; is the
-      property name. For instance, <function>emailTo()</function> would be
-      used as the accessor for the <property>emailTo</property> member, and
+      with a particular naming convention: <function>&lt;key&gt;() or
+      get&lt;Key&gt;(),</function> and <function>set&lt;Key&gt;()</function>
+      where &lt;key&gt; is the property name. For instance,
+      <function>emailTo()</function> would be used as the accessor for the
+      <property>emailTo</property> member, and
       <function>setEmailTo($value)</function> for the mutator. If these
       specially named accessors are not available, the system will try to
       access the member directly.</para>
@@ -1075,56 +1197,42 @@ function setValueForKey($value, $key);</programlisting></para>
       through the steps to display a different page as a response to an
       action.</para>
 
-      <para>First, let's create the success page. Use the handy createPage
-      script again to create a page named "emailSuccess", then edit the
-      template to look like this:</para>
+      <para>First, let's create the success page. Use the handy
+      <command>phocoa createPage</command> command (run this command from
+      inside the helloworld module directory) to create a page named
+      "emailSuccess", then edit the template to look like this:</para>
 
       <programlisting>&lt;p&gt;Successfully sent email!&lt;/p&gt;
 To: {WFLabel id="email"}&lt;br /&gt; 
 Subject: {WFLabel id="subject"}&lt;br /&gt; 
 Message: {WFLabel id="message"}</programlisting>
 
-      <para>Now, set up the emailSuccess.instances:</para>
+      <para>Now, set up the emailSuccess.yaml:</para>
 
-      <para><programlisting>$__instances = array(
-              'message' =&gt; array('class' =&gt; 'WFLabel'),
-              'subject' =&gt; array('class' =&gt; 'WFLabel'),
-              'email' =&gt; array('class' =&gt; 'WFLabel'),
-          ); </programlisting></para>
+      <note>
+        <para>If you're using PHOCOA Builder, you'll need to close and re-open
+        the module since PHOCOA Builder doesn't recognize when a new page is
+        created while the module is open.</para>
+      </note>
 
-      <para>and emailSuccess.config:</para>
-
-      <programlisting>
-$__config = array(
-        'message' =&gt; array(
-                'bindings' =&gt; array(
-                        'value' =&gt; array(
-                                'instanceID' =&gt; 'email',
-                                'controllerKey' =&gt; '',
-                                'modelKeyPath' =&gt; 'message',
-                        ),
-                ),
-        ),
-        'subject' =&gt; array(
-                'bindings' =&gt; array(
-                        'value' =&gt; array(
-                                'instanceID' =&gt; 'email',
-                                'controllerKey' =&gt; '',
-                                'modelKeyPath' =&gt; 'subject',
-                        ),
-                ),
-        ),
-        'email' =&gt; array(
-                'bindings' =&gt; array(
-                        'value' =&gt; array(
-                                'instanceID' =&gt; 'email',
-                                'controllerKey' =&gt; '',
-                                'modelKeyPath' =&gt; 'toEmail',
-                        ),
-                ),
-        ),
-);
-      </programlisting>
+      <programlisting>email  : 
+  bindings: 
+    value: 
+      instanceID  : email
+      modelKeyPath: toEmail
+  class   : WFLabel
+message: 
+  bindings: 
+    value: 
+      instanceID  : email
+      modelKeyPath: message
+  class   : WFLabel
+subject: 
+  bindings: 
+    value: 
+      instanceID  : email
+      modelKeyPath: subject
+  class   : WFLabel</programlisting>
 
       <para>Now, in the our action handler, we want to show the success page
       if the email was sent, so we add a line to set up the reponse page to
@@ -1251,86 +1359,69 @@ $__config = array(
       <para><programlisting>Date Sent: {WFLabel id="timestamp"}&lt;br /&gt;
       </programlisting></para>
 
-      <para>And now of course we need to add it to the emailSuccess.instances
-      file:</para>
+      <para>And now of course we need to add it to emailSuccess.yaml, and also
+      set up the binding:</para>
 
-      <para><programlisting> 'timestamp' =&gt; array('class' =&gt; 'WFLabel', 'children'
-      =&gt; array()), </programlisting></para>
-
-      <para>and set up the binding in emailSuccess.config:</para>
-
-      <programlisting>
-        'timestamp' =&gt; array(
-                'bindings' =&gt; array(
-                        'value' =&gt; array(
-                                'instanceID' =&gt; 'email',
-                                'controllerKey' =&gt; '',
-                                'modelKeyPath' =&gt; 'sendTimestamp',
-                        ),
-                ),
-        ),
-      </programlisting>
+      <programlisting>timestamp: 
+  bindings: 
+    value: 
+      instanceID  : email
+      modelKeyPath: sendTimestamp
+  class   : WFLabel</programlisting>
 
       <para>If you try sending another email now, you'll see that the Date
       Sent is an ugly integer, or UNIX time. To format it, we can use a PHOCOA
-      formatter. Formatters are WFFormatter subclasses, and include
-      WFNumberFormatter, WFSQLDateFormatter, and WFUNIXDateFormatter. We want
-      to use a WFUNIXDateFormatter.</para>
+      formatter. Formatters are special PHOCOA classes that help with
+      converting data between the way your model stores a value and a
+      human-readable form of the same value. WFFormatter subclasses do the
+      actual work; PHOCOA provides the following subclasses:
+      WFNumberFormatter, WFSQLDateFormatter, and WFUNIXDateFormatter. You can
+      add your own formatters if you like. We want to use a
+      WFUNIXDateFormatter.</para>
 
       <para>To add a formatter, you could instantiate one manually in the
       helloworld.php file, and then link it to the timestamp label. However,
       why bother coding if you don't have to? Let's instantiate a
-      WFUNIXDateFormatter by adding some code in shared.instances:</para>
+      WFUNIXDateFormatter by adding some code in shared.yaml. You can also set
+      up your own format string, by using shared.yaml to set up the
+      formatString property of the WFUNIXDateFormatter instance.
+      WFUNIXDateFormatter simply wraps PHP's <function>date()</function>
+      function, using "r" by default as the format string. Here's what it
+      looks like:</para>
 
-      <para><programlisting> 'dateSentFormatter' =&gt; 'WFUNIXDateFormatter',
-      </programlisting></para>
+      <para><programlisting>dateSentFormatter: 
+  class     : WFUNIXDateFormatter
+  properties: 
+    formatString: F j, Y, g:i a</programlisting><note>
+          <para>In PHOCOA Builder, you can configure properties of a shared
+          instance by selecting the shared instance and editing properties in
+          the "Shared Instance Inspector."</para>
+        </note></para>
 
       <para>Now, we want to make the timestamp label use the formatter.
-      There's another feature of the .config files besides bindings; you can
-      use them to set up properties of the instances. Supply a property name
-      and value, and PHOCOA will configure that property with a
+      There's another feature of the .yaml files besides bindings; you can use
+      them to set up properties of the instances. Supply a property name and
+      value, and PHOCOA will configure that property with a
       <function>setValueForKey()</function> call.</para>
 
-      <para>So, in emailSuccess.config, we can set the "formatter" property to
+      <para>So, in emailSuccess.yaml, we can set the "formatter" property to
       the formatter we instantiated in shared.instances by editing the
       'timestamp' entry:</para>
 
-      <programlisting>
-        'timestamp' =&gt; array(
-                'properties' =&gt; array(
-                        'formatter' =&gt; '#module#dateSentFormatter',
-                ),
-                'bindings' =&gt; array(
-                        'value' =&gt; array(
-                                'instanceID' =&gt; 'email',
-                                'controllerKey' =&gt; '',
-                                'modelKeyPath' =&gt; 'sendTimestamp',
-                        ),
-                ),
-        ),
-      </programlisting>
+      <programlisting>timestamp: 
+  bindings  : 
+    value: 
+      instanceID  : email
+      modelKeyPath: sendTimestamp
+  class     : WFLabel
+  properties: 
+    formatter: '#module#dateSentFormatter'</programlisting>
 
       <para>Notice the #module# preceding the shared instance ID; since you
       can use the config mechanism to set up values such as strings, integers,
       booleans, and doubles, we needed a special flag to indicate that you
       want to link it to the value of an instance variable of the module,
       which is what shared instances are.</para>
-
-      <para>Now, submit the form again and you'll see the new, nicely
-      formatted date. You can also set up your own format string, by using
-      shared.config to set up the formatString property of the
-      WFUNIXDateFormatter instance. WFUNIXDateFormatter simply wraps PHP's
-      <function>date()</function> function, using "r" by default as the format
-      string. Try your own format string by editing shared.config:</para>
-
-      <programlisting>
-'dateSentFormatter' =&gt; array(
-    'properties' =&gt; array(
-        'formatString' =&gt; 'F j, Y, g:i a'
-    ),
-),</programlisting>
-
-      <para>Send another email and you'll see the new format.</para>
 
       <para>Another note, formatters are reversible. So, if you have a date
       field that you want to be editable, feel free to add a formatter to a
@@ -1406,6 +1497,14 @@ $recent10-&gt;setInvocationPath('blog/list/recent/10')
           </listitem>
 
           <listitem>
+            <para><emphasis>Template Type</emphasis> Each skin by default has
+            just one template file, template_normal.tpl. If you want minor
+            variations of the same look and feel, such as for a popup or
+            mobile version, this is the way to do it. Different template types
+            of the same skin will still be "themed".</para>
+          </listitem>
+
+          <listitem>
             <para><emphasis>Skin Theme</emphasis> Each skin is further
             subdivided, optionally, into themes. Themes provide an easy way to
             use the same basic layout (the Skin) while changing colorschemes,
@@ -1417,7 +1516,46 @@ $recent10-&gt;setInvocationPath('blog/list/recent/10')
 
       <para>The bundled "SkinInfo" module provides an interactive browser for
       the installed skins on any PHOCOA application to make it easy to
-      understand and browse the skin infrastructure.</para>
+      understand and browse the skin infrastructure. This is also available at
+      http://phococa.com/examples/skinInfo.</para>
+
+      <bridgehead>Determining When To Use The Various Aspects of the Skin
+      System</bridgehead>
+
+      <para>How do you know when you should create a new skin type, or just a
+      new skin, or just a new skin theme? Here are a few pointers:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>If you just want a slight variation on an existing look and
+          feel (i.e., different header graphics, different colors), then you
+          should use make a skin theme for each variation.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you are keeping the same look and feel, but want a slightly
+          different layout (maybe for a pop-up window or a mobile version),
+          then you should make a new templateType for your skin.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you want a different look and feel, but need to display all
+          of the same elements on the page, you should create a new
+          skin.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you need to represent an entirely different set of elements
+          on the web page, such as for an admin interface vs. the public
+          interface, then you should create a new skin type.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Most applications will have a single skin type, and a single skin,
+      with one or more thems, and maybe a few extra template types. Don't get
+      too overwhelmed with the options. The flexibility in the skin system is
+      primarily intended for CMS applications or large web applications with
+      multiple "sections".</para>
     </section>
 
     <section>
@@ -1425,8 +1563,9 @@ $recent10-&gt;setInvocationPath('blog/list/recent/10')
 
       <para>It is a best-practice to set up the Title, Meta Keywords, and Meta
       Description of each page to keep the information relevant and help with
-      search engine optimization. PHOCOA provides a callback mechanism on a
-      page-by-page basis to all you to edit this information.</para>
+      search engine optimization, as well as providing user-friendly web page
+      titles for history navigation. PHOCOA provides a callback mechanism on a
+      page-by-page basis to allow you to edit this information.</para>
 
       <para>Often times you'll also need to include additional head elements
       like SCRIPT and CSS files.</para>
@@ -1537,7 +1676,7 @@ $recent10-&gt;setInvocationPath('blog/list/recent/10')
       <title>PHOCOA API Documentation</title>
 
       <para>The complete PHOCOA documentation is available online at <ulink
-      url="???">http://phocoa.com/docs/phpdocs/</ulink>.</para>
+      url="http://phocoa.com/docs">http://phocoa.com/docs/</ulink>.</para>
     </section>
 
     <section>
@@ -1596,9 +1735,10 @@ $recent10-&gt;setInvocationPath('blog/list/recent/10')
     <section>
       <title>Further Resources</title>
 
-      <para>Visit <ulink url="???">http://phocoa.com</ulink> for the latest
-      news, downloads, etc. There are also a mailing lists that you can join
-      at <ulink url="???">http://lists.phocoa.com</ulink>.</para>
+      <para>Visit <ulink url="http://phocoa.com">http://phocoa.com</ulink> for
+      the latest news, downloads, etc. There are also a mailing lists that you
+      can join at <ulink
+      url="http://lists.phocoa.com">http://lists.phocoa.com</ulink>.</para>
     </section>
 
     <section>
@@ -1610,7 +1750,37 @@ $recent10-&gt;setInvocationPath('blog/list/recent/10')
     </section>
 
     <section>
-      <title>Appendix: Using PHOCOA With Propel</title>
+      <title>Appendix A: Dependencies</title>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>PHP5 - PHOCOA requires PHP version 5.0.</para>
+          </listitem>
+
+          <listitem>
+            <para>PEAR::Log - Required.</para>
+          </listitem>
+
+          <listitem>
+            <para>PEAR::Mail + PEAR::Mail_Mime - Optional; needed to use the
+            included Mail_Mailer class.</para>
+          </listitem>
+
+          <listitem>
+            <para>Phing - PHP build system. Required.</para>
+          </listitem>
+
+          <listitem>
+            <para>Propel - not required, but certainly recommended if you're
+            building a database-driven project. You can use whatever ORM you
+            like as long as the classes can set WFObject as the base
+            class.</para>
+          </listitem>
+        </itemizedlist>That's all the current dependencies.</para>
+    </section>
+
+    <section>
+      <title>Appendix B: Using PHOCOA With Propel</title>
 
       <para>PHOCOA is designed to use Propel as an analog for Core Data. By
       making a 2-line change to the Propel code, your Propel objects will
@@ -1622,12 +1792,6 @@ $recent10-&gt;setInvocationPath('blog/list/recent/10')
 
       <para><orderedlist>
           <listitem>
-            <para>Include the PHOCOA WFObject.php base object file:</para>
-
-            <screen>require_once FRAMEWORK_DIR . '/framework/WFObject.php';</screen>
-          </listitem>
-
-          <listitem>
             <para>Make the Propel BaseObject a subclass of the PHOCOA WFObject
             base class:</para>
 
@@ -1638,5 +1802,20 @@ $recent10-&gt;setInvocationPath('blog/list/recent/10')
       <para>That's it! Your Propel install is now fully compatible with PHOCOA
       to act as the data store for your objects.</para>
     </section>
+
+    <glossary>
+      <glossdiv>
+        <title>Glossary</title>
+
+        <glossentry>
+          <glossterm>phing</glossterm>
+
+          <glossdef>
+            <para>A build system for php based on ant. See <ulink
+            url="http://phing.info">http://phing.info</ulink></para>
+          </glossdef>
+        </glossentry>
+      </glossdiv>
+    </glossary>
   </chapter>
 </book>
