@@ -962,7 +962,12 @@ abstract class WFModule extends WFObject
     /**
      * Call this method if you want the ResponsePage to be the same as the RequestPage.
      *
+     * Another method for altering the display of the response is to change the templateFile of the existing page with {@link WFPage::setTemplateFile()}.
+     *
      * This is a convenience method for actions that don't need to switch the page.
+     *
+     * @param string The name of the page in this module to use as the response page; NULL to use the request page as the response page.
+     * @see WFPage::setTemplateFile()
      */
     function setupResponsePage($pageName = NULL)
     {

@@ -16,25 +16,16 @@ Dependencies
 3) Pear Packages
 - Mail
 - Mail_Mime
+- Log
 4) Phing
 
 
 TODO
 
 1.0 Milestone:
-- Add a WFViewPhocoaBuilderIntegration interface to house the informal protocol for making the PHOCOA builder more useful; add support to all widgets. DONE
-- Add page->setTemplate() to allow system to use alternate .tpl file -- easier for confirm/thanks pages
 - Have the newproject script make -dev and -production and -staging versions of conf files
-- Add an interactive PHP shell for exploring your projects. DONE
 - Do we need namespacing for modules? What if you have 2 "included" modules on a page that both have a widget with id=name? Things won't work right... right?
 - E_STRICT support
-- Fix bug in base64_encode -- this is *NOT* URL safe as base64 uses / character! see WFModule / showcase EncryptionUtil hexencode/hexdecode
-- Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
-  - additional life cycle callbacks? look through page setup and do one for each major phase?
-  - maybe have WFDynamic's "observe" arrayControllers and automatically update themselves... also have "WFArrayController::stopSendingUpdates()" and WFArrayController::startSendingUpdates" (find cocoa equivalent)
-- Move .config and .instances files to YAML to improve compatibility for people managing with text files and make other GUI editors easier to write. DONE
-  - Convert existing projects to YAML setup with new converters. DONE
-  - Update PHOCOA Builder to use syck/yaml parser directly, thus skipping the PHP interaction to read the files. DONE
 - Improve 'default' template to a nice-looking
     - Ubertemplate
     - Menu based on YUI
@@ -50,6 +41,10 @@ TODO
   - dependencies; propel, phing, creole, etc
 - WFRequestControllerDelegate -> has callbacks to process paths before default option; allows people to implement URI mapping, pre-processing, error handlers (404) etc
   -> Add WFRequestControllerException system; 404, 302, etc by throwing exceptions. How does this impact current WFRedirectRequestException?
+- Fix bug in base64_encode -- this is *NOT* URL safe as base64 uses / character! see WFModule / showcase EncryptionUtil hexencode/hexdecode
+- Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
+  - additional life cycle callbacks? look through page setup and do one for each major phase?
+  - maybe have WFDynamic's "observe" arrayControllers and automatically update themselves... also have "WFArrayController::stopSendingUpdates()" and WFArrayController::startSendingUpdates" (find cocoa equivalent)
 - Figure out a way to implement .ibpalette type functionality
   -> Creating widget bundles that are drop-in compatible
   -> Figure out better way for re-using modules so that they can be used as widgets of other pages: tricky life-cycle consequences
@@ -81,6 +76,13 @@ TODO
     - ability to point the system to particular .strings file for generic localization; for instance, a set of localizations may be provided for database data, and a propel getDescription() accessor may be overridden to translate the data from the DB based on a .strings file
     - need to be able to localize skins too, I suppose...
     - need some convention for localizing images, css, etc, for both skins and modules
+
+- Add page->setTemplateFile() to allow system to use alternate .tpl file -- easier for confirm/thanks pages that can share data with another page w/o passing data via module instance vars just to be re-assigned to the $page in the other page. DONE
+- Add an interactive PHP shell for exploring your projects. DONE
+- Add a WFViewPhocoaBuilderIntegration interface to house the informal protocol for making the PHOCOA builder more useful; add support to all widgets. DONE
+- Move .config and .instances files to YAML to improve compatibility for people managing with text files and make other GUI editors easier to write. DONE
+  - Convert existing projects to YAML setup with new converters. DONE
+  - Update PHOCOA Builder to use syck/yaml parser directly, thus skipping the PHP interaction to read the files. DONE
 - (DONE) Can we add a "module search path"? This would be used so that we can search for modules along multiple filesystem paths, and thus wouldn't need to copy framework modules
   into project directories. See WFWebApplication::addModulePath()
 - (DONE) prototypes for the WFDynamic controls so you can "configure" the default setup for a widget in a table, matrix, etc
@@ -140,7 +142,7 @@ DocBook Format. See http://opensource.bureau-cornavin.com/crash-course/ or http:
 Edit with XMLMind's XXE WYSIWYG Editor.
 
 BUILD SYSTEM:
-Phing. Idea is to use Phing to do everything in the system from initial setup of a new framework-based web application to showing bindings info to creating .instances files from .tpl files.
+The "phocoa" script wraps phing which is used to do project tasks such as creating new modules, pages, and code-gen from propel.
 
 CONVENTIONS
 
@@ -163,6 +165,12 @@ INCLUDES
 All script files should start with:
 
 require '../relative-path-to/conf/webapp.conf';
+
+Alternatively, you can use:
+
+require $_ENV['PHOCOA_PROJECT_CONF'];
+
+And just define that in the ENV before running your script.
 
 This one include will set up the PHP include_path so that all remaining includes can be done as relative to the root directory of the project. This is true for CLI scripts as well.
 
@@ -209,4 +217,4 @@ LIST OF DIFFERENCES FROM COCOA, for helping people who know Cocoa.
 
 Another reason for this is that Obj-C runtime can intercept calls to setXXX() and trigger observing events. We can't do that from PHP. Delaying the "reading" of bound data until after the code has run allows developers to use setXXX() calls and still have the values reflected in the UI.
 NOTE: Examine ArrayAccess interface; this may allow us to detect calls, at least with $obj['propName'] = XXX syntax!
-3) WFFormatters. Our formatters are linked in with the same error mechanism as the validators. In Cocoa, the formatters run in a real-time UI environment, and they can literally stop bad data from being entered. For us, they're more of a convenience item for display and validating well-known data types.
+3) WFFormatters. Our formatters are linked in with the same error mechanism as the validators. In Cocoa, the formatters run in a real-time UI environment, and they can literally stop bad data from being entered. For us, they're more of a convenience item for display and validating well-known data types. This could change with AJAX.

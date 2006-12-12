@@ -121,10 +121,35 @@ class WFPage extends WFObject
         return $this->submittedFormName() != NULL;
     }
 
-    function template()
+    /**
+     *  Tell the page to use an alternate .tpl file (besides the default, '<pagename>.tpl') for 
+     *  rendering the page.
+     *
+     *  When responding to a request, you will form a response to send back to the client. Depending on the 
+     *  nature of the response, there are two options in PHOCOA for building the response page.
+     *
+     *  In many cases, your application will need to present the same data in different ways. Once example
+     *  of this is on "thank you" pages for contact form submissions. Since you will display the same data
+     *  in the page, but display it differently, it is a good application of setTemplateFile().
+     *
+     *  The alternative is to use $module->setupResponsePage() to have PHOCOA respond to the request with
+     *  a completely different page. However, this is most useful only if you are going to be displaying
+     *  different data from the request. For instance, the "continue shopping" button of a shopping cart may 
+     *  go back to a product list page.
+     *
+     *  @param string The template file name to use.
+     *  @see {@link WFModule::setupResponsePage()}
+     */
+    function setTemplateFile($tplFileName)
     {
-        $this->prepareTemplate();
-        return $this->template;
+        $template = $this->prepareTemplate();
+        $tplPath = $this->templateFilePath($tplFileName);
+        $template->setTemplate($tplPath);
+    }
+
+    private function templateFilePath($templateFile)
+    {
+        return $this->module->pathToModule() . '/' . $templateFile;
     }
 
     /**
@@ -138,15 +163,12 @@ class WFPage extends WFObject
 
         if (is_null($this->template))
         {
-            WFLog::log("preparing the tempate", WFLog::TRACE_LOG);
-            // calculate template file absolute path
-            $basePagePath = $this->module->pathToPage($this->pageName);
-            $templateFile = $basePagePath . '.tpl';
+            WFLog::log("preparing the template", WFLog::TRACE_LOG);
 
             // instantiate a template object
             $this->template = new WFSmarty();     // eventually could use a factory here to use any template mechanism.
-            if (!file_exists($templateFile)) throw( new Exception("No .tpl file found for page '{$this->pageName}' of module '" . $this->module->moduleName() . "'.") );
-            $this->template->setTemplate($templateFile);
+            // initialize page with default template name; can always update it later. This way we don't store the template file name in 2 places (here and WFPageRendering instance)
+            $this->template->setTemplate($this->templateFilePath($this->pageName . '.tpl'));
         }
 
         return $this->template;
@@ -306,6 +328,37 @@ class WFPage extends WFObject
         return $object;
     }
 
+    /**
+     * Handle the instantiation of the passed object from the .yaml file.
+     * 
+     * The .yaml mechanism simply looks for a file named <pageName>.yaml in your module's templates directory.
+     * The .your contains a list of all WFView instances for the page, in a hierarchical tree, and the configuration / binding information for each instance.
+     *
+     * <code>
+     * form:
+     *   class: WFForm
+     *   properties:
+     *     method: post
+     *   children:
+     *     aField:
+     *       class: WFTextField
+     *       properties:
+     *         maxLength: 50
+     *       bindings:
+     *         value:
+     *           instanceID: customer
+     *           controllerKey: selection
+     *           modelKeyPath: creationDTS
+     *           options:
+     * </code>
+     *
+     * For each instance id, an instance of the listed class will be added to the view hierarchy. If children are listed, they will be added as well
+     * at the appropriate place in the hierarchy.
+     *
+     * @param string The ID of the instance.
+     * @param assoc_array The manifest info for the instance.
+     * @return object The instantiated object.
+     */
     protected function initInstanceYAML($id, $instanceManifest) {
         // determine the class
         if (!isset($instanceManifest['class'])) throw( new Exception("Instance ID '$id' declared without a class. FATAL!") );
@@ -775,8 +828,8 @@ class WFPage extends WFObject
     /**
      * Initialize the named page. This will load the widget instances and prepare for manipulating the UI.
      *
-     * Each page has three part, the HTML template, the INSTANCES file, and the CONFIG file.
-     * On the filesystem, they are named <pageName>.tpl, <pageName>.instances, and <pageName>.config
+     * Each page has two parts, the HTML template, and the page instances config file (also called the .yaml file).
+     * On the filesystem, they are named <pageName>.tpl (the template file) and <pageName>.yaml (the config file).
      *
      * Once the instances are initialized and configured, the module will be given a chance to load default settings for the page via a callback.
      * This is the time to set up select lists, default values, etc.
@@ -812,7 +865,6 @@ class WFPage extends WFObject
         $yamlFile = $basePagePath . '.yaml';
         $instancesFile = $basePagePath . '.instances';
         $configFile = $basePagePath . '.config';
-        $templateFile = $basePagePath . '.tpl';
 
         if (file_exists($yamlFile))
         {
