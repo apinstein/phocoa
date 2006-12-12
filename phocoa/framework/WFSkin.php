@@ -54,14 +54,6 @@ abstract class WFSkinManifestDelegate extends WFObject
      * @return assoc_array Various name/value pairs to be used in the templates for the skin.
      */
     function loadTheme($theme) { return array(); }
-
-    /**
-     *  Get a list of the additional template types (besides "normal") that are supported by this skin.
-     *
-     *  @return array An array of strings; each is a template type that is supported by this skin.
-     *                For each skin, there must be a template_<templateType>.tpl file for each manifested template type.
-     */
-    function templateTypes() { return array(); }
 }
 
 /**
@@ -74,6 +66,8 @@ abstract class WFSkinManifestDelegate extends WFObject
  * for multiple skinned usages. For instance, maybe you have a need to send skinned email, but the skins for email have a different setup than the normal web site.
  * In this case, you could create a skin object and provide a specialized skin delegate to handle the skinnable email function.
  * 
+ * You may also find that you need more template types besides "normal" and "raw". WFSkinDelegate allows you to manifest additional templateTypes(). Each skin
+ * you create for that WFSkinDelegate will of course need to implement all of the templateTypes() that the skinDelegate supports.
  */
 class WFSkinDelegate
 {
@@ -111,6 +105,14 @@ class WFSkinDelegate
       * @param object WFSkin The skin object to load defaults for.
       */
     function loadDefaults($skin) {}
+
+    /**
+     *  Get a list of the additional template types (besides "normal" and "raw") that are supported by this skin.
+     *
+     *  @return array An array of strings; each is a template type that is supported by this skin.
+     *                For each skin, there must be a template_<templateType>.tpl file for each manifested template type.
+     */
+    function templateTypes() { return array(); }
 }
 
 /**
@@ -129,6 +131,9 @@ class WFSkinDelegate
   *                 navigational needs than the back-end admin interface.
   *                 A {@link WFSkinDelegate} is implemented for each skin type an tells the system what data is available for the skin type. 
   *                 Skin Types, however, do NOT provide any layout or style.
+  *                 By default, each Skin Type implements only the "normal" template type. Your Skin Type may need additional layouts. For instance, printer-friendly
+  *                 or minimal layouts used for popups. Your skin can support additiona template types via {@link WFSkinDelegate::templateTypes() templateTypes()}.
+  *                 Every Skin for a Skin Type must have a template file for all template types to ensure proper operation.
   * 2. Skin -- A skin provides basic layout for a given Skin Type. Skins are specific for Skin Types, since they necessarily know about the 
   *            data types offered by a particular skin type, via its Skin Delegate.
   *            Each Skin resides in its own directory inside the Skin Type directory that it belongs to.
@@ -268,8 +273,8 @@ class WFSkin extends WFObject
     {
         $allowedTemplates = array(WFSkin::SKIN_WRAPPER_TYPE_NORMAL, WFSkin::SKIN_WRAPPER_TYPE_RAW);
         // call skin type delegate to get list of template types -- delegate implements application-specific logic.
-        if (is_object($this->skinManifestDelegate) && method_exists($this->skinManifestDelegate, 'templateTypes')) {
-            $allowedTemplates = array_merge($allowedTemplates, $this->skinManifestDelegate->templateTypes());
+        if (is_object($this->delegate) && method_exists($this->delegate, 'templateTypes')) {
+            $allowedTemplates = array_merge($allowedTemplates, $this->delegate->templateTypes());
         }
         return $allowedTemplates;
     }
