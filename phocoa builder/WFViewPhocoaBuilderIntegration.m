@@ -53,7 +53,6 @@
 - (NSArray*) propertyListForClass: (NSString*) className
 {
     NSDictionary    *classProps = [[self integrationInfo] valueForKeyPath: [NSString stringWithFormat: @"%@.properties", className]];
-    NSLog(@"class: %@, options: %@", className, classProps);
     return [[classProps allKeys] sortedArrayUsingSelector: @selector(caseInsensitiveCompare:)];
 }
 

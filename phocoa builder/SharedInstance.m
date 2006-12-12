@@ -41,7 +41,10 @@
 {
     NSMutableDictionary *yaml = [NSMutableDictionary dictionary];
     [yaml setObject: [self valueForKey: @"instanceClass"] forKey: @"class"];
-    [yaml setObject: [self configAsDictionary] forKey: @"properties"];
+    if ([[self valueForKey: @"config"] count] > 0)
+    {
+        [yaml setObject: [self configAsDictionary] forKey: @"properties"];        
+    }
     return yaml;
 }
 
