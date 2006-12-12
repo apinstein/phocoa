@@ -969,6 +969,13 @@ class WFPage extends WFObject
                             break;
                         }
                     }
+                    // if there is no button found in the parameters, we ask the WFForm what the default submit button is
+                    if (!$actionOutletID)
+                    {
+                        $form = $this->outlet($this->submittedFormName());
+                        $actionOutletID = $form->defaultSubmitID();
+                        WFLog::log("Form submitted, but no action button detected. Using default button: {$actionOutletID}", WFLog::TRACE_LOG);
+                    }
                     // call the ACTION handler for the page, if there is an action.
                     if ($actionOutletID)
                     {
@@ -984,7 +991,7 @@ class WFPage extends WFObject
                     }
                     else
                     {
-                        WFLog::log("Not running action because no action occurred (no action specified in form data)", WFLog::TRACE_LOG);
+                        WFLog::log("Not running action because no action occurred (no action specified in form data)", WFLog::WARN_LOG);
                     }
                 }
                 else

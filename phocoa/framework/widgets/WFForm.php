@@ -10,6 +10,20 @@
 
 /**
   * A wrapper for HTML Form Elements.
+  *
+  * Technical note: Since PHOCOA depends on knowing the button that was used to submit the form to call the correct action method, things can get tricky because
+  * browsers will "guess" which button is the default button if a user presses RETURN/ENTER in a single-line field.
+  *
+  * Firefox and Safari seem to "guess" somehow which is the default button, even if there is more than one button. I am not sure how they decide which, but they do.
+  *
+  * IE on the other hand, does NOT select a default button, yet it still submits the form, WITHOUT ANY SUBMIT INFO. Thus this caused PHOCOA errors since PHOCOA
+  * didn't call the expected action. Basically phocoa would have a submitted form, but then no action would be called. This is never supposed to happen, and caused
+  * some phocoa modules to have unexpected results. 
+  * 
+  * To fix this, WFForm has a concept of a {@link WFForm::$defaultSubmitID defaultSubmitID}. This is the ID of the button that should be used as the default action. If your form
+  * has exactly one submit button, the default button will be automatically selected. Otherwise, you'll need to specify it by configuring a defaultSubmitID for your
+  * form. What this means in practice is that if you have a form with 2+ buttons, you really should set a {@link WFForm::$defaultSubmitID defaultSubmitID} to avoid
+  * bugs in some browsers.
   */
 class WFForm extends WFWidget
 {
@@ -27,10 +41,17 @@ class WFForm extends WFWidget
      */
     protected $action;
     /**
-     * @var string The submit method to use.
+     * @var string The submit method to use. Default is METHOD_POST.
      * @see METHOD_POST, METHOD_GET
      */
     protected $method;
+    /**
+     * @var string The ID of the "default" button. This is the button that should be used as the action if no button information is submitted.
+     */
+    protected $defaultSubmitID;
+    const CALCULATED_DEFAULT_SUBMIT_ID_NONE = NULL;
+    const CALCULATED_DEFAULT_SUBMIT_ID_CANNOT_DETERMINE = -1;
+    private $calculatedDefaultSubmitID;
 
     /**
       * Constructor.
@@ -53,6 +74,7 @@ class WFForm extends WFWidget
         }
 
         $this->method = WFForm::METHOD_POST;
+        $this->defaultSubmitID = $this->calculatedDefaultSubmitID = NULL;
     }
 
     public static function exposedProperties()
@@ -60,8 +82,41 @@ class WFForm extends WFWidget
         $items = parent::exposedProperties();
         return array_merge($items, array(
             'action',
-            'method'
+            'method' => array(WFForm::METHOD_GET, WFForm::METHOD_POST),
+            'defaultSubmitID',
             ));
+    }
+
+    function addChild(WFView $view)
+    {
+        parent::addChild($view);
+        if ($view instanceof WFSubmit)
+        {
+            // if if the FIRST one, save it; otherwise, 
+            if ($this->calculatedDefaultSubmitID === WFForm::CALCULATED_DEFAULT_SUBMIT_ID_NONE)
+            {
+                $this->calculatedDefaultSubmitID = $view->id();
+            }
+            else
+            {
+                $this->calculatedDefaultSubmitID = WFForm::CALCULATED_DEFAULT_SUBMIT_ID_CANNOT_DETERMINE;
+                WFLog::log("Form id: '{$this->id}' is unable to determine the default button for the form. You should set one via defaultSubmitID to avoid errors in some browsers.", WFLog::WARN_LOG);
+            }
+        }
+    }
+
+    function allConfigFinishedLoading()
+    {
+        // calculate default submit button
+        if (!$this->defaultSubmitID and $this->calculatedDefaultSubmitID and $this->calculatedDefaultSubmitID !== WFForm::CALCULATED_DEFAULT_SUBMIT_ID_CANNOT_DETERMINE)
+        {
+            $this->defaultSubmitID = $this->calculatedDefaultSubmitID;
+        }
+    }
+
+    function defaultSubmitID()
+    {
+        return $this->defaultSubmitID;
     }
 
     function setAction($action)
