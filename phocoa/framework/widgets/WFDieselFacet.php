@@ -299,7 +299,9 @@ class WFDieselFacet extends WFWidget
             {
                 $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal ? $cVal : "");
             }
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
             $facets = $facetGenerator->getTaxonomyTree($this->attributeID, $openToBuf, $treeRootBuf, $this->maxHits);
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getTaxonomyTree() for {$this->id}");
             if (count($facets) == 1 and $facets[0]->getAttributeValue()->equals('')) // needed to extract facets from trees
             {
                 $facets = $facets[0]->getChildren();
@@ -336,7 +338,9 @@ class WFDieselFacet extends WFWidget
         }
         else
         {
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
             $facets = $facetGenerator->getList($this->attributeID, $this->maxRows, $this->sortByFrequency, $this->maxHits);
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getList() for {$this->id}");
         }
         return $facets;
     }

@@ -51,6 +51,8 @@ class WFDieselSearch extends WFObject implements WFPagedData
     protected $resultObjectLoaderCallback;
     protected $dpQueryStateParameterID;
 
+    protected $logPerformanceInfo;
+
     protected $hasBuiltQuery;
     protected $hasRunQuery;
     protected $dpqlQueryString;
@@ -95,6 +97,22 @@ class WFDieselSearch extends WFObject implements WFPagedData
         $this->resultObjectLoaderCallbackPropelMode = false;
         $this->searchResultsRelevanceByItemID = array();
         $this->loadTheseColumnsFromIndex = array("item_id");
+        $this->logPerformanceInfo = false;
+    }
+
+    /**
+     *  Should WFDieselSearch log the performance info to the PHOCOA log dir file: "diesel.log"?
+     *
+     *  @param boolean TRUE to log performance info.
+     */
+    function setLogPerformanceInfo($bool)
+    {
+        $this->logPerformanceInfo = $bool;
+    }
+
+    function logPerformanceInfo()
+    {
+        return $this->logPerformanceInfo;
     }
 
     /**
@@ -535,10 +553,19 @@ class WFDieselSearch extends WFObject implements WFPagedData
         }
     }
 
-
     function hasRunQuery()
     {
         return $this->hasRunQuery;
+    }
+
+    function startTrackingTime()
+    {
+        $this->logPerformanceInfo_t0 = microtime(true);
+    }
+    function stopTrackingTime($msg)
+    {
+        $elapsed = microtime(true) - $this->logPerformanceInfo_t0;
+        WFLog::logToFile('dieselsearch.log', "[{$elapsed}s] $msg");
     }
     
     // any way to make sure we don't search more than once?
@@ -553,7 +580,9 @@ class WFDieselSearch extends WFObject implements WFPagedData
         {
             $this->searcher->addColumns(join(',', $this->loadTheseColumnsFromIndex));
         }
+        if ($this->logPerformanceInfo()) $this->startTrackingTime();
         $this->searcher->execute();
+        if ($this->logPerformanceInfo()) $this->stopTrackingTime("DP Search: " . $this->finalQueryString);
         // if we have a paginator, we need to update the dpQueryState parameter so that pagination will work on the results.
         if ($this->paginator)
         {
