@@ -301,7 +301,7 @@ class WFDieselFacet extends WFWidget
             }
             if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
             $facets = $facetGenerator->getTaxonomyTree($this->attributeID, $openToBuf, $treeRootBuf, $this->maxHits);
-            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getTaxonomyTree() for {$this->id}");
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getTaxonomyTree(\"{$this->attributeID}\", \"{$openToBuf}\", \"{$treeRootBuf}\", {$this->maxHits}) for {$this->id}");
             if (count($facets) == 1 and $facets[0]->getAttributeValue()->equals('')) // needed to extract facets from trees
             {
                 $facets = $facets[0]->getChildren();
@@ -340,7 +340,7 @@ class WFDieselFacet extends WFWidget
         {
             if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
             $facets = $facetGenerator->getList($this->attributeID, $this->maxRows, $this->sortByFrequency, $this->maxHits);
-            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getList() for {$this->id}");
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getList(\"{$this->attributeID}\", {$this->maxRows}, " . ($this->sortByFrequency ? 'true' : 'false') . ", {$this->maxHits}) for {$this->id}");
         }
         return $facets;
     }
