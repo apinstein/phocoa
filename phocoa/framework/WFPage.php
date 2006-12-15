@@ -147,6 +147,17 @@ class WFPage extends WFObject
         $template->setTemplate($tplPath);
     }
 
+    /**
+     *  Get the template used for this page.
+     *
+     *  @return object WFPageRendering An object that implemented WFPageRendering
+     */
+    function template()
+    {
+        $this->prepareTemplate();
+        return $this->template;
+    }
+
     private function templateFilePath($templateFile)
     {
         return $this->module->pathToModule() . '/' . $templateFile;
