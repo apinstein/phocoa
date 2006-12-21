@@ -194,17 +194,18 @@
         // open .yaml config file
         NSString        *pageYAML = [NSString stringWithContentsOfFile: pageYamlPath encoding: NSUTF8StringEncoding error: err];
         NSDictionary    *yaml = yaml_parse(pageYAML, yamlOptions);
+
+        // skip empty things -- could be either NSNull or an empty string? maybe just make sure it's a dict?
+        if ((id) yaml == (id) [NSNull null]) continue;
+        if ([yaml class] != [NSDictionary class]) continue;
         
-        if ((id) yaml != (id) [NSNull null])
-        {
-            NSString        *instanceId;
-            NSEnumerator    *en = [yaml keyEnumerator];
-            while ( (instanceId = [en nextObject]) ) {
-                // create the page instance... instance!
-                PageInstance  *pi = [PageInstance pageInstance: instanceId withConfig: [yaml objectForKey: instanceId] context: [self managedObjectContext]];
-                NSMutableSet *pageInstances = [page mutableSetValueForKey: @"instances"];
-                [pageInstances addObject: pi];
-            }
+        NSString        *instanceId;
+        NSEnumerator    *en = [yaml keyEnumerator];
+        while ( (instanceId = [en nextObject]) ) {
+            // create the page instance... instance!
+            PageInstance  *pi = [PageInstance pageInstance: instanceId withConfig: [yaml objectForKey: instanceId] context: [self managedObjectContext]];
+            NSMutableSet *pageInstances = [page mutableSetValueForKey: @"instances"];
+            [pageInstances addObject: pi];
         }
 	}
 }
