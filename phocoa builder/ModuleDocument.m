@@ -197,7 +197,7 @@
 
         // skip empty things -- could be either NSNull or an empty string? maybe just make sure it's a dict?
         if ((id) yaml == (id) [NSNull null]) continue;
-        if ([yaml class] != [NSDictionary class]) continue;
+        if (![yaml respondsToSelector: @selector(keyEnumerator)]) continue;
         
         NSString        *instanceId;
         NSEnumerator    *en = [yaml keyEnumerator];
