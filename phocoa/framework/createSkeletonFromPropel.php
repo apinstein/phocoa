@@ -108,6 +108,7 @@ for ( $i = 0; $i < count($pageTypes); $i++) {
     $pageType = $pageTypes[$i];
     $pageName = $pageNames[$i];
     if (!in_array($pageType, SkeletonDumperPropel::pageTypes())) throw( new Exception("pageType must be one of: " . join(',', SkeletonDumperPropel::pageTypes())) );
+    print "Setting up page: {$pageType}\n";
     switch ($pageType) {
         case 'edit':
             $moduleCode[] = $sdp->updateEditPage($pageName);
@@ -690,7 +691,7 @@ document.forms.{$formID}.query.focus();
         // suggested module code
         $deleteSuccessPageName = 'deleteSuccess';
         $confirmDeletePageName = 'confirmDelete';
-        return "
+        $editCode = "
     // this function should throw an exception if the user is not permitted to edit (add/edit/delete) in the current context
     function verifyEditingPermission()
     {
@@ -899,6 +900,7 @@ document.forms.{$formID}.query.focus();
         {
             print "\nTemplate file '$deleteSuccessPageName' already exists, so it will not be overwritten.";
         }
+        return $editCode;
     }
 }
 

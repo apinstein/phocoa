@@ -105,6 +105,12 @@ class WFRequestController extends WFObject
 
             // get HTML result of the module, and output it
             print $this->rootModuleInvocation->execute();
+        } catch (WFRequestController_NotFoundException $e) {
+            header("HTTP/1.0 404 Not Found");
+            exit;
+        } catch (WFRequestController_RedirectException $e) {
+            header("Location: " . $e->getRedirectURL());
+            exit;
         } catch (WFRedirectRequestException $e) {
             header("Location: " . $e->getRedirectURL());
             exit;
@@ -176,6 +182,9 @@ class WFRequestController extends WFObject
  * Helper class to allow modules to easily redirect the client to a given URL.
  * 
  * Modules can throw a WFRedirectRequestException anytime to force the client to redirect.
+ *
+ * @deprecated
+ * @see WFRequestController_RedirectException
  */
 class WFRedirectRequestException extends WFException
 {
@@ -192,4 +201,6 @@ class WFRedirectRequestException extends WFException
         return $this->redirectUrl;
     }
 }
+class WFRequestController_RedirectException extends WFRedirectRequestException {}
+class WFRequestController_NotFoundException extends WFException {}
 ?>

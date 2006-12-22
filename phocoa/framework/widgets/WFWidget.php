@@ -656,11 +656,22 @@ abstract class WFWidget extends WFView
         return $value;
     }
 
+    /**
+     *  Get all bindings for this object instance.
+     *
+     *  @return array An array of attached {@link WFBinding bindings} for this instance.
+     */
     function bindings()
     {
         return $this->bindings;
     }
 
+    /**
+     *  Get the binding for a particular local property on this object instance.
+     *
+     *  @param string The local property to get the binding for.
+     *  @return object WFBinding The {@link WFBinding} for this instance on the local property passed, or NULL if there is no binding.
+     */
     function bindingByName($bindingName)
     {
         if (isset($this->bindings[$bindingName]))

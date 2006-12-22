@@ -23,6 +23,9 @@ Dependencies
 TODO
 
 1.0 Milestone:
+- Something seems slightly off with binding options setup. When bind() is done, seems that it should coalesce default binding option, but it isn't. They're being done
+  all over the place (pullBindings, processBindingOptions, etc). Seems that the bind() process should coalesce those for you. What does processBindingOptions do anyway?
+- Can we add "NullPlaceholder" to text field and text area so there can be some "help" text that gets automatically "converted" to/from NULL?
 - Have the newproject script make -dev and -production and -staging versions of conf files
 - Do we need namespacing for modules? What if you have 2 "included" modules on a page that both have a widget with id=name? Things won't work right... right?
 - E_STRICT support

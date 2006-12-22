@@ -94,6 +94,8 @@ class WFIncluding
                 'WFRadio' => 'framework/widgets/WFRadio.php',
                 'WFRadioGroup' => 'framework/widgets/WFRadioGroup.php',
                 'WFUpload' => 'framework/widgets/WFUpload.php',
+                'WFBulkUpload' => 'framework/widgets/WFBulkUpload.php',
+                'WFBulkUploadFile' => 'framework/widgets/WFBulkUpload.php',
                 'WFPaginatorNavigation' => 'framework/widgets/WFPaginatorNavigation.php',
                 'WFPaginatorSortLink' => 'framework/widgets/WFPaginatorSortLink.php',
                 'WFPaginatorSortSelect' => 'framework/widgets/WFPaginatorSortSelect.php',

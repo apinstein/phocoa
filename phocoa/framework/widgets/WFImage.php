@@ -105,7 +105,10 @@ class WFImage extends WFWidget
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();
-        $myBindings[] = new WFBindingSetup('value', 'The path to the image. Will be concatenated on baseDir.');
+        $newValBinding = new WFBindingSetup('value', 'The path to the image. Will be concatenated on baseDir.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
         $myBindings[] = new WFBindingSetup('baseDir', 'The base path to the image. Blank by default.');
         $myBindings[] = new WFBindingSetup('width', 'The width in pixels of the image, or blank.');
         $myBindings[] = new WFBindingSetup('height', 'The height in pixels of the image, or blank.');

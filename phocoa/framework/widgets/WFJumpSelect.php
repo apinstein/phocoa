@@ -103,13 +103,14 @@ class WFJumpSelect extends WFSelect
     {
         // get control
         $output = parent::render($blockContent);
+        $jsFunc = '__phocoaWFJumpSelectGoto_' . $this->id;
 
         // add onSelect handler
-        $selectJS = " onChange=\"__phocoaWFJumpSelectGoto(this);\" ";
+        $selectJS = " onChange=\"{$jsFunc}(this);\" ";
         $libraryJS = '
             <script language="JavaScript">
             <!--
-            function __phocoaWFJumpSelectGoto(select)
+            function ' . $jsFunc . '(select)
             {
                 var index;
                 var initialSelection = \'' . $this->value . '\';

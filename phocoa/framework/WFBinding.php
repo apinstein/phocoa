@@ -172,7 +172,7 @@ class WFBindingSetup extends WFObject
      *  Set the type of this binding.
      *
      *  There are multiple binding types, each of which provides certain behaviors for the binding.
-     *  1. WFBINDINGTYPE_SINGLE Is the simplest type; this binding type maps data from an object to the UI and potentially vice-versa (if it is not {@link WFBindingSetup::$readOnly read only).
+     *  1. WFBINDINGTYPE_SINGLE Is the simplest type; this binding type maps data from an object to the UI and potentially vice-versa (if it is not {@link WFBindingSetup::$readOnly read only}).
      *  2. WFBINDINGTYPE_MULTIPLE_BOOLEAN Links multiple values together, combined by {@link WFBindingSetup::$booleanMode booleanMode}.
      *  3. WFBINDINGTYPE_MULTIPLE_PATTERN Allows for the creation of a string based on a patter, filled with multiple values.
      *
@@ -382,6 +382,12 @@ class WFBinding extends WFObject
     function options()
     {
         return $this->options;
+    }
+
+    function option($name)
+    {
+        if (!isset($this->options[$name])) return NULL;
+        return $this->options[$name];
     }
 
     function setOption($name, $value)
