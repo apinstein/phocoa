@@ -95,7 +95,7 @@ class WFUpload extends WFWidget
                     $this->addError(new WFError("File: '{$_FILES[$this->name]['name']}' is not a legitimate PHP upload. This is a hack attempt."));
                 }
             }
-            else
+            else if ($_FILES[$this->name]['error'] != UPLOAD_ERR_NO_FILE)
             {
                 $this->addError(new WFError("File: '{$_FILES[$this->name]['name']}' reported error: " . $phpUploadErrors[$_FILES[$this->name]['error']]));
             }
