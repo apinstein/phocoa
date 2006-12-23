@@ -1,80 +1,80 @@
----
+
 form: 
-  class: 'WFForm'
-  properties: 
-    method: 'post'
-  children: 
-    name: 
-      class: 'WFTextField'
-      bindings: 
+  children  : 
+    action1       : 
+      class     : WFSubmit
+      properties: 
+        label: Submit Form and Re-Display
+    creationDTS   : 
+      bindings  : 
         value: 
-          instanceID: 'person'
-          controllerKey: 'selection'
-          modelKeyPath: 'name'
-    creationDTS: 
-      class: 'WFLabel'
+          controllerKey: selection
+          instanceID   : person
+          modelKeyPath : creationDTS
+      class     : WFLabel
       properties: 
         formatter: '#module#creationDTSFormatter'
+    name          : 
       bindings: 
         value: 
-          instanceID: 'person'
-          controllerKey: 'selection'
-          modelKeyPath: 'creationDTS'
-    selectOne: 
-      class: 'WFSelect'
+          controllerKey: selection
+          instanceID   : person
+          modelKeyPath : name
+      class   : WFTextField
+    radioButtons  : 
+      bindings: 
+        value: 
+          controllerKey: selection
+          instanceID   : person
+          modelKeyPath : gender
+      children: 
+        radioOne: 
+          class     : WFRadio
+          properties: 
+            label        : Female
+            selectedValue: female
+        radioTwo: 
+          class     : WFRadio
+          properties: 
+            label        : Male
+            selectedValue: male
+      class   : WFRadioGroup
+    selectMultiple: 
+      bindings  : 
+        contentValues: 
+          controllerKey: selection
+          instanceID   : person
+          modelKeyPath : colorValues
+        values       : 
+          controllerKey: selection
+          instanceID   : person
+          modelKeyPath : favoriteColors
+      class     : WFSelect
+      properties: 
+        multiple    : true
+        visibleItems: 6
+    selectOne     : 
       bindings: 
         contentLabels: 
-          instanceID: 'cities'
-          controllerKey: 'arrangedObjects'
-          modelKeyPath: 'name'
+          controllerKey: arrangedObjects
+          instanceID   : cities
+          modelKeyPath : name
         contentValues: 
-          instanceID: 'cities'
-          controllerKey: 'arrangedObjects'
-          modelKeyPath: 'id'
-        value: 
-          instanceID: 'person'
-          controllerKey: 'selection'
-          modelKeyPath: 'cityID'
-    radioButtons: 
-      class: 'WFRadioGroup'
+          controllerKey: arrangedObjects
+          instanceID   : cities
+          modelKeyPath : id
+        value        : 
+          controllerKey: selection
+          instanceID   : person
+          modelKeyPath : cityID
+      class   : WFSelect
+    textarea      : 
       bindings: 
         value: 
-          instanceID: 'person'
-          controllerKey: 'selection'
-          modelKeyPath: 'gender'
-      children: 
-        radioTwo: 
-          class: 'WFRadio'
-          properties: 
-            selectedValue: 'male'
-            label: 'Male'
-        radioOne: 
-          class: 'WFRadio'
-          properties: 
-            label: 'Female'
-            selectedValue: 'female'
-    selectMultiple: 
-      class: 'WFSelect'
-      properties: 
-        multiple: true
-        visibleItems: 6
-      bindings: 
-        values: 
-          instanceID: 'person'
-          controllerKey: 'selection'
-          modelKeyPath: 'favoriteColors'
-        contentValues: 
-          instanceID: 'person'
-          controllerKey: 'selection'
-          modelKeyPath: 'colorValues'
-    textarea: 
-      class: 'WFTextArea'
-      bindings: 
-        value: 
-          instanceID: 'person'
-          controllerKey: 'selection'
-          modelKeyPath: 'bio'
-    action1: 
-      class: 'WFSubmit'
-      properties: 
-        label: 'Submit Form and Re-Display'
+          controllerKey: selection
+          instanceID   : person
+          modelKeyPath : bio
+      class   : WFTextArea
+  class     : WFForm
+  properties: 
+    method: post

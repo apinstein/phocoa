@@ -1,36 +1,38 @@
----
+
 form: 
-  class: 'WFForm'
-  children: 
-    subject: 
-      class: 'WFTextField'
-      properties: 
-        size: '50'
-      bindings: 
+  children  : 
+    email  : 
+      bindings  : 
         value: 
-          instanceID: 'email'
-          controllerKey: ''
-          modelKeyPath: 'subject'
+          controllerKey: 
+          instanceID   : email
+          modelKeyPath : toEmail
+      class     : WFTextField
+      properties: 
+        size: 50
     message: 
-      class: 'WFTextArea'
-      properties: 
-        rows: '10'
-        cols: '50'
-      bindings: 
+      bindings  : 
         value: 
-          instanceID: 'email'
-          controllerKey: ''
-          modelKeyPath: 'message'
-    submit: 
-      class: 'WFSubmit'
+          controllerKey: 
+          instanceID   : email
+          modelKeyPath : message
+      class     : WFTextArea
       properties: 
-        label: 'Send Email'
-    email: 
-      class: 'WFTextField'
-      properties: 
-        size: '50'
-      bindings: 
+        cols: 50
+        rows: 10
+    subject: 
+      bindings  : 
         value: 
-          instanceID: 'email'
-          controllerKey: ''
-          modelKeyPath: 'toEmail'
+          controllerKey: 
+          instanceID   : email
+          modelKeyPath : subject
+      class     : WFTextField
+      properties: 
+        size: 50
+    submit : 
+      class     : WFSubmit
+      properties: 
+        label: Send Email
+  class     : WFForm
+  properties: 
+    method: get

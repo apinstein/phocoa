@@ -1,18 +1,18 @@
----
+
 radioGroup: 
-  class: 'WFRadioGroup'
-  properties: 
-    value: '4'
-  bindings: 
+  bindings  : 
     value: 
-      instanceID: 'person'
-      controllerKey: 'selection'
-      modelKeyPath: 'cityID'
-  children: 
+      controllerKey: selection
+      instanceID   : person
+      modelKeyPath : cityID
+  children  : 
     radios: 
-      class: 'WFDynamic'
+      class     : WFDynamic
       properties: 
         arrayController: '#module#cities'
-        parentFormID: 'radioGroup'
-        oneShotMode: true
-        widgetClass: 'WFRadio'
+        oneShotMode    : true
+        parentFormID   : radioGroup
+        widgetClass    : WFRadio
+  class     : WFRadioGroup
+  properties: 
+    value: 4

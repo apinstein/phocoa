@@ -1,31 +1,31 @@
----
+
+email    : 
+  bindings: 
+    value: 
+      controllerKey: 
+      instanceID   : email
+      modelKeyPath : toEmail
+  class   : WFLabel
+message  : 
+  bindings: 
+    value: 
+      controllerKey: 
+      instanceID   : email
+      modelKeyPath : message
+  class   : WFLabel
+subject  : 
+  bindings: 
+    value: 
+      controllerKey: 
+      instanceID   : email
+      modelKeyPath : subject
+  class   : WFLabel
 timestamp: 
-  class: 'WFLabel'
+  bindings  : 
+    value: 
+      controllerKey: 
+      instanceID   : email
+      modelKeyPath : sendTimestamp
+  class     : WFLabel
   properties: 
     formatter: '#module#dateSentFormatter'
-  bindings: 
-    value: 
-      instanceID: 'email'
-      controllerKey: ''
-      modelKeyPath: 'sendTimestamp'
-message: 
-  class: 'WFLabel'
-  bindings: 
-    value: 
-      instanceID: 'email'
-      controllerKey: ''
-      modelKeyPath: 'message'
-subject: 
-  class: 'WFLabel'
-  bindings: 
-    value: 
-      instanceID: 'email'
-      controllerKey: ''
-      modelKeyPath: 'subject'
-email: 
-  class: 'WFLabel'
-  bindings: 
-    value: 
-      instanceID: 'email'
-      controllerKey: ''
-      modelKeyPath: 'toEmail'

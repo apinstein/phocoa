@@ -1,19 +1,19 @@
----
+
 city: 
-  class: 'WFJumpSelect'
-  properties: 
-    baseURL: 'http://google.com/search?q='
-  bindings: 
+  bindings  : 
     contentLabels: 
-      instanceID: 'cities'
-      controllerKey: 'arrangedObjects'
-      modelKeyPath: 'name'
-      options: 
-        NullPlaceholder: 'Select a city to search for...'
-        InsertsNullPlaceholder: 'true'
+      controllerKey: arrangedObjects
+      instanceID   : cities
+      modelKeyPath : name
+      options      : 
+        InsertsNullPlaceholder: true
+        NullPlaceholder       : Select a city to search for...
     contentValues: 
-      instanceID: 'cities'
-      controllerKey: 'arrangedObjects'
-      modelKeyPath: 'name'
-      options: 
-        InsertsNullPlaceholder: 'true'
+      controllerKey: arrangedObjects
+      instanceID   : cities
+      modelKeyPath : name
+      options      : 
+        InsertsNullPlaceholder: true
+  class     : WFJumpSelect
+  properties: 
+    baseURL: http://google.com/search?q=

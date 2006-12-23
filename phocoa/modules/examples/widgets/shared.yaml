@@ -1,18 +1,18 @@
----
+
+cities              : 
+  class     : WFArrayController
+  properties: 
+    class           : City
+    classIdentifiers: id
 creationDTSFormatter: 
-  class: 'WFUnixDateFormatter'
+  class     : WFUnixDateFormatter
   properties: 
-    formatString: 'Y M D'
-selectedPeople: 
-  class: 'WFArrayController'
+    formatString: Y M D
+person              : 
+  class     : WFObjectController
   properties: 
-    class: 'person'
-cities: 
-  class: 'WFArrayController'
+    class: Person
+selectedPeople      : 
+  class     : WFArrayController
   properties: 
-    classIdentifiers: 'id'
-    class: 'City'
-person: 
-  class: 'WFObjectController'
-  properties: 
-    class: 'Person'
+    class: person

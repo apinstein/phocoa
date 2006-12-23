@@ -67,12 +67,38 @@ class WFUpload extends WFWidget
         //  must call super
         parent::restoreState();
 
-        if (isset($_FILES[$this->name]) and $_FILES[$this->name]['error'] == 0)
+        if (isset($_FILES[$this->name]))
         {
-            $this->hasUpload = true;
-            $this->tmpFileName = $_FILES[$this->name]['tmp_name'];
-            $this->originalFileName = $_FILES[$this->name]['name'];
-            $this->mimeType = $_FILES[$this->name]['type'];
+            if (is_array($_FILES[$this->name]['name'])) throw (new Exception("WFUpload expected a single upload files but multiple found.") );
+
+            $phpUploadErrors = array(
+                    UPLOAD_ERR_OK => 'Value: 0; There is no error, the file uploaded with success.',
+                    UPLOAD_ERR_INI_SIZE => 'Value: 1; The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+                    UPLOAD_ERR_FORM_SIZE => 'Value: 2; The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+                    UPLOAD_ERR_PARTIAL => 'Value: 3; The uploaded file was only partially uploaded.',
+                    UPLOAD_ERR_NO_FILE => 'Value: 4; No file was uploaded.',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Value: 6; Missing a temporary folder. Introduced in PHP 4.3.10 and PHP 5.0.3.',
+                    UPLOAD_ERR_CANT_WRITE => 'Value: 7; Failed to write file to disk. Introduced in PHP 5.1.0.',
+                    UPLOAD_ERR_EXTENSION => 'Value: 8; File upload stopped by extension. Introduced in PHP 5.2.0.',
+            );
+            if ($_FILES[$this->name]['error'] == UPLOAD_ERR_OK)
+            {
+                if (is_uploaded_file($_FILES[$this->name]['tmp_name']))
+                {
+                    $this->hasUpload = true;
+                    $this->tmpFileName = $_FILES[$this->name]['tmp_name'];
+                    $this->originalFileName = $_FILES[$this->name]['name'];
+                    $this->mimeType = $_FILES[$this->name]['type'];
+                }
+                else
+                {
+                    $this->addError(new WFError("File: '{$_FILES[$this->name]['name']}' is not a legitimate PHP upload. This is a hack attempt."));
+                }
+            }
+            else
+            {
+                $this->addError(new WFError("File: '{$_FILES[$this->name]['name']}' reported error: " . $phpUploadErrors[$_FILES[$this->name]['error']]));
+            }
         }
     }
 

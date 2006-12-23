@@ -1,8 +1,8 @@
----
+
 bio: 
-  class: 'WFHTMLArea'
   bindings: 
     value: 
-      instanceID: 'person'
-      controllerKey: 'selection'
-      modelKeyPath: 'bio'
+      controllerKey: selection
+      instanceID   : person
+      modelKeyPath : bio
+  class   : WFHTMLArea
