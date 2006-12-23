@@ -714,7 +714,7 @@ class WFPage extends WFObject
      * pushBindings() will call the pushBindings() method on all widgets in the form, thus allowing them to determine which bound properties need to
      * "publish" their values from the form onto the bound objects.
      * If the value has changed, validate the value and set it as appropriate (on the bound object).
-     * WFWidget subclasses do that from their restoreState() callback using propagateValueToBinding()
+     * WFWidget subclasses do that from their pushBindings() callback using propagateValueToBinding()
      * @throws If called on the responseView, as it is not meaningful.
      */
     function pushBindings()
@@ -991,7 +991,7 @@ class WFPage extends WFObject
         $didLoadMethod = "{$this->pageName}_PageDidLoad";
         if (method_exists($this->module, $didLoadMethod))
         {
-            WFLog::log("Calling {$pageName}_PageDidLoad", WFLog::TRACE_LOG);
+            WFLog::log("Calling {$didLoadMethod}", WFLog::TRACE_LOG);
             $this->module->$didLoadMethod($this, $parameters);
         }
 
@@ -1007,6 +1007,14 @@ class WFPage extends WFObject
         if ($this->isRequestPage())
         {
             $this->restoreState();
+        }
+
+        // callback method on WFModule after all state is restored (allows module to react to UI state before pushBindings())
+        $didRestoreStateMethod = "{$pageName}_DidRestoreState";
+        if (method_exists($this->module, $didRestoreStateMethod))
+        {
+            WFLog::log("Calling {$didRestoreStateMethod}", WFLog::TRACE_LOG);
+            $this->module->$didRestoreStateMethod($this);
         }
 
         // now that the UI is set up (instantiated), it's time to propagate the values from widgets to bound objects if this is the requestPage!

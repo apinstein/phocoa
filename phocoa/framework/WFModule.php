@@ -563,6 +563,15 @@ class WFModuleInvocation extends WFObject
   * all of the widgets in the page and allows you to manipulate them from your 
   * action handler before rendering the response.
   *
+  * WFModule/Page CALLBACK METHODS:
+  * Each method listed is a function in the module for the given page, with a name like myPageName_callbackName().
+  *
+  * array ParameterList() - Called by the page to get a list of URL parameters that the page accepts. Return a list of parameters in order of how they map to the URL.
+  * void PageDidLoad($page, $params) - Called when the page has finished loading from the YAML file.
+  * void DidRestoreState($page) - called after the page has finished restoring state from all widgets, including ones created dynamically during PageDidLoad.
+  * void myPageName_myActionName_Action($page) - called on the page after pushBindings, BUT ONLY IF THERE WERE NO ERRORS.
+  * void SetupSkin($skin) - Called just before rendering the template so you can set up title and other head tags.
+  * 
   */
 abstract class WFModule extends WFObject
 {
