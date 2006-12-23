@@ -300,6 +300,18 @@ class WFDynamic extends WFWidget
         $this->widgetConfig = $config;
     }
 
+    /**
+     *  Get the last rendered widget.
+     *
+     *  @return object WFWidget The instance of the last rendered widget.
+     *  @throws object WFException If you call this function before any widgets have been rendered.
+     */
+    function getLastRenderedWidget()
+    {
+        if ($this->renderIteration == 0) throw( new WFException("You must display a widget before accessing getLastRenderedWidget.") );
+        return $this->createdWidgets[$this->renderIteration - 1];
+    }
+
     function render($blockContent = NULL)
     {
         // lookup proper iteration of control...

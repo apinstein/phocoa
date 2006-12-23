@@ -12,9 +12,10 @@
  *  Smarty plugin to display errors from a form submission.
  *
  *  The error is rendered by the "form_error.tpl" template file.
- *  
+ *
  *  Smarty Params:
  *  id - The id of the WFWidget to show errors for. OPTIONAL -- if BLANK, will show ALL errors from form submission.
+ *       NOTE: to show errors on WFDynamic-generated widgets, use WFShowErrors with the ID of the WFDynamic. The WFShowErrors tag must occur AFTER the WFDynamic tag.
  *
  *  @param array The params from smarty tag.
  *  @param object WFSmarty object of the current tpl.
@@ -43,6 +44,10 @@ function smarty_function_WFShowErrors($params, &$smarty)
     {
         // get errors for a specific widget
         $widget = $smarty->getCurrentWidget($params);
+        if ($widget instanceof WFDynamic)
+        {
+            $widget = $widget->getLastRenderedWidget();
+        }
         $errors = $widget->errors();
     }
 

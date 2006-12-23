@@ -37,9 +37,14 @@ class WFSelectionCheckbox extends WFDynamic
     /**
      * @var string The keyPath to use as the label for each checkbox.
      *             By default, this is NULL, and no labels will be output. Supply a valid keyPath for the class managed by your arrayController and the labels will be dynamically generated.
+     *             If there is a label, {@link WFSelectionCheckbox::$labelKeyPath labelKeyPath} will be ignored.
      *             This option is often used in conjunction with {@link WFDynamic::$oneShotMode oneShotMode}.
      */
     protected $labelKeyPath;
+    /**
+     * @var string The label to use, if you want to use a static string for the label. If there is a label, {@link WFSelectionCheckbox::$labelKeyPath labelKeyPath} will be ignored.
+     */
+    protected $label;
 
     function __construct($id, $page)
     {
@@ -47,6 +52,7 @@ class WFSelectionCheckbox extends WFDynamic
 
         $this->preRenderCheckHasRun = false;
         $this->labelKeyPath = NULL;
+        $this->label = NULL;
     }
 
     public static function exposedProperties()
@@ -54,6 +60,7 @@ class WFSelectionCheckbox extends WFDynamic
         $items = parent::exposedProperties();
         return array_merge($items, array(
             'labelKeyPath',
+            'label',
             ));
     }
 
@@ -77,7 +84,11 @@ class WFSelectionCheckbox extends WFDynamic
             'checkedValue' => array( 'custom' => array('iterate' => true, 'keyPath' => '#identifier#') ),
             'uncheckedValue' => array( 'custom' => array('iterate' => false, 'value' => '') )
         ); 
-        if ($this->labelKeyPath)
+        if ($this->label)
+        {
+            $options['label'] = array( 'custom' => array('iterate' => false, 'value' => $this->label) );
+        }
+        else if ($this->labelKeyPath)
         {
             $options['label'] = array( 'custom' => array('iterate' => true, 'keyPath' => $this->labelKeyPath) );
         }
