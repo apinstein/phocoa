@@ -3,7 +3,7 @@
 /** 
  * The WFPage object.
  *
- * Each {@link WFModule} has exactly 2 pages, a requestPage and a responsePage. The requestPage respesents the UI state of the submitted form, if any, and the responsePage represents the UI state of the page that will be displayed in response to the request. The client responds to the request/action by reading from the requestPage and taking appropriate actions (ie saving data, etc). The client then selects a responsePage and sets up the UI elements as desired. The rendered responsePage is what the user will see.
+ * Each request creates a module/page to handle the request. This struct uses exactly 2 pages, a requestPage and a responsePage. The requestPage respesents the UI state of the submitted form, if any, and the responsePage represents the UI state of the page that will be displayed in response to the request. The client responds to the request/action by reading from the requestPage and taking appropriate actions (ie saving data, etc). The client then selects a responsePage and sets up the UI elements as desired. The rendered responsePage is what the user will see.
  *
  * Clients get access to the instances via {@link outlet} and get/set values as appropriate.
  *
@@ -15,9 +15,6 @@
  * @todo Some more refactoring... it's odd that the class has to figure out if it's the requestPage or responsePage. I think instead they should be 2 classes.
  * The base class, WFPage, should be the response page, and the WFRequestPage subclass should add methods / functionality for restoring state and triggering
  * actions, as I think that's the only two things it does more than the responsePage. ** What about errors?**
- *
- * Also, the WFRequestController should maybe be updated so that if there is no form submitted, then there is no requestPage instantiated. The application
- * flow would go straight into the responsePage.
  */
 
 /**
@@ -32,6 +29,11 @@
  * The page is responsible for helping the widgets restore their state from a request.
  * 
  * SEE COMPOSITE PATTERN IN GoF for ideas about the widget hierarchy.
+ *
+ * WFPage automatically adds a few useful variables to your template:
+ * - __page The current {@link WFPage} being rendered.
+ * - __module The {@link WFModule} that the page belongs to.
+ * - __skin The {@link WFSkin} being used to wrap the page. MAY BE NULL! When a page is not the "root" module, it may not be wrapped in a skin, so be careful when using this.
  */
 class WFPage extends WFObject
 {
@@ -1148,6 +1150,8 @@ class WFPage extends WFObject
         // ensure that a template object is instantiated
         $this->prepareTemplate();
 
+        // stuff a copy of the current module in the template...
+        $this->template->assign('__module', $this->module());
         // stuff a copy of the current page in the template...
         $this->template->assign('__page', $this);
         // stuff a copy of the skin in the template...
