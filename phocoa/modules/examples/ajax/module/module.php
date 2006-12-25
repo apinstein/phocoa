@@ -17,12 +17,5 @@ class module_module extends WFModule
         $m = new WFYAHOO_widget_Panel('test', $page);
         $m->setBody('<p>This is a test.</p>');
     }
-
-    function module_SetupSkin($skin)
-    {
-        $skin->addHeadString('<script type="text/javascript" src="' . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/js/prototype.js"></script>');
-        $skin->addHeadString('<script type="text/javascript" src="' . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/js/phocoa.js"></script>');
-    }
-
 }
 ?>
