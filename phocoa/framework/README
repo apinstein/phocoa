@@ -23,6 +23,17 @@ Dependencies
 TODO
 
 1.0 Milestone:
+- Maybe phocoa shouldn't "take over" entire /WWWROOT/ URL path. Instead, just let people drop modules wherever, and those pages should start with:
+  require('../conf/webapp.conf');
+  WFWebApplicationMain();
+  // WFModule subclass here
+  - this way we could store css, img, etc in the same folder as the module...
+- Idea to get stuff in TPL file into <head> section! Create a {WFHead} block tag and have it addHeadString() if there's a skin; dump directly if not.
+- Implement caching
+  - NOTE: I started to play with this a little, returning a cache from WFModuleInvocation::execute() as a test, but it wasn't any faster! Need to profile a bit to see WTF.
+  - Each module/page should determine whether or not it's cacheable (via a callback), and for how long, etc
+  - store modulepage caches in runtime/
+  - benchmark?
 - Something seems slightly off with binding options setup. When bind() is done, seems that it should coalesce default binding option, but it isn't. They're being done
   all over the place (pullBindings, processBindingOptions, etc). Seems that the bind() process should coalesce those for you. What does processBindingOptions do anyway?
 - Can we add "NullPlaceholder" to text field and text area so there can be some "help" text that gets automatically "converted" to/from NULL?
@@ -47,8 +58,8 @@ TODO
 - Fix bug in base64_encode -- this is *NOT* URL safe as base64 uses / character! see WFModule / showcase EncryptionUtil hexencode/hexdecode
 - Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
   - Should there exist a class WFModulePage that is the "page-centric" stuff of a module? This would allow for better documentation of page-life-cycle callbacks
-    - would more cleanly encapsulate pages
-    - BC issues?
+    - would more cleanly encapsulate pages: great place to put callbacks for page-centric things rather than goofily named methods of modules;
+    - BC issues? could use __call on module to to DB?
     - could data still be easily/cleanly shared?
   - additional life cycle callbacks? look through page setup and do one for each major phase?
   - maybe have WFDynamic's "observe" arrayControllers and automatically update themselves... also have "WFArrayController::stopSendingUpdates()" and WFArrayController::startSendingUpdates" (find cocoa equivalent)

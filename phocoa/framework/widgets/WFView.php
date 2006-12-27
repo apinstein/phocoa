@@ -97,9 +97,14 @@ abstract class WFView extends WFObject
 
         // YUI integration
         $this->jsDebug = false;
-        $this->yuiPath = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/yui';
+        $this->yuiPath = self::yuiPath();
         $this->jsImports = array();
         $this->cssImports = array();
+    }
+
+    public static function yuiPath()
+    {
+        return WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/yui';
     }
 
     public static function exposedProperties()
