@@ -29,7 +29,8 @@ class WFYAHOO extends WFWidget
         parent::__construct($id, $page);
 
         // all WFYAHOO subclasses need this.
-        $this->importYahooJS("yahoo/yahoo-min.js");
+        //$this->importYahooJS("yahoo/yahoo-min.js");
+        $this->importYahooJS("yahoo-dom-event/yahoo-dom-event.js");
     }
 
     /**

@@ -22,7 +22,7 @@ Dependencies
 --> To upgrade the YUI, download it from YAHOO, then:
 rsync --dry-run -vvr ~/Desktop/yui-1/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
 ** when happy, remove --dry-run
-** when done, edit both yahoo.js and yahoo-min.js to put the YAHOO var in the global namespace:
+** when done, edit yahoo.js, yahoo-min.js, and yahoo-dom-event.js to put the YAHOO var in the global namespace:
 var YAHOO = {};
 becomes
 window.YAHOO = {};
