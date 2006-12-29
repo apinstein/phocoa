@@ -36,8 +36,7 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
         $this->modal = true;
         $this->canClose = true;
 
-        $this->importJS("{$this->yuiPath}/dragdrop/dragdrop.js");
-        $this->importJS("{$this->yuiPath}/animation/animation.js");
+        $this->importYahooJS("dragdrop/dragdrop-min.js,animation/animation-min.js");
         $this->importCSS("{$this->yuiPath}/container/assets/container.css");
     }
 

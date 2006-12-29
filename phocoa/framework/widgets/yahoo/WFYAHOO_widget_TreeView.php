@@ -47,10 +47,7 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         $this->dynamicCallback = NULL;
         $this->nodeType = 'HTMLNode';
 
-        $this->importJS("{$this->yuiPath}/yahoo/yahoo.js");
-        $this->importJS("{$this->yuiPath}/dom/dom.js");
-        $this->importJS("{$this->yuiPath}/treeview/treeview.js");
-        $this->importJS("{$this->yuiPath}/connection/connection.js");
+        $this->importYahooJS("dom/dom-min.js,event/event-min.js,treeview/treeview-min.js,connection/connection-min.js");
         $this->importCSS("{$this->yuiPath}/treeview/assets/tree.css");
     }
 

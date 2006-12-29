@@ -64,9 +64,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
         
         $this->containerClass = 'Module';
 
-        $this->importJS("{$this->yuiPath}/dom/dom.js");
-        $this->importJS("{$this->yuiPath}/event/event.js");
-        $this->importJS("{$this->yuiPath}/container/container.js");
+        $this->importYahooJS("dom/dom-min.js,event/event-min.js,container/container-min.js");
     }
 
     public static function exposedProperties()

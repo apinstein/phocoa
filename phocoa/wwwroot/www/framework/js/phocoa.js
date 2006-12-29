@@ -20,14 +20,28 @@ PHOCOA.importJS = function(path) {
     }
     PHOCOA.importJSCache[path] = true;
 
-    var js = new Ajax.Request(
-            path,
-            {
-                asynchronous: false,
-                method: 'get'
-            }
-        );
-    eval(js.transport.responseText);
+    if (1)
+    {
+        // this method works synchronously, but the included code must be written in such a way that all definitions survive eval() to appear in the global scope
+        var js = new Ajax.Request(
+                path,
+                {
+                    asynchronous: false,
+                    method: 'get'
+                }
+            );
+        eval(js.transport.responseText);
+    }
+    else
+    {
+        // this method has no scoping problems, but isn't synchronous.
+        var head = document.getElementsByTagName("head")[0];
+        script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = path;
+        head.appendChild(script);
+        //alert('adding script tag for: ' +script.src);
+    }
 }
 
 // programmatically include CSS code from a URL

@@ -67,9 +67,10 @@ abstract class WFView extends WFObject
      */
     protected $yuiPath;
     /**
-     * @var boolean TRUE to include JS files in a less-efficient, but more-debuggable way.
+     * @var boolean TRUE to include JS and CSS files in a less-efficient, but more-debuggable way. Basically, will include with link/script tags if true, otherwise will use
+     * javascript to include the files with the PHOCOA.importCSS() javascript function.
      */
-    protected $jsDebug;
+    protected $importInHead;
     /**
      * @var array A list of the JavaScript actions for the widget. Mananged centrally; used by subclasses to allow actions to be attached. DEPRECATE FOR YAHOO JS STUFF!
      */
@@ -96,7 +97,7 @@ abstract class WFView extends WFObject
         $this->jsActions = array();
 
         // YUI integration
-        $this->jsDebug = false;
+        $this->importInHead = false;
         $this->yuiPath = self::yuiPath();
         $this->jsImports = array();
         $this->cssImports = array();
@@ -169,14 +170,7 @@ abstract class WFView extends WFObject
      */
     protected function importJS($path)
     {
-        if ($this->jsDebug)
-        {
-            $this->page->module()->invocation()->rootSkin()->addHeadString("<script type=\"text/javascript\" src=\"{$path}\" ></script>");
-        }
-        else
-        {
-            $this->jsImports[$path] = $path;
-        }
+        $this->jsImports[$path] = $path;
     }
 
     /**
@@ -192,22 +186,26 @@ abstract class WFView extends WFObject
      */
     protected function importCSS($path)
     {
-        if ($this->jsDebug)
-        {
-            $this->page->module()->invocation()->rootSkin()->addHeadString("<link rel=\"stylesheet\" type=\"text/css\" href=\"{$path}\" />");
-        }
-        else
-        {
-            $this->cssImports[$path] = $path;
-        }
+        $this->cssImports[$path] = $path;
     }
 
     private function getImportJS()
     {
         if (empty($this->jsImports)) return;
+
         $script = $this->jsStartHTML();
-        foreach ($this->jsImports as $path => $nothing) {
-            $script .= "PHOCOA.importJS('{$path}');\n";
+        if ($this->importInHead)
+        {
+            foreach ($this->jsImports as $path => $nothing) {
+                $this->page->module()->invocation()->rootSkin()->addHeadString("<script type=\"text/javascript\" src=\"{$path}\" ></script>");
+            }
+            $script .= "// importInHead = true; all js includes in head section";
+        }
+        else
+        {
+            foreach ($this->jsImports as $path => $nothing) {
+                $script .= "PHOCOA.importJS('{$path}');\n";
+            }
         }
         $script .= $this->jsEndHTML();
         return $script;
@@ -216,9 +214,20 @@ abstract class WFView extends WFObject
     private function getImportCSS()
     {
         if (empty($this->cssImports)) return;
+
         $script = $this->jsStartHTML();
-        foreach ($this->cssImports as $path => $nothing) {
-            $script .= "PHOCOA.importCSS('{$path}');\n";
+        if ($this->importInHead)
+        {
+            foreach ($this->jsImports as $path => $nothing) {
+                $this->page->module()->invocation()->rootSkin()->addHeadString("<link rel=\"stylesheet\" type=\"text/css\" href=\"{$path}\" />");
+            }
+            $script .= "// importInHead = true; all css includes in head section";
+        }
+        else
+        {
+            foreach ($this->cssImports as $path => $nothing) {
+                $script .= "PHOCOA.importCSS('{$path}');\n";
+            }
         }
         $script .= $this->jsEndHTML();
         return $script;
@@ -390,14 +399,7 @@ abstract class WFView extends WFObject
       */
     function render($blockContent = NULL)
     {
-        if ($this->jsDebug)
-        {
-            return NULL;
-        }
-        else
-        {
-            return $this->getImportJS() . $this->getImportCSS();
-        }
+        return $this->getImportJS() . $this->getImportCSS();
     }
 }
 
