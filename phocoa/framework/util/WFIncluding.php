@@ -107,6 +107,7 @@ class WFIncluding
                 'WFYAHOO_widget_TreeViewNode' => 'framework/widgets/yahoo/WFYAHOO_widget_TreeView.php',
                 'WFYAHOO_widget_Module' => 'framework/widgets/yahoo/WFYAHOO_widget_Module.php',
                 'WFYAHOO_widget_Panel' => 'framework/widgets/yahoo/WFYAHOO_widget_Panel.php',
+                'WFYAHOO_widget_Logger' => 'framework/widgets/yahoo/WFYAHOO_widget_Logger.php',
                 'WFPaginatorPageInfo' => 'framework/widgets/WFPaginatorPageInfo.php',
                 'WFValueTransformer' => 'framework/ValueTransformers/WFValueTransformer.php',
                 'WFNegateBooleanTransformer' => 'framework/ValueTransformers/WFNegateBooleanTransformer.php',
