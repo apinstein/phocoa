@@ -28,6 +28,8 @@
  * 
  * <b>Optional:</b><br>
  * - {@link WFImage::$baseDir baseDir}
+ * - {@link WFImage::$filesystemPath filesystemPath}
+ * - {@link WFImage::$filesystemBasePath filesystemBasePath}
  * - {@link WFImage::$width width}
  * - {@link WFImage::$height height}
  * - {@link WFImage::$alt alt}
@@ -40,7 +42,7 @@
 class WFImage extends WFWidget
 {
     /**
-      * @var string The base dir for the image path stored in value. Example: /images/products/previews/small/
+      * @var string The base dir for the image path stored in value. Example: /images/products/previews/small/. Note that the value will be concatenated directly to this string with no '/' or other characters added. Thus be sure to include a trailing slash if your baseDir is truly a directory. This property should have probably been named basePath. Now that PHOCOA supports ValuePattern binding construction, baseDir is not as relevant as it used to be, except in the situation where you want to supply your baseDir programmatically.
       */
     protected $baseDir;
     /**
@@ -73,18 +75,38 @@ class WFImage extends WFWidget
     protected $linkTarget;
 
     /**
+     * @var boolean If true, fit the image to the box specified by {@link WFImage::$width width} and {@link WFImage::$height height}.
+     *              The image will be scaled proportionally.
+     *              If only one of width or height is specified, the image will be scaled to fit that dimension only.
+     *              Requires that the filesystemPath property exist.
+     *              If any error conditions occur, will throw an exception.
+     */
+    protected $fitToBox;
+    /**
+     * @var string The filesystem path to the image.
+     */
+    protected $filesystemPath;
+    /**
+     * @var string OPTIONAL "base" path for the filesystemPath attribute. The two properties will be concatenated to create the full path.
+     */
+    protected $filesystemBasePath;
+
+    /**
       * Constructor.
       */
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
-        $this->baseDir = '';
+        $this->baseDir = NULL;
         $this->width = NULL;
         $this->height = NULL;
         $this->border = 'border: 0;';
         $this->align = NULL;
         $this->link = NULL;
         $this->linkTarget = NULL;
+        $this->fitToBox = false;
+        $this->filesystemPath = NULL;
+        $this->filesystemBasePath = NULL;
     }
 
     public static function exposedProperties()
@@ -92,13 +114,18 @@ class WFImage extends WFWidget
         $items = parent::exposedProperties();
         return array_merge($items, array(
             'baseDir',
+            'filesystemPath',
+            'filesystemBasePath',
             'width',
             'height',
             'border',
-            'align',
+            'align' => array('left', 'center', 'right', 'middle', 'baseline', 'top'),
+            //'text-align' => array('left', 'center', 'right'),
+            //'vertical-align' => array('baseline', 'sub', 'super', 'top', 'text-top', 'middle', 'bottom', 'text-bottom'),
             'alt',
             'link',
-            'linkTarget'
+            'linkTarget',
+            'fitToBox' => array('true', 'false')
             ));
     }
 
@@ -109,7 +136,12 @@ class WFImage extends WFWidget
         $newValBinding->setReadOnly(true);
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $myBindings[] = $newValBinding;
+        $newValBinding = new WFBindingSetup('filesystemPath', 'The path to the image on the filesystem. Will be concatenated on filesystemBasePath.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
         $myBindings[] = new WFBindingSetup('baseDir', 'The base path to the image. Blank by default.');
+        $myBindings[] = new WFBindingSetup('filesystemBasePath', 'The base path to the image. Blank by default.');
         $myBindings[] = new WFBindingSetup('width', 'The width in pixels of the image, or blank.');
         $myBindings[] = new WFBindingSetup('height', 'The height in pixels of the image, or blank.');
         $myBindings[] = new WFBindingSetup('alt', 'The alt tag.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
@@ -129,25 +161,122 @@ class WFImage extends WFWidget
         $this->baseDir = $path;
     }
 
+    private function doFitToBox(&$pxWidth, &$pxHeight)
+    {
+        $fsPath = $this->filesystemBasePath . $this->filesystemPath;
+        $info = getimagesize($fsPath);
+        if ($info === false) throw( new WFException("Can't fitToBox because no image file found at: {$fsPath}") );
+
+        // calculate some useful info; "i" prefix means "original image"
+        $iWidth = $info[0];
+        $iHeight = $info[1];
+        $iRatio = $iWidth / $iHeight;
+
+        if ($this->width and $this->height)
+        {
+            // fit to box
+            
+            // scale DOWN to fix box 
+            if ($iWidth > $this->width or $iHeight > $this->height)
+            {   
+                $newRatio = $this->width / $this->height;
+                //die("$iWidth x $iHeight; $iRatio / $this->width x $this->height; $newRatio");
+                // resize
+                if ($iRatio > $newRatio)
+                {   
+                    $resizeRatio = $this->width / $iWidth;
+                    $newWidth = $iWidth * $resizeRatio;
+                    $newHeight = $newWidth / $iRatio;
+                }
+                else
+                {
+                    $resizeRatio = $this->height / $iHeight;
+                    $newHeight = $iHeight * $resizeRatio;
+                    $newWidth = $newHeight * $iRatio;
+                }
+            }
+            // DON'T scale up to fit box; only down - maybe make this optional later
+            else
+            {   
+                //die("no need to resize: {$iWidth}x{$iHeight} to fix box: {$this->width}x{$this->height}");
+                $newWidth = $iWidth;
+                $newHeight = $iHeight;
+            }
+        }
+        else if ($this->width)
+        {
+            // scale DOWN to fit width
+            if ($iWidth > $this->width)
+            {
+                $resizeRatio = $this->width / $iWidth;
+                $newWidth = $iWidth * $resizeRatio;
+                $newHeight = $newWidth / $iRatio;
+            }
+            // DON'T scale up to fit width
+            else
+            {
+            }
+        }
+        else if ($this->height)
+        {
+            // scale DOWN to fit height
+            if ($iWidth > $this->height)
+            {
+                $resizeRatio = $this->height / $iHeight;
+                $newHeight = $iHeight * $resizeRatio;
+                $newWidth = $newHeight * $iRatio;
+            }
+            // DON'T scale up to fit height
+            else
+            {
+            }
+        }
+        else
+        {
+            throw( new WFException("Can't use fitToBox without specifying width and/or height.") );
+        }
+        $pxWidth = ceil($newWidth);
+        $pxHeight = ceil($newHeight);
+    }
+
     function render($blockContent = NULL)
     {
         if ($this->hidden) return NULL;
         if (!$this->value) return NULL; // don't display anything if there is no value.
 
-        $height = '';
-        if ($this->height) $height = $this->height . 'px';
-        $width = '';
-        if ($this->width) $width = $this->width . 'px';
-        if ($this->width and !$this->height) $this->height = 'auto';
-        else if ($this->height and !$this->width) $this->width = 'auto';
+        $pxWidth = $this->width;
+        $pxHeight = $this->height;
+        if ($this->fitToBox)
+        {
+            $this->doFitToBox($pxWidth, $pxHeight);
+        }
 
-        $imgHTML = '<img src="' . $this->baseDir . $this->value . '"' .
+        // resizing
+        // calcualte CSS width/height info - expect pxWidth and pxHeight to be set up by now (either null or an integer)
+        $cssHeight = '';
+        if ($pxHeight) $cssHeight = $pxHeight . 'px';
+        $cssWidth = '';
+        if ($pxWidth) $cssWidth = $pxWidth . 'px';
+        if ($pxWidth and !$pxHeight) $pxHeight = 'auto';
+        else if ($pxHeight and !$pxWidth) $pxWidth = 'auto';
+
+        // pull width/height from filesystem, but only if we don't already have it
+        if ($this->filesystemPath and (!$this->width and !$this->height))
+        {
+            $fsPath = $this->filesystemBasePath . $this->filesystemPath;
+            $info = getimagesize($fsPath);
+            if ($info === false) throw( new WFException("Can't calculate width/height because No image file found at: {$fsPath}") );
+            $this->width = $info[0];
+            $this->height = $info[1];
+        }
+
+        $imgHTML = '<img id="' . $this->id() . '" src="' . $this->baseDir . $this->value . '"' .
             ($this->alt ? " alt=\"{$this->alt}\"" : '') .
             ($this->align ? " align=\"{$this->align}\"" : '') .
             ($this->class ? " class=\"{$this->class}\"" : '') .
             ' style="' .
-            ($this->width ? "width: {$this->width}; " : '') .
-            ($this->height ? "height: {$this->height}; " : '') .
+            ($cssWidth ? "width: {$cssWidth}; " : '') .
+            ($cssHeight ? "height: {$cssHeight}; " : '') .
             $this->border .
             '" />';
         if ($this->link)
