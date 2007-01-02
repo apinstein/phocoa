@@ -61,6 +61,9 @@ class WFRequestController extends WFObject
         $skin->setDelegateName(WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
         $skin->setBody($body_html);
         $skin->setTitle("An error has occurred.");
+
+        // output error info
+        header("HTTP/1.0 500 Uncaught Exception");
         $skin->render();
         exit;
     }
@@ -107,6 +110,7 @@ class WFRequestController extends WFObject
             print $this->rootModuleInvocation->execute();
         } catch (WFRequestController_NotFoundException $e) {
             header("HTTP/1.0 404 Not Found");
+            print $e->getMessage();
             exit;
         } catch (WFRequestController_RedirectException $e) {
             header("Location: " . $e->getRedirectURL());
