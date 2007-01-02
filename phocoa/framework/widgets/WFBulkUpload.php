@@ -67,7 +67,7 @@ class WFBulkUpload extends WFWidget
         {
             if (!is_array($_FILES[$this->name]['name'])) throw (new Exception("WFBulkUpload expected multiple upload files but only found one.") );
 
-            $phpUploadErrors = array(
+            $phpUploadErrors = @array(
                     UPLOAD_ERR_OK => 'Value: 0; There is no error, the file uploaded with success.',
                     UPLOAD_ERR_INI_SIZE => 'Value: 1; The uploaded file exceeds the upload_max_filesize directive in php.ini.',
                     UPLOAD_ERR_FORM_SIZE => 'Value: 2; The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
