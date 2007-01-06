@@ -1,0 +1,19 @@
+
+color: 
+  bindings  : 
+    datasourceJSArray: 
+      instanceID  : '#module#'
+      modelKeyPath: rainbow
+  class     : WFYAHOO_widget_AutoComplete
+  properties: 
+    alwaysShowContainer: true
+    minQueryLength     : 0
+    width              : 100px
+state: 
+  bindings  : 
+    datasourceJSArray: 
+      instanceID  : '#module#'
+      modelKeyPath: states
+  class     : WFYAHOO_widget_AutoComplete
+  properties: 
+    animVert: true
