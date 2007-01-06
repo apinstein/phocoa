@@ -36,7 +36,6 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
      * @var string The css width of the autocomplete box. Remeber to specify like "100px" or "80%". Default: 100%.
      */
     protected $autocompleteWidth = '100%';
-
     /**
      * @var boolean TRUE to animate vertically. Default: true.
      */
@@ -106,6 +105,10 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
      * @var integer Which of the DATASOURCE_* methods will be used for this instance.
      */
     protected $datasource = NULL;
+    protected $datasourceMaxCacheEntries = NULL;
+    protected $datasourceQueryMatchCase = NULL;
+    protected $datasourceQueryMatchContains = NULL;
+    protected $datasourceQueryMatchSubset = NULL;
     /**
      * @var array When using DATASOURCE_JS_ARRAY, this is the array of items. It can be a simple array, or an array of arrays. The latter will be used as multi-column data.
      */
@@ -153,6 +156,10 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             'typeAhead' => array('true', 'false'),
             'allowBrowserAutocomplete' => array('true', 'false'),
             'alwaysShowContainer' => array('true', 'false'),
+            'datasourceMaxCacheEntries',
+            'datasourceQueryMatchCase' => array('true', 'false'),
+            'datasourceQueryMatchContains' => array('true', 'false'),
+            'datasourceQueryMatchSubset' => array('true', 'false'),
             ));
     }
 
@@ -273,6 +280,12 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
                 default:
                     throw( new WFException("Unsupported datasource type.") );
             }
+            // add properties to datasource
+            $html .= $this->jsForSimplePropertyConfig($myJSDatasourceVarName, 'maxCacheEntries', $this->datasourceMaxCacheEntries);
+            $html .= $this->jsForSimplePropertyConfig($myJSDatasourceVarName, 'queryMatchCase', $this->datasourceQueryMatchCase);
+            $html .= $this->jsForSimplePropertyConfig($myJSDatasourceVarName, 'queryMatchContains', $this->datasourceQueryMatchContains);
+            $html .= $this->jsForSimplePropertyConfig($myJSDatasourceVarName, 'queryMatchSubset', $this->datasourceQueryMatchSubset);
+            // set up widget
             $html .= "\nvar {$myJsAutoCompleteVarName} = new YAHOO.widget.AutoComplete('{$this->id}','{$myAutoCompleteContainer}', {$myJSDatasourceVarName});\n";
             $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'animVert', $this->animVert);
             $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'animHoriz', $this->animHoriz);
