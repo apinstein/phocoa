@@ -29,15 +29,20 @@ class WFYAHOO_widget_Module extends WFYAHOO
     protected $body;
     protected $footer;
 
-    protected $fixedcenter;
-    protected $width;
-    protected $height;
-    protected $zIndex;
-    protected $iframe;
-    protected $x;
-    protected $y;
-    protected $context;
     protected $effects;
+    // need to add
+    // visible
+    // monitorresize
+
+    // move these to overlay
+    protected $fixedcenter;     // move to Overlay
+    protected $width;       // move to Overlay
+    protected $height;      // move to Overlay
+    protected $zIndex;      // move to Overlay
+    protected $iframe;      // move to Overlay
+    protected $x;       // move to Overlay
+    protected $y;       // move to Overlay
+    protected $context;     // move to Overlay
 
     protected $containerClass;
 

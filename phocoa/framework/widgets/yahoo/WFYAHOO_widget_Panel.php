@@ -22,7 +22,9 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
     protected $underlay;
     protected $draggable;
     protected $modal;
-    protected $canClose;
+    protected $canClose;    // deprecate and rename to close
+    // add
+    // keylisteners
 
     /**
       * Constructor.

@@ -29,7 +29,6 @@ class WFYAHOO extends WFWidget
         parent::__construct($id, $page);
 
         // all WFYAHOO subclasses need this.
-        //$this->importYahooJS("yahoo/yahoo-min.js");
         $this->importYahooJS("yahoo-dom-event/yahoo-dom-event.js");
     }
 
@@ -46,6 +45,38 @@ class WFYAHOO extends WFWidget
     }
 
     function canPushValueBinding() { return false; }
+
+    function jsForSimplePropertyConfig($widgetVarName, $propertyName, $value)
+    {
+        $simpleJS = NULL;
+
+        if ($value !== NULL)
+        {
+            $simpleJS = "{$widgetVarName}.{$propertyName} = ";
+            if (is_numeric($value))
+            {
+                $simpleJS .= $value;
+            }
+            else if (is_bool($value) or $value == 'true' or $value == 'false')
+            {
+                if (is_bool($value))
+                {
+                    $simpleJS .= ($value ? 'true' : 'false');
+                }
+                else
+                {
+                    $simpleJS .= $value;
+                }
+            }
+            else // string
+            {
+                $simpleJS .= "'" . str_replace("'", "\\'", $value) . "'";
+            }
+            $simpleJS .= ";\n";
+        }
+
+        return $simpleJS;
+    }
 
     function render($blockContent = NULL)
     {
