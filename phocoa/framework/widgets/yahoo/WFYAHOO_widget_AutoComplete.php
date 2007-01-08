@@ -23,15 +23,22 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     const DATASOURCE_JS_ARRAY       = 0;
     const DATASOURCE_JS_FUNCTION    = 1;
     const DATASOURCE_XHR            = 2;
+
+    const INPUT_TYPE_TEXTFIELD      = 'input';
+    const INPUT_TYPE_TEXTAREA       = 'textarea';
  
     /**
-     * @var integer Maximum length in chars of text input field. Default: unlimited.
+     * @var string The type of input to use. One of {@link WFYAHOO_widget_AutoComplete::INPUT_TYPE_TEXTAREA INPUT_TYPE_TEXTAREA} or {@link WFYAHOO_widget_AutoComplete::INPUT_TYPE_TEXTFIELD INPUT_TYPE_TEXTFIELD}. Default is INPUT_TYPE_TEXTFIELD.
      */
-    protected $maxLength = NULL;
+    protected $inputType = self::INPUT_TYPE_TEXTFIELD;
     /**
-     * @var string The css width of the input field. Remember to specify like "200px" or "15em". Default: 200px.
+     * @var string The css width of the input. Remember to specify like "200px" or "15em". Default: 200px.
      */
     protected $width = '200px';
+    /**
+     * @var string The css height of the input. Remember to specify like "200px" or "15em". Only used for INPUT_TYPE_TEXTAREA. Default: 50px.
+     */
+    protected $height = '50px';
     /**
      * @var string The css width of the autocomplete box. Remeber to specify like "100px" or "80%". Default: 100%.
      */
@@ -137,8 +144,9 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     {
         $items = parent::exposedProperties();
         return array_merge($items, array(
-            'maxLength',
             'width',
+            'height',
+            'inputType' => array(self::INPUT_TYPE_TEXTFIELD, self::INPUT_TYPE_TEXTAREA),
             'autocompleteWidth',
             'animVert' => array('true', 'false'),
             'animHoriz' => array('true', 'false'),
@@ -214,6 +222,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
 }
 #{$this->id} {
     width: 100%;
+    " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : '') . "
 }
 #{$myAutoCompleteContainer} {
     width: {$this->autocompleteWidth};
@@ -237,11 +246,21 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
 </style>
             ";
             $html .= "
-            <div id=\"{$myWidgetContainer}\">
-                <input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"{$this->value}\"" .
-                ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
-                " /><div id=\"{$myAutoCompleteContainer}\"></div>
-             </div>";
+            <div id=\"{$myWidgetContainer}\">";
+            if ($this->inputType == self::INPUT_TYPE_TEXTFIELD)
+            {
+                $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"{$this->value}\" />";
+            }
+            else if ($this->inputType == self::INPUT_TYPE_TEXTAREA)
+            {
+                $html .= "<textarea id=\"{$this->id}\" name=\"{$this->id}\">{$this->value}</textarea>";
+            }
+            else
+            {
+                throw( new WFException("inputType must be either INPUT_TYPE_TEXTFIELD or INPUT_TYPE_TEXTAREA.") );
+            }
+            $html .= "<div id=\"{$myAutoCompleteContainer}\"></div>
+            </div>";
             $html .= $this->jsStartHTML();
             switch ($this->datasource) {
                 case WFYAHOO_widget_AutoComplete::DATASOURCE_JS_ARRAY:
