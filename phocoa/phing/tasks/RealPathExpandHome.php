@@ -81,7 +81,6 @@ class RealPathExpandHome extends Task {
             $path = str_replace('~', $_ENV['HOME'], $path);
         }
         $path = realpath($path);
-        if (!file_exists($path)) throw( new Exception("Path: {$path} does not exist.") );
         $this->log("Resolved " . $this->file . " to " . $path, PROJECT_MSG_INFO);
         $this->project->setProperty($this->propertyName, $path);
     }

@@ -152,9 +152,10 @@
 
     <target name="newproject" description="Create a new project workspace." depends="prepareGeneral"> 
         <!-- Gather information -->
+        <echo msg="The container directory for your PHOCOA project will be used to place the log, runtime, and project directories. Please be careful!" /> 
+        <input propertyname="local.containerInput" defaultValue="${phocoa.pwd}">Enter the path to the project container directory:</input>
+        <realpathexpandhome propertyName="phocoa.project.container" file="${local.containerInput}"/>
         <input propertyname="phocoa.project.name">Enter the name of the new project:</input>
-        <input propertyname="local.containerInput" defaultValue="${phocoa.pwd}">Enter the path to create the new project in:</input>
-        <realpathexpandhome propertyName="phocoa.project.container" file="${local.containerInput}/${phocoa.project.name}"/>
         <!-- since the phocoa.project.dir property is already defined (via cmd line), we must do some tricks to "update" the property since phing makes all props R/O by default -->
         <property name="phocoa.project.dir" value="${phocoa.project.container}/${phocoa.project.name}" override="true" userProperty="true" />
         <input propertyname="phocoa.project.servername" defaultValue="localhost">Enter the name of the server (ie dns name) that will host this application:</input>
