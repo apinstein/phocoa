@@ -439,7 +439,7 @@ class WFDieselFacet extends WFWidget
         }
     }
 
-    function facetSelectionHTML()
+    function facetSelectionHTML($maxLength = 40)
     {
         $html = NULL;
         // SHOW CURRENT SELECTION
@@ -471,6 +471,23 @@ class WFDieselFacet extends WFWidget
             else
             {
                 $html .= $this->dieselSearch->getAttributeSelection($this->attributeID, $this->formatter);
+            }
+        }
+        if ($maxLength && strlen($html) > $maxLength)
+        {
+            $pieces = split(',', $html);
+            $html = NULL;
+            foreach ($pieces as $piece) {
+                $html .= $piece;
+                if (strlen($html) > $maxLength)
+                {
+                    $html .= ", (more)";
+                    break;
+                }
+                else
+                {
+                    $html .= ', ';
+                }
             }
         }
         return $html;
