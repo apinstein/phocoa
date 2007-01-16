@@ -829,17 +829,20 @@ class WFPagedPropelQuery implements WFPagedData
 {
     protected $criteria;
     protected $peerName;
+    protected $peerSelectMethod;
 
     /**
      *  Constructor.
      *
      *  @param object Criteria The Propel criteria for the query.
-     *  @param string The name of the Peer class to run the doSelect() query against.
+     *  @param string The name of the Peer class to run the query against.
+     *  @param string The name of the Peer method to use for the select. Defaults to doSelect.
      */
-    function __construct($criteria, $peerName)
+    function __construct($criteria, $peerName, $peerSelectMethod = 'doSelect')
     {
         $this->criteria = $criteria;
         $this->peerName = $peerName;
+        $this->peerSelectMethod = $peerSelectMethod;
         // There is a bug in call_user_func that causes PHP to crash if the peer being called isn't already loaded.
         if (!class_exists($this->peerName))
         {
@@ -866,7 +869,7 @@ class WFPagedPropelQuery implements WFPagedData
                 $criteria->addAscendingOrderByColumn(substr($sortKey, 1));
             }
         }
-        return call_user_func(array($this->peerName, 'doSelect'), $criteria);
+        return call_user_func(array($this->peerName, $this->peerSelectMethod), $criteria);
     }
 }
 
