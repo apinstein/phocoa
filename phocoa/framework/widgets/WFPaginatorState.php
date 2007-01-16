@@ -61,8 +61,7 @@ class WFPaginatorState extends WFWidget
     {
         if ($this->paginator->mode() == WFPaginator::MODE_FORM)
         {
-            $this->importJS("{$this->yuiPath}/yahoo/yahoo.js");
-            $this->importJS("{$this->yuiPath}/event/event.js");
+            $this->importJS("{$this->yuiPath}/yahoo-dom-event/yahoo-dom-event.js");
         }
         $html = parent::render($blockContent);
         // When restoring the value, only put back the SORT KEYS and PAGE SIZE; the page num should be RESET.
