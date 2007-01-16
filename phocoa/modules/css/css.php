@@ -49,6 +49,14 @@ class css extends WFModule
         $this->requestPage->assign('skinDir', $skin->getSkinDir());
         $this->requestPage->assign('skinDirShared', $skin->getSkinDirShared());
         header("Content-Type: text/css");
+        
+        // make CSS cacheable for a day at least
+        $seconds = 24 * 60 * 60;
+        // cache control - we can certainly safely cache the search results for 15 minutes
+        header('Pragma: '); // php adds Pragma: nocache by default, so we have to disable it
+        header('Cache-Control: max-age=' . $seconds);
+        // Format: Fri, 30 Oct 1998 14:19:41 GMT
+        header('Expires: ' . gmstrftime ("%a, %d %b %Y %T ", time() + $seconds) . ' GMT');
     }
 }
 
