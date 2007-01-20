@@ -33,6 +33,7 @@ class WFLog extends WFObject
       */
     function log($message, $ident = 'general', $level = PEAR_LOG_DEBUG)
     {
+        if (!WFLog::logif($level)) return;   // bail as early as possible if we aren't gonna log this line
         $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
         $logger = Log::singleton('file', $logFileDir . '/wf.log', $ident, array('mode' => 0666), WF_LOG_LEVEL);
         $logger->log($message, $level);
@@ -43,5 +44,12 @@ class WFLog extends WFObject
         $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
         $logger = Log::singleton('file', $logFileDir . '/' . $fileName, 'log', array('mode' => 0666));
         $logger->log($message);
+    }
+
+    function logif($level = PEAR_LOG_DEBUG)
+    {
+        static $mask = NULL;
+        if ($mask === NULL) $mask = Log::UPTO(WF_LOG_LEVEL);
+        return ((1 << $level) & $mask) ? true : false;
     }
 }
