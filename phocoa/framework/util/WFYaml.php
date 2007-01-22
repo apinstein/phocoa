@@ -7,7 +7,12 @@ class WFYaml
         if (function_exists('syck_load'))
         {
             // php-lib-c version, much faster!
-            return syck_load(file_get_contents($file));
+            $yaml = syck_load(file_get_contents($file));
+            if ($yaml === NULL)
+            {
+                $yaml = array();
+            }
+            return $yaml;
         }
         else
         {
