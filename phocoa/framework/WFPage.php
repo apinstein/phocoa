@@ -140,7 +140,7 @@ class WFPage extends WFObject
      *  go back to a product list page.
      *
      *  @param string The template file name to use.
-     *  @see {@link WFModule::setupResponsePage()}
+     *  @see WFModule::setupResponsePage()
      */
     function setTemplateFile($tplFileName)
     {
