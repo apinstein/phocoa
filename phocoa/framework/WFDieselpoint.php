@@ -530,9 +530,8 @@ class WFDieselSearch extends WFObject implements WFPagedData
             $this->resetQueryState();
         }
 
-        $query = urldecode($state);
-        //print "Restoring querystate: $query<BR>";
-        $attrQueries = explode('|', $query);
+        //print "Restoring querystate: $state<BR>";
+        $attrQueries = explode('|', $state);
         foreach ($attrQueries as $q) {
             //print "Extracting state from: $q<BR>";
             if (strncmp($q, WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME, strlen(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME)) == 0)

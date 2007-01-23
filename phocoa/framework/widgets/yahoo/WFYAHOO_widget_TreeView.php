@@ -107,7 +107,7 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadData = function(node, fnLoadComplete)
         if (!tNode || tNode.nodeId == null) break;
     }
     pathParts.reverse();
-    path = pathParts.join('|');
+    path = encodeURIComponent(pathParts.join('|'));
     var url = '{$this->dynamicCallback}/' + path;
     var callback = {
         success: WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadDataHandleSuccess,

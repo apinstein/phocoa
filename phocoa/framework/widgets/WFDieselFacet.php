@@ -382,10 +382,11 @@ class WFDieselFacet extends WFWidget
                 $html = '';
                 if ($this->label)
                 {
-                    $html .= "<b>{$this->label}</b><br />\n";
+                    $html .= "<span style=\"font-weight: bold; white-space: nowrap;\">{$this->label}</span><br />\n";
                 }
                 $width = ($this->width ? "width: {$this->width};" : NULL );
-                $html .= '<div style="height: ' . ($this->isPopup ? '300px' : $this->parent()->facetNavHeight()) . '; overflow: auto; ' . $width . '">' . "\n";
+                // NOTE: Safari seems to have a bug where even tho the content fits within the width, it still puts a scroll bar. Works in FF, not sure about IE yet.
+                $html .= '<div style="height: ' . ($this->isPopup ? '300px' : $this->parent()->facetNavHeight()) . '; overflow: auto; padding-right: 4px;' . $width . '">' . "\n";
                     
                 // actual facets
                 switch ($this->facetStyle) {
