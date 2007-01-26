@@ -1,4 +1,6 @@
 {* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
+<h1>AJAX TreeView</h1>
+
 <p>This is an example of a AJAX tree widget (YAHOO.widget.TreeView) built using the Yahoo! YUI platform. PHOCOA has a wrapper widget class to make it very easy to build both static and dynamic (ajax data loading) TreeView controls based on the Yahoo TreeView.</p>
 <p><b>Example of a working YUI TreeView with ajax data loading:</b></p>
 {WFView id="yuiTree"}

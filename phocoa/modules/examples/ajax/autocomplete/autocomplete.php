@@ -75,7 +75,7 @@ class module_autocomplete extends WFModule
 //
     function example_SetupSkin($skin)
     {
-        $skin->addMetaKeywords(array('YUI Autocomplete', 'yui', 'combo box', 'ajax', 'ajax combo box', 'ajax autocomplete', 'php ajax'));
+        $skin->addMetaKeywords(array('YUI Autocomplete', 'ajax combo box', 'ajax autocomplete', 'autocomplete ajax', 'autocomplete javascript', 'javascript autocomplete', 'php autocomplete', 'autocomplete php', 'php ajax', 'yui', 'combo box', 'ajax'));
         $skin->setMetaDescription('Example ajax autocomplete via YUI AutoComplete widget.');
         $skin->setTitle('YUI AutoComplete Example in PHP');
     }

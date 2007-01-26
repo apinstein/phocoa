@@ -1,5 +1,9 @@
 {* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
+<h1>AJAX AutoComplete</h1>
+
 <p>Examples of ComboBox/Autocomplete AJAX widget built with YUI AutoComplete widget.</p>
+
+<p>If you're looking to build an ajax autocomplete or javascript autocomplete widget for your web page, PHOCOA and YUI make it easy to do.</p>
 
 <p>Note that all of these examples are created without any coding, other than defining the arrays of data. The rest is all done through PHOCOA Builder configuration.
  
@@ -33,5 +37,6 @@ WFYAHOO_widget_AutoComplete_state.formatResult = function(aResultItem, sQuery) {
 </script>
  
 <hr />
-<p>This one shows all choices before even entering, to act as kind of a "pick list".</p>
+<p>This one shows all choices before even entering, to act as kind of a "pick list". (all choices shown by default is not yet working)</p>
 <p>What is your favorite color of the rainbow? {WFView id="color"}</p>
+
