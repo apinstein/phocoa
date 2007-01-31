@@ -17,12 +17,24 @@
  * 
  * <b>Optional:</b><br>
  */
-class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
+class WFYAHOO_widget_Panel extends WFYAHOO_widget_Overlay
 {
-    protected $underlay;
+    /**
+     * @var boolean TRUE if the panel can be closed (an "X" in the corner). DEFAULT: true.
+     */
+    protected $close;
+    /**
+     * @var boolean TRUE if the panel is draggable. DEFAULT: true.
+     */
     protected $draggable;
+    /**
+     * @var string The panel's underlay. DEFAULT: shadow.
+     */
+    protected $underlay;
+    /**
+     * @var boolean TRUE if the panel is modal. If true, the panel will "mask" out the page behind the panel and make it "inactive". DEFAULT: false.
+     */
     protected $modal;
-    protected $canClose;    // deprecate and rename to close
     // add
     // keylisteners
 
@@ -35,8 +47,8 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
         $this->containerClass = 'Panel';
         $this->underlay = "shadow";
         $this->draggable = true;
-        $this->modal = true;
-        $this->canClose = true;
+        $this->modal = false;
+        $this->close = true;
 
         $this->importYahooJS("dragdrop/dragdrop-min.js,animation/animation-min.js");
         $this->importCSS("{$this->yuiPath}/container/assets/container.css");
@@ -49,7 +61,7 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
             'underlay' => array('shadow', 'none', 'matte'),
             'draggable' => array('true', 'false'),
             'modal' => array('true', 'false'),
-            'canClose' => array('true', 'false'),
+            'close' => array('true', 'false'),
             ));
     }
 
@@ -63,9 +75,9 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
         $this->modal = $b;
     }
 
-    function setCanClose($b)
+    function setClose($b)
     {
-        $this->canClose = $b;
+        $this->close = $b;
     }
 
     function render($blockContent = NULL)
@@ -86,10 +98,10 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Module
 
 YAHOO.namespace('phocoa.widgets.panel');
 YAHOO.phocoa.widgets.panel.init_{$this->id} = function() {
-    YAHOO.phocoa.widgets.module.init_{$this->id}();
+    YAHOO.phocoa.widgets.overlay.init_{$this->id}();
     var panel = PHOCOA.runtime.getObject('{$this->id}');
     panel.cfg.setProperty('underlay', '{$this->underlay}');
-    panel.cfg.setProperty('close', " . ($this->canClose ? 'true' : 'false') . ");
+    panel.cfg.setProperty('close', " . ($this->close ? 'true' : 'false') . ");
     panel.cfg.setProperty('draggable', " . ($this->draggable ? 'true' : 'false') . ");
     panel.cfg.setProperty('modal', " . ($this->modal ? 'true' : 'false') . ");
 }

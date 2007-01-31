@@ -106,6 +106,7 @@ class WFIncluding
                 'WFYAHOO_widget_TreeView' => 'framework/widgets/yahoo/WFYAHOO_widget_TreeView.php',
                 'WFYAHOO_widget_TreeViewNode' => 'framework/widgets/yahoo/WFYAHOO_widget_TreeView.php',
                 'WFYAHOO_widget_Module' => 'framework/widgets/yahoo/WFYAHOO_widget_Module.php',
+                'WFYAHOO_widget_Overlay' => 'framework/widgets/yahoo/WFYAHOO_widget_Overlay.php',
                 'WFYAHOO_widget_Panel' => 'framework/widgets/yahoo/WFYAHOO_widget_Panel.php',
                 'WFYAHOO_widget_Logger' => 'framework/widgets/yahoo/WFYAHOO_widget_Logger.php',
                 'WFYAHOO_widget_AutoComplete' => 'framework/widgets/yahoo/WFYAHOO_widget_AutoComplete.php',

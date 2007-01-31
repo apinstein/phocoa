@@ -1,9 +1,6 @@
 {* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
 {literal}
 <style type="text/css">
-#overlay {
-border: 1px solid black;
-}
 </style>
 {/literal}
 

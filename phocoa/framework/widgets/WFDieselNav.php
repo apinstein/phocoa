@@ -138,7 +138,7 @@ class WFDieselNav extends WFWidget
                 $loading->setWidth('400px');
                 $loading->setHeight('125px');
                 $loading->setFixedCenter(false);
-                $loading->setCanClose(false);
+                $loading->setClose(false);
                 $loading->setModal(true);
                 $loading->setDraggable(false);
                 $loading->setZIndex(100);
