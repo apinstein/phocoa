@@ -112,9 +112,25 @@ class WFYAHOO_widget_Module extends WFYAHOO
         else
         {
             $html = parent::render($blockContent);
-            // set up basic HTML -- visibility of div is hidden at first to prevent content from being seen until it is rendered.
+            // set up basic HTML -- in order to prevent a "flash of content" for non-visible content, we must make it visibility: hidden
+            // however, while that prevents the content from being SEEN, you will still see BLANK space where it goes, thus we must also set display: none
+            // YUI's show()/hide() functions to display the module content work differently depending on the module's class...
+            // show()/hide() on Module toggles display: none|block... on subclasses toggles visibility: visible|hidden
+            // thus we need to use a different mechanism to prevent the "Flash of content" and "blank space" issues completely.
+            $visibility = NULL;
+            if (!$this->visible)
+            {
+                if (get_class($this) == 'WFYAHOO_widget_Module')
+                {
+                    $visibility = " style=\"display: none;\"";
+                }
+                else
+                {
+                    $visibility = " style=\"display: none; visibility: hidden;\"";
+                }
+            }
             $html .= "
-<div id=\"{$this->id}\" style=\"visibility: hidden;\">
+<div id=\"{$this->id}\"{$visibility}>
     <div class=\"hd\">" . $this->header . "</div>
     <div class=\"bd\">" . ($blockContent === NULL ? $this->body : $blockContent) . "</div>
     <div class=\"ft\">" . $this->footer . "</div>
@@ -129,6 +145,7 @@ YAHOO.phocoa.widgets.module.init_{$this->id} = function() {
     module.cfg.queueProperty('visible', " . ($this->visible ? 'true' : 'false') . ");
     module.cfg.queueProperty('monitorresize', " . ($this->monitorresize ? 'true' : 'false') . ");
     module.render();
+    " . ( (get_class($this) != 'WFYAHOO_widget_Module') ? "YAHOO.util.Dom.setStyle('{$this->id}', 'display', 'block')" : NULL) . "
     PHOCOA.runtime.addObject(module);
 }
 " . 
