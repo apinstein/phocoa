@@ -1,1 +1,9 @@
 ---
+module:
+    class: WFYAHOO_widget_Module
+overlay:
+    class: WFYAHOO_widget_Overlay
+panel:
+    class: WFYAHOO_widget_Panel
+    properties:
+        header: Panel

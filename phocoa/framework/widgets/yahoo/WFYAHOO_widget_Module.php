@@ -10,6 +10,8 @@
 
 /**
  * A YAHOO Module widget for our framework.
+ *
+ * NOTE: You can include YAHOO containers with WFView or WFViewBlock. If you use WFViewBlock, the block content will be used as the container body.
  * 
  * <b>PHOCOA Builder Setup:</b>
  *
@@ -17,7 +19,6 @@
  * 
  * <b>Optional:</b><br>
  *
- * @todo should the smarty plugin for this be a block plugin that automatically uses the "content" as the "bd" div content?
  * @todo add "effect" capability
  */
 class WFYAHOO_widget_Module extends WFYAHOO
@@ -115,7 +116,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
             $html .= "
 <div id=\"{$this->id}\" style=\"visibility: hidden;\">
     <div class=\"hd\">" . $this->header . "</div>
-    <div class=\"bd\">" . $this->body . "</div>
+    <div class=\"bd\">" . ($blockContent === NULL ? $this->body : $blockContent) . "</div>
     <div class=\"ft\">" . $this->footer . "</div>
 </div>
 ";
