@@ -16,4 +16,6 @@ state:
       modelKeyPath: states
   class     : WFYAHOO_widget_AutoComplete
   properties: 
-    animVert: true
+    animVert : true
+    delimChar: ,
+    inputType: textarea
