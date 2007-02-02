@@ -27,10 +27,19 @@ class WFYAHOO_widget_Module extends WFYAHOO
     protected $body;
     protected $footer;
 
-    protected $effects;
+    /**
+     * @var boolean Whether or not the module is visible. DEFAULT: false
+     */
     protected $visible;
     protected $monitorresize;
+    /**
+     * @var array An array of ContainerEffects to use for show/hide.
+     */
+    protected $effects;
 
+    /**
+     * @var string The name of the YAHOO Container class to instantiate. Subclasses should set this method to the proper name.
+     */
     protected $containerClass;
 
     /**
@@ -43,12 +52,11 @@ class WFYAHOO_widget_Module extends WFYAHOO
 
         $this->visible = false;
         $this->monitorresize = true;
+        $this->effects = array();
 
         $this->header = NULL;
         $this->body = NULL;
         $this->footer = NULL;
-
-        $this->effects = array();
         
         $this->containerClass = 'Module';
 
@@ -60,6 +68,11 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $items = parent::exposedProperties();
         return array_merge($items, array(
             ));
+    }
+
+    function addEffect($effectName, $duration = 0.5)
+    {
+        $this->effects[$effectName] = $duration;
     }
 
     function setupExposedBindings()
@@ -112,6 +125,16 @@ class WFYAHOO_widget_Module extends WFYAHOO
         else
         {
             $html = parent::render($blockContent);
+            // calcualte effects
+            $effects = array();
+            foreach ($this->effects as $name => $duration) {
+                $effects[] = "{ effect: {$name}, duration: {$duration} }";
+            }
+            $addEffectsJS = NULL;
+            if (count($effects))
+            {
+                $addEffectsJS = '[ ' . join(', ', $effects) . ' ]';
+            }
             // set up basic HTML -- in order to prevent a "flash of content" for non-visible content, we must make it visibility: hidden
             // however, while that prevents the content from being SEEN, you will still see BLANK space where it goes, thus we must also set display: none
             // YUI's show()/hide() functions to display the module content work differently depending on the module's class...
@@ -144,8 +167,9 @@ YAHOO.phocoa.widgets.module.init_{$this->id} = function() {
     var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\");
     module.cfg.queueProperty('visible', " . ($this->visible ? 'true' : 'false') . ");
     module.cfg.queueProperty('monitorresize', " . ($this->monitorresize ? 'true' : 'false') . ");
-    module.render();
-    " . ( (get_class($this) != 'WFYAHOO_widget_Module') ? "YAHOO.util.Dom.setStyle('{$this->id}', 'display', 'block')" : NULL) . "
+    module.render();" . 
+    ( $addEffectsJS ? "\n    module.cfg.setProperty('effect', {$addEffectsJS});" : NULL ) . 
+    ( (get_class($this) != 'WFYAHOO_widget_Module') ? "\n   YAHOO.util.Dom.setStyle('{$this->id}', 'display', 'block')" : NULL) . "
     PHOCOA.runtime.addObject(module);
 }
 " . 

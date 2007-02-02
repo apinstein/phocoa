@@ -27,6 +27,10 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
      * @var integer The Y coordinate of the overlay.
      */
     protected $y;
+    /**
+     * @var array Interal var used to track the "context" for the content. Context controls the "location" where the content will be displayed.
+     * @see setContext()
+     */
     private $context;
     /**
      * @var boolean TRUE to make the overlay stay "fixed" in the center of the viewport. DEFAULT: false
@@ -91,11 +95,6 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
         $this->fixedcenter = $b;
     }
 
-    function addEffect($e)
-    {
-        $this->effects[] = $e;
-    }
-
     /**
      *  Set the width of the module.
      *
@@ -142,6 +141,13 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
         $this->setY($y);
     }
 
+    /**
+     *  Set the context for the content.
+     *
+     *  @param string The element id to anchor near.
+     *  @param string Which corner of the element to anchor to. One of "tr", "tl", "br", "bl".
+     *  @param string Which corner of this content to anchor to the element's anchor corner. One of "tr", "tl", "br", "bl".
+     */
     function setContext($id, $elementCorner, $contextCorner)
     {
         $this->context['id'] = $id;
