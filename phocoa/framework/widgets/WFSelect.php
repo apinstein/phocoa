@@ -20,6 +20,7 @@
  * - {@link WFSelect::$multiple multiple}
  * - {@link WFSelect::$visibleItems visibleItems}
  * - {@link WFSelect::$labelFormatter labelFormatter}
+ * - {@link WFSelect::$labelFormatterSkipFirst labelFormatterSkipFirst}
  *
  * Bindings:
  * <b>Required:</b><br>
@@ -79,6 +80,11 @@ class WFSelect extends WFWidget
      * @var object WFFormatter labelFormatter A formatter for the "label" portion of the data.
      */
     protected $labelFormatter;
+    /**
+     * @var boolean Should the label formatter be applied to the first choice? Handy option to use in conjunction with InsertsNullPlaceholder (when NullPlaceholder won't
+     *              format correctly). Default FALSE
+     */
+    protected $labelFormatterSkipFirst;
 
     /**
       * Constructor.
@@ -93,6 +99,7 @@ class WFSelect extends WFWidget
         $this->contentLabels = array();
         $this->width = NULL;
         $this->labelFormatter = NULL;
+        $this->labelFormatterSkipFirst = false;
     }
 
     function setJSonChange($js)
@@ -108,6 +115,7 @@ class WFSelect extends WFWidget
             'visibleItems',
             'width',
             'labelFormatter',
+            'labelFormatterSkipFirst' => array('true', 'false'),
             ));
     }
 
@@ -369,7 +377,14 @@ class WFSelect extends WFWidget
             if (isset($labels[$i])) $label = $labels[$i];
             if ($this->labelFormatter())
             {
-                $label = $this->labelFormatter->stringForValue($label);
+                if ($this->labelFormatterSkipFirst && $i == 0)
+                {
+                    $label = $label;
+                }
+                else
+                {
+                    $label = $this->labelFormatter->stringForValue($label);
+                }
             }
             $selected = $this->valueIsSelected($value) ? 'selected' : '';
             $output .= "\n<option value=\"{$value}\" {$selected} >$label</option>";
