@@ -70,7 +70,7 @@ abstract class WFValueTransformer extends WFObject
      *               "MutliplyBy10Transformer", "MultplyBy2Transformer", etc.
      * @throws if you try to set a non-WFValueTransformer object.
      */
-    function setValueTransformerForName($valueTransformer, $name)
+    public static function setValueTransformerForName($valueTransformer, $name)
     {
         if (!is_subclass_of($valueTransformer, 'WFValueTransformer')) throw( new Exception("Value Transformer provided for '$name' is not a subclass of WFValueTransformer.") );
         WFValueTransformer::$transformerList[$name] = $valueTransformer;
@@ -83,7 +83,7 @@ abstract class WFValueTransformer extends WFObject
      * @return object A WFValueTransformer instance.
      * @throws for unknown transformers.
      */
-    function valueTransformerForName($name)
+    public static function valueTransformerForName($name)
     {
         if (!isset(WFValueTransformer::$transformerList[$name])) throw( new Exception("No Value Transformer named '$name' is registered.") );
         return WFValueTransformer::$transformerList[$name];
@@ -94,7 +94,7 @@ abstract class WFValueTransformer extends WFObject
      * @static
      * @return array An array of WFValueTransformer instances that are registered and available.
      */
-    function valueTransformerNames()
+    public static function valueTransformerNames()
     {
         return WFValueTransformer::$transformerList;
     }

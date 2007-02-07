@@ -36,6 +36,7 @@ class WFIncluding
 
                 'Mail_Mailer' => 'framework/Mailer.php',
                 'WFYaml' => 'framework/util/WFYaml.php',
+                'WFJSON' => 'framework/util/WFJSON.php',
                 'WFMenuTree' => 'framework/WFMenuItem.php',
                 'WFMenuTreeBuilding' => 'framework/WFMenuItem.php',
                 'WFMenuItem' => 'framework/WFMenuItem.php',

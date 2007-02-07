@@ -140,7 +140,7 @@ class WFRequestController extends WFObject
       * @return object A reference to the {@link WFSkin} object.
       * @deprecated Use $module->rootSkin()
       */
-    function sharedSkin()
+    public static function sharedSkin()
     {
         $rc = WFRequestController::sharedRequestController();
         $rootInv = $rc->rootModuleInvocation();
@@ -159,7 +159,7 @@ class WFRequestController extends WFObject
       * @param string The page name (or NULL to use the default page).
       * @return string a RELATIVE URL to the requested module/page.
       */
-    function WFURL($moduleName, $pageName = NULL)
+    public static function WFURL($moduleName, $pageName = NULL)
     {
         $moduleName = ltrim($moduleName, '/');  // just in case a '/path' path is passed, we normalize it for our needs.
         if (empty($moduleName)) throw( new Exception("Module is required to generate a WFURL.") );
@@ -172,7 +172,7 @@ class WFRequestController extends WFObject
      * @static
      * @return object The WFRequestController object.
      */
-    function sharedRequestController()
+    public static function sharedRequestController()
     {
         static $singleton = NULL;
         if (!$singleton) {

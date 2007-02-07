@@ -766,7 +766,7 @@ abstract class WFModule extends WFObject
       * @throws Exception if the module subclass or file does not exist.
       * @throws WFAuthorizationException if there is an access control violation for the module.
       */
-    function factory($invocation)
+    public static function factory($invocation)
     {
         $moduleName = $invocation->moduleName();
         $modulesDirPath = $invocation->modulesDir();

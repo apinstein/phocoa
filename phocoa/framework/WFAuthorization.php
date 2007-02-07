@@ -309,7 +309,7 @@ class WFAuthorizationManager extends WFObject
      * @static
      * @return object The WFAuthorizationManager object.
      */
-    function sharedAuthorizationManager()
+    public static function sharedAuthorizationManager()
     {
         static $singleton = NULL;
         if (!$singleton) {

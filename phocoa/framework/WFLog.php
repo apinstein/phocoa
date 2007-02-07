@@ -31,7 +31,7 @@ class WFLog extends WFObject
       *
       * The message will be logged to the wf.log file in the web application's log directory, if the log level is less than or equal to the WF_LOG_LEVEL.
       */
-    function log($message, $ident = 'general', $level = PEAR_LOG_DEBUG)
+    public static function log($message, $ident = 'general', $level = PEAR_LOG_DEBUG)
     {
         if (!WFLog::logif($level)) return;   // bail as early as possible if we aren't gonna log this line
         $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
@@ -39,14 +39,14 @@ class WFLog extends WFObject
         $logger->log($message, $level);
     }
 
-    function logToFile($fileName, $message)
+    public static function logToFile($fileName, $message)
     {
         $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
         $logger = Log::singleton('file', $logFileDir . '/' . $fileName, 'log', array('mode' => 0666));
         $logger->log($message);
     }
 
-    function logif($level = PEAR_LOG_DEBUG)
+    public static function logif($level = PEAR_LOG_DEBUG)
     {
         static $mask = NULL;
         if ($mask === NULL) $mask = Log::UPTO(WF_LOG_LEVEL);
