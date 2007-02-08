@@ -1,3 +1,5 @@
+/* vim: set expandtab tabstop=4 shiftwidth=4 ignorecase: */
+
 README for the Cocoa-Style PHP Framework (PHOCOA)
 
 Both CLI and HTTP access to functionality is available. In the HTTP environment, everything is bootstrapped automatically, you need only write WFModule subclasses to add request handlers. On the CLI side, there is now an autoload mechanism in place. To bootstrap the PHOCOA environment, you need only include the webapp.conf file at the top of the CLI script. We recommend setting up and ENV PHOCOA_PROJECT_CONF with the absolute path to the webapp.conf file and then using this at the top of all CLI scripts:
@@ -131,6 +133,7 @@ TODO
 
 PERFORMANCE THINGS:
 - WFLog is SLOW! Because PEAR/Log is slow, and it's also inefficient (calls WFWebApplication::sharedWebApplication() a lot). We can probably use a lightweight custom logger.
+  -> fix now at least so that if logged is turned OFF it's much faster. Can build our own logger later for speeding up actual logging, but it's not used much in production.
 
 WFState -- idea for a simple widget to help stuff state in a form. Would simply serialize passed data and put it into a hidden var... and restore state! with bindings!
 WFTabView -- rename to WFTabbedFormPanel? It must be in a form, and uses restoreState() from WFWidget, so this would make sense... also, remove "non-onepage" mode as we'll use a WFTabbedNavigationView for that.

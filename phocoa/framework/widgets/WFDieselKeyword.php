@@ -65,7 +65,7 @@ class WFDieselKeyword extends WFWidget implements WFDieselSearchHelperStateTrack
 
     function isKeywordQuery()
     {
-        if ($this->dieselSearchHelper->getSimpleQuery())
+        if ($this->dieselSearchHelper->simpleQuery())
         {
             return true;
         }
@@ -77,6 +77,30 @@ class WFDieselKeyword extends WFWidget implements WFDieselSearchHelperStateTrack
         return 'Keywords';
     }
 
+    function facetSelectionHTML()
+    {
+        $html = NULL;
+        // SHOW CURRENT SELECTION
+        if ($this->isKeywordQuery())
+        {
+            $html .= $this->dieselSearchHelper->simpleQuery();
+        }
+        return $html;
+    }
+    function editFacetLink()
+    {
+        return NULL;
+    }
+    function removeFacetLink($linkText = "Remove")
+    {
+        $showLoadingJS = NULL;
+        if ($this->parent()->showLoadingMessage())
+        {
+            $showLoadingJS = " onClick=\"showLoading();\" ";
+        }
+        return "<a {$showLoadingJS} href=\"" . $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryStateWithoutSimpleQuery()) . "\">{$linkText}</a>";
+    }
+    
     function render($blockContent = NULL)
     {
         if ($this->hidden /* always show for now -- or $this->dieselSearchHelper->getSimpleQuery() */) return NULL;

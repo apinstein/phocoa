@@ -183,8 +183,10 @@ class WFPaginator extends WFObject
     /**
      *  Provide alternate values for the page's params that will be used with {@link urlForPaginatorState() urlForPaginatorState}.
      *
+     *  The passed value will be urlencoded when used.
+     *
      *  @param string The ID of the parameter.
-     *  @param mixed The value of the parameter.
+     *  @param mixed The value of the parameter. RAW (ie NOT urlencoded).
      */
     function setAlternativeParameterValue($id, $value)
     {
@@ -227,7 +229,7 @@ class WFPaginator extends WFObject
         // check mode
         if (!($this->mode() == WFPaginator::MODE_URL)) throw( new Exception("urlForPaginatorState only valid for MODE_URL paginators.") );
 
-        // make paginatorState URL-safe
+        // make paginatorState URL-safe; the + for "ascending" in the sort keys was being interpreted as a SPACE
         $paginatorState = str_replace('+', '%2B', $paginatorState);
         
         $params = $page->parameters();
@@ -256,7 +258,7 @@ class WFPaginator extends WFObject
                 // Replace all EMPTY params with WFNull (PARAMETER_NULL_VALUE) so that we don't hit the // problem and lose our parameters.
                 if (isset($this->alternativeParams[$paramID]))
                 {
-                    $newParams[$paramID] = ( (strlen($this->alternativeParams[$paramID]) == 0) ? WFModuleInvocation::PARAMETER_NULL_VALUE : $this->alternativeParams[$paramID]);
+                    $newParams[$paramID] = ( (strlen($this->alternativeParams[$paramID]) == 0) ? WFModuleInvocation::PARAMETER_NULL_VALUE : urlencode($this->alternativeParams[$paramID]));
                 }
                 else
                 {

@@ -19,7 +19,8 @@
  * 
  * <b>Optional:</b><br>
  *
- * @todo add "effect" capability
+ * NOTE: Effects don't work on Modules, but do on all subclasses. Bugfix coming from YUI.
+ * @todo buildModuleProgrammatically needs a way to specify a parent element to add the module to.
  */
 class WFYAHOO_widget_Module extends WFYAHOO
 {
@@ -41,6 +42,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
      * @var string The name of the YAHOO Container class to instantiate. Subclasses should set this method to the proper name.
      */
     protected $containerClass;
+    protected $buildModuleProgrammatically;
 
     /**
       * Constructor.
@@ -59,6 +61,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->footer = NULL;
         
         $this->containerClass = 'Module';
+        $this->buildModuleProgrammatically = false;
 
         $this->importYahooJS("container/container-min.js");
     }
@@ -125,6 +128,8 @@ class WFYAHOO_widget_Module extends WFYAHOO
         else
         {
             $html = parent::render($blockContent);
+            // determine body html
+            $bodyHTML = ($blockContent === NULL ? $this->body : $blockContent);
             // calcualte effects
             $effects = array();
             foreach ($this->effects as $name => $duration) {
@@ -152,13 +157,16 @@ class WFYAHOO_widget_Module extends WFYAHOO
                     $visibility = " style=\"display: none; visibility: hidden;\"";
                 }
             }
-            $html .= "
+            if ($this->buildModuleProgrammatically === false)
+            {
+                $html .= "
 <div id=\"{$this->id}\"{$visibility}>
     <div class=\"hd\">" . $this->header . "</div>
-    <div class=\"bd\">" . ($blockContent === NULL ? $this->body : $blockContent) . "</div>
+    <div class=\"bd\">" . $bodyHTML . "</div>
     <div class=\"ft\">" . $this->footer . "</div>
 </div>
 ";
+            }
             $script = "
 <script type=\"text/javascript\">
 //<![CDATA[
@@ -166,9 +174,41 @@ YAHOO.namespace('phocoa.widgets.module');
 YAHOO.phocoa.widgets.module.init_{$this->id} = function() {
     var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\");
     module.cfg.queueProperty('visible', " . ($this->visible ? 'true' : 'false') . ");
-    module.cfg.queueProperty('monitorresize', " . ($this->monitorresize ? 'true' : 'false') . ");
-    module.render();" . 
+    module.cfg.queueProperty('monitorresize', " . ($this->monitorresize ? 'true' : 'false') . ");";
+
+            if ($this->buildModuleProgrammatically)
+            {
+                if ($this->header)
+                {
+                    $script .= "
+    module.setHeader(" . WFJSON::json_encode($this->header) . ");
+";
+                }
+                if ($bodyHTML)
+                {
+                    $script .= "
+    module.setBody(" . WFJSON::json_encode($bodyHTML) . ");
+";
+                }
+                if ($this->footer)
+                {
+                    $script .= "
+    module.setFooter(" . WFJSON::json_encode($this->footer) . ");
+";
+                }
+                    $script .= "
+    module.render(document.body);
+";
+            }
+            else
+            {
+                $script .= "
+    module.render();
+";
+            }
+            $script .= 
     ( $addEffectsJS ? "\n    module.cfg.setProperty('effect', {$addEffectsJS});" : NULL ) . 
+    // Module visibility controlled by display attr; subclass visibility controlled by visibilty. Non-modules must be display: block so that they'll appear when asked
     ( (get_class($this) != 'WFYAHOO_widget_Module') ? "\n   YAHOO.util.Dom.setStyle('{$this->id}', 'display', 'block')" : NULL) . "
     PHOCOA.runtime.addObject(module);
 }

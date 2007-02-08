@@ -351,7 +351,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
         // if we have a paginator, we need to update the dpQueryState parameter so that pagination will work on the results.
         if ($this->paginator && $this->paginator->alternativeParameterValue($this->dpQueryStateParameterID) === NULL)
         {
-            $this->paginator->setAlternativeParameterValue($this->dpQueryStateParameterID, urlencode($this->getQueryState()));
+            $this->paginator->setAlternativeParameterValue($this->dpQueryStateParameterID, $this->getQueryState());
         }
         $this->hasRunQuery = true;
     }
@@ -1029,7 +1029,7 @@ class WFDieselSearchHelper extends WFObject
         // if we have a paginator, we need to update the dpQueryState parameter so that pagination will work on the results.
         if ($this->dieselSearch->paginator())
         {
-            $this->dieselSearch->paginator()->setAlternativeParameterValue($this->dieselSearch->queryStateParameterId(), urlencode($this->getQueryState()));
+            $this->dieselSearch->paginator()->setAlternativeParameterValue($this->dieselSearch->queryStateParameterId(), $this->getQueryState());
         }
     }
 
@@ -1206,7 +1206,7 @@ class WFDieselSearchHelper extends WFObject
      */
     function getQueryStateWithoutSimpleQuery()
     {
-        return $this->getQueryState(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME);
+        return $this->getQueryState(WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME);
     }
     
     /**
@@ -1291,7 +1291,7 @@ class WFDieselSearchHelper extends WFObject
             else if (strncmp($q, WFDieselSearchHelper::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME, strlen(WFDieselSearchHelper::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME)) == 0)
             {
                 //print "Extracting dpqlQuery<BR>";
-                $this->restrictDQL = substr($q, strlen(WFDieselSearch::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME) + 1);
+                $this->restrictDQL = substr($q, strlen(WFDieselSearchHelper::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME) + 1);
             }
             else
             {

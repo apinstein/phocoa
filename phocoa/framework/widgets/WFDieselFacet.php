@@ -364,15 +364,8 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                 $Array = new JavaClass("java.lang.reflect.Array");
 
                 $facets = $this->prepareFacets();
-                if (gettype($facets) == 'array')
-                {
-                    // need to fall through if facets is a php array (this is what we get if there are no kids)
-                    // maybe need to return null if not in "send child data" mode?
-                }
-                else if ($Array->getLength($facets) == 0)
-                {
-                    return NULL;
-                }
+                if (gettype($facets) == 'array') return NULL;   // no items!
+                if (gettype($facets) == 'object' and $Array->getLength($facets) == 0) return NULL;  // also no items
 
                 // sanity check
                 if ($this->facetStyle == WFDieselFacet::STYLE_MENU and $this->isTaxonomyAttribute()) throw( new Exception("STYLE_MENU does not support taxonomy attributes.") );

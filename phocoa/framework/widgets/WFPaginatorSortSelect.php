@@ -141,8 +141,7 @@ class WFPaginatorSortSelect extends WFWidget
                 if ($this->paginator->mode() == WFPaginator::MODE_URL)
                 {
                     $selectValue = $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState(0, NULL, array($opt)));
-                    $selectValue = str_replace('+', '%2B', $selectValue);
-                    $html .= '<option value="' . $selectValue . '"' . $selectedAttribute . '>' . $label . '</option>';
+                    $html .= "\n" . '<option value="' . $selectValue . '"' . $selectedAttribute . '>' . $label . '</option>' . "\n";
                 }
                 else
                 {

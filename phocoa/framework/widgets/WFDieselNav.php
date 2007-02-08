@@ -139,7 +139,8 @@ class WFDieselNav extends WFWidget
                 $loading->setClose(false);
                 $loading->setModal(true);
                 $loading->setDraggable(false);
-                $loading->setZIndex(100);
+                //$loading->setZIndex(100);
+                //$loading->setIFrame(true);
                 $html .= $loading->render();
             }
 
@@ -148,7 +149,6 @@ class WFDieselNav extends WFWidget
             $popup->setHeader('<div style="height: 10px"></div>');
             $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input " . ($this->showLoadingMessage ? 'onClick="cancelPopup(); showLoading();"' : NULL) . " type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
             $popup->setValueForKey('400px', 'width');
-            //$popup->setValueForKey(true, 'buildModuleProgrammatically');
             $popup->setContext($this->id, 'tl', 'tl');
             //$popup->setIFrame(true);
             $popup->setModal(true);
@@ -223,6 +223,14 @@ class WFDieselNav extends WFWidget
                     }
                     $html .= $selectedHTML;
                     $selectionRenderedList[$id] = true;
+                }
+            }
+            // finally, do the "keyword" if there is one
+            foreach ($this->children() as $widget) {
+                if ($widget instanceof WFDieselKeyword)
+                {
+                    $html .= $this->facetFilterNav($widget);
+                    break;
                 }
             }
             $html .= "<br clear=\"all\" />\n";
@@ -328,8 +336,13 @@ class WFDieselNav extends WFWidget
             $html .= "
                 <div class=\"phocoaWFDieselNav_FilterInfo\">
                 " . $facet->label() . ":<br />
-                <b>" . $selectedFilterHTML . "</b><br />
-                " . $facet->editFacetLink() . "&nbsp;&nbsp;|&nbsp;&nbsp;" . $facet->removeFacetLink() . "
+                <b>" . $selectedFilterHTML . "</b><br />";
+                $editLink = $facet->editFacetLink();
+                if ($editLink)
+                {
+                    $html .= "{$editLink}&nbsp;&nbsp;|&nbsp;&nbsp;";
+                }
+                $html .= $facet->removeFacetLink() . "
                 </div>
             ";
         }
