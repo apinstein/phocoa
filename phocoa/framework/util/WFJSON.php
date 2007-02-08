@@ -10,8 +10,7 @@ class WFJSON
         }
         else
         {
-            throw( new Exception("JSON library not installed. Eventually bundle JSON.php with PHOCOA and do this automatically.") );
-            return Spyc::YAMLLoad($file);
+            return Services_JSON::encode($data);
         }
     }
 }

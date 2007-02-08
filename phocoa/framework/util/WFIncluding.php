@@ -33,6 +33,7 @@ class WFIncluding
              $autoloadClassmapCache = array(
                 'Smarty' => 'smarty/Smarty.class.php',
                 'Spyc' => 'libs/spyc.php5',
+                'Services_JSON' => 'libs/JSON.php',
 
                 'Mail_Mailer' => 'framework/Mailer.php',
                 'WFYaml' => 'framework/util/WFYaml.php',
