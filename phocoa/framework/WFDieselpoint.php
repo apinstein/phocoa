@@ -410,17 +410,23 @@ class WFDieselSearch extends WFObject implements WFPagedData
      */
     function setSimpleQuery($string, $mode = "any")
     {
-        // change the default sort to "relevance" sorting when there's a keyword query
-        if ($this->simpleQueryString and $this->paginator)
+        // add relevance sorting if there's a query
+        if ($this->simpleQueryString)
         {
-            $this->enableRelevanceMode();
+            $this->enableRelevanceSorting();
         }
         $this->searcher->setSimpleQuery($string, $mode);
     }
 
-    function enableRelevanceMode()
+    /**
+     *  Add the Relevance sort option to the paginator.
+     *
+     *  If there is no paginator, this function does nothing.
+     */
+    function enableRelevanceSorting()
     {
-        $this->paginator->setDefaultSortKeys(array(WFDieselSearch::SORT_BY_RELEVANCE));
+        if (!$this->paginator()) return;
+
         $this->paginator->addSortOption(WFDieselSearch::SORT_BY_RELEVANCE, 'Relevance');
     }
 
@@ -1337,7 +1343,7 @@ class WFDieselSearchHelper extends WFObject
     /**
      *  Set the simpleQuery part of the search.
      *
-     *  Note that if using a paginator, the sorting will be automatically set to "relevance sorting" if you assign a non-empty query string.
+     *  Note that if using a paginator, a "Relevance" sort option (-relevance) will be automatically added to the possible sort optins.
      *
      *  @param string The query. This is typically the direct user input into a "basic search" field.
      *  @param string The mode for the simplequery: one of "any", "all", or "exact".
@@ -1347,10 +1353,10 @@ class WFDieselSearchHelper extends WFObject
     {
         $this->simpleQueryString = trim($string);
         $this->simpleQueryMode = $mode;
-        // change the default sort to "relevance" sorting when there's a keyword query
-        if ($this->simpleQueryString and $this->dieselSearch->paginator())
+        // add relevance sorting if there's a query
+        if ($this->simpleQueryString)
         {
-            $this->dieselSearch->enableRelevanceMode();
+            $this->dieselSearch->enableRelevanceSorting();
         }
     }
 

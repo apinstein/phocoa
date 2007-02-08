@@ -11,7 +11,7 @@
 /**
  * A Dieselpoint Keyword search widget for our framework.
  *
- * NOTE: by default, whenever a keyword is entered (see {@link WFDieselpoint::setSimpleQuery() setSimpleQuery}, the 
+ * NOTE: by default, whenever a keyword is entered that is different from the previous keyword, the 
  * default sort will be set to sort by relevance instead of whatever the existing default is. Of course
  * this can be overridden with the Paginator Sort controls.
  */
@@ -55,6 +55,12 @@ class WFDieselKeyword extends WFWidget implements WFDieselSearchHelperStateTrack
         {
             $this->dieselSearchHelper->clearSimpleQuery();
             $this->dieselSearchHelper->setSimpleQuery($_REQUEST[$this->name]);
+            // did the query change from last time?
+            $lastQueryElemName = 'WFDieselKeyword_lastQuery_' . $this->id();
+            if ($this->dieselSearchHelper->dieselsearch()->paginator() && $_REQUEST[$this->name] != $_REQUEST[$lastQueryElemName])
+            {
+                $this->dieselSearchHelper->dieselsearch()->paginator()->setDefaultSortKeys(array(WFDieselSearch::SORT_BY_RELEVANCE));
+            }
         }
     }
 
@@ -113,7 +119,7 @@ class WFDieselKeyword extends WFWidget implements WFDieselSearchHelperStateTrack
             ($this->class ? ' class="' . $this->class . '"' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
             $this->getJSActions() . 
-            '/>';
+            '/><input type="hidden" name="WFDieselKeyword_lastQuery_' . $this->id() . '"  value="' . $this->dieselSearchHelper->simpleQuery() . '" />';
     }
 
     /********************* BINDINGS SETUP ************************/
