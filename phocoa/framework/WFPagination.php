@@ -369,11 +369,11 @@ class WFPaginator extends WFObject
      *  Add a sortKey to the current paginator. Call multiple times for a multi-key-sort.
      *
      *  @param string A sortKey to use.
-     *  @throws Exception if the sortKey does not exist in sortOptions.
+     *  @throws WFException if the sortKey does not exist in sortOptions.
      */
     function addSortKey($key)
     {
-        if (!isset($this->sortOptions[$key])) throw( new Exception("Sort key '$key' not available in sortOptions.") );
+        if (!isset($this->sortOptions[$key])) throw( new WFException("Sort key '$key' not available in sortOptions.") );
         $this->sortKeys[] = $key;
     }
 
@@ -390,11 +390,15 @@ class WFPaginator extends WFObject
      *  Set the default sort keys that will be used if no other sort keys are added.
      *
      *  @param array An array of sortKeys.
-     *  @throws Exception if $keys is not an array.
+     *  @throws WFException if $keys is not an array.
      */
     function setDefaultSortKeys($keys)
     {
-        if (!is_array($keys)) throw( new Exception('setDefaultSortKeys() requires an array of sortKeys.') );
+        if (!is_array($keys)) throw( new WFException('setDefaultSortKeys() requires an array of sortKeys.') );
+        // make sure the passed sortKeys are valid.
+        foreach ($keys as $key) {
+            if (!isset($this->sortOptions[$key])) throw( new WFException("Sort key '$key' not available in sortOptions.") );
+        }
 
         $this->defaultSortKeys = $keys;
     }
