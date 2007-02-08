@@ -192,6 +192,18 @@ class WFPaginator extends WFObject
     }
 
     /**
+     *  Get the alternativeParameterValue for a particular ID.
+     *
+     *  @param string The parameterID to get.
+     *  @return string The alternative value that's been set, or NULL if none is set.
+     */
+    function alternativeParameterValue($id)
+    {
+        if (isset($this->alternativeParams[$id])) return $this->alternativeParams[$id];
+        return NULL;
+    }
+
+    /**
      *  Get an absolute URL that links to a different paginator state for the current setup.
      *
      *  This is a helper function used by the pagination widgets.
