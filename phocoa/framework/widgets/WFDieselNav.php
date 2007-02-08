@@ -30,9 +30,9 @@
 class WFDieselNav extends WFWidget
 {
     /**
-     * @var object WFDieselSearch The WFDieselSearch object that this facet is linked to.
+     * @var object WFDieselSearchHelper The WFDieselSearchHelper object that this facet is linked to.
      */
-    protected $dieselSearch;
+    protected $dieselSearchHelper;
     protected $facetNavOrder;
     protected $maxFacetsToShow;
     protected $baseURL;
@@ -48,7 +48,7 @@ class WFDieselNav extends WFWidget
     {
         parent::__construct($id, $page);
         $this->value = NULL;
-        $this->dieselSearch = NULL;
+        $this->dieselSearchHelper = NULL;
         $this->facetNavOrder = array();
         $this->maxFacetsToShow = 5;
         $this->baseURL = NULL;
@@ -62,7 +62,7 @@ class WFDieselNav extends WFWidget
     {
         $items = parent::exposedProperties();
         return array_merge($items, array(
-            'dieselSearch',
+            'dieselSearchHelper',
             'facetNavOrder',
             'maxFacetsToShow',
             'facetNavHeight',
@@ -87,7 +87,7 @@ class WFDieselNav extends WFWidget
 
     function setDieselSearch($ds)
     {
-        $this->dieselSearch = $ds;
+        $this->dieselSearchHelper = $ds;
     }
 
     function showLoadingMessage()
@@ -126,8 +126,6 @@ class WFDieselNav extends WFWidget
         }
         else
         {
-            //$this->page()->module()->invocation()->skin()->addHeadString('<script type="text/javascript" src="' . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/prototype.js"></script>');
-
             $html = NULL;
 
             if ($this->showLoadingMessage)
@@ -150,14 +148,17 @@ class WFDieselNav extends WFWidget
             $popup->setHeader('<div style="height: 10px"></div>');
             $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input " . ($this->showLoadingMessage ? 'onClick="cancelPopup(); showLoading();"' : NULL) . " type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
             $popup->setValueForKey('400px', 'width');
+            //$popup->setValueForKey(true, 'buildModuleProgrammatically');
             $popup->setContext($this->id, 'tl', 'tl');
+            //$popup->setIFrame(true);
+            $popup->setModal(true);
             $html .= $popup->render();
             // js
             $html .= "
     <script type=\"text/javascript\">
     function doPopup(facetID, dpQueryState, facetSelections)
     {
-        //Element.show('phocoaWFDieselNav_Popup_{$this->id}');
+        PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').cfg.setProperty('context', ['{$this->id}', 'tl', 'tl']);
         PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').show();
         Element.update('phocoaWFDieselNav_PopupContent_{$this->id}', '<div style=\"padding: 10px; font-size: 20px; line-height: 25px;\">Loading... please wait...</div><div style=\"text-align: center; margin-top: 20px;\"><img src=\"" . $this->getWidgetWWWDir() . "/loading.gif\" align=\"center\" /></div>');
         var url = '" . $this->baseURL() . "/' + dpQueryState + '//' + facetID + '|' + facetSelections.replace(/\//g, '%2F');
@@ -182,6 +183,7 @@ class WFDieselNav extends WFWidget
             }
             $html .= "
     </script>
+    <div id=\"{$this->id}\">
             ";
 
             // show existing "filters" in proper order
@@ -312,6 +314,7 @@ class WFDieselNav extends WFWidget
                 $html .= "\n</div>\n";
             }
             
+            $html .= "</div>";
             return $html;
         }
     }

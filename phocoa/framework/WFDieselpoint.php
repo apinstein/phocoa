@@ -12,15 +12,19 @@
  **/
 
 /**
+ * This class provides a PHP-front end to the basic Dieselpoint search capabilities.
+ *
+ * The unit of work of WFDieselSearch is a single search. Once a search has been performed, the search cannot be re-used.
+ * 
+ * Submit a query in DQL and get back paginated, sorted results. Also can generate "FacetGenerator" objects for the current search.
+ *
  * DP Questions:
  *
- * 1. Ranges; can you suggest ranges for facets? The default algo of "make equal chunks" is not that useful. Fixed ranges? Open-ended? (IE Bedrooms as 1+,2+,3+ instead of "auto") CURRENTLY not possible directly, but can pre-process items to group them like this and then display differently.
+ * - Ranges; can you suggest ranges for facets? The default algo of "make equal chunks" is not that useful. Fixed ranges? Open-ended? (IE Bedrooms as 1+,2+,3+ instead of "auto") CURRENTLY not possible directly, but can pre-process items to group them like this and then display differently. Coming in 4.0
  *    Ranges: ZOOMABLE ranges; ie click on 700-800 and that unveils 700-750 and 750-800. How would this work with the planned new capabilities?
- * 2. Numbers seems to be getting treated lexographically. PRICE and SQFT are good examples. Also, new attrs cannot be found.
- *    When does the info in the index refresh, b/c it fixes itself, but not immediately after delete/re-index. Does it have to do with leaving it open?
- * 3. Geospatial stuff? Items withing N miles?
- * 4. Case-sensitivity. How does this work? To turn off case-sensitivity for a field, can you still use parametric? NO. Parametric is case-sensitive; normalize data on the way in.
- * 5. SimpleQuery: golf and tennis => "golf or and or tennis", golf AND tennis => "golf and tennis"
+ * - Geospatial stuff? Items withing N miles? Not really.
+ * - Case-sensitivity. How does this work? To turn off case-sensitivity for a field, can you still use parametric? NO. Parametric is case-sensitive; normalize data on the way in.
+ * - SimpleQuery: golf and tennis => "golf or and or tennis", golf AND tennis => "golf and tennis"
  *
  * USING WFDieselSearch
  *
@@ -42,62 +46,39 @@
  */
 class WFDieselSearch extends WFObject implements WFPagedData
 {
-    const QUERY_STATE_SIMPLE_QUERY_ATTR_NAME = 'simpleQuery';
-    const QUERY_STATE_DPQL_QUERY_ATTR_NAME = 'dpqlQuery';
     const SORT_BY_RELEVANCE = '-relevance';
 
     protected $index;
     protected $searcher;
     protected $resultObjectLoaderCallback;
-    protected $dpQueryStateParameterID;
-
-    protected $logPerformanceInfo;
-
-    protected $hasBuiltQuery;
-    protected $hasRunQuery;
-    protected $dpqlQueryString;
-    protected $simpleQueryString;
-    protected $simpleQueryMode;
-    protected $attributeQueries;
     protected $paginator;
-    protected $showAllOnBlankQuery;
-    protected $showAllDPQL;
-    protected $searchResultsRelevanceByItemID;
+    protected $logPerformanceInfo;
     protected $loadTheseColumnsFromIndex;
-    
-    private $finalQueryString;
-    private $legalComparatorList = array(
-                                            'EQ' => '=', 
-                                            'NE' => '<>',
-                                            'GT' => '>',
-                                            'GE' => '>=',
-                                            'LT' => '<',
-                                            'LE' => '<=',
-                                            'CN' => ':'
-                                        );
-
+    protected $hasRunQuery;
+    protected $dpQueryStateParameterID;
 
     function __construct()
     {
         parent::__construct();
         $this->resultObjectLoaderCallback = NULL;
         $this->searcher = NULL;
-        $this->hasBuiltQuery = false;
-        $this->hasRunQuery = false;
-        $this->finalQueryString = NULL;
-        $this->dpqlQueryString = NULL;
-        $this->simpleQueryString = NULL;
-        $this->simpleQueryMode = "any";
-        $this->attributeQueries = array();
         $this->index = NULL;
         $this->paginator = NULL;
-        $this->dpQueryStateParameterID = 'dpQueryState';
-        $this->showAllOnBlankQuery = true;
-        $this->showAllDPQL = 'doctype=xml';
         $this->resultObjectLoaderCallbackPropelMode = false;
-        $this->searchResultsRelevanceByItemID = array();
         $this->loadTheseColumnsFromIndex = array("item_id");
         $this->logPerformanceInfo = false;
+        $this->hasRunQuery = false;
+        $this->dpQueryStateParameterID = 'dpQueryState';
+    }
+
+    /**
+     *  Get the "parameter ID" used for persisting the queryState of the dieselsearch for pagination and UI state management.
+     *
+     *  @return string The parameterID.
+     */
+    function queryStateParameterId()
+    {
+        return $this->dpQueryStateParameterID;
     }
 
     /**
@@ -110,9 +91,33 @@ class WFDieselSearch extends WFObject implements WFPagedData
         $this->logPerformanceInfo = $bool;
     }
 
+    /**
+     *  Has logPerformanceInfo been turned on?
+     *
+     *  @return boolean
+     */
     function logPerformanceInfo()
     {
         return $this->logPerformanceInfo;
+    }
+
+    /**
+     *  Utility function for debugging to start time tracking.
+     */
+    function startTrackingTime()
+    {
+        $this->logPerformanceInfo_t0 = microtime(true);
+    }
+
+    /**
+     *  Stop tracking time; dump time to 'dieselsearch.log' file with given message.
+     *
+     *  @param string The message to log along with the elapsed time since {@link startTrackingTime()} was called.
+     */
+    function stopTrackingTime($msg)
+    {
+        $elapsed = microtime(true) - $this->logPerformanceInfo_t0;
+        WFLog::logToFile('dieselsearch.log', "[{$elapsed}s] $msg");
     }
 
     /**
@@ -144,6 +149,12 @@ class WFDieselSearch extends WFObject implements WFPagedData
         $this->paginator = $paginator;
         $this->paginator->setDataDelegate($this);
     }
+
+    /**
+     *  Get the paginator used by the DieselSearch.
+     *
+     *  @return object WFPaginator
+     */
     function paginator()
     {
         return $this->paginator;
@@ -183,7 +194,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
             return;
         }
         
-        // check that the callback exists -- with PHOCOA's autoload, we need to check the class explicitly
+        // check that the callback exists -- with PHOCOA's autoload, we need to check the class explicitly - I think this bug was fixed in php 5.x.x something
         if (!class_exists($peerName))
         {
             //__autoload($peerName); class exists should do this.
@@ -193,6 +204,45 @@ class WFDieselSearch extends WFObject implements WFPagedData
         $this->resultObjectLoaderCallbackPropelMode = true;
     }
 
+    /**
+     *  Get the primary key column name suitable for criteria for the given peer.
+     *
+     *  NOTE: only works for tables with a SINGLE primary key.
+     * 
+     *  @param string The peer name.
+     *  @return string The Criteria-compatible PK specifier.
+     *  @throws object Exception On error.
+     */
+    private function getPrimaryKeyColumnFromPropelPeer($peerName)
+    {
+        $dbName = eval( "return {$peerName}::DATABASE_NAME;" );
+        $tableName = eval( "return {$peerName}::TABLE_NAME;" );
+        $dbMap = Propel::getDatabaseMap($dbName);
+        if ($dbMap === null) {
+            throw new PropelException("\$dbMap is null");
+        }
+        
+        if ($dbMap->getTable($tableName) === null) {
+            throw new PropelException("\$dbMap->getTable() is null");
+        }
+        
+        $columns = $dbMap->getTable($tableName)->getColumns();
+        foreach(array_keys($columns) as $key) { 
+            if ($columns[$key]->isPrimaryKey()) {
+                $pkCol = $columns[$key];
+                break;
+            }
+        }
+
+        $criteriaSpecifier = $tableName . '.' . $pkCol->getColumnName();
+        return $criteriaSpecifier;
+    }
+
+    /**
+     *  Choose the Dieselpoint index to use for this query.
+     *
+     *  @param string Filesystem path to the dieselpoint index to open.
+     */
     function setIndex($indexPath)
     {
         try {
@@ -200,9 +250,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
             java_require(DIESELPOINT_JAR_FILES);
             $Index = new JavaClass("com.dieselpoint.search.Index");
             $this->index = $Index->getInstance($indexPath);
-
-            // prepare searcher
-            $this->prepareSearcher();
+            $this->searcher = new Java("com.dieselpoint.search.Searcher", $this->index);
         } catch (JavaException $e) {
             $this->handleJavaException($e);
         }
@@ -223,9 +271,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
         throw( new Exception("java stack trace:<pre> $trace </pre>\n") );
     }
 
-    function getQueryDescription()
+    /**
+     *  Get a human-readable description of the current query.
+     *
+     *  @return string
+     */
+    function queryDescription()
     {
-        if (!$this->hasRunQuery()) return NULL;
+        if (!$this->hasRunQuery()) throw( new WFException("Search has not been executed yet.") );
         try {
             return $this->searcher->getQueryDescription(true, '', '');
         } catch (JavaException $e) {
@@ -233,46 +286,671 @@ class WFDieselSearch extends WFObject implements WFPagedData
         }
     }
 
+    /**
+     *  Get the replacement query suggested by DP. Spelling corrections, etc.
+     *
+     *  This seems only to work with full-text searches, not with attribute searches.
+     *
+     *  @return string The replacement query string to use.
+     *  @throws WFException if the search has not yet been exectued.
+     */
+    function replacementQuery()
+    {
+        if (!$this->hasRunQuery()) throw( new WFException("Search has not been executed yet.") );
+        return $this->searcher->getReplacementQuery();
+    }
+
+    /**
+     *  Get the index used for the search.
+     *
+     *  @return object Index The Dieselpoint Index java object.
+     *  @throws WFException if no index has been set up.
+     */
     function index()
     {
         if (is_null($this->index)) throw( new Exception("No dieselpoint index set up. Use setIndex().") );
         return $this->index;
     }
 
+    /**
+     *  Get the searcher used for the search.
+     *
+     *  @return object Index The Dieselpoint Searcher java object. NULL if no searcher is available yet.
+     */
     function searcher()
     {
         return $this->searcher;
     }
 
-    function hasQuery()
+    /**
+     *  Has the search been executed yet?
+     *
+     *  @return boolean
+     */
+    function hasRunQuery()
     {
-        if ($this->buildQuery()) return true;
+        return $this->hasRunQuery;
+    }
+
+    /**
+     *  Execute the search.
+     *
+     *  @throws object WFException If the search has already been executed.
+     */
+    function execute()
+    {
+        if ($this->hasRunQuery()) throw( new WFException("Search has already been executed. You cannot run a search more than once.") );
+
+        if ($this->loadTheseColumnsFromIndex)
+        {
+            $this->searcher->addColumns(join(',', $this->loadTheseColumnsFromIndex));
+        }
+        if ($this->logPerformanceInfo()) $this->startTrackingTime();
+        $this->searcher->execute();
+        if ($this->logPerformanceInfo()) $this->stopTrackingTime("DP Search: " . $this->getQueryString());
+        // if we have a paginator, we need to update the dpQueryState parameter so that pagination will work on the results.
+        if ($this->paginator && $this->paginator->alternativeParameterValue($this->dpQueryStateParameterID) === NULL)
+        {
+            $this->paginator->setAlternativeParameterValue($this->dpQueryStateParameterID, urlencode($this->getQueryState()));
+        }
+        $this->hasRunQuery = true;
+    }
+
+    /**
+     *  Don't know if this works yet... will need to test by using a non-WFDieselNav search interface.
+     *
+     *  @return string The current DQL query.
+     */
+    function getQueryState()
+    {
+        return $this->getQueryString();
+    }
+
+    /**
+     *  Set the queryState of the dieselsearch to the passed state string.
+     *
+     *  @param string The serialized query state from {@link getQueryState()}.
+     */
+    function setQueryState($state)
+    {
+        $this->setQueryString($state);
+    }
+
+    /**
+     *  Set the DQL query string.
+     *
+     *  @param string A DQL query string.
+     *  @see setSimpleQuery
+     */
+    function setQueryString($string)
+    {
+        $this->searcher->setQueryString($string);
+    }
+
+    /**
+     *  Get the query string set by setQueryString.
+     *
+     *  @return string The DQL query string.
+     */
+    function getQueryString()
+    {
+        return $this->searcher->getQueryString();
+    }
+
+    /**
+     *  A higher-level function for calling {@link setQueryString}.
+     *
+     *  Useful when you want to use a text-field "query" input to search. This function strips all "DQL control characters" and calls {@link setQueryString}
+     *  with the result.
+     *
+     *  Calling this function automatically switches the result sorting to "Relevance" mode.
+     *
+     *  @param string The query string input by an end-user.
+     *  @param string "any", "all", or "exact".
+     */
+    function setSimpleQuery($string, $mode = "any")
+    {
+        // change the default sort to "relevance" sorting when there's a keyword query
+        if ($this->simpleQueryString and $this->paginator)
+        {
+            $this->enableRelevanceMode();
+        }
+        $this->searcher->setSimpleQuery($string, $mode);
+    }
+
+    function enableRelevanceMode()
+    {
+        $this->paginator->setDefaultSortKeys(array(WFDieselSearch::SORT_BY_RELEVANCE));
+        $this->paginator->addSortOption(WFDieselSearch::SORT_BY_RELEVANCE, 'Relevance');
+    }
+
+    /**
+     *  Get a FacetGenerator object.
+     *
+     *  If no search has been run, then the FacetGenerator works off of the entire index. If a search has run, it works off the results.
+     *
+     *  @return object A FacetGenerator object [Java].
+     */
+    function getGeneratorObject()
+    {
+        if ($this->hasRunQuery())
+        {
+            $gObj = $this->searcher;
+        }
+        else
+        {
+            $gObj = $this->index();
+        }
+        return new Java("com.dieselpoint.search.FacetGenerator", $gObj);
+    }
+
+    /**
+     *  Get the total number of items in the index.
+     *
+     *  @return integer The number of items in the index.
+     */
+    function getIndexItemCount()
+    {
+        return $this->index()->getItemCount();
+    }
+
+    /**
+     *  Get the number of items in the search result.
+     *
+     *  @return integer The number of "hits" in the result.
+     *  @throws WFException if the search has not yet been exectued.
+     */
+    function getTotalItems()
+    {
+        if (!$this->hasRunQuery()) throw( new WFException("Search has not been executed. You cannot get the total hits from a search until it is executed.") );
+        return $this->searcher->getTotalItems();
+    }
+
+    /**
+     *  Get an array of the item_id's on the current page of results.
+     *
+     *  @return
+     *  @throws WFException if the search has not yet been exectued.
+     */
+    function itemsIDsOnPage()
+    {
+        if (!$this->hasRunQuery()) throw( new WFException("Search has already been executed. You cannot run a search more than once.") );
+        return $this->searcher->getItem_ids();
+    }
+
+    /**
+     *  Are the results sorted by relevance?
+     *
+     *  @return boolean
+     */
+    function isRelevanceSort()
+    {
+        $sortAttr = (string) $this->searcher->getSort();
+        if (!$sortAttr) return true;
+        if ($sortAttr == substr(WFDieselSearch::SORT_BY_RELEVANCE, 0, 1)) return true;
         return false;
     }
 
+    // WFPagedData interface implementation
+    // NOTE: Diesel sets are special in that if there is no query in the passed dieselSearch, then there are NO ITEMS. Can only show items once searching has started.
+    function itemCount()
+    {
+        return $this->getTotalItems();
+    }
+
+    function setSort($attrID, $sortDir = NULL)
+    {
+        if ($sortDir)
+        {
+            $this->searcher->setSort($attrID, $sortDir);
+        }
+        else
+        {
+            $this->searcher->setSort($attrID);
+        }
+    }
+
+    /**
+     *  @todo Factor out propel loading into self-contained custom callback function.
+     */
+    function itemsAtIndex($startIndex, $numItems, $sortKeys)
+    {
+        try {
+            // need to convert PageNum to DP-style; in DP the first page is page 0.
+            $pageNum = 1 + floor($startIndex / $numItems);
+            //print "Fetching items starting at $startIndex, max $numItems items. This means we're on page: " . $pageNum;
+            if ($numItems == WFPaginator::PAGINATOR_PAGESIZE_ALL) throw( new Exception("Paginator page size is set to PAGINATOR_PAGESIZE_ALL when using Dieselpoint. Are you crazy?") );
+            $this->searcher->setNumberOfItemsOnAPage($numItems);
+            $this->searcher->setPageNumber($pageNum - 1);
+            
+            // sorting
+            // remove the SORT_BY_RELEVANCE sortKey -- relevance sorting is triggered by the ABSENCE of a "setSort" call
+            $sortKeysToUse = array();
+            foreach ($sortKeys as $key) {
+                if ($key != WFDieselSearch::SORT_BY_RELEVANCE)
+                {
+                    $sortKeysToUse[] = $key;
+                }
+            }
+            $sortKeys = $sortKeysToUse;
+            if (count($sortKeys) > 1) throw( new Exception("Only 1-key sorting supported at this time.") );
+            else if (count($sortKeys) == 1)
+            {
+                $sortKey = $sortKeys[0];
+                $sortAttr = substr($sortKey, 1);
+                if (substr($sortKey, 0, 1) == '-')
+                {
+                    $this->searcher->setSort($sortAttr, -1);
+                }
+                else
+                {
+                    $this->searcher->setSort($sortAttr);
+                }
+            }
+            // run search
+            $this->execute();
+            $allHits = array();
+            $allIDs = array();
+            $rs = $this->searcher->getResultSet();
+            if (!$rs) throw( new Exception("Invalid ResultSet returned.") );
+            while ($rs->next()) {
+                $itemID = (string) $rs->getString(1);   // use (string) to force conversion from java bridge string object to native PHP tpe
+                $allIDs[] = $itemID;
+                $hit = new WFDieselHit($itemID, (string) $rs->getRelevanceScore());
+                // load custom data
+                for ($i = 1; $i < count($this->loadTheseColumnsFromIndex); $i++) {
+                    $hit->addData($this->loadTheseColumnsFromIndex[$i], (string) $rs->getString($i + 1));
+                }
+                $allHits[] = $hit;
+            }
+            
+            // we support three main ways to load the matching objects; Propel-backed, custom callbacks, and none (just returns the WFDieselHit arrays -- but still can load data from index)
+            if ($this->resultObjectLoaderCallbackPropelMode)
+            {
+                // For propel-backed object loading, we need to use doSelect so we can preserve sorting.
+                
+                // determine primary key
+                $c = new Criteria;
+                $c->add($this->getPrimaryKeyColumnFromPropelPeer($this->resultObjectLoaderCallback), $allIDs, Criteria::IN);
+                $tableName = eval( "return {$this->resultObjectLoaderCallback}::TABLE_NAME;" );
+                foreach ($sortKeys as $sortKey) {
+                    $sortAttr = substr($sortKey, 1);
+                    if (substr($sortKey, 0, 1) == '-')
+                    {
+                        $c->addDescendingOrderByColumn($tableName . '.' . $sortAttr);
+                    }
+                    else
+                    {
+                        $c->addAscendingOrderByColumn($tableName . '.' . $sortAttr);
+                    }
+                }
+                $propelObjects = call_user_func(array($this->resultObjectLoaderCallback, "doSelect"), $c);    // more efficient to grab all items in a single query
+                // map the propel objects back into the WFDieselHit's.
+                // we have to gracefully deal with the situation that an item in the index isn't in the database
+                // when this happens we auto-prune the item from our dp index and remove that item from our list of hits.
+                $propelObjectsById = array();
+                $itemIDsToPrune = array();
+                foreach ($propelObjects as $obj) {
+                    $propelObjectsById[$obj->getPrimaryKey()] = $obj;
+                }
+                $existingHits = array();
+                foreach ($allHits as $hit) {
+                    if (!isset($propelObjectsById[$hit->itemID()]))
+                    {
+                        $itemIDsToPrune[] = $hit->itemID();
+                        continue;
+                    }
+                    $hit->setObject($propelObjectsById[$hit->itemID()]);
+                    $existingHits[] = $hit;
+                }
+                // prune missing items
+                foreach ($itemIDsToPrune as $id) {
+                    //print "Pruning item id $id<BR>";
+                    $this->index->deleteItem($id);  // no need to save() index; happens automatically on its closing
+                }
+                $allHits = $existingHits;
+            }
+            else if ($this->resultObjectLoaderCallback)
+            {
+                // for custom mode, pass info on to callback and let it load up objects.
+                call_user_func($this->resultObjectLoaderCallback, $allHits, $sortKeys);
+            }
+            return $allHits;
+        } catch (JavaException $e) {
+            $this->handleJavaException($e);
+        }
+    }
+}
+
+
+/**
+ *  The WFDieselHit object represents a result row from a WFDieselSearch.
+ * 
+ *  The itemsAtIndex() call will return an array of WFDieselHit objects.
+ *
+ *  The WFDieselHit object encapsulates the relavance score, custom loaded callback objects, and data loaded from the index columns directly.
+ */
+class WFDieselHit extends WFObject
+{
+    /**
+     * @var integer The relevance of the hit, on a scale of 0-100.
+     */
+    protected $relevanceScore;
+    /**
+     * @var mixed The unique itemId of the hit.
+     */
+    protected $itemID;
+    /**
+     * @var mixed The object var is a placeholder for callbacks to put "objects" that map to the itemID into the WFDieselHit.
+     */
+    protected $object;
+    /**
+     * @var object WFDieselHitDataObject - A KVC-compliant proxy object so we can bind to DP result data. Bindings like: object.description, object.pkId
+     */
+    protected $data;
+
+    function __construct($itemID, $relevanceScore = NULL, $object = NULL)
+    {
+        $this->itemID = $itemID;
+        $this->relevanceScore = ($relevanceScore ? $relevanceScore : NULL);
+        $this->object = $object;
+        $this->data = new WFDieselHitDataObject;
+    }
+
+    /**
+     *  Add data to the hit object for the given key/value pair.
+     *
+     *  This is used to add data loaded from the dieselpoint index directly into a KVC-accesible format.
+     *
+     *  @param string Data column name
+     *  @param mixed Data value
+     */
+    function addData($key, $value)
+    {
+        $this->data->addData($key, $value);
+    }
+
+    /**
+     *  Get the WFDieselHitDataObject for this row.
+     *
+     *  @return object WFDieselHitDataObject
+     */
+    function getData()
+    {
+        return $this->data;
+    }
+    
+    /**
+     *  Get the value for a particular column.
+     *
+     *  @param string Column name
+     *  @return mixed Column value
+     */
+    function getDataForCol($col)
+    {
+        return $this->data->getDataForCol($col);
+    }
+
+    /**
+     *  Set the custom object for this hit. 
+     *
+     *  This will be set by the Propel dataloader or the custom dataloader.
+     *
+     *  @param mixed The object represented by this hit.
+     */
+    function setObject($o)
+    {
+        $this->object = $o;
+    }
+
+    /**
+     *  Get the custom object for this hit.
+     *
+     *  @return mixed
+     */
+    function object()
+    {
+        return $this->object;
+    }
+
+    /**
+     *  Get the relevance score for this hit.
+     *
+     *  @return integer
+     */
+    function relevanceScore()
+    {
+        return $this->relevanceScore;
+    }
+
+    /**
+     *  Get the relevance score for this hit, in % format.
+     *
+     *  @return string Score as percentage match (100% is highest possible)
+     */
+    function relevancePercent()
+    {
+        if ($this->relevanceScore == 0) return NULL;
+        return number_format($this->relevanceScore * 100, 0) . "%";
+    }
+
+    /**
+     *  Get the unique itemID for this hit.
+     *
+     *  @return mixed THe unique id.
+     */
+    function itemID()
+    {
+        return $this->itemID;
+    }
+}
+
+/**
+ * A generic wrapper class to provide KVC-compliance to rows returned from WFDieselSearch.
+ */
+class WFDieselHitDataObject extends WFObject
+{
+    /**
+     * @var array An assoc-array of all data loaded from the index: "colName" => "value"
+     */
+    protected $data;
+
+    function addData($key, $value)
+    {
+        $this->data[$key] = $value;
+    }
+
+    function getData()
+    {
+        return $this->data;
+    }
+    
+    function getDataForCol($col)
+    {
+        if (!isset($this->data[$col])) throw( new Exception("Col: '$col' doesn't exist.") );
+        return $this->data[$col];
+    }
+    function valueForKey($key)
+    {
+        return $this->getDataForCol($key);
+    }
+}
+
+/**
+ * All UI Widgets that coordinate with WFDieselSearchHelper should implement this interface for QueryState management.
+ *
+ * We can't use the normal restoreState() callback for this since we layer a "dpQueryState" as the initial state with the data from the individual UI widgets overriding this state.
+ * Since dpQueryState isn't available until AFTER restoreState is called (where setQueryState is called from the PageDidLoad callback) we had to build our own infrastructure for
+ * this to work properly.
+ *
+ * It's very simple.
+ *
+ * All UI Widgets should call registerWidget() from the allConfigFinishedLoading() method, then implement this interface.
+ */
+interface WFDieselSearchHelperStateTracking
+{
+    /**
+     *  IFF the UI widget knows that its state was set in the interface, it should use addAttributeQuery/setSimpleQuery to effect this.
+     */
+    function dieselSearchRestoreState();
+}
+
+/**
+ * High-level class to help manage complex faceted navigation searches.
+ *
+ * Typically a UI has more complicated "query management" needs than a plain-old search, particularly for faceted navigation. This class helps facilitate these needs.
+ *
+ * The WFDieselSearchHelper object acts as a broker between the UI/Application Logic and the raw DP search backend.
+ *
+ * Needs:
+ * - Ability to combine a general "free-form query" with faceted navigation. [simpleQuery]
+ * - Ability to automatically produce a faceted navigation UI and maintain state while offering rich UI for browsing. [attributeQueries]
+ * - Ability to restrict the search further, but not show these restrictions in the UI. [restrictDQL]
+ *
+ * This class is the "model" that tracks all of the complex query capabilities and works together with the faceted nav UI widgets to display them.
+ *
+ * @todo finish attributeQueryLogicalOperators: add to querystate, buildquery, etc
+ * @see WFDieselNav
+ * @see WFDieselKeyword
+ * @see WFDieselFacet
+ */
+class WFDieselSearchHelper extends WFObject
+{
+    const QUERY_STATE_SIMPLE_QUERY_ATTR_NAME            = 'simpleQuery';
+    const QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME      = 'dpqlQuery';
+
+    const ATTRIBUTE_QUERY_ANY = "any";
+    const ATTRIBUTE_QUERY_ALL = "all";
+
+    /**
+     * @var object WFDieselSearch The search instance to operate on
+     */
+    protected $dieselSearch;
+    /**
+     * @var array An array of WFWidget subclasses that implement the dieselSearchRestoreState method
+     */
+    protected $widgets;
+    /**
+     * @var string A DQL query to add to the query. The WFDieselNav will not reveal to the user any info in the restrictDQL query, so it's perfect for constraining searches in a way that
+     *             is transparent to the user.
+     */
+    protected $restrictDQL;
+    /**
+     * @var string The user-entered "free-form query".
+     */
+    protected $simpleQueryString;
+    /**
+     * @var string The "mode" of the simpleQuery. One of "all", "any", "exact".
+     */
+    protected $simpleQueryMode;
+    /**
+     * @var array An array of all facet queries. Each entry contains the attribute, comparator, and value. ie: EQ_property_type=Single Family
+     */
+    protected $attributeQueries;
+    /**
+     * @var array An array of the logical operator to use for multiple attributeQueries on the same attribute. Format: 'attributeID' => 'any'|'all'. Default for each attribute is "any".
+     */
+    protected $attributeQueryLogicalOperators;
+
+    /**
+     * @var boolean Should the search "Show All" if there is no query?
+     */
+    protected $showAllOnBlankQuery;
+    /**
+     * @var string If {@link WFDieselSearchHelper::$showAllOnBlankQuery showAllOnBlankQuery} is true, this is the DQL that will be used to "find all items".
+     */
+    protected $showAllDPQL;
+    
+
+    /**
+     * @var string The effective DQL query string after consolidating the complex search.
+     */
+    private $effectiveDQL;
+    /**
+     * @var array An assoc-arary of legal "attribute query" comparators and their logical operators.
+     */
+    private $legalComparatorList = array(
+                                            'EQ' => '=', 
+                                            'NE' => '<>',
+                                            'GT' => '>',
+                                            'GE' => '>=',
+                                            'LT' => '<',
+                                            'LE' => '<=',
+                                            'CN' => ':'
+                                        );
+
+    function __construct()
+    {
+        parent::__construct();
+        $this->dieselSearch = NULL;
+        $this->widgets = array();
+        $this->effectiveDQL = NULL;
+        $this->restrictDQL = NULL;
+        $this->simpleQueryString = NULL;
+        $this->simpleQueryMode = "any";
+        $this->attributeQueries = array();
+        $this->attributeQueryLogicalOperators = array();
+        $this->showAllOnBlankQuery = true;
+        $this->showAllDPQL = 'doctype=xml';
+        $this->loadTheseColumnsFromIndex = array("item_id");
+    }
+
+    /**
+     *  WFWidget subclasses that can interact with WFDieselSearch should register.
+     *
+     *  Objects must implement the WFDieselSearchHelperStateTracking interface.
+     *
+     *  @param object WFWidget
+     */
+    function registerWidget($widget)
+    {
+        $this->widgets[] = $widget;
+    }
+
+    /**
+     *  Set the WFDieselSearch instance to use with this WFDieselSearchHelper instance.
+     *
+     *  @param object WFDieselSearch
+     *  @throws object WFException If the parameter is not a WFDieselSearch.
+     */
+    function setDieselSearch($dieselSearch)
+    {
+        if (!($dieselSearch instanceof WFDieselSearch)) throw( new WFException("Passed object is not a WFDieselSearch.") );
+        $this->dieselSearch = $dieselSearch;
+    }
+
+    /**
+     *  Get the WFDieselSearch used by this instance.
+     *
+     *  @return object WFDieselSearch
+     */
+    function dieselSearch()
+    {
+        return $this->dieselSearch;
+    }
+
+    /**
+     *  Convert the query represented by this instance into DQL and set it up with the associated WFDieselSearch.
+     */
     function buildQuery()
     {
-        if ($this->hasBuiltQuery)
-        {
-            return $this->finalQueryString;
-        }
-
         $dpqlItems = array();
 
         if ($this->simpleQueryString)
         {
             // convert to dpql by setting it on the searcher
-            $this->searcher->setSimpleQuery($this->simpleQueryString, $this->simpleQueryMode);
-            $dpqlQueryForSimpleQuery = $this->searcher->getQueryString();
+            $searcher = $this->dieselSearch->searcher();
+            $searcher->setSimpleQuery($this->simpleQueryString, $this->simpleQueryMode);
+            $dpqlQueryForSimpleQuery = $searcher->getQueryString();
             $dpqlItems[] = $dpqlQueryForSimpleQuery;
             //print "Converted: '{$this->simpleQueryString}' to '$dpqlQueryForSimpleQuery'<BR>";
-            $this->searcher->setQueryString(NULL);
+            $searcher->setQueryString(NULL);
         }
 
-        if ($this->dpqlQueryString)
+        if ($this->restrictDQL)
         {
-            //print "found dpstring<BR>";
-            $dpqlItems[] = $this->dpqlQueryString;
+            //print "found restrictDQL: {$this->restrictDQL}<BR>";
+            $dpqlItems[] = $this->restrictDQL;
         }
 
         if (count($this->attributeQueries))
@@ -308,6 +986,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
                         $opChr = $this->legalComparatorList[$op];
                         $opSubQueries[] = "{$attrID}{$opChr}\"{$subQ}\"";
                     }
+                    // @todo fold in support for attributeQueryLogicalOperators
                     if ($op == 'EQ')
                     {
                         $attrQueryItems[] =  join(' OR ', $opSubQueries);
@@ -329,42 +1008,85 @@ class WFDieselSearch extends WFObject implements WFPagedData
             foreach ($dpqlItems as $i) {
                 $parenthesizedItems[] = "($i)";
             }
-            $this->finalQueryString = join(' AND ', $parenthesizedItems);
-            //print "<BR>Final query: '{$this->finalQueryString}'";
+            $this->effectiveDQL = join(' AND ', $parenthesizedItems);
+            //print "<BR>Final query: '{$this->effectiveDQL}'";
         }
         else
         {
             if ($this->showAllOnBlankQuery)
             {
-                $this->finalQueryString = $this->showAllDPQL;
+                $this->effectiveDQL = $this->showAllDPQL;
             }
             else
             {
-                $this->finalQueryString = NULL;
+                $this->effectiveDQL = NULL;
             }
         }
-        $this->hasBuiltQuery = true;
-        return $this->finalQueryString;
+        
+        // Set up search on dieselSearch object
+        //print "<br>About to query using: '{$this->effectiveDQL}'";
+        $this->dieselSearch->setQueryString($this->effectiveDQL);
+        // if we have a paginator, we need to update the dpQueryState parameter so that pagination will work on the results.
+        if ($this->dieselSearch->paginator())
+        {
+            $this->dieselSearch->paginator()->setAlternativeParameterValue($this->dieselSearch->queryStateParameterId(), urlencode($this->getQueryState()));
+        }
     }
 
+    /**
+     *  Based on the executed query, are we doing a "show all"?
+     *
+     *  @return boolean
+     */
     function isShowAll()
     {
-        if (!$this->hasRunQuery()) throw( new Exception("Only call isShowAll() after the query has been run.") );
-        return ( $this->finalQueryString == $this->showAllDPQL );
+        if (!$this->dieselsearch->hasRunQuery()) throw( new Exception("Only call isShowAll() after the query has been run.") );
+        return ( $this->effectiveDQL == $this->showAllDPQL );
     }
 
+    /**
+     *  Set the "any/all" mode for EQ queries where there is more than one value for the attribute.
+     *
+     *  @param string Attribute ID.
+     *  @param string The "mode". One of {@link WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY} or {@link WFDieselSearchHelper::ATTRIBUTE_QUERY_ALL}.
+     *  @throws object WFException If the passed mode is invalid.
+     */
+    function setAttributeQueryMode($attribute, $mode)
+    {
+        if (!in_array($mode, array(WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY, WFDieselSearchHelper::ATTRIBUTE_QUERY_ALL))) throw( new WFException("Invalid mode '{$mode}' for attribute '{$attribute}'.") );
+        $this->attributeQueryLogicalOperators[$attribute] = $mode;
+    }
+
+    /**
+     *  Add a query for a given attribute.
+     *
+     *  @param string The attribute ID.
+     *  @param string The comparator.
+     *  @param mixed The value to match.
+     *  @throws object WFException If the comparator is invalid.
+     *  @see WFDieselSearchHelper::$legalComparatorList
+     */
     function addAttributeQuery($attribute, $comparator, $query)
     {
-        if (!in_array($comparator, array('EQ', 'GT', 'GE', 'LT', 'LE'))) throw( new Exception("Illegal comparator: " . $comparator) );
+        if (!in_array($comparator, array('EQ', 'GT', 'GE', 'LT', 'LE'))) throw( new WFException("Illegal comparator: " . $comparator) );
         // don't add duplicates
         $aq = "{$comparator}_{$attribute}={$query}";
         if (!in_array($aq, $this->attributeQueries))
         {
             $this->attributeQueries[] = $aq;
+            if ($comparator == 'EQ')
+            {
+                $this->setAttributeQueryMode($attribute, WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY);    // default to "any" of the listed attribute values
+            }
             //print "adding {$comparator}_{$attribute}={$query}<BR>";
         }
     }
 
+    /**
+     *  Clear all queries for the passed attribute ID.
+     *
+     *  @param string The attribute ID.
+     */
     function clearAttributeQueries($attribute)
     {
         //print "clearing $attribute";
@@ -385,7 +1107,13 @@ class WFDieselSearch extends WFObject implements WFPagedData
         $this->attributeQueries = $newAttributeQueries;
     }
 
-    // get a pretty description of the passed attr's navigation description: ie, 100-200, House, etc
+    /**
+     *  Get a human-readable description of the current attribute selections for the passed attribute.
+     *
+     *  @param string The attribute ID.
+     *  @param object WFFormatter A formatter object that will be used to "format" the value(s).
+     *  @return string
+     */
     function getAttributeSelection($attribute, $formatter = NULL)
     {
         $state = array();
@@ -443,6 +1171,12 @@ class WFDieselSearch extends WFObject implements WFPagedData
         return NULL;
     }
 
+    /**
+     *  Is there any filter on the passed attribute?
+     *
+     *  @param string The attribute ID.
+     *  @return boolean
+     */
     function isFilteringOnAttribute($attribute)
     {
         foreach ($this->attributeQueries as $q) {
@@ -463,21 +1197,38 @@ class WFDieselSearch extends WFObject implements WFPagedData
         return false;
     }
 
+    /**
+     *  Get the queryState for the current instance, WITHOUT the simpleQuery filter.
+     *
+     *  The result is plain-text; it will need to be urlencode() as necessary.
+     *
+     *  @return string
+     */
     function getQueryStateWithoutSimpleQuery()
     {
         return $this->getQueryState(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME);
     }
     
+    /**
+     *  Get the queryState for the current instance.
+     *
+     *  The result is plain-text; it will need to be urlencode() as necessary.
+     *
+     *  @param string The attribute ID of an attribute to REMOVE from the current state (or NULL to preserve all). Useful for creating "remove" filter links.
+     *  @param array An array of new "attribute queries" to add to the current state. Useful for creating links to possible sub-queries.
+     *               The "attribute query" format is <op>_<attribute_id>=<query>
+     *  @return string
+     */
     function getQueryState($excludeAttribute = NULL, $newAttributeQueries = array())
     {
         $state = array();
-        if ($this->simpleQueryString and $excludeAttribute != WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME)
+        if ($this->simpleQueryString and $excludeAttribute != WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME)
         {
-            $state[] = WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME . '=' . $this->simpleQueryString;
+            $state[] = WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME . '=' . $this->simpleQueryString;
         }
-        if ($this->dpqlQueryString)
+        if ($this->restrictDQL)
         {
-            $state[] = WFDieselSearch::QUERY_STATE_DPQL_QUERY_ATTR_NAME . '=' . $this->dpqlQueryString;
+            $state[] = WFDieselSearchHelper::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME . '=' . $this->restrictDQL;
         }
         foreach ($this->attributeQueries as $q) {
             $matches = array();
@@ -498,16 +1249,20 @@ class WFDieselSearch extends WFObject implements WFPagedData
             $state[] = $q;
         }
         //WFLog::log("done building state: " . print_r($state, true));
-        $rv =  urlencode(join('|',$state));
+        $rv =  join('|',$state);
         //WFLog::log("called u/j");
         return $rv;
     }
 
+    /**
+     *  Reset the query state to "empty". 
+     *
+     *  Note that this does not clear the restrictDQL.
+     */
     function resetQueryState()
     {
         //print "Resetting QS<BR>";
         $this->simpleQueryString = NULL;
-        $this->dpqlQueryString = NULL;
         $this->attributeQueries = array();
     }
 
@@ -519,30 +1274,24 @@ class WFDieselSearch extends WFObject implements WFPagedData
      *  you call readPaginatorStateFromParams, as setQueryState will add the "relevance" sort option if the
      *  query state includes a simpleQuery.
      *
-     *  @param array The serialized state.
-     *  @param boolean TRUE to reset the query to empty before applying the passed state. If false, simpleQueryString and dpqlQueryString will be replaced
-     *  completely, but the attributeQueries will be additive.
+     *  @param string The serialized state. Should be in plain-text form (ie all decoding already done)
      */
-    function setQueryState($state, $reset = true)
+    function setQueryState($state)
     {
-        if ($reset)
-        {
-            $this->resetQueryState();
-        }
-
+        // Restore the query state indicated by the serialized state (this is the "initial" state, before any "changes" from form posts are processed)
         //print "Restoring querystate: $state<BR>";
         $attrQueries = explode('|', $state);
         foreach ($attrQueries as $q) {
             //print "Extracting state from: $q<BR>";
-            if (strncmp($q, WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME, strlen(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME)) == 0)
+            if (strncmp($q, WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME, strlen(WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME)) == 0)
             {
                 //print "Extracting simpleQuery<BR>";
-                $this->setSimpleQuery(substr($q, strlen(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME) + 1));
+                $this->setSimpleQuery(substr($q, strlen(WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME) + 1));
             }
-            else if (strncmp($q, WFDieselSearch::QUERY_STATE_DPQL_QUERY_ATTR_NAME, strlen(WFDieselSearch::QUERY_STATE_DPQL_QUERY_ATTR_NAME)) == 0)
+            else if (strncmp($q, WFDieselSearchHelper::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME, strlen(WFDieselSearchHelper::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME)) == 0)
             {
                 //print "Extracting dpqlQuery<BR>";
-                $this->dpqlQueryString = substr($q, strlen(WFDieselSearch::QUERY_STATE_DPQL_QUERY_ATTR_NAME) + 1);
+                $this->restrictDQL = substr($q, strlen(WFDieselSearch::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME) + 1);
             }
             else
             {
@@ -550,407 +1299,91 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 $this->attributeQueries[] = $q;
             }
         }
-    }
 
-    function hasRunQuery()
-    {
-        return $this->hasRunQuery;
-    }
-
-    function startTrackingTime()
-    {
-        $this->logPerformanceInfo_t0 = microtime(true);
-    }
-    function stopTrackingTime($msg)
-    {
-        $elapsed = microtime(true) - $this->logPerformanceInfo_t0;
-        WFLog::logToFile('dieselsearch.log', "[{$elapsed}s] $msg");
-    }
-    
-    // any way to make sure we don't search more than once?
-    function execute()
-    {
-        if ($this->hasRunQuery()) return;
-
-        $this->buildQuery();
-        //print "<br>About to query using: '{$this->finalQueryString}'";
-        $this->searcher->setQueryString($this->finalQueryString);
-        if ($this->loadTheseColumnsFromIndex)
-        {
-            $this->searcher->addColumns(join(',', $this->loadTheseColumnsFromIndex));
+        // allow registered widgets to affect the "initial" state
+        foreach ($this->widgets as $widget) {
+            $widget->dieselSearchRestoreState();
         }
-        if ($this->logPerformanceInfo()) $this->startTrackingTime();
-        $this->searcher->execute();
-        if ($this->logPerformanceInfo()) $this->stopTrackingTime("DP Search: " . $this->finalQueryString);
-        // if we have a paginator, we need to update the dpQueryState parameter so that pagination will work on the results.
-        if ($this->paginator)
-        {
-            $this->paginator->setAlternativeParameterValue($this->dpQueryStateParameterID, $this->getQueryState());
-        }
-        $this->hasRunQuery = true;
     }
 
-    private function prepareSearcher()
+    /**
+     *  Set the DQL query to be used to restrict the search results in ways IN ADDITION TO what the user selects in the UI.
+     *
+     *  @param string A DQL query.
+     */
+    function setRestrictDQL($string)
     {
-        if (!$this->searcher)
-        {
-            $this->searcher = new Java("com.dieselpoint.search.Searcher", $this->index());
-        }
-        return $this->searcher;
+        $this->restrictDQL = $string;
     }
 
-    function setQueryString($string)
+    /**
+     *  Get the "restrictDQL" query.
+     *
+     *  @return string A DQL query.
+     */
+    function restrictDQL()
     {
-        $this->dpqlQueryString = $string;
+        return $this->restrictDQL;
     }
 
+    /**
+     *  Clear the simpleQuery part of the search.
+     */
+    function clearSimpleQuery()
+    {
+        $this->simpleQueryString = NULL;
+    }
+
+    /**
+     *  Set the simpleQuery part of the search.
+     *
+     *  Note that if using a paginator, the sorting will be automatically set to "relevance sorting" if you assign a non-empty query string.
+     *
+     *  @param string The query. This is typically the direct user input into a "basic search" field.
+     *  @param string The mode for the simplequery: one of "any", "all", or "exact".
+     *  @throws object WFException if the mode is incorrect.
+     */
     function setSimpleQuery($string, $mode = "any")
     {
         $this->simpleQueryString = trim($string);
         $this->simpleQueryMode = $mode;
         // change the default sort to "relevance" sorting when there's a keyword query
-        if ($this->simpleQueryString and $this->paginator)
+        if ($this->simpleQueryString and $this->dieselSearch->paginator())
         {
-            $this->paginator->setDefaultSortKeys(array(WFDieselSearch::SORT_BY_RELEVANCE));
-            $this->paginator->addSortOption(WFDieselSearch::SORT_BY_RELEVANCE, 'Relevance');
+            $this->dieselSearch->enableRelevanceMode();
         }
     }
-    function getSimpleQuery()
+
+    /**
+     *  Get the simpleQuery string.
+     *
+     *  @return string
+     */
+    function simpleQuery()
     {
         return $this->simpleQueryString;
     }
 
     /**
-     *  Get a FacetGenerator object.
+     *  Get the simpleQuery mode.
      *
-     *  If there is no query, then the FacetGenerator works off of the entire index. If there is a query, it works off the results.
+     *  @return string One of "any", "all", "exact".
+     */
+    function simpleQueryMode()
+    {
+        return $this->simpleQueryMode;
+    }
+
+    /**
+     *  Get a pretty "description" of the current query.
      *
-     *  @return object A FacetGenerator object [Java].
+     *  @return string The description.
+     *  @todo Right now this just wraps {@link WFDieselSearch::queryDescription() queryDescription}. Eventually re-write here to use a "pretty" description built a la buildQuery.
      */
-    function getGeneratorObject()
+    function queryDescription()
     {
-        if ($this->hasQuery())
-        {
-            $gObj = $this->searcher;
-        }
-        else
-        {
-            $gObj = $this->index();
-        }
-        return new Java("com.dieselpoint.search.FacetGenerator", $gObj);
+        return $this->dieselSearch->queryDescription();
     }
 
-    function getTotalItems()
-    {
-        if ($this->hasQuery())
-        {
-            return $this->searcher->getTotalItems();
-        }
-        else
-        {
-            return $this->index()->getItemCount();
-        }
-    }
-
-
-
-    function itemsIDsOnPage()
-    {
-        if ($this->hasQuery())
-        {
-            return $this->searcher->getItem_ids();
-        }
-        else
-        {
-            return array();
-        }
-    }
-
-    // WFPagedData interface implementation
-    // NOTE: Diesel sets are special in that if there is no query in the passed dpSearch, then there are NO ITEMS. Can only show items once searching has started.
-    function itemCount()
-    {
-        if ($this->hasQuery())
-        {
-            return $this->getTotalItems();
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    function setSort($attrID, $sortDir = NULL)
-    {
-        if ($sortDir)
-        {
-            $this->searcher->setSort($attrID, $sortDir);
-        }
-        else
-        {
-            $this->searcher->setSort($attrID);
-        }
-    }
-
-    function isRelevanceSort()
-    {
-        $sortAttr = (string) $this->searcher->getSort();
-        if (!$sortAttr) return true;
-        if ($sortAttr == substr(WFDieselSearch::SORT_BY_RELEVANCE, 0, 1)) return true;
-        return false;
-    }
-
-    /**
-     *  
-     *  @todo Factor out propel loading into self-contained custom callback function.
-     *  @param 
-     *  @return
-     *  @throws
-     */
-    function itemsAtIndex($startIndex, $numItems, $sortKeys)
-    {
-        if ($this->hasQuery())
-        {
-            try {
-                // need to convert PageNum to DP-style; in DP the first page is page 0.
-                $pageNum = 1 + floor($startIndex / $numItems);
-                //print "Fetching items starting at $startIndex, max $numItems items. This means we're on page: " . $pageNum;
-                if ($numItems == WFPaginator::PAGINATOR_PAGESIZE_ALL) throw( new Exception("Paginator page size is set to PAGINATOR_PAGESIZE_ALL when using Dieselpoint. Are you crazy?") );
-                $this->searcher->setNumberOfItemsOnAPage($numItems);
-                $this->searcher->setPageNumber($pageNum - 1);
-                
-                // sorting
-                // remove the SORT_BY_RELEVANCE sortKey -- relevance sorting is triggered by the ABSENCE of a "setSort" call
-                $sortKeysToUse = array();
-                foreach ($sortKeys as $key) {
-                    if ($key != WFDieselSearch::SORT_BY_RELEVANCE)
-                    {
-                        $sortKeysToUse[] = $key;
-                    }
-                }
-                $sortKeys = $sortKeysToUse;
-                if (count($sortKeys) > 1) throw( new Exception("Only 1-key sorting supported at this time.") );
-                else if (count($sortKeys) == 1)
-                {
-                    $sortKey = $sortKeys[0];
-                    $sortAttr = substr($sortKey, 1);
-                    if (substr($sortKey, 0, 1) == '-')
-                    {
-                        $this->searcher->setSort($sortAttr, -1);
-                    }
-                    else
-                    {
-                        $this->searcher->setSort($sortAttr);
-                    }
-                }
-                // run search
-                $this->execute();
-                $allHits = array();
-                $allIDs = array();
-                $rs = $this->searcher->getResultSet();
-                if (!$rs) throw( new Exception("Invalid ResultSet returned.") );
-                while ($rs->next()) {
-                    $itemID = (string) $rs->getString(1);   // use (string) to force conversion from java bridge string object to native PHP tpe
-                    $allIDs[] = $itemID;
-                    $hit = new WFDieselHit($itemID, (string) $rs->getRelevanceScore());
-                    // load custom data
-                    for ($i = 1; $i < count($this->loadTheseColumnsFromIndex); $i++) {
-                        $hit->addData($this->loadTheseColumnsFromIndex[$i], (string) $rs->getString($i + 1));
-                    }
-                    $allHits[] = $hit;
-                }
-                
-                // we support three main ways to load the matching objects; Propel-backed, custom callbacks, and none (just returns the WFDieselHit arrays -- but still can load data from index)
-                if ($this->resultObjectLoaderCallbackPropelMode)
-                {
-                    // For propel-backed object loading, we need to use doSelect so we can preserve sorting.
-                    
-                    // determine primary key
-                    $c = new Criteria;
-                    $c->add($this->getPrimaryKeyColumnFromPropelPeer($this->resultObjectLoaderCallback), $allIDs, Criteria::IN);
-                    $tableName = eval( "return {$this->resultObjectLoaderCallback}::TABLE_NAME;" );
-                    foreach ($sortKeys as $sortKey) {
-                        $sortAttr = substr($sortKey, 1);
-                        if (substr($sortKey, 0, 1) == '-')
-                        {
-                            $c->addDescendingOrderByColumn($tableName . '.' . $sortAttr);
-                        }
-                        else
-                        {
-                            $c->addAscendingOrderByColumn($tableName . '.' . $sortAttr);
-                        }
-                    }
-                    $propelObjects = call_user_func(array($this->resultObjectLoaderCallback, "doSelect"), $c);    // more efficient to grab all items in a single query
-                    // map the propel objects back into the WFDieselHit's.
-                    // we have to gracefully deal with the situation that an item in the index isn't in the database
-                    // when this happens we auto-prune the item from our dp index and remove that item from our hit.
-                    $propelObjectsById = array();
-                    $itemIDsToPrune = array();
-                    foreach ($propelObjects as $obj) {
-                        $propelObjectsById[$obj->getPrimaryKey()] = $obj;
-                    }
-                    $existingHits = array();
-                    foreach ($allHits as $hit) {
-                        if (!isset($propelObjectsById[$hit->itemID()]))
-                        {
-                            $itemIDsToPrune[] = $hit->itemID();
-                            continue;
-                        }
-                        $hit->setObject($propelObjectsById[$hit->itemID()]);
-                        $existingHits[] = $hit;
-                    }
-                    // prune missing items
-                    foreach ($itemIDsToPrune as $id) {
-                        //print "Pruning item id $id<BR>";
-                        $this->index->deleteItem($id);  // no need to save() index; happens automatically on its closing
-                    }
-                    $allHits = $existingHits;
-                }
-                else if ($this->resultObjectLoaderCallback)
-                {
-                    // for custom mode, pass info on to callback and let it load up objects.
-                    call_user_func($this->resultObjectLoaderCallback, $allHits, $sortKeys);
-                }
-                return $allHits;
-            } catch (JavaException $e) {
-                $this->handleJavaException($e);
-            }
-        }
-        else
-        {
-            return array();
-        }
-    }
-
-    /**
-     *  Get the primary key column name suitable for criteria for the given peer.
-     *
-     *  NOTE: only works for tables with a SINGLE primary key.
-     * 
-     *  @param string The peer name.
-     *  @return string The Criteria-compatible PK specifier.
-     *  @throws object Exception On error.
-     */
-    private function getPrimaryKeyColumnFromPropelPeer($peerName)
-    {
-        $dbName = eval( "return {$peerName}::DATABASE_NAME;" );
-        $tableName = eval( "return {$peerName}::TABLE_NAME;" );
-        $dbMap = Propel::getDatabaseMap($dbName);
-        if ($dbMap === null) {
-            throw new PropelException("\$dbMap is null");
-        }
-        
-        if ($dbMap->getTable($tableName) === null) {
-            throw new PropelException("\$dbMap->getTable() is null");
-        }
-        
-        $columns = $dbMap->getTable($tableName)->getColumns();
-        foreach(array_keys($columns) as $key) { 
-            if ($columns[$key]->isPrimaryKey()) {
-                $pkCol = $columns[$key];
-                break;
-            }
-        }
-
-        $criteriaSpecifier = $tableName . '.' . $pkCol->getColumnName();
-        return $criteriaSpecifier;
-    }
-}
-
-
-class WFDieselHit extends WFObject
-{
-    /**
-     * @var integer The relevance of the hit, on a scale of 0-100.
-     */
-    protected $relevanceScore;
-    /**
-     * @var mixed The unique itemId of the hit.
-     */
-    protected $itemID;
-    /**
-     * @var mixed The object var is a placeholder for callbacks to put "objects" that map to the itemID into the WFDieselHit.
-     */
-    protected $object;
-    /**
-     * @var object WFDieselHitDataObject - A KVC-compliant proxy object so we can bind to DP result data. Bindings like: object.description, object.pkId
-     */
-    protected $data;
-
-    function __construct($itemID, $relevanceScore = NULL, $object = NULL)
-    {
-        $this->itemID = $itemID;
-        $this->relevanceScore = ($relevanceScore ? $relevanceScore : NULL);
-        $this->object = $object;
-        $this->data = new WFDieselHitDataObject;
-    }
-
-    function addData($key, $value)
-    {
-        $this->data->addData($key, $value);
-    }
-
-    function getData()
-    {
-        return $this->data;
-    }
-    
-    function getDataForCol($col)
-    {
-        return $this->data->getDataForCol($col);
-    }
-
-    function setObject($o)
-    {
-        $this->object = $o;
-    }
-    function object()
-    {
-        return $this->object;
-    }
-
-    function relevanceScore()
-    {
-        return $this->relevanceScore;
-    }
-
-    function relevancePercent()
-    {
-        if ($this->relevanceScore == 0) return NULL;
-        return number_format($this->relevanceScore * 100, 0) . "%";
-    }
-
-    function itemID()
-    {
-        return $this->itemID;
-    }
-}
-
-class WFDieselHitDataObject extends WFObject
-{
-    /**
-     * @var array An assoc-array of all data loaded from the index: "colName" => "value"
-     */
-    protected $data;
-
-    function addData($key, $value)
-    {
-        $this->data[$key] = $value;
-    }
-
-    function getData()
-    {
-        return $this->data;
-    }
-    
-    function getDataForCol($col)
-    {
-        if (!isset($this->data[$col])) throw( new Exception("Col: '$col' doesn't exist.") );
-        return $this->data[$col];
-    }
-    function valueForKey($key)
-    {
-        return $this->getDataForCol($key);
-    }
 }
 ?>

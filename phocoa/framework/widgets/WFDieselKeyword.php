@@ -15,14 +15,14 @@
  * default sort will be set to sort by relevance instead of whatever the existing default is. Of course
  * this can be overridden with the Paginator Sort controls.
  */
-class WFDieselKeyword extends WFWidget
+class WFDieselKeyword extends WFWidget implements WFDieselSearchHelperStateTracking
 {
     protected $maxLength;
     protected $size;
     /**
      * @var object WFDieselSearch The WFDieselSearch object that this facet is linked to.
      */
-    protected $dieselSearch;
+    protected $dieselSearchHelper;
 
     /**
       * Constructor.
@@ -32,7 +32,7 @@ class WFDieselKeyword extends WFWidget
         parent::__construct($id, $page);
         $this->maxLength = NULL;
         $this->size = NULL;
-        $this->dieselSearch = NULL;
+        $this->dieselSearchHelper = NULL;
     }
 
     public static function exposedProperties()
@@ -44,38 +44,32 @@ class WFDieselKeyword extends WFWidget
             ));
     }
 
-    function setDieselSearch($ds)
+    function setDieselSearchHelper($ds)
     {
-        $this->dieselSearch = $ds;
+        $this->dieselSearchHelper = $ds;
     }
 
-    function restoreState()
+    function dieselSearchRestoreState()
     {
-        //  must call super
-        parent::restoreState();
-
         if (isset($_REQUEST[$this->name]))
         {
-            $this->dieselSearch->setSimpleQuery($_REQUEST[$this->name]);
+            $this->dieselSearchHelper->clearSimpleQuery();
+            $this->dieselSearchHelper->setSimpleQuery($_REQUEST[$this->name]);
         }
+    }
+
+    function allConfigFinishedLoading()
+    {
+        $this->dieselSearchHelper->registerWidget($this);
     }
 
     function isKeywordQuery()
     {
-        if ($this->dieselSearch->getSimpleQuery())
+        if ($this->dieselSearchHelper->getSimpleQuery())
         {
             return true;
         }
         return false;
-    }
-
-    function facetSelectionHTML()
-    {
-        if ($this->dieselSearch->getSimpleQuery())
-        {
-            return $this->dieselSearch->getSimpleQuery() . '<br /><a href="' . $this->dieselSearch->getQueryState(WFDieselSearch::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME) . '">remove</a>';
-        }
-        return NULL;
     }
 
     function label()
@@ -85,9 +79,11 @@ class WFDieselKeyword extends WFWidget
 
     function render($blockContent = NULL)
     {
-        if ($this->hidden /* always show for now -- or $this->dieselSearch->getSimpleQuery() */) return NULL;
+        if ($this->hidden /* always show for now -- or $this->dieselSearchHelper->getSimpleQuery() */) return NULL;
 
-        return 'Keywords: <input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . $this->dieselSearch->getSimpleQuery() . '"' .
+        return 'Keywords: <input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" ' .
+            // always get value from the dieselSearchHelper, not the local value, because it can be changed outside of this widget
+            'value="' . $this->dieselSearchHelper->simpleQuery() . '"' .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->class ? ' class="' . $this->class . '"' : '') .

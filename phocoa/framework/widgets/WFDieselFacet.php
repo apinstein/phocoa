@@ -15,7 +15,7 @@
  *
  * <b>Required:</b><br>
  * - {@link WFDieselFacet::$attributeID attributeID}
- * - {@link WFDieselFacet::$dieselSearch dieselSearch}
+ * - {@link WFDieselFacet::$dieselSearchHelper dieselSearchHelper}
  * 
  * <b>Optional:</b><br>
  * - {@link WFWidget::$formatter formatter} Any formatter assigned to the WFDieselFacet will be used to format the facet data and current selection data.
@@ -36,7 +36,7 @@
  * @todo $facet used throughout our WFDieselFacet is actual an AttributeValue object. Confusing; need to re-name.
  * @todo treeRoot cookie trail linking isn't quite perfect yet...
  */
-class WFDieselFacet extends WFWidget
+class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTracking
 {
     const STYLE_LIST = 'list';
     const STYLE_MENU = 'menu';
@@ -61,9 +61,9 @@ class WFDieselFacet extends WFWidget
      */
     protected $attributeID;
     /**
-     * @var object WFDieselSearch The WFDieselSearch object that this facet is linked to.
+     * @var object WFDieselSearchHelper The WFDieselSearchHelper object that this facet is linked to.
      */
-    protected $dieselSearch;
+    protected $dieselSearchHelper;
     /**
      * @var int The number of ranges to show for the facet. Presently this will create N facets each containing approximately equal numbers of items. Default is 0, which disables range mode.
      */
@@ -144,7 +144,7 @@ class WFDieselFacet extends WFWidget
             'treeRoot',
             'defaultTreePosition',
             'attributeID',
-            'dieselSearch',
+            'dieselSearchHelper',
             'rangeCount',
             'fakeOpenEndedRange' => array('list', 'menu', 'tree'),
             'showItemCounts',
@@ -212,9 +212,9 @@ class WFDieselFacet extends WFWidget
         }
     }
 
-    function setDieselSearch($ds)
+    function setDieselSearchHelper($dsh)
     {
-        $this->dieselSearch = $ds;
+        $this->dieselSearchHelper = $dsh;
     }
 
     function setRangeCount($rc)
@@ -242,13 +242,13 @@ class WFDieselFacet extends WFWidget
                 return $this->treeDataPath;
             }
         }
-        if ($this->treeRoot and strlen($this->treeRoot) > strlen($this->dieselSearch->getAttributeSelection($this->attributeID)))
+        if ($this->treeRoot and strlen($this->treeRoot) > strlen($this->dieselSearchHelper->getAttributeSelection($this->attributeID)))
         {
             return $this->treeRoot;
         }
         else
         {
-            return $this->dieselSearch->getAttributeSelection($this->attributeID);
+            return $this->dieselSearchHelper->getAttributeSelection($this->attributeID);
         }
     }
 
@@ -261,7 +261,7 @@ class WFDieselFacet extends WFWidget
     function prepareFacets()
     {
         // load facet data
-        $facetGenerator = $this->dieselSearch->getGeneratorObject();
+        $facetGenerator = $this->dieselSearchHelper->dieselSearch()->getGeneratorObject();
         if ($this->rangeCount)
         {
             $facetGenerator->setRangeCount($this->rangeCount);
@@ -299,9 +299,9 @@ class WFDieselFacet extends WFWidget
             {
                 $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal ? $cVal : "");
             }
-            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
+            if ($this->dieselSearchHelper->dieselSearch()->logPerformanceInfo()) $this->dieselSearchHelper->dieselSearch()->startTrackingTime();
             $facets = $facetGenerator->getTaxonomyTree($this->attributeID, $openToBuf, $treeRootBuf, $this->maxHits);
-            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getTaxonomyTree(\"{$this->attributeID}\", \"{$openToBuf}\", \"{$treeRootBuf}\", {$this->maxHits}) for {$this->id}");
+            if ($this->dieselSearchHelper->dieselSearch()->logPerformanceInfo()) $this->dieselSearchHelper->dieselSearch()->stopTrackingTime("Generating facet with getTaxonomyTree(\"{$this->attributeID}\", \"{$openToBuf}\", \"{$treeRootBuf}\", {$this->maxHits}) for {$this->id}");
             if (count($facets) == 1 and $facets[0]->getAttributeValue()->equals('')) // needed to extract facets from trees
             {
                 $facets = $facets[0]->getChildren();
@@ -338,16 +338,16 @@ class WFDieselFacet extends WFWidget
         }
         else
         {
-            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
+            if ($this->dieselSearchHelper->dieselSearch()->logPerformanceInfo()) $this->dieselSearchHelper->dieselSearch()->startTrackingTime();
             $facets = $facetGenerator->getList($this->attributeID, $this->maxRows, $this->sortByFrequency, $this->maxHits);
-            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getList(\"{$this->attributeID}\", {$this->maxRows}, " . ($this->sortByFrequency ? 'true' : 'false') . ", {$this->maxHits}) for {$this->id}");
+            if ($this->dieselSearchHelper->dieselSearch()->logPerformanceInfo()) $this->dieselSearchHelper->dieselSearch()->stopTrackingTime("Generating facet with getList(\"{$this->attributeID}\", {$this->maxRows}, " . ($this->sortByFrequency ? 'true' : 'false') . ", {$this->maxHits}) for {$this->id}");
         }
         return $facets;
     }
 
     function render($blockContent = NULL)
     {
-        if ($this->hidden or $this->dieselSearch->isFilteringOnAttribute($this->attributeID))
+        if ($this->hidden or $this->dieselSearchHelper->isFilteringOnAttribute($this->attributeID))
         {
             return NULL;
         }
@@ -403,7 +403,7 @@ class WFDieselFacet extends WFWidget
                             $items[] = $item;
                         }
                         $tree->setValue($items);
-                        $tree->setDynamicCallback($this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID()) . '//' . $this->id() . '|');
+                        $tree->setDynamicCallback($this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . '//' . $this->id() . '|');
                         if ($this->treeDataPath)
                         {
                             // ajax callback -- send data
@@ -444,12 +444,12 @@ class WFDieselFacet extends WFWidget
     {
         $html = NULL;
         // SHOW CURRENT SELECTION
-        if ($this->dieselSearch->isFilteringOnAttribute($this->attributeID))
+        if ($this->dieselSearchHelper->isFilteringOnAttribute($this->attributeID))
         {
             if ($this->isTaxonomyAttribute())
             {
                 // COOKIE TRAIL
-                $cPath = split("\t", $this->dieselSearch->getAttributeSelection($this->attributeID));
+                $cPath = split("\t", $this->dieselSearchHelper->getAttributeSelection($this->attributeID));
                 $cPathCount = count($cPath);
                 if ($cPathCount > 0)
                 {
@@ -471,7 +471,7 @@ class WFDieselFacet extends WFWidget
             }
             else
             {
-                $html .= $this->dieselSearch->getAttributeSelection($this->attributeID, $this->formatter);
+                $html .= $this->dieselSearchHelper->getAttributeSelection($this->attributeID, $this->formatter);
             }
         }
         if ($maxLength && strlen($html) > $maxLength)
@@ -501,7 +501,7 @@ class WFDieselFacet extends WFWidget
         {
             $showLoadingJS = " onClick=\"showLoading();\" ";
         }
-        return "<a {$showLoadingJS} href=\"" . $this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID()) . "\">{$linkText}</a>";
+        return "<a {$showLoadingJS} href=\"" . $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . "\">{$linkText}</a>";
     }
 
     function editFacetLink($linkText = "Edit", $class = NULL)
@@ -512,12 +512,12 @@ class WFDieselFacet extends WFWidget
         }
         // _nogo is to prevent browser from "scrolling" to this link; _nogo isn't a valid id.
         // return false on the onClick to prevent the js action from adding to the browser history
-        return "<a href=\"#{$this->id}_nogo\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . $this->dieselSearch->getQueryState($this->attributeID()) . "', '" . addslashes($this->dieselSearch->getAttributeSelection($this->attributeID())) . "'); return false;\">{$linkText}</a>";
+        return "<a href=\"#{$this->id}_nogo\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . "', '" . addslashes($this->dieselSearchHelper->getAttributeSelection($this->attributeID())) . "'); return false;\">{$linkText}</a>";
     }
 
     private function facetMenuHTML($facets)
     {
-        $baseLink = $this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID);
+        $baseLink = $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID));
         $showLoadingJS = NULL;
         if ($this->parent()->showLoadingMessage())
         {
@@ -558,7 +558,7 @@ class WFDieselFacet extends WFWidget
         $html .= "<option value=\"\">{$this->showAllText}</option>\n";
 
         // selected value?
-        $selection = $this->dieselSearch->getAttributeSelection($this->attributeID);
+        $selection = $this->dieselSearchHelper->getAttributeSelection($this->attributeID);
         foreach ($facets as $facet) {
             $attributeValue = $facet->getAttributeValue();
             if ($selection == $attributeValue)
@@ -589,28 +589,31 @@ class WFDieselFacet extends WFWidget
         return $html;
     }
 
-    function restoreState()
-    {
-        //  must call super
-        //parent::restoreState();   // no! because we need to add our params after _PageDidLoad and if we call super then we won't be called again
 
+    function dieselSearchRestoreState()
+    {
         if (isset($_REQUEST[$this->name]) and !empty($_REQUEST[$this->name]))
         {
             // kill existing selection
-            $this->dieselSearch->clearAttributeQueries($this->attributeID);
+            $this->dieselSearchHelper->clearAttributeQueries($this->attributeID);
 
             // set current query
             if (is_array($_REQUEST[$this->name]))
             {
                 foreach ($_REQUEST[$this->name] as $value) {
-                    $this->dieselSearch->addAttributeQuery($this->attributeID, 'EQ', $value);
+                    $this->dieselSearchHelper->addAttributeQuery($this->attributeID, 'EQ', $value);
                 }
             }
             else
             {
-                $this->dieselSearch->addAttributeQuery($this->attributeID, 'EQ', $_REQUEST[$this->name]);
+                $this->dieselSearchHelper->addAttributeQuery($this->attributeID, 'EQ', $_REQUEST[$this->name]);
             }
         }
+    }
+
+    function allConfigFinishedLoading()
+    {
+        $this->dieselSearchHelper->registerWidget($this);
     }
 
     function popupAttributeValueIsSelected($attributeValue)
@@ -641,7 +644,7 @@ class WFDieselFacet extends WFWidget
         // support for fake open-ended ranges with mutli-value hack
         if ($this->fakeOpenEndedRange)
         {
-            $currentVal = $this->dieselSearch->getAttributeSelection($this->attributeID);
+            $currentVal = $this->dieselSearchHelper->getAttributeSelection($this->attributeID);
             if ($attributeValue < $currentVal) return NULL;
         }
 
@@ -723,7 +726,7 @@ class WFDieselFacet extends WFWidget
         }
         else
         {
-            $link = $this->parent()->baseURL() . '/' . $this->dieselSearch->getQueryState($this->attributeID, $newAttrQueries);
+            $link = $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID, $newAttrQueries));
             $html .= "<span {$classHTML}><a {$showLoadingJS} href=\"{$link}\"$fullLabelAsTooltip>{$label}</a>";
             if ($this->showItemCounts)
             {
@@ -749,7 +752,7 @@ class WFDieselFacet extends WFWidget
     {
         if (!is_null($this->isTaxonomyAttribute)) return $this->isTaxonomyAttribute;
 
-        $row = $this->dieselSearch->index()->getAttribute()->getRowByAttribute_id($this->attributeID);
+        $row = $this->dieselSearchHelper->dieselSearch()->index()->getAttribute()->getRowByAttribute_id($this->attributeID);
         if (!$row) throw( new Exception("Couldn't find attribute: {$this->attributeID}") );
         $Attribute = new JavaClass('com.dieselpoint.search.Attribute');
         $this->isTaxonomyAttribute = ($row->getDataType()->equals($Attribute->DATATYPE_TAXONOMY));
