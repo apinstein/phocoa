@@ -29,7 +29,7 @@
  * USING WFDieselSearch
  *
  * Setup:
- * 1. In your webapp.conf, you should configure DIESELPOINT_JAR_FILES to include paths to all of the DP jars that you need, typically diesel-3.5.1.jar and javax.servlet.jar.
+ * 1. In your webapp.conf, you should configure DIESELPOINT_JAR_FILES to include paths to all of the DP jars that you need, typically diesel-3.5.1.jar and javax.servlet.jar and mfg.jar (a special FacetGenerator that can generate child counts for children so we know if it's a leaf node or not).
  * 2. Instantiate a WFDieselSearch object in your module. The only required properties are {@link setIndex() index} and {@link resultObjectLoaderCallback()}.
  *
  * WFDieselSearch provides a WFPagedData interface as well, for pagination. WFDieselSearch is meant to be used only as the ID lookup for objects; the loading of the 
@@ -43,6 +43,7 @@
  *
  * prop_id, type=Item_id, datatype=I    # configure "prop_id" as the item_id for the index items.
  *
+ * IMPORTANT! This implementation of WFDieselSearch requires mfg.jar ("MouserFacetGenerator" code). This also requires a special diesel-x-x-x.jar from DP that has the "postings" class.
  */
 class WFDieselSearch extends WFObject implements WFPagedData
 {
@@ -437,7 +438,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
      *
      *  @return object A FacetGenerator object [Java].
      */
-    function getGeneratorObject()
+    function getGeneratorObject($treeGenerator = false)
     {
         if ($this->hasRunQuery())
         {
@@ -447,7 +448,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
         {
             $gObj = $this->index();
         }
-        return new Java("com.dieselpoint.search.FacetGenerator", $gObj);
+        if ($treeGenerator)
+        {
+            return new Java("com.dieselpoint.projects.mouser.MouserFacetGenerator", $gObj);
+        }
+        else
+        {
+            return new Java("com.dieselpoint.search.FacetGenerator", $gObj);
+        }
     }
 
     /**

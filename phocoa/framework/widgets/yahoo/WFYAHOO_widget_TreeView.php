@@ -126,8 +126,13 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadDataHandleSuccess = function(o)
     {
         var nodeData = items[i].firstChild.nodeValue;
         var nodeId = items[i].getAttribute('nodeId');
+        var couldHaveChildren = items[i].getAttribute('couldHaveChildren');
         var newNode = new YAHOO.widget.{$this->nodeType}(nodeData, o.argument.node, false, true);
         newNode.nodeId = nodeId;
+        if (couldHaveChildren == '0')
+        {
+            newNode.dynamicLoadComplete = true;
+        }
     }
 
     // redraw
@@ -176,6 +181,10 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_treeInit = function()
                 }
                 $script .= "    nodes['{$labelPath}'] = new YAHOO.widget.{$this->nodeType}('" . $currentItem->data() . "', {$parentNode}, false, true);\n";
                 $script .= "    nodes['{$labelPath}'].nodeId = '" . addslashes($currentItem->id()) . "';\n";
+                if (!$currentItem->couldHaveChildren())
+                {
+                    $script .= "    nodes['{$labelPath}'].dynamicLoadComplete = true;\n";
+                }
 
                 if ($currentItem->hasChildren())
                 {
@@ -260,6 +269,10 @@ class WFYAHOO_widget_TreeViewNode extends WFObject
      * @var array An array of child WFYAHOO_widget_TreeViewNode objects for this node.
      */
     protected $children;
+    /**
+     * @var boolean TRUE if the node does/could have children. If true, the node will be "expandable". FALSE if the node definitely doesn't have kids; it will be a leaf node.
+     */
+    protected $couldHaveChildren;
     
     /**
      *  To create a node, the ID and DATA are required.
@@ -279,6 +292,31 @@ class WFYAHOO_widget_TreeViewNode extends WFObject
             $this->data = $data;
         }
         $this->children = array();
+        $this->couldHaveChildren = true;
+    }
+
+    /**
+     *  By default, it is assumed that all nodes *could* have children, and that a dynamic callback must be made to see.
+     *
+     *  Thus, all nodes will be "+" expandable icons. If you know for sure that a given node doesn't have children,
+     *  setCouldHaveChildren(true) to have the node be a leaf node by default.
+     *
+     *  @param boolean TRUE if the node does/could have children. If true, the node will be "expandable". FALSE if the node definitely doesn't have kids; it will be a leaf node.
+     */
+    function setCouldHaveChildren($could)
+    {
+        $this->couldHaveChildren = $could;
+    }
+
+    /**
+     *  Is it possible that this node has children?
+     *
+     *  @return boolean 
+     *  @see setCouldHaveChildren()
+     */
+    function couldHaveChildren()
+    {
+        return $this->couldHaveChildren;
     }
     
     /**
@@ -356,7 +394,7 @@ class WFYAHOO_widget_TreeViewNode extends WFObject
      */
     function toXML()
     {
-        return '<item nodeId="' . $this->id . '">' . htmlentities($this->data()) . '</item>';
+        return '<item nodeId="' . $this->id . '" couldHaveChildren="' . ($this->couldHaveChildren ? '1' : '0') . '">' . htmlentities($this->data()) . '</item>';
     }
 }
 

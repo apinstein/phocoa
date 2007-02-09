@@ -261,13 +261,9 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
     function prepareFacets()
     {
         // load facet data
-        $facetGenerator = $this->dieselSearchHelper->dieselSearch()->getGeneratorObject();
-        if ($this->rangeCount)
-        {
-            $facetGenerator->setRangeCount($this->rangeCount);
-        }
         if ($this->isTaxonomyAttribute())
         {
+            $facetGenerator = $this->dieselSearchHelper->dieselSearch()->getGeneratorObject(true);
             // determine "open branch"
             $cVal = $this->path();
             if ($cVal)
@@ -300,7 +296,8 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                 $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal ? $cVal : "");
             }
             if ($this->dieselSearchHelper->dieselSearch()->logPerformanceInfo()) $this->dieselSearchHelper->dieselSearch()->startTrackingTime();
-            $facets = $facetGenerator->getTaxonomyTree($this->attributeID, $openToBuf, $treeRootBuf, $this->maxHits);
+            //$facets = $facetGenerator->getTaxonomyTree($this->attributeID, $openToBuf, $treeRootBuf, $this->maxHits); // built-in facetgenerator
+            $facets = $facetGenerator->getTaxonomyTree($this->attributeID, $treeRootBuf, 3, $this->maxHits); // mouser facetgenerator (handles multiple depths)
             if ($this->dieselSearchHelper->dieselSearch()->logPerformanceInfo()) $this->dieselSearchHelper->dieselSearch()->stopTrackingTime("Generating facet with getTaxonomyTree(\"{$this->attributeID}\", \"{$openToBuf}\", \"{$treeRootBuf}\", {$this->maxHits}) for {$this->id}");
             if (count($facets) == 1 and $facets[0]->getAttributeValue()->equals('')) // needed to extract facets from trees
             {
@@ -338,6 +335,11 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         }
         else
         {
+            $facetGenerator = $this->dieselSearchHelper->dieselSearch()->getGeneratorObject();
+            if ($this->rangeCount)
+            {
+                $facetGenerator->setRangeCount($this->rangeCount);
+            }
             if ($this->dieselSearchHelper->dieselSearch()->logPerformanceInfo()) $this->dieselSearchHelper->dieselSearch()->startTrackingTime();
             $facets = $facetGenerator->getList($this->attributeID, $this->maxRows, $this->sortByFrequency, $this->maxHits);
             if ($this->dieselSearchHelper->dieselSearch()->logPerformanceInfo()) $this->dieselSearchHelper->dieselSearch()->stopTrackingTime("Generating facet with getList(\"{$this->attributeID}\", {$this->maxRows}, " . ($this->sortByFrequency ? 'true' : 'false') . ", {$this->maxHits}) for {$this->id}");
@@ -364,7 +366,16 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                 $Array = new JavaClass("java.lang.reflect.Array");
 
                 $facets = $this->prepareFacets();
-                if (gettype($facets) == 'array') return NULL;   // no items!
+                if (gettype($facets) == 'array')
+                {
+                    if ($this->facetStyle == WFDieselFacet::STYLE_TREE and $this->treeDataPath)
+                    {   
+                        // no items, but means specifically "no kids" thus need to deal with this for the Tree callback
+                        // ajax callback -- send data
+                        WFYAHOO_widget_TreeView::sendTree(array());
+                    }
+                    return NULL;
+                }
                 if (gettype($facets) == 'object' and $Array->getLength($facets) == 0) return NULL;  // also no items
 
                 // sanity check
@@ -393,6 +404,11 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                         foreach ($facets as $facet) {
                             $label = str_replace("\n", '', $this->facetHTML($facet));
                             $item = new WFYAHOO_widget_TreeViewNode( (string) $facet->getAttributeValue(), $label);
+                            $fkids = $facet->getChildren();
+                            if ($fkids === null)
+                            {
+                                $item->setCouldHaveChildren(false);
+                            }
                             $items[] = $item;
                         }
                         $tree->setValue($items);
