@@ -1,4 +1,3 @@
-
 color: 
   bindings  : 
     datasourceJSArray: 
@@ -17,5 +16,5 @@ state:
   class     : WFYAHOO_widget_AutoComplete
   properties: 
     animVert : true
-    delimChar: ,
+    delimChar: ','
     inputType: textarea
