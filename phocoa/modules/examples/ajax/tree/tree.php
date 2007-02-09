@@ -3,16 +3,10 @@
 
 class module_tree extends WFModule
 {
-    protected $treeItemsTop;
     protected $treeItemsAll;
 
     function sharedInstancesDidLoad()
     {
-        $this->treeItemsTop = array( 
-                    'Portals' => new WFYAHOO_widget_TreeViewNode('Portals'),
-                    'Search Engines' => new WFYAHOO_widget_TreeViewNode('Search Engines'),
-                );
-        
         $this->treeItemsAll = array( 
                     'Portals' => new WFYAHOO_widget_TreeViewNode('Portals'),
                     'Search Engines' => new WFYAHOO_widget_TreeViewNode('Search Engines'),
@@ -33,44 +27,37 @@ class module_tree extends WFModule
 
     function tree_PageDidLoad($page, $params)
     {
-        $treeView = new WFYAHOO_widget_TreeView('yuiTree', $page);
+        // static
+        $treeView = new WFYAHOO_widget_TreeView('yuiTreeStatic', $page);
+        $treeView->setValue($this->treeItemsAll);
+
+        // dynamic
+        $treeView = new WFYAHOO_widget_TreeView('yuiTreeDynamic', $page);
         $treeView->setDynamicCallback( WFRequestController::WFURL($this->invocation()->modulePath(), 'ajax') );
-        $treeView->setValue($this->treeItemsTop);
+        $treeView->setValue($this->getRandomNodes(5));
     }
 
     function ajax_ParameterList()
     {
         return array('node');
     }
+
+    function getRandomNodes($min = 1)
+    {
+        // create between 0 and 5 random nodes
+        $nkids = rand($min,5);
+        $nodes = array();
+        for ($i = 0; $i < $nkids; $i++)
+        {
+            $node = new WFYAHOO_widget_TreeViewNode("Random node: " . ($i+1));
+            $node->setCouldHaveChildren( $i % 2 );
+            $nodes[] = $node;
+        }
+        return $nodes;
+    }
     function ajax_PageDidLoad($page, $params)
     {
-        $parts = explode('|', $params['node']);
-        $node = NULL;
-        $first = true;
-        foreach ($parts as $i)
-        {
-            try {
-                if ($first)
-                {
-                    $first = false;
-                    if (isset($this->treeItemsAll[$i]))
-                    {
-                        $node = $this->treeItemsAll[$i];
-                    }
-                    else
-                    {
-                        throw( new Exception() );   // will send no items
-                    }
-                }
-                else
-                {
-                    $node = $node->childWithId($i);
-                }
-            } catch (Exception $e) {
-                WFYAHOO_widget_TreeView::sendTree(NULL);
-            }
-        }
-        WFYAHOO_widget_TreeView::sendTree($node->children());
+        WFYAHOO_widget_TreeView::sendTree($this->getRandomNodes());
     }
 
     function tree_SetupSkin($skin)
