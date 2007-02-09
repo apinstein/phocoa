@@ -169,6 +169,15 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_treeInit = function()
                 if (!($currentItem instanceof WFYAHOO_widget_TreeViewNode)) throw( new Exception("Items in tree data must be WFYAHOO_widget_TreeViewNode instances.") );
                 $currentParentPath = array_pop($itemParentPaths);
 
+                // if we're not in dynamic data loading mode, we can auto-calculate couldHaveChildren
+                if (!$this->dynamicallyLoadData)
+                {
+                    if (!$currentItem->hasChildren())
+                    {
+                        $currentItem->setCouldHaveChildren(false);
+                    }
+                }
+
                 // add item to tree
                 $labelPath = $currentParentPath . "|" . $currentItem->id();
                 if ($currentParentPath)
