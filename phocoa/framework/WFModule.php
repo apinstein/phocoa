@@ -606,7 +606,7 @@ abstract class WFModule extends WFObject
 
         $this->invocation = $invocation;
         $this->requestPage = NULL;
-        $this->resonsePage = NULL;
+        $this->responsePage = NULL;
     }
 
     function init()
