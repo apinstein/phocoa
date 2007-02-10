@@ -62,7 +62,7 @@ class module_tree extends WFModule
 
     function tree_SetupSkin($skin)
     {
-        $skin->setTitle('YUI Tree View Example');
+        $skin->setTitle('YUI TreeView Example');
         $skin->addMetaKeywords(array('yui treeview', 'yui tree', 'yahoo tree view example', 'yui treeview example', 'yui ajax tree', 'ajax tree view', 'yui example'));
     }
 }
