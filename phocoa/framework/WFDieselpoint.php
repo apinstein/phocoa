@@ -1222,6 +1222,22 @@ class WFDieselSearchHelper extends WFObject
     {
         return $this->getQueryState(WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME);
     }
+
+    /**
+     *  Get the queryState for the current instace with ONLY the restrictDQL filter.
+     *
+     *  This is useful for a "clear all filters" link.
+     *
+     *  @return string
+     */
+    function getQueryStateWithRestrictDQLOnly()
+    {
+        if ($this->restrictDQL)
+        {
+            return WFDieselSearchHelper::QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME . '=' . $this->restrictDQL;
+        }
+        return NULL;
+    }
     
     /**
      *  Get the queryState for the current instance.

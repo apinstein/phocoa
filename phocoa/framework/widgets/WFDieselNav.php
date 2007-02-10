@@ -199,6 +199,7 @@ class WFDieselNav extends WFWidget
             
             // 1. render current selections / filters
             // first do items in desired order
+            $filtersShownCount = 0;
             foreach ($this->facetNavOrder as $id) {
                 if (!isset($facetNavsByID[$id])) throw( new Exception("Specified WFDieselFacet of id {$id} does not exist.") );
 
@@ -208,6 +209,7 @@ class WFDieselNav extends WFWidget
                 if ($selectedHTML)
                 {
                     $renderedList[$id] = true;
+                    $filtersShownCount++;
                 }
                 $html .= $selectedHTML;
                 $selectionRenderedList[$id] = true;
@@ -220,6 +222,7 @@ class WFDieselNav extends WFWidget
                     if ($selectedHTML)
                     {
                         $renderedList[$id] = true;
+                        $filtersShownCount++;
                     }
                     $html .= $selectedHTML;
                     $selectionRenderedList[$id] = true;
@@ -229,9 +232,21 @@ class WFDieselNav extends WFWidget
             foreach ($this->children() as $widget) {
                 if ($widget instanceof WFDieselKeyword)
                 {
-                    $html .= $this->facetFilterNav($widget);
+                    $keywordFilterHTML = $this->facetFilterNav($widget);
+                    if ($keywordFilterHTML)
+                    {
+                        $filtersShownCount++;
+                    }
+                    $html .= $keywordFilterHTML;
                     break;
                 }
+            }
+            // if there are any filter, offer a "clear all" link
+            if ($filtersShownCount >= 2)
+            {
+                $html .= "\n<div class=\"phocoaWFDieselNav_FilterInfo\" style=\"border: 0\"><a " .
+                        ($this->showLoadingMessage ? ' onClick="showLoading(); "' : '') . 
+                        " href=\"" . $this->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryStateWithRestrictDQLOnly()) . "\">Clear all filters</a></div>\n";
             }
             $html .= "<br clear=\"all\" />\n";
 
