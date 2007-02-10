@@ -46,7 +46,7 @@ class WFHidden extends WFWidget
 
     function render($blockContent = NULL)
     {
-        return '<input type="hidden" id="' . $this->id . '" name="' . $this->name . '" value="' . $this->value . '" />';
+        return '<input type="hidden" id="' . $this->id . '" name="' . $this->name . '" value="' . htmlspecialchars($this->value) . '" />';
     }
 
     function canPushValueBinding() { return false; }
