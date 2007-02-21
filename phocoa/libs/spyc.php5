@@ -489,7 +489,7 @@
             $indent = str_repeat(' ',$indent);
             $value = wordwrap($value,$this->_dumpWordWrap,"\n$indent");
           }  
-          if ($valueType == 'string') {
+          if ($valueType == 'string' and !$folded) {
             $value = "'" . str_replace("'", "''", $value) . "'";
           }  
           if ($folded) { 

@@ -25,6 +25,26 @@ class WFYaml
             return Spyc::YAMLLoad($file);
         }
     }
+
+    /**
+     *  Given a php structure, returns a valid YAML string representation.
+     *
+     *  @param mixed PHP data
+     *  @return string YAML equivalent.
+     */
+    public static function dump($phpData)
+    {
+        if (function_exists('syck_dump'))
+        {
+            // php-lib-c version, much faster!
+            return syck_dump($phpData);
+        }
+        else
+        {
+            // php version
+            return Spyc::YAMLDump($phpData);
+        }
+    }
 }
 
 ?>

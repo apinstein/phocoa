@@ -34,8 +34,7 @@ foreach ($__instances as $id => $inst) {
     mergeConfig($id, $inst);
 }
 
-require_once(FRAMEWORK_DIR . '/libs/spyc.php5');
-$yaml = Spyc::YAMLDump($combined);
+$yaml = WFYaml::dump($combined);
 file_put_contents("{$dir}/{$pageName}.yaml", $yaml);
 print "Saved YAML for page '{$pageName}' to file: {$dir}/{$pageName}.yaml\n";
 exit(0);

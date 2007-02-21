@@ -37,8 +37,7 @@ foreach ($__instances as $id => $class) {
     }
 }
 
-require_once(FRAMEWORK_DIR . '/libs/spyc.php5');
-$yaml = Spyc::YAMLDump($combined);
+$yaml = WFYaml::dump($combined);
 $bytes = file_put_contents("{$dir}/shared.yaml", $yaml);
 if ($bytes === false)
 {
