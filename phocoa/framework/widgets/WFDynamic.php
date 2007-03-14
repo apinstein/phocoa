@@ -69,9 +69,9 @@ class WFDynamic extends WFWidget
      */
     protected $widgetConfig;
     /**
-     * @var boolean Tracks whether or not the widgetConfig has been updated based on other settings yet.
+     * @var boolean Tracks whether or not the widgetConfig has been updated based on other settings yet. WFDynamic subclasses may want to look at this var to determine whether to do any initial setup.
      */
-    private $processedWidgetConfig;
+    protected $processedWidgetConfig;
     /**
      * @var integer The current iteration, used during rendering.
      */

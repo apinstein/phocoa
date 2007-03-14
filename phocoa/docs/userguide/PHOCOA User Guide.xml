@@ -504,9 +504,14 @@ $ phpdoc -dn framework-base -t docs/phpdocs -ti "PHOCOA Documentation" -o HTML:f
       Project</bridgehead>
 
       <para>PHOCOA comes with a shell script to help you manage common PHOCOA
-      tasks. This script is aptly named <command>phocoa</command>. The phocoa
-      command is located at phocoa/phing/phocoa. We recommend that you alias
-      it to avoid having to type the entire path each time.</para>
+      tasks. This script is aptly named <command>phocoa</command>.</para>
+
+      <note>
+        <para>If you're not using a PEAR install of PHOCOA, the
+        <command>phocoa</command> command won't be in your path. The phocoa
+        command is located at phocoa/phing/phocoa. We recommend that you alias
+        it to avoid having to type the entire path each time.</para>
+      </note>
 
       <para>Let's use <command>phocoa</command> to build a new project.</para>
 
@@ -518,8 +523,10 @@ phocoa &gt; prepareGeneral:
      [echo] PHOCOA framework base dir at: /Users/alanpinstein/dev/sandbox/phocoa/phocoa
 
 phocoa &gt; newproject:
+
+     [echo] The container directory for your PHOCOA project will be used to place the log, runtime, and project directories. Please be careful!
 Enter the name of the new project: [] helloworld
-Enter the path to create the new project in: [/Users/alanpinstein/dev/sandbox] 
+Enter the path to the project container directory: [/Users/alanpinstein/dev/sandbox/helloworld] 
 [realpathexpandhome] Resolved /Users/alanpinstein/dev/sandbox/helloworld to /Users/alanpinstein/dev/sandbox/helloworld
 Enter the name of the server (ie dns name) that will host this application: [localhost] 
 Enter the IP of the server that will host this application: [127.0.0.1] 
@@ -587,28 +594,32 @@ Total time: 8.7973 seconds
 </screen>
 
       <para>You should now have a directory <emphasis>helloworld</emphasis>
-      containing your new PHOCOA application.<emphasis></emphasis></para>
+      containing your new PHOCOA application.</para>
 
-      <screen>$ ls -l helloworld                                                                                                                                           alanpinstein@g5:~/dev/sandbox
+      <screen>$ ls -l helloworld
 total 0
 drwxr-xr-x    7 alanpins staff         238 Oct 17 15:03 helloworld
 drwxrwxrwx    2 alanpins staff          68 Oct 17 15:02 log
 drwxrwxrwx    3 alanpins staff         102 Oct 17 15:02 runtime</screen>
 
-      <para>This directory contains your PHOCOA deployment structure.
-      Typically, log and runtime (tmp / cache) files are not part of your
-      source code, so PHOCOA sets up a wrapper directory containing these
+      <para>This directory contains your PHOCOA deployment structure. This
+      directory is called the <token>container</token> directory because it
+      contains your web application, including your PHOCOA application
+      project. Typically, log and runtime (tmp / cache) files are not part of
+      your source code, so PHOCOA sets up a container directory for these
       items.</para>
 
       <para>The <emphasis>helloworld</emphasis> directory inside of this
-      deployment structure is your PHOCOA applications directory.</para>
+      deployment structure is your PHOCOA <token>application</token>
+      directory.</para>
 
       <para><note>
-          <para>This "inner" directory is the root directory of your PHOCOA
-          application code, and is what you should check in to your version
-          control system. The log/ and runtime/ directories are not versioned
-          resources, thus we keep them one level up in the directory structure
-          for organizational purposes.</para>
+          <para>The <token>application</token> directory is the root directory
+          of your PHOCOA application code, and is what you should check in to
+          your version control system. The log/ and runtime/ directories are
+          not versioned resources, thus we keep them one level up in the
+          <token>container</token> directory for organizational
+          purposes.</para>
         </note></para>
 
       <bridgehead>Application Directory Structure</bridgehead>
@@ -678,13 +689,41 @@ total 24
 
       <para>Next up is the PHOCOA conf file. Open up webapp.conf. Read through
       it, setting up each directive as explained by the comments. It should
-      also be set up correctly because of the Phing task. You may need to
-      tweak the PHP include_path setting to ensure that PHOCOA can see your
-      smarty install.</para>
+      also be set up correctly because of the Phing task. </para>
+
+      <para>You may need to tweak the PHP include_path setting to ensure that
+      PHOCOA can see all of your dependencies.</para>
+
+      <bridgehead>Dependency Installation</bridgehead>
+
+      <para>If you are using PEAR for PHOCOA's dependencies, you can skip this
+      section.</para>
+
+      <para>If you have non-PEAR installs of smarty, propel, creole, or phing,
+      read on to make sure everything is in the correct place.</para>
+
+      <para>PHOCOA assumes that things are installed in PEAR-like directory
+      structures. That is, PHOCOA will look for propel via
+      <code>require('propel/Propel.php')</code>, and assume that there is a
+      directory propel with the propel code in your include path.</para>
+
+      <para>The best way to set up non-PEAR dependencies is to create a
+      directory somewhere called "phplib", and in that folder, put all of your
+      dependencies:</para>
+
+      <screen>$ ls -1 /opt/phplib
+creole
+propel
+smarty</screen>
+
+      <para>Then, edit the <token>include_path</token> in webapp.conf to
+      include <token>/opt/phplib</token>.</para>
+
+      <bridgehead>Hello, PHOCOA!</bridgehead>
 
       <para>At this point, you should be able to access the site via the web.
-      You should be able to access the application via
-      http://servername/.</para>
+      You should be able to access the application via http://servername/ and
+      see the PHOCOA welcome page.</para>
 
       <para>Now, we can move on to the tutorial!</para>
     </section>

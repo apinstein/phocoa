@@ -213,6 +213,7 @@ class WFCheckbox extends WFWidget
                     'id="' . $this->id() . '" ' .
                     'value="' . $this->checkedValue() . '" ' .
                     ($this->checked() ? ' checked="checked" ' : '') .
+                    ($this->enabled() ? '' : ' disabled readonly ') .
                     ' />' . 
                     ($this->label() !== '' ? " <label for=\"{$this->id}\">{$this->label}</label>" : '')
                     ;

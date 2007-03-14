@@ -78,23 +78,27 @@ class WFSelectionCheckbox extends WFDynamic
         // check inputs
         if (!$this->arrayController instanceof WFArrayController) throw( new Exception("arrayController must be a WFArrayController instance."));
         
-        // add checkboxes for selection
-        $options = array(
-            'groupMode' => array( 'custom' => array('iterate' => false, 'value' => true) ),
-            'checkedValue' => array( 'custom' => array('iterate' => true, 'keyPath' => '#identifier#') ),
-            'uncheckedValue' => array( 'custom' => array('iterate' => false, 'value' => '') )
-        ); 
-        if ($this->label)
+        // only set up the widget config once! if we do this more than once, then we blow away any other widget config (ie from a prototype)
+        if (!$this->processedWidgetConfig)
         {
-            $options['label'] = array( 'custom' => array('iterate' => false, 'value' => $this->label) );
+            // add checkboxes for selection
+            $options = array(
+                'groupMode' => array( 'custom' => array('iterate' => false, 'value' => true) ),
+                'checkedValue' => array( 'custom' => array('iterate' => true, 'keyPath' => '#identifier#') ),
+                'uncheckedValue' => array( 'custom' => array('iterate' => false, 'value' => '') )
+            ); 
+            if ($this->label)
+            {
+                $options['label'] = array( 'custom' => array('iterate' => false, 'value' => $this->label) );
+            }
+            else if ($this->labelKeyPath)
+            {
+                $options['label'] = array( 'custom' => array('iterate' => true, 'keyPath' => $this->labelKeyPath) );
+            }
+            $this->setWidgetConfig($options);
+            $this->setWidgetClass('WFCheckbox');
+            $this->useUniqueNames = false;
         }
-        else if ($this->labelKeyPath)
-        {
-            $options['label'] = array( 'custom' => array('iterate' => true, 'keyPath' => $this->labelKeyPath) );
-        }
-        $this->setWidgetConfig($options);
-        $this->setWidgetClass('WFCheckbox');
-        $this->useUniqueNames = false;
 
         parent::createWidgets();
     }
