@@ -16,6 +16,8 @@
  *  targetRootModule - If you want to customize the value of {@link WFModuleInvocation::$targetRootModule}, specify it in the param.
  *                     BOOLEAN, but remember that in smarty targetRootModule="false" passing the STRING false, so do targetRootModule=false
  *
+ *  IMPORTANT!!!! WFSkinModuleView is intended for use only from skin template files. Results if used from a WFModule/Page are UNPREDICTABLE -- basically some functions will mistake the "root" module for the root of the skin rather than the root of the current WFModuleInvocation hierarchy when programmiatcally invoking WFModuleInvocations.
+ *
  *  @param array The params from smarty tag
  *  @param object WFSmarty object of the current tpl
  *  @return string The HTML snippet from the WFModule.
