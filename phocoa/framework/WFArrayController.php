@@ -372,11 +372,14 @@ class WFArrayController extends WFObjectController implements Iterator
      * Pass an array of objects to use for this array.
      *
      * Simply clears the current content and selection, then calls {@link addObjects}.
-     * @param array An array of objects of the proper class.
+     * @param mixed Array or object - An array of objects of the proper class. Or an object of the proper class.
+     *              If you pass an object the entire contents of the WFArrayController will be replaced with that single object.
      * @throws If any object is not of the class managed by our controller.
      */
     function setContent($arr)
     {
+        if (is_object($arr) and (is_array($arr))) throw( new WFException("I don't understand how to deal with objects that have array interfaces yet") );
+        if (is_object($arr)) $arr = array($arr);
         if (!is_array($arr)) throw( new Exception("The passed content must be a PHP array.") );
 
         // clear content

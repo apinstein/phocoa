@@ -315,6 +315,16 @@ class WFSkin extends WFObject
     }
 
     /**
+     *  Get the delegate instance.
+     *
+     *  @return object WFSkinDelegate A WFSkinDelegate instance.
+     */
+    function delegate()
+    {
+        return $this->delegate;
+    }
+
+    /**
       * Assign a skin delegate for this instance.
       * @param object The skin delegate.
       */
