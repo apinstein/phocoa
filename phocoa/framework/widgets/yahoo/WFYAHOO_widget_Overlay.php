@@ -193,7 +193,17 @@ YAHOO.phocoa.widgets.overlay.init_{$this->id} = function() {
     // hopefully this next chunk can be removed when YUI fixes this internally
     if (overlay.platform == \"mac\" && overlay.browser == \"gecko\")
     {
-
+        var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+        if (!overlay.cfg.getProperty('visible'))
+        {
+            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
+            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
+        }
+        else
+        {
+            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
+            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
+        }
         overlay.showEvent.subscribe( function() {
                                                     var overlayEl = YAHOO.util.Dom.get('{$this->id}');
                                                     YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
