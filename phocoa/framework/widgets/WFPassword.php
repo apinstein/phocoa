@@ -10,11 +10,23 @@
 
 /**
  * A Password widget for our framework.
+ * @todo Add property "enterPasswordValidateDuplicate" - will show 2 fields and automatically validate that they're the same (great for "sign up" or "change password" feature). default FALSE.
+ * @todo Add property "blankOK" which will not consider it an error if ALL fields are blank (assume "no change"). default TRUE.
  */
 class WFPassword extends WFWidget
 {
+    /**
+     *  @var integer The max length of the text field
+     */
     protected $maxLength;
+    /**
+     *  @var integer The size of the text field
+     */
     protected $size;
+    /**
+     *  @var boolean Whether or not to "preserve" the input in the UI if the form is re-displayed. TRUE is useful for sign-up forms to prevent people from having to re-enter the PW if there's nothing wrong with that data.
+     */
+    protected $preserveInput;
 
     /**
       * Constructor.
@@ -25,6 +37,7 @@ class WFPassword extends WFWidget
         $this->maxLength = NULL;
         $this->size = NULL;
         $this->enabled = true;
+        $this->preserveInput = false;
     }
 
     public static function exposedProperties()
@@ -33,6 +46,7 @@ class WFPassword extends WFWidget
         return array_merge($items, array(
             'maxLength',
             'size',
+            'preserveInput' => array(true, false),
             ));
     }
 
@@ -52,7 +66,7 @@ class WFPassword extends WFWidget
     {
         if ($this->hidden) return NULL;
 
-        return '<input type="password" name="' . $this->valueForKey('name') . '" value=""' .
+        return '<input type="password" name="' . $this->valueForKey('name') . '" value="' . ($this->preserveInput ? $this->value : NULL) . '"' .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .

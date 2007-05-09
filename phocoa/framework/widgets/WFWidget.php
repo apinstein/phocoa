@@ -81,6 +81,11 @@ abstract class WFWidget extends WFView
      * @var string The css class to use for the item.
      */
     protected $class;
+    /**
+     * @var string The label for this widget.
+     * @see WFWidgets::setWidgetLabel()
+     */
+    protected $widgetLabel;
 
     /**
       * Constructor.
@@ -99,6 +104,7 @@ abstract class WFWidget extends WFView
         $this->value = NULL;
         $this->hidden = false;
         $this->class = NULL;
+        $this->widgetLabel = NULL;
     }
 
     public static function exposedProperties()
@@ -160,6 +166,28 @@ abstract class WFWidget extends WFView
     function hidden()
     {
         return $this->hidden;
+    }
+
+    /**
+     *  Set the "label" used for this widget field.
+     *
+     *  The label is the "field label" that describes the widget. Used primarly by {@link WFAutoForm}.
+     *
+     *  @param string The label for this widget.
+     */
+    function setWidgetLabel($widgetLabel)
+    {
+        $this->widgetLabel = $widgetLabel;
+    }
+
+    /**
+     *  The widget's label.
+     *
+     *  @return *  string The label for this widget.
+     */
+    function widgetLabel()
+    {
+        return $this->widgetLabel;
     }
 
     /**
@@ -334,11 +362,13 @@ abstract class WFWidget extends WFView
         // process value transformer
         if ($binding->valueTransformerName())
         {
+            WFLog::log("Transforming value " . var_export($boundValue, true) . " with " . $binding->valueTransformerName(), WFLog::TRACE_LOG);
             $vt = WFValueTransformer::valueTransformerForName($binding->valueTransformerName());
             $boundValue = $vt->transformedValue($boundValue);
+            WFLog::log("Transformed value: " . var_export($boundValue, true), WFLog::TRACE_LOG);
         }
 
-        WFLog::log("Using value '$boundValue' for binding '$prop'", WFLog::TRACE_LOG);
+        WFLog::log("Using value " . var_export($boundValue, true) . " for binding '$prop'", WFLog::TRACE_LOG);
         return $boundValue;
     }
 
@@ -449,7 +479,7 @@ abstract class WFWidget extends WFView
                 {
                     $boundValue = $basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER];
                 }
-                WFLog::log("Using value '$boundValue' for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
+                WFLog::log("FINAL value " . var_export($boundValue, true) . " for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
                 $this->setValueForKey($boundValue, $prop);  // must do this to allow accessors to be called!
             } catch (Exception $e) {
                 if ($binding->raisesForNotApplicableKeys())

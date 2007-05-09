@@ -58,6 +58,12 @@ class WFLink extends WFWidget
             'target',
             ));
     }
+
+    public function setLabel($label)
+    {
+        $this->label = $label;
+    }
+    
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();
@@ -99,7 +105,7 @@ class WFLink extends WFWidget
             }
             $label = ($this->label ? $this->label : $this->value);
             $title = ($this->title ? " title=\"{$this->title}\" " : NULL);
-            return "<a href=\"{$this->value}\" {$class}{$target}{$title}>{$label}</a>";
+            return "<a href=\"{$this->value}\" {$class}{$target}{$title}" . $this->getJSActions() . ">{$label}</a>";
         }
     }
 

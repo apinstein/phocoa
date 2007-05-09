@@ -150,6 +150,22 @@ class WFSubmit extends WFWidget
                     '/>';
     }
 
+    /**
+     *  Renders the button as hidden (for use with {@link WFForm::$defaultSubmitID defaultSubmitID}).
+     *
+     *  @return string The HTML of the button's core attrs with no ID.
+     */
+    function renderDefaultButton()
+    {
+        return '<div style="position: relative; height: 0px; width: 0px;">
+                <input type="submit"' .
+                    ' name="action|' . $this->id() . '"' . 
+                    ' value="' . $this->label() . '"' . 
+                    ' style="position: absolute; left: -20000px;"' .
+                    ' />
+                </div>';
+    }
+
     /********************* BINDINGS SETUP ************************/
     function setupExposedBindings()
     {

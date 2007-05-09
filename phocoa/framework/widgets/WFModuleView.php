@@ -74,6 +74,11 @@ class WFModuleView extends WFWidget
         $this->invocationPath = $path;
     }
 
+    function invocationPath()
+    {
+        return $this->invocationPath;
+    }
+
     function render($blockContent = NULL)
     {
         // create an invocation, execute it, and return the HTML.

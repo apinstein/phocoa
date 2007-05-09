@@ -52,6 +52,7 @@ class WFForm extends WFWidget
     const CALCULATED_DEFAULT_SUBMIT_ID_NONE = NULL;
     const CALCULATED_DEFAULT_SUBMIT_ID_CANNOT_DETERMINE = -1;
     private $calculatedDefaultSubmitID;
+    private $numberOfSubmitButtons;
 
     /**
       * Constructor.
@@ -75,6 +76,7 @@ class WFForm extends WFWidget
 
         $this->method = WFForm::METHOD_POST;
         $this->defaultSubmitID = $this->calculatedDefaultSubmitID = NULL;
+        $this->numberOfSubmitButtons = 0;
     }
 
     public static function exposedProperties()
@@ -92,12 +94,13 @@ class WFForm extends WFWidget
         parent::addChild($view);
         if ($view instanceof WFSubmit)
         {
+            $this->numberOfSubmitButtons++;
             // if if the FIRST one, save it; otherwise, 
             if ($this->calculatedDefaultSubmitID === WFForm::CALCULATED_DEFAULT_SUBMIT_ID_NONE)
             {
                 $this->calculatedDefaultSubmitID = $view->id();
             }
-            else
+            else if (!$this->defaultSubmitID)
             {
                 $this->calculatedDefaultSubmitID = WFForm::CALCULATED_DEFAULT_SUBMIT_ID_CANNOT_DETERMINE;
                 WFLog::log("Form id: '{$this->id}' is unable to determine the default button for the form. You should set one via defaultSubmitID to avoid errors in some browsers.", WFLog::WARN_LOG);
@@ -136,11 +139,27 @@ class WFForm extends WFWidget
         {
             $encType = 'enctype="multipart/form-data"';
         }
+        // DEFAULT submit button correction; the DEFAULT button is the submit button that is "pressed" when someone submits a form by hitting ENTER
+        // DEFAULT button is not something that is supported in HTML. Each browser behaves differently on enter-to-submit.
+        // Because of browser differences in submit buttons, the default button of a form needs lots of "cleanup" to make it work as expected in PHOCOA.
+        // In IE, when a form is submitted via "enter key press", NO buttons are sent in the form data
+        //   - We fix this by having a defaultSubmitID, and WFPage will automatically call the action method for this button
+        // In Safari/FF, when a form is submitted via "enter key press", a button will be included in the form data, but it will be the FIRST submit button in the DOM. To fix this for these browsers, we simply put a COPY of the "Default" button at the beginning of the form. This way the "default" button as set up in defaultSubmitID will work as expected.
+        // NOTE: For Safari, the rule is technically that Safari will submit the first button in the DOM that is actually RENDERED/VISIBLE.
+        // Thus we can't use 'display: none' to hide the first button, but must use some somewhat ugly css so that Safari "renders" the button, but it is positioned so that it doesn't affect layout.
+        // XHR Form submissions: YAHOO also submits the first form in the DOM, so the FF/Safari fix works great for XHR as well.
+        // see WFSubmit::renderDefaultButton() for actual submit button HTML code
+        $defaultFormButtonHTML = NULL;
+        if ($this->defaultSubmitID and $this->numberOfSubmitButtons >= 2)
+        {
+            $defaultFormButtonHTML = "\n" . $this->children[$this->defaultSubmitID]->renderDefaultButton();
+        }
         return "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $encType . '>' .
                "\n" . '<input type="hidden" name="__modulePath" value="' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '" />' .
                //"\n" . '<input type="hidden" name="__currentModule" value="' . $this->page->module()->invocation()->modulePath() . '" />' .
                //"\n" . '<input type="hidden" name="__currentPage" value="' . $this->page->pageName() . '" />' .
                "\n" . '<input type="hidden" name="__formName" value="' . $this->id . '" />' .
+               $defaultFormButtonHTML .
                "\n" . $blockContent .
                "\n</form>\n" .
                "\n";
