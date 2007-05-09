@@ -256,7 +256,7 @@ YAHOO.widget.PhocoaDialog.prototype.applyStyles = function(rawHTML) {
         }
         var newStyleEl = document.createElement('style');
         newStyleEl.type = 'text/css';
-        if (this.browser == 'ie')
+        if (this.browser == 'ie' || this.browser == 'ie7')
         {
             newStyleEl.styleSheet.cssText = styles[i];
         }
