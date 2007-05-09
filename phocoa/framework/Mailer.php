@@ -369,26 +369,26 @@ class Mail_Mailer
         $headers["Errors-To"] = "{$this->from_email}";
 
         // Add an x-mailer; reduces chance of being flagged as SPAM
-        $headers["X-Mailer"] = "ShowCase Web Framework Mailer";
+        $headers["X-Mailer"] = "PHOCOA Web Framework Mailer";
 
         // use PEAR::Mail_Mime to format message
         $mm = new Mail_Mime();
 
-        $mm->setTXTBody($this->raw_message_text);
+        @$mm->setTXTBody($this->raw_message_text);
         if ($this->raw_message_html) {
-            $mm->setHTMLBody($this->raw_message_html);
+            @$mm->setHTMLBody($this->raw_message_html);
         }
 
         // add attachments
         foreach ($this->attachments as $attachment_info) {
-            $err = $mm->addAttachment($attachment_info['file'], $attachment_info['type'], $attachment_info['name'], $attachment_info['isfile']);
+            $err = @$mm->addAttachment($attachment_info['file'], $attachment_info['type'], $attachment_info['name'], $attachment_info['isfile']);
             if (PEAR::isError($err)) {
                 return $err;
             }
         }
 
-        $mm_body = $mm->get();
-        $mm_headers = $mm->headers($headers);
+        $mm_body = @$mm->get();
+        $mm_headers = @$mm->headers($headers);
 
         if (is_null($this->pear_mailer_config)) {
             $mailer =& Mail::factory($this->pear_mailer_driver);
@@ -399,7 +399,7 @@ class Mail_Mailer
             return $mailer;
         }
 
-        $err = $mailer->send($recipients, $mm_headers, $mm_body);
+        $err = @$mailer->send($recipients, $mm_headers, $mm_body);
 
         if (PEAR::isError($err)) {
             return $err;

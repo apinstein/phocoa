@@ -22,7 +22,7 @@ Dependencies
 4) Phing
 5) YUI: http://developer.yahoo.com/yui
 --> To upgrade the YUI, download it from YAHOO, then:
-rsync --dry-run -vvr ~/Desktop/yui-1/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
+rsync --dry-run -vvr ~/Desktop/yui/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
 ** when happy, remove --dry-run
 ** when done, edit yahoo.js, yahoo-min.js, and yahoo-dom-event.js to put the YAHOO var in the global namespace:
 var YAHOO = {};
@@ -33,6 +33,7 @@ window.YAHOO = {};
 TODO
 
 1.0 Milestone:
+- The "default" class for the WFControllers is WFDictionary... I think maybe we can use ArrayObject, which is an PHP5 SPL class (or at least subclass it). Need more testing...
 - Can we add "default values" to parameters for _ParameterList('name' => 'defaultValue') the way we did for: phocoa builder/exportPhocoaBuilderIntegrationInfo.php
   - would simplify default value setup
   - I think it's safe re php spec
@@ -41,16 +42,32 @@ TODO
   require('../conf/webapp.conf');
   WFWebApplicationMain();
   // WFModule subclass here
-  - this way we could store css, img, etc in the same folder as the module...
-- Idea to get stuff in TPL file into <head> section! Create a {WFHead} block tag and have it addHeadString() if there's a skin; dump directly if not.
-- Implement caching
-  - NOTE: I started to play with this a little, returning a cache from WFModuleInvocation::execute() as a test, but it wasn't any faster! Need to profile a bit to see WTF.
-  - Each module/page should determine whether or not it's cacheable (via a callback), and for how long, etc
-  - store modulepage caches in runtime/
-  - benchmark?
+  - this way we could store css, img, etc in the same folder as the module... add {$MODULE_WWW_DIR} to smarty?
+- Finish WFAutoForm
+  - Talk to Mark F about his experiences
+  - Look at HTML_QuickForm
+  - Re-build "code-gen" things to build WFAutoForm instead
+  - Update PHOCOA Builder to allow browsing ( or instantiating ) of PHP Objects, & drag-drop an object onto an interface
+- WFModule/Page architecture
+  - Have a sep WFPage subclass [ or delegate? ] for each page in a module; ensure BC
+  - Add in a bunch more "life-cycle" callbacks
+    - noAction
+    - preAction, or maybe validate (so that you can combine field-level KVC with validation done in the "action" callback
+- Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
+  - Should there exist a class WFModulePage that is the "page-centric" stuff of a module? This would allow for better documentation of page-life-cycle callbacks
+    - would more cleanly encapsulate pages: great place to put callbacks for page-centric things rather than goofily named methods of modules;
+    - BC issues? could use __call on module to to DB?
+    - could data still be easily/cleanly shared?
+  - additional life cycle callbacks? look through page setup and do one for each major phase?
+  - maybe have WFDynamic's "observe" arrayControllers and automatically update themselves... also have "WFArrayController::stopSendingUpdates()" and WFArrayController::startSendingUpdates" (find cocoa equivalent)
+- Validator Issues
+  - Validators aren't run automatically; only by bindings infrastructure, is that a bad thing?
+  - No way to automatically run validators for an entire object (ie to catch non-single-field validation issues)
+  - No way to create validation errors from save() and have the FW catch them automatically
 - Something seems slightly off with binding options setup. When bind() is done, seems that it should coalesce default binding option, but it isn't. They're being done
   all over the place (pullBindings, processBindingOptions, etc). Seems that the bind() process should coalesce those for you. What does processBindingOptions do anyway?
 - Can we add "NullPlaceholder" to text field and text area so there can be some "help" text that gets automatically "converted" to/from NULL?
+  - see how Cocoa does this; may need JS to implement
 - Have the newproject script make -dev and -production and -staging versions of conf files
 - Do we need namespacing for modules? What if you have 2 "included" modules on a page that both have a widget with id=name? Things won't work right... right?
 - E_STRICT support
@@ -59,7 +76,7 @@ TODO
     - Menu based on YUI
       - WFTreeController
 - Integrate YAHOO js library to the extent that events can be attached to widgets; build a nice infrastructure for that
-  - deprecate current js action handlers? dunno...
+  - deprecate current js action handlers? dunno... direct onClick handlers and such are still very useful
   - support tooltips on all wfview objects
 - Outline and Document Naming Conventions for widgets to use for javascript functions, id, etc
 - Decide on convention for loading JS files; should widgets document the needed files and require modules to load them, or should they try to always do it themselves?
@@ -69,14 +86,6 @@ TODO
   - dependencies; propel, phing, creole, etc
 - WFRequestControllerDelegate -> has callbacks to process paths before default option; allows people to implement URI mapping, pre-processing, error handlers (404) etc
   -> Add WFRequestControllerException system; 404, 302, etc by throwing exceptions. How does this impact current WFRedirectRequestException?
-- Fix bug in base64_encode -- this is *NOT* URL safe as base64 uses / character! see WFModule / showcase EncryptionUtil hexencode/hexdecode
-- Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
-  - Should there exist a class WFModulePage that is the "page-centric" stuff of a module? This would allow for better documentation of page-life-cycle callbacks
-    - would more cleanly encapsulate pages: great place to put callbacks for page-centric things rather than goofily named methods of modules;
-    - BC issues? could use __call on module to to DB?
-    - could data still be easily/cleanly shared?
-  - additional life cycle callbacks? look through page setup and do one for each major phase?
-  - maybe have WFDynamic's "observe" arrayControllers and automatically update themselves... also have "WFArrayController::stopSendingUpdates()" and WFArrayController::startSendingUpdates" (find cocoa equivalent)
 - Figure out a way to implement .ibpalette type functionality
   -> Creating widget bundles that are drop-in compatible
   -> Figure out better way for re-using modules so that they can be used as widgets of other pages: tricky life-cycle consequences
@@ -109,12 +118,22 @@ TODO
     - need to be able to localize skins too, I suppose...
     - need some convention for localizing images, css, etc, for both skins and modules
 
-- Add page->setTemplateFile() to allow system to use alternate .tpl file -- easier for confirm/thanks pages that can share data with another page w/o passing data via module instance vars just to be re-assigned to the $page in the other page. DONE
-- Add an interactive PHP shell for exploring your projects. DONE
-- Add a WFViewPhocoaBuilderIntegration interface to house the informal protocol for making the PHOCOA builder more useful; add support to all widgets. DONE
-- Move .config and .instances files to YAML to improve compatibility for people managing with text files and make other GUI editors easier to write. DONE
-  - Convert existing projects to YAML setup with new converters. DONE
-  - Update PHOCOA Builder to use syck/yaml parser directly, thus skipping the PHP interaction to read the files. DONE
+- [ LOW ] Implement caching
+  - NOTE: I started to play with this a little, returning a cache from WFModuleInvocation::execute() as a test, but it wasn't any faster! Need to profile a bit to see WTF.
+  - Each module/page should determine whether or not it's cacheable (via a callback), and for how long, etc
+  - store modulepage caches in runtime/
+  - benchmark?
+
+- (DONE) Idea to get stuff in TPL file into <head> section! Create a {WFHead} block tag and have it addHeadString() if there's a skin; dump directly if not.
+  - document this - probably need a section on "page template and layout control"
+- (DONE) Fix bug in base64_encode -- this is *NOT* URL safe as base64 uses / character! see WFModule / showcase EncryptionUtil hexencode/hexdecode
+  - WFWebApplication::serializeURL()/unserializeURL()
+- (DONE) Add page->setTemplateFile() to allow system to use alternate .tpl file -- easier for confirm/thanks pages that can share data with another page w/o passing data via module instance vars just to be re-assigned to the $page in the other page.
+- (DONE) Add an interactive PHP shell for exploring your projects.
+- (DONE) Add a WFViewPhocoaBuilderIntegration interface to house the informal protocol for making the PHOCOA builder more useful; add support to all widgets.
+- (DONE) Move .config and .instances files to YAML to improve compatibility for people managing with text files and make other GUI editors easier to write.
+  - (DONE) Convert existing projects to YAML setup with new converters.
+  - (DONE) Update PHOCOA Builder to use syck/yaml parser directly, thus skipping the PHP interaction to read the files.
 - (DONE) Can we add a "module search path"? This would be used so that we can search for modules along multiple filesystem paths, and thus wouldn't need to copy framework modules
   into project directories. See WFWebApplication::addModulePath()
 - (DONE) prototypes for the WFDynamic controls so you can "configure" the default setup for a widget in a table, matrix, etc
@@ -147,7 +166,7 @@ The page cycle is still really tricky... look at this further... ideas:
 ARCHITECTURAL THINGS TO INVESTIGATE
 Use of FilterIterator as predicate searching.
 
-DOCUMENTATION:: API GUIDE:: SELF-DOCUMENTING CODE WIHT PHPDOCUMENTOR
+DOCUMENTATION:: API GUIDE:: SELF-DOCUMENTING CODE WITH PHPDOCUMENTOR
 We use PHPDOC (included in Pear) to document the code: http://manual.phpdoc.org/HTMLframesConverter/default/
 
 Each file should have the following at the top:

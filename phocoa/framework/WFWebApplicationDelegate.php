@@ -72,11 +72,25 @@ class WFWebApplicationDelegate
     /**
       * A callback function that your application can use to set up application config.
       *
-      * This function is called just after the WFWebApplication is constructed.
+      * This function is called from the WFWebApplication constructor... life cycle currently goes:
       *
-      * An example of something to do during initialize() is to set up the {@link WFAuthorizationDelegate}.
+      * - sessionWillStart
+      * - initialize
+      * - sessionDidStart
+      * 
+      * If you need a hook to do something BEFORE the session is initialized, do it from your delegate's constructor. Remember, though, you're constructor is called before autoload() works...
+      *
+      * An example of something to do during initialize() is to set up the {@link WFAuthorizationDelegate}, and bootstrap your DB connection (ie Propel::init()).
       */
     function initialize() {}
+
+    /**
+     *  A callback function so that the application can handle uncaught exceptions (ie log to database, email, etc)
+     *
+     *  @param object Exception
+     *  @return boolean TRUE if the exception was handled and stop further processing, FALSE otherwise.
+     */
+    function handleUncaughtException($e) {}
 }
 
 ?>

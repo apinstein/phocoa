@@ -30,6 +30,15 @@ class WFAuthorizationDelegate extends WFObject
     function login($username, $password, $passIsToken) {}
 
     /**
+     *  Provide the invocationPath for handling login.
+     *
+     *  By default, this will be "login/promptLogin". Applications can override this behavior by writing their own login modules, or even simply "wrapping" the built-in one.
+     *
+     *  @return string The invocationPath to the login. Remember the page handling login *should* accept a first parameter of "continueURL" (the url will be base64-encoded)
+     */
+    function loginInvocationPath() {}
+
+    /**
      *  The URL to continue to if the user logs in but there is no "continue to url" set.
      *
      *  If NULL, no redirect will be performed, and just a message saying "Login successful" will be seen.
@@ -58,6 +67,7 @@ class WFAuthorizationDelegate extends WFObject
      *  Should the login interface have a "remember me" checkbox?
      *
      *  @return boolean TRUE to enable "remember me" functionality. DEFAULT: false.
+     *  @todo REMEMBER ME code to actually set up / read remember me cookies it NOT implemented.
      */
     function shouldEnableRememberMe() {}
 
@@ -228,14 +238,13 @@ class WFAuthorizationException extends Exception
   *
   * By default, a web application has no login capabilities and thus all users are unprivileged.
   *
-  * WFAuthorizationManager works in conjuction with the bundled "login" module. The following is the public interface of the login module:
-  * - promptLogin($continueURL)
-  * - doLogout()
-  * - notAuthorized()
-  * If you want to extend / override the default login module, you can set the invocation path of the login module with {@link WFAuthorizationManager::setLoginModule()}. NOT YET IMPLEMENTED.
-  * ??????????? THINK ABOUT THE ABOVE... NOT YET WELL THOUGHT OUT....
+  * WFAuthorizationManager works in conjuction with the bundled "login" module. The following is the public interface of the login module (via invocationPath redirects)
+  * - promptLogin/<continueURL:base64>
+  * - doLogout
+  * - notAuthorized
   *
-  * @todo Do we need to encapsulate the "login" module in a method of WFAuthorizationManager so that applications can override the login module with their own?
+  * You can reliably link to the above listed invocationPaths from your application.
+  *
   * @todo Remember-me logins not yet implemented.
   * @todo captcha option
   */
@@ -387,6 +396,44 @@ class WFAuthorizationManager extends WFObject
     }
 
     /**
+     *  Cause the visitor to be re-directed to the login page.
+     *
+     *  OPTIONAL: "continueURL" support.
+     *
+     *  This will issue a 302 redirect and exit the current request execution.
+     *
+     *  @param string The URL of the page to go to after successful login. Note that this should be a PLAIN URL, but it WILL BE base64-encoded before being passed to the login module.
+     */
+    function doLoginRedirect($continueURL)
+    {
+        $loginInvocationPath = $this->loginInvocationPath();
+        header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL));
+        exit;
+    }
+
+    /**
+     *  Get the login modulePath to use.
+     *
+     *  @return string The modulePath for the login module. The module at the given path must implement promptLogin/doLogout/notAuthorized
+     */
+    function loginInvocationPath()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for defaultLoginContinueURL.") );
+
+        $loginInvocationPath = 'login/promptLogin';
+        if (method_exists($this->authorizationDelegate, 'loginInvocationPath'))
+        {
+            $dLoginInvocationPath = $this->authorizationDelegate->loginInvocationPath();
+            if ($dLoginInvocationPath)
+            {
+                $loginInvocationPath = $dLoginInvocationPath;
+            }
+        }
+
+        return $loginInvocationPath;
+    }
+
+    /**
      *  The URL to continue to if the user logs in but there is no "continue to url" set.
      *
      *  Will call the login delegate method to get info as well.
@@ -425,14 +472,10 @@ class WFAuthorizationManager extends WFObject
     {
         if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for defaultLogoutContinueURL.") );
 
-        $continueURL = WFRequestController::WFURL('login', 'showLogoutSuccess');
+        $continueURL = NULL;
         if (method_exists($this->authorizationDelegate, 'defaultLogoutContinueURL'))
         {
-            $dContinueURL = $this->authorizationDelegate->defaultLogoutContinueURL();
-            if ($dContinueURL)
-            {
-                $continueURL = $dContinueURL;
-            }
+            $continueURL = $this->authorizationDelegate->defaultLogoutContinueURL();
         }
 
         return $continueURL;
@@ -600,15 +643,14 @@ class WFAuthorizationManager extends WFObject
      *
      *  @param string The username that the attempted login was for.
      *  @return string The message to show the user on successful password reset.
-     *  @throws object WFException If the password cannot be reset, throw an error with the message to be displayed as the string.<br>
-     *          object WFRedirectRequestException If your reset password system is more complicated than can be handled by PHOCOA, feel free to redirect to another page to handle this.
+     *  @throws object WFException If the password cannot be reset, throw a WFException with the message to be displayed as the string.<br>
      *  @see WFAuthorizationDelegate::resetPassword($username)
      */
     function resetPassword($username)
     {
         if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for resetPassword.") );
         if (!method_exists($this->authorizationDelegate, 'resetPassword')) throw( new Exception("WFAuthorizationDelegate::resetPassword() must be definied to use the password reset feature.") );
-        $this->authorizationDelegate->resetPassword($username);
+        return $this->authorizationDelegate->resetPassword($username);
     }
 }
 

@@ -51,12 +51,19 @@ class WFDieselSearch extends WFObject implements WFPagedData
 
     protected $index;
     protected $searcher;
-    protected $resultObjectLoaderCallback;
     protected $paginator;
     protected $logPerformanceInfo;
     protected $loadTheseColumnsFromIndex;
     protected $hasRunQuery;
     protected $dpQueryStateParameterID;
+
+    // callback object loader
+    protected $resultObjectLoaderCallback;
+
+    // propel callback stuff
+    protected $resultObjectLoaderCallbackPropelMode;
+    protected $resultObjectLoaderCallbackPropelPeerName;
+    protected $resultObjectLoaderCallbackPropelPeerMethod;
 
     function __construct()
     {
@@ -66,6 +73,8 @@ class WFDieselSearch extends WFObject implements WFPagedData
         $this->index = NULL;
         $this->paginator = NULL;
         $this->resultObjectLoaderCallbackPropelMode = false;
+        $this->resultObjectLoaderCallbackPropelPeerName = NULL;
+        $this->resultObjectLoaderCallbackPropelPeerMethod = NULL;
         $this->loadTheseColumnsFromIndex = array("item_id");
         $this->logPerformanceInfo = false;
         $this->hasRunQuery = false;
@@ -184,9 +193,9 @@ class WFDieselSearch extends WFObject implements WFPagedData
      *  Therefore, it's important that your "attribute" names in DP match the column names.
      *
      *  @param string Peer name.
-     *  @throws object Exception on bad name.
+     *  @param string {@link setResultObjectLoaderCallbackWithPropelPeerMethod() Peer Method} name to use.
      */
-    function setResultObjectLoaderCallbackWithPropelPeer($peerName)
+    function setResultObjectLoaderCallbackWithPropelPeer($peerName, $peerMethod = NULL)
     {
         if ($peerName == NULL)
         {
@@ -195,14 +204,29 @@ class WFDieselSearch extends WFObject implements WFPagedData
             return;
         }
         
-        // check that the callback exists -- with PHOCOA's autoload, we need to check the class explicitly - I think this bug was fixed in php 5.x.x something
-        if (!class_exists($peerName))
-        {
-            //__autoload($peerName); class exists should do this.
-            if (!class_exists($peerName)) throw( new Exception("Callback class '{$peerName}' does not exist.") );
-        }
-        $this->resultObjectLoaderCallback = $peerName;
+        // turn on propel mode
+        $this->resultObjectLoaderCallback = NULL;
         $this->resultObjectLoaderCallbackPropelMode = true;
+
+        // set up peer data loaders
+        $this->resultObjectLoaderCallbackPropelPeerName = $peerName;
+        $this->setResultObjectLoaderCallbackWithPropelPeerMethod($peerMethod);
+    }
+
+    /**
+     *  Set the PropelPeer method name to use to load the objects.
+     *
+     *  Default is 'doSelect', but you can set your own method for instance if you want a custom function that loads joined data.
+     *
+     *  @param string A method name on the propel peer to call to load the propel objects.
+     */
+    function setResultObjectLoaderCallbackWithPropelPeerMethod($peerMethod = NULL)
+    {
+        if ($peerMethod === NULL)
+        {
+            $peerMethod = 'doSelect';
+        }
+        $this->resultObjectLoaderCallbackPropelPeerMethod = $peerMethod;
     }
 
     /**
@@ -581,12 +605,22 @@ class WFDieselSearch extends WFObject implements WFPagedData
             // we support three main ways to load the matching objects; Propel-backed, custom callbacks, and none (just returns the WFDieselHit arrays -- but still can load data from index)
             if ($this->resultObjectLoaderCallbackPropelMode)
             {
-                // For propel-backed object loading, we need to use doSelect so we can preserve sorting.
+                // For propel-backed object loading, we need to use a peer method that supports Criteria so we can preserve sorting.
+                
+                // check that the callback exists -- with PHOCOA's autoload, we need to check the class explicitly - I think this bug was fixed in php 5.x.x something
+                // this little block may be deprecated; i think it's just to get around a goofy PHP bug
+                if (!class_exists($this->resultObjectLoaderCallbackPropelPeerName))
+                {
+                    //__autoload($peerName); class exists should do this.
+                    if (!class_exists($this->resultObjectLoaderCallbackPropelPeerName)) throw( new Exception("Callback class '{$this->resultObjectLoaderCallbackPropelPeerName}' does not exist.") );
+                }
+                $propelCallback = array($this->resultObjectLoaderCallbackPropelPeerName, $this->resultObjectLoaderCallbackPropelPeerMethod);
+                if (!is_callable($propelCallback)) throw( new Exception("Propel Callback function is not valid: {$this->resultObjectLoaderCallbackPropelPeerName}::{$this->resultObjectLoaderCallbackPropelPeerMethod}") );
                 
                 // determine primary key
                 $c = new Criteria;
-                $c->add($this->getPrimaryKeyColumnFromPropelPeer($this->resultObjectLoaderCallback), $allIDs, Criteria::IN);
-                $tableName = eval( "return {$this->resultObjectLoaderCallback}::TABLE_NAME;" );
+                $c->add($this->getPrimaryKeyColumnFromPropelPeer($this->resultObjectLoaderCallbackPropelPeerName), $allIDs, Criteria::IN);
+                $tableName = eval( "return {$this->resultObjectLoaderCallbackPropelPeerName}::TABLE_NAME;" );
                 foreach ($sortKeys as $sortKey) {
                     $sortAttr = substr($sortKey, 1);
                     if (substr($sortKey, 0, 1) == '-')
@@ -598,7 +632,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
                         $c->addAscendingOrderByColumn($tableName . '.' . $sortAttr);
                     }
                 }
-                $propelObjects = call_user_func(array($this->resultObjectLoaderCallback, "doSelect"), $c);    // more efficient to grab all items in a single query
+                $propelObjects = call_user_func($propelCallback, $c);    // more efficient to grab all items in a single query
                 // map the propel objects back into the WFDieselHit's.
                 // we have to gracefully deal with the situation that an item in the index isn't in the database
                 // when this happens we auto-prune the item from our dp index and remove that item from our list of hits.
@@ -1059,6 +1093,16 @@ class WFDieselSearchHelper extends WFObject
     }
 
     /**
+     *  Ge the DQL that is used to "show all".
+     *
+     *  @return string
+     */
+    function showAllDPQL()
+    {
+        return $this->showAllDPQL;
+    }
+
+    /**
      *  Set the "any/all" mode for EQ queries where there is more than one value for the attribute.
      *
      *  @param string Attribute ID.
@@ -1367,7 +1411,7 @@ class WFDieselSearchHelper extends WFObject
     /**
      *  Set the simpleQuery part of the search.
      *
-     *  Note that if using a paginator, a "Relevance" sort option (-relevance) will be automatically added to the possible sort optins.
+     *  Note that if using a paginator, a "Relevance" sort option (-relevance) will be automatically added to the possible sort options.
      *
      *  @param string The query. This is typically the direct user input into a "basic search" field.
      *  @param string The mode for the simplequery: one of "any", "all", or "exact".

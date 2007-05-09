@@ -89,13 +89,13 @@ class WFWebApplication extends WFObject
             }
             $this->delegate = new $delegate_class;
 
+            // @todo THINK ABOUT THIS LIFE-CYCLE.. important things are autoload, singleton/constructor issue, etc
+            // just seems weird that sessionDidStart would come AFTER initialize
             // load the session HERE - CANNOT DO THIS VIA AUTOLOAD! EXACT TIMING OF THIS IS VERY IMPORTANT
+            $this->sessionWillStart();
             require('framework/WFSession.php');
-
-            if (method_exists($this->delegate, 'initialize'))
-            {
-                $this->delegate->initialize();
-            }
+            $this->initialize();        // this is
+            $this->sessionDidStart();   // call this AFTER initialize... so people can hit the DB and such
         }
     }
 
@@ -290,6 +290,43 @@ class WFWebApplication extends WFObject
         {
             $this->delegate->sessionDidStart();
         }
+    }
+
+    /**
+     *  Hook to call the initialize method fo the web application.
+     *  Applications will typically initialize DB stuff here.
+     */
+    function initialize()
+    {
+        if (method_exists($this->delegate, 'initialize'))
+        {
+            $this->delegate->initialize();
+        }
+    }
+
+    /**
+     *  Helper function for encoding URL's in a fashion suitable for passing around as an invocationPath parameter.
+     *
+     *  This is just base64 modified for URL.
+     *
+     *  @param string raw data
+     *  @return string serialized data string
+     *  @see WFWebApplication::unserializeURL()
+     */
+    public static function serializeURL($url)
+    {
+        return strtr(base64_encode($url), '+/', '-_');
+    }
+
+    /**
+     *  Decode data encoded with {@link WFWebApplication::serializeURL() serializeURL}.
+     *
+     *  @param string serialized data string
+     *  @return string raw data
+     */
+    public static function unserializeURL($data)
+    {
+        return base64_decode(strtr($data, '-_', '+/'));
     }
 }
 

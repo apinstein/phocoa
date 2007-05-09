@@ -37,22 +37,26 @@ class WFRequestController extends WFObject
       */
     function handleException(Exception $e)
     {
+        $webAppDelegate = WFWebApplication::sharedWebApplication()->delegate();
+        if (is_object($webAppDelegate) && method_exists($webAppDelegate, 'handleUncaughtException'))
+        {
+            $handled = $webAppDelegate->handleUncaughtException($e);
+            if ($handled) return;
+        }
+
+        WFExceptionReporting::log($e);
+
         $exceptionPage = new WFSmarty();
         $exceptionPage->assign('exception', $e);
+        $exceptionPage->assign('exceptionClass', get_class($e));
         $exceptionPage->assign('home_url', WWW_ROOT . '/');
         if (IS_PRODUCTION)
         {
             $exceptionPage->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/app_error_user.tpl');
-            // optionally notify an administrator via email of an exception - how to configure?
-            // optionally log exception info to a logfile - how to configure?
-            WFExceptionReporting::log($e);
         }
         else
         {
             $exceptionPage->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/app_error_developer.tpl');
-            // optionally notify an administrator via email of an exception - how to configure?
-            // optionally log exception info to a logfile - how to configure?
-            WFExceptionReporting::log($e);
         }
 
         // display the error and exit
@@ -104,13 +108,21 @@ class WFRequestController extends WFObject
             {
                 $modInvocationPath = WFWebApplication::sharedWebApplication()->defaultInvocationPath();
             }
-            $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL, WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
+            // create the root invocation; only skin if we're not in an XHR
+            $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL, ($this->isXHR() ? NULL : WFWebApplication::sharedWebApplication()->defaultSkinDelegate()) );
 
             // get HTML result of the module, and output it
             print $this->rootModuleInvocation->execute();
         } catch (WFRequestController_NotFoundException $e) {
             header("HTTP/1.0 404 Not Found");
             print $e->getMessage();
+            exit;
+        } catch (WFRequestController_InternalRedirectException $e) {
+            // internal redirect are handled without going back to the browser... a little bit of hacking here to process a new invocationPath as a "request"
+            // @todo - not sure what consequences this has on $_REQUEST; seems that they'd probably stay intact which could foul things up?
+            $_SERVER['REQUEST_URI'] = $e->getRedirectURL();
+            WFLog::log("Internal redirect to: {$_SERVER['REQUEST_URI']}");
+            self::handleHTTPRequest();
             exit;
         } catch (WFRequestController_RedirectException $e) {
             header("Location: " . $e->getRedirectURL());
@@ -122,6 +134,18 @@ class WFRequestController extends WFObject
             $this->handleException($e);
         }
     }
+
+    /**
+     *  Is the current request an XHR (XmlHTTPRequest)?
+     *
+     *  @return boolean
+     */
+    function isXHR()
+    {
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') return true;
+        return false;
+    }
+
 
     /**
      *  Get the root {@link WFModuleInvocation} used by the request controller.
@@ -205,6 +229,8 @@ class WFRedirectRequestException extends WFException
         return $this->redirectUrl;
     }
 }
+
 class WFRequestController_RedirectException extends WFRedirectRequestException {}
+class WFRequestController_InternalRedirectException extends WFRedirectRequestException {}
 class WFRequestController_NotFoundException extends WFException {}
 ?>

@@ -389,12 +389,13 @@ class WFPaginator extends WFObject
     /**
      *  Set the default sort keys that will be used if no other sort keys are added.
      *
-     *  @param array An array of sortKeys.
-     *  @throws WFException if $keys is not an array.
+     *  @param mixed array - The sortKeys to use.
+     *               string - The single sortKey to use.
+     *  @throws object WFException If any of the passed keys fails (ie is not a valid sortOption).
      */
     function setDefaultSortKeys($keys)
     {
-        if (!is_array($keys)) throw( new WFException('setDefaultSortKeys() requires an array of sortKeys.') );
+        if (!is_array($keys)) $keys = array($keys);
         // make sure the passed sortKeys are valid.
         foreach ($keys as $key) {
             if (!isset($this->sortOptions[$key])) throw( new WFException("Sort key '$key' not available in sortOptions.") );
@@ -681,7 +682,8 @@ class WFPaginator extends WFObject
      *
      *  @param integer $page The page number to use.
      *  @param integer $pageSize The page size to use.
-     *  @param array $sortKeys The sortKeys to use.
+     *  @param mixed $sortKeys  array - The sortKeys to use.
+     *                          string - The single sortKey to use
      *  @return string A serialized state that when passed to {@link setPaginatorState() setPaginatorState} will load those settings.
      */
     function paginatorState($page = NULL, $pageSize = NULL, $sortKeys = NULL)
@@ -689,6 +691,7 @@ class WFPaginator extends WFObject
         if (is_null($page)) $page = $this->currentPage();
         if (is_null($pageSize)) $pageSize = $this->pageSize;
         if (is_null($sortKeys)) $sortKeys = $this->sortKeys;
+        else if (!is_array($sortKeys)) $sortKeys = array($sortKeys);
 
         return join('|', array($page, $pageSize, join(',', $sortKeys)));
     }

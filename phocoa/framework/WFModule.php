@@ -520,6 +520,26 @@ class WFModuleInvocation extends WFObject
         }
     }
 
+    /**
+     *  Easily convert an invocation path into the resulting HTML.
+     *
+     *  Perfect for buliding emails, AJAX popups, etc.
+     *
+     *  NOTE: this mechanism doesn't allow you to communitcate with the module before execution.
+     *
+     *  If you want to pass data to a WFModuleInvocation before executing, you'll need to instantiate WFModuleInvocation
+     *  yourself and call execute() manually.
+     *
+     *  @param string The invocation path to use.
+     *  @return string The resulting output of module execution.
+     *  @throws object Exception Any exception generated during execution.
+     */
+    public static function quickModule($invocationPath, $skinDelegate = NULL)
+    {
+        $modInv = new WFModuleInvocation($invocationPath, NULL, $skinDelegate);
+        $result = $modInv->execute();
+        return $result;
+    }
 }
 
 /**
@@ -670,7 +690,7 @@ abstract class WFModule extends WFObject
             switch ($e->getCode()) {
                 case WFAuthorizationException::TRY_LOGIN:
                     // NOTE: we pass the redir-url base64 encoded b/c otherwise Apache picks out the slashes!!!
-                    $this->doLoginRedirect();
+                    WFAuthorizationManager::sharedAuthorizationManager()->doLoginRedirect(WWW_ROOT . '/' . $this->invocation->invocationPath());
                     break;
                 case WFAuthorizationException::DENY:
                     header("Location: " . WFRequestController::WFURL('login', 'notAuthorized'));
@@ -678,15 +698,6 @@ abstract class WFModule extends WFObject
                     break;
             }
         }
-    }
-
-    /**
-     *  Redirect the current request to the login page such that after successful login, the client is redirected back to this request.
-     */
-    function doLoginRedirect()
-    {
-        header("Location: " . WFRequestController::WFURL('login', 'promptLogin') . '/' . base64_encode(WWW_ROOT . '/' . $this->invocation->invocationPath()));
-        exit;
     }
 
     /**
