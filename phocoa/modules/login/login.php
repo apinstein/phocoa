@@ -7,23 +7,49 @@ class login extends WFModule
       */
     function defaultPage() { return 'promptLogin'; }
 
+    function gotoURL($url)
+    {
+        // for now, always use internal redirects; in future may want to pass this as param along with continueURL
+        if (WFRequestController::isXHR() or 1)
+        {
+            throw( new WFRequestController_InternalRedirectException($url) );
+        }
+        else
+        {   
+            throw( new WFRequestController_RedirectException($url) );
+        }
+    }
+
+    function doLogout_ParameterList()
+    {
+        return array('continueURL');    // will be WFWebApplication::serializeURL() encoded
+    }
     function doLogout_PageDidLoad($page, $params)
     {
         $ac = WFAuthorizationManager::sharedAuthorizationManager();
-        $ac->logout();
-        if ($ac->shouldShowLogoutConfirmation())
+
+        // calculate continueURL
+        $continueURL = NULL;
+        if (empty($params['continueURL']))
         {
-            $this->setupResponsePage('showLogoutSuccess');
+            $continueURL = $ac->defaultLogoutContinueURL();   // need to get this before we log out as the delegate might want access to the credentials to figure this out
         }
         else
         {
-            throw( new WFRedirectRequestException($ac->defaultLogoutContinueURL()) );
+            $continueURL = WFWebApplication::unserializeURL($params['continueURL']);
         }
-    }
-    function showLogoutSuccess_PageDidLoad($page, $params)
-    {
-        $ac = WFAuthorizationManager::sharedAuthorizationManager();
-        $page->assign('continueURL', $ac->defaultLogoutContinueURL());
+
+        $ac->logout();
+        if ($ac->shouldShowLogoutConfirmation())
+        {
+            $page->assign('continueURL', $continueURL);
+            $page->setTemplateFile('showLogoutSuccess.tpl');
+        }
+        else
+        {
+            if (!$continueURL) throw( new WFException("No continueURL found... defaultLogoutContinueURL cannot be empty if shouldShowLogoutConfirmation is false.") );
+            $this->gotoURL($continueURL);
+        }
     }
 
     function promptLogin_ParameterList()
@@ -48,9 +74,9 @@ class login extends WFModule
         {
             if (!$continueURL)
             {
-                $continueURL = $ac->defaultLogoutContinueURL();
+                $continueURL = $ac->defaultLoginContinueURL();
             }
-            throw( new WFRedirectRequestException($continueURL) );
+            $this->gotoURL($continueURL);
         }
         
         // continue to normal promptLogin setup
@@ -79,13 +105,13 @@ class login extends WFModule
             // continue to next page
             if ($page->outlet('continueURL')->value())
             {
-                $continueURL = base64_decode($page->outlet('continueURL')->value());
+                $continueURL = WFWebApplication::unserializeURL($page->outlet('continueURL')->value());
             }
             else
             {
                 $continueURL = $ac->defaultLoginContinueURL();
             }
-            throw( new WFRedirectRequestException($continueURL) );
+            $this->gotoURL($continueURL);
         }
         else
         {
@@ -113,22 +139,25 @@ class login extends WFModule
     function doForgotPassword_PageDidLoad($page, $params)
     {
         $ac = WFAuthorizationManager::sharedAuthorizationManager();
-        $page->assign('username', $params['username']);
+        $page->outlet('username')->setValue($params['username']);
         $page->assign('usernameLabel', $ac->usernameLabel());
+    }
+
+    function doForgotPassword_reset_Action($page)
+    {
+        $ac = WFAuthorizationManager::sharedAuthorizationManager();
         try {
-            $okMessage = "The password for " . $ac->usernameLabel() . " {$params['username']} been reset. Your new password information has been emailed to the email address on file for your account.";
-            $newMessage = $ac->resetPassword($params['username']);
+            $username = $page->outlet('username')->value();
+            $okMessage = "The password for " . $ac->usernameLabel() . " {$username} been reset. Your new password information has been emailed to the email address on file for your account.";
+            $newMessage = $ac->resetPassword($username);
             if ($newMessage)
             {
                 $okMessage = $newMessage;
             }
             $page->assign('okMessage', $okMessage);
-            $page->assign('ok', true);
-        } catch (WFRedirectRequestException $e) {
-            throw($e);
+            $page->setTemplateFile('forgotPasswordSuccess.tpl');
         } catch (WFException $e) {
-            $page->assign('ok', false);
-            $page->assign('errMessage', $e->getMessage());
+            $page->addError(new WFError($e->getMessage()));
         }
     }
 
