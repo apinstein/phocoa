@@ -97,6 +97,11 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Overlay
 //<![CDATA[
 
 YAHOO.namespace('phocoa.widgets.panel');
+YAHOO.phocoa.widgets.module.queueProps_Panel_{$this->id} = function(o) {
+    YAHOO.phocoa.widgets.module.queueProps_Overlay_{$this->id}(o);
+    // alert('id={$this->id}: queue Panel props');
+    // queue Panel props here
+}
 YAHOO.phocoa.widgets.panel.init_{$this->id} = function() {
     YAHOO.phocoa.widgets.overlay.init_{$this->id}();
     var panel = PHOCOA.runtime.getObject('{$this->id}');

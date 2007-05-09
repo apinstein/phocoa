@@ -63,7 +63,15 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->containerClass = 'Module';
         $this->buildModuleProgrammatically = false;
 
-        $this->importYahooJS("container/container-min.js");
+        if (0 /* 1 for debug */)
+        {
+            $this->importInHead=true;
+            $this->importYahooJS("container/container-debug.js");
+        }
+        else
+        {
+            $this->importYahooJS("container/container-min.js");
+        }
     }
 
     public static function exposedProperties()
@@ -171,10 +179,15 @@ class WFYAHOO_widget_Module extends WFYAHOO
 <script type=\"text/javascript\">
 //<![CDATA[
 YAHOO.namespace('phocoa.widgets.module');
+YAHOO.phocoa.widgets.module.queueProps_Module_{$this->id} = function(o) {
+    // alert('id={$this->id}: queue Module props');
+    // queue Module props here
+}
 YAHOO.phocoa.widgets.module.init_{$this->id} = function() {
     var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\");
     module.cfg.queueProperty('visible', " . ($this->visible ? 'true' : 'false') . ");
-    module.cfg.queueProperty('monitorresize', " . ($this->monitorresize ? 'true' : 'false') . ");";
+    module.cfg.queueProperty('monitorresize', " . ($this->monitorresize ? 'true' : 'false') . ");
+    YAHOO.phocoa.widgets.module.queueProps_{$this->containerClass}_{$this->id}(module);";
 
             if ($this->buildModuleProgrammatically)
             {

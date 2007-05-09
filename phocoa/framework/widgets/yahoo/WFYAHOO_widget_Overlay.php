@@ -173,6 +173,11 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
 //<![CDATA[
 
 YAHOO.namespace('phocoa.widgets.overlay');
+YAHOO.phocoa.widgets.module.queueProps_Overlay_{$this->id} = function(o) {
+    YAHOO.phocoa.widgets.module.queueProps_Module_{$this->id}(o);
+    // alert('id={$this->id}: queue Overlay props');
+    // queue Overlay props here
+}
 YAHOO.phocoa.widgets.overlay.init_{$this->id} = function() {
     YAHOO.phocoa.widgets.module.init_{$this->id}();
     var overlay = PHOCOA.runtime.getObject('{$this->id}');
@@ -185,6 +190,21 @@ YAHOO.phocoa.widgets.overlay.init_{$this->id} = function() {
     ($this->x ? "\n    overlay.cfg.setProperty('x', '{$this->x}');" : NULL ) .
     ($this->y ? "\n    overlay.cfg.setProperty('y', '{$this->y}');" : NULL ) .
     ($this->zIndex ? "\n    overlay.cfg.setProperty('zIndex', '{$this->zIndex}');" : NULL ) . "
+    // hopefully this next chunk can be removed when YUI fixes this internally
+    if (overlay.platform == \"mac\" && overlay.browser == \"gecko\")
+    {
+
+        overlay.showEvent.subscribe( function() {
+                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
+                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
+                                                } );
+        overlay.hideEvent.subscribe( function() {
+                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
+                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
+                                                } );
+    }
 }
 " .
 ( (get_class($this) == 'WFYAHOO_widget_Overlay') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.overlay.init_{$this->id});" : NULL ) . "
