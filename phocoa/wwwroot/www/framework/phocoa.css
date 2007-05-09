@@ -97,9 +97,3 @@ div.phocoaWFDieselNav_Popup {
     background: white;
     z-index: 10000;
 }
-div.phocoaWFDieselNav_MoreChoices a {
-    text-decoration: none;
-}
-div.phocoaWFDieselNav_MoreChoices a:hover {
-    text-decoration: underline;
-}

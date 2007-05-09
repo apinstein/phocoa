@@ -30,17 +30,21 @@ PHOCOA.importJS = function(path) {
                     method: 'get'
                 }
             );
-        eval(js.transport.responseText);
+        try {
+            eval(js.transport.responseText);
+        } catch (err) {
+            alert('importJS: ' + path + ' failed to parse: ' + err);
+        }
     }
     else
     {
         // this method has no scoping problems, but isn't synchronous.
-        var head = document.getElementsByTagName("head")[0];
-        script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = path;
-        head.appendChild(script);
-        //alert('adding script tag for: ' +script.src);
+        // var head = document.getElementsByTagName("head")[0];
+        // script = document.createElement('script');
+        // script.type = 'text/javascript';
+        // script.src = path;
+        // head.appendChild(script);
+        // //alert('adding script tag for: ' +script.src);
     }
 }
 
@@ -56,15 +60,17 @@ PHOCOA.importCSS = function(path) {
 // set up the runtime - this is the interface that you use to access objects added by phocoa from individual pages
 PHOCOA.runtime = PHOCOA.runtime || {};
 
-PHOCOA.runtime.addObject = function(o)
+PHOCOA.runtime.addObject = function(o, id)
 {
     PHOCOA.runtime.setupObjectCache();
-    if (PHOCOA.runtime.objectList[o.id])
+    var oid = id || o.id;
+    if (!oid) throw "No ID could be found.";
+    if (PHOCOA.runtime.objectList[oid])
     {
-        alert('error - cannot add duplicate object: ' + o.id);
+        alert('error - cannot add duplicate object: ' + oid);
         return;
     }
-    PHOCOA.runtime.objectList[o.id] = o;
+    PHOCOA.runtime.objectList[oid] = o;
 }
 
 PHOCOA.runtime.setupObjectCache = function()

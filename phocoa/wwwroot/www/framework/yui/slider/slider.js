@@ -1,9 +1,9 @@
-/*                                                                                                                                                      
-Copyright (c) 2006, Yahoo! Inc. All rights reserved.
+/*
+Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 0.12.1
-*/ 
+version: 2.2.2
+*/
 /**
  * The Slider component is a UI control that enables the user to adjust 
  * values in a finite range along one or two axes. Typically, the Slider 
@@ -203,9 +203,15 @@ YAHOO.extend(YAHOO.widget.Slider, YAHOO.util.DragDrop, {
          * destination.  For animated slider, this value can be checked in 
          * the onChange handler to make it possible to execute logic only
          * when the move is complete rather than at all points along the way.
+         * Deprecated because this flag is only useful when the background is
+         * clicked and the slider is animated.  If the user drags the thumb,
+         * the flag is updated when the drag is over ... the final onDrag event
+         * fires before the mouseup the ends the drag, so the implementer will
+         * never see it.
          *
          * @property moveComplete
          * @type Boolean
+         * @deprecated use the slideEnd event instead
          */
         this.moveComplete = true;
 
@@ -372,7 +378,7 @@ YAHOO.extend(YAHOO.widget.Slider, YAHOO.util.DragDrop, {
                 this.setRegionValue.apply(this, this.deferredSetRegionValue, true);
                 this.deferredSetRegionValue = null;
             } else {
-                this.setRegionValue(0, 0, true);
+                this.setRegionValue(0, 0, true, true);
             }
         } else {
             if (this.deferredSetValue) {
@@ -395,8 +401,8 @@ YAHOO.extend(YAHOO.widget.Slider, YAHOO.util.DragDrop, {
 
         if (el) {
             /**
-             * The center of the slider element is stored so we can position 
-             * place it in the correct position when the background is clicked
+             * The center of the slider element is stored so we can 
+             * place it in the correct position when the background is clicked.
              * @property thumbCenterPoint
              * @type {"x": int, "y": int}
              */
@@ -612,7 +618,7 @@ YAHOO.extend(YAHOO.widget.Slider, YAHOO.util.DragDrop, {
      * @param {boolean} force ignore the locked setting and set value anyway
      * @return {boolean} true if the move was performed, false if it failed
      */
-    setRegionValue: function(newOffset, newOffset2, skipAnim) {
+    setRegionValue: function(newOffset, newOffset2, skipAnim, force) {
 
         if (!this.thumb.available) {
             this.deferredSetRegionValue = arguments;
@@ -690,6 +696,7 @@ YAHOO.extend(YAHOO.widget.Slider, YAHOO.util.DragDrop, {
         var _p = t.getTargetCoord(x, y);
         var p = [_p.x, _p.y];
 
+
         this.fireEvent("slideStart");
 
         if (this.animate && YAHOO.widget.Slider.ANIM_AVAIL && t._graduated && !skipAnim) {
@@ -730,6 +737,7 @@ YAHOO.extend(YAHOO.widget.Slider, YAHOO.util.DragDrop, {
     moveOneTick: function(finalCoord) {
 
         var t = this.thumb, tmp;
+
 
         // redundant call to getXY since we set the position most of time prior 
         // to getting here.  Moved to this.curCoord
@@ -845,6 +853,7 @@ YAHOO.extend(YAHOO.widget.Slider, YAHOO.util.DragDrop, {
         this.thumb.autoOffset();
         this.thumb.resetConstraints();
     },
+
 
     /**
      * Handles the mousedown event for the slider background
@@ -983,6 +992,7 @@ YAHOO.widget.SliderThumb = function(id, sGroup, iLeft, iRight, iUp, iDown, iTick
         this.parentElId = sGroup;
     }
 
+
     //this.removeInvalidHandleType("A");
 
 
@@ -1056,6 +1066,7 @@ YAHOO.extend(YAHOO.widget.SliderThumb, YAHOO.util.DD, {
      */
     _graduated: false,
 
+
     /**
      * Returns the difference between the location of the thumb and its parent.
      * @method getOffsetFromParent
@@ -1114,6 +1125,7 @@ YAHOO.extend(YAHOO.widget.SliderThumb, YAHOO.util.DD, {
      */
     initSlider: function (iLeft, iRight, iUp, iDown, iTickSize) {
 
+
         //document these.  new for 0.12.1
         this.initLeft = iLeft;
         this.initRight = iRight;
@@ -1142,6 +1154,7 @@ YAHOO.extend(YAHOO.widget.SliderThumb, YAHOO.util.DD, {
         this.tickSize = 0;
         this._graduated = false;
     },
+
 
     /**
      * Gets the current offset from the element's start position in
@@ -1206,3 +1219,4 @@ if ("undefined" == typeof YAHOO.util.Anim) {
     YAHOO.widget.Slider.ANIM_AVAIL = false;
 }
 
+YAHOO.register("slider", YAHOO.widget.Slider, {version: "2.2.2", build: "204"});

@@ -1,10 +1,9 @@
 /*
-Copyright (c) 2006, Yahoo! Inc. All rights reserved.
+Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 0.12.1
+version: 2.2.2
 */
-
 /* default space between tabs */
 .yui-navset .yui-nav li {
     margin-right:0.5em; /* horizontal tabs */
