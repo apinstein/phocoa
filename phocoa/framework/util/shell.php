@@ -1,5 +1,6 @@
 <?php
 
+ini_set("memory_limit", '20M');
 require $_ENV['PHOCOA_PROJECT_CONF'];
 
 print<<<END
