@@ -23,10 +23,16 @@ function smarty_block_WFViewHiddenHelper($params, $content, &$smarty, &$repeat)
     $o = $smarty->getCurrentWidget($params);
 
     // beginning or end block?
-    if (isset($content) and !$o->hidden())
+    if (!isset($content)) return;
+
+    // unwind WFDynamic
+    if ($o instanceof WFDynamic)
     {
-        return $content;
+        $o = $o->getLastRenderedWidget();
     }
+    //if (isset($content)) print $o->id() . $o->getHidden() . '<br />';
+    if ($o->hidden()) return NULL;
+    return $content;
 }
 
 ?>
