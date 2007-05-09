@@ -2,6 +2,26 @@
 {literal}
 <style type="text/css">
 </style>
+<script type="text/javascript">
+var clickMeHandler = function()
+{
+    PHOCOA.runtime.getObject('dialog').submit();
+}
+var dialogSuccessHandler = function(o) {
+    if (o.responseText.match('right'))
+    {
+        alert('Logically correct');
+    }
+    else
+    {
+        alert('Logically incorrect');
+        PHOCOA.runtime.getObject('dialog').show();
+    }
+}
+var dialogFailureHandler = function(o) {
+    alert('Communication Error');
+}
+</script>
 {/literal}
 
 <a href="#" onClick="PHOCOA.runtime.getObject('module').show();">Show Module</a>
@@ -23,3 +43,38 @@ This is an overlay. By default overlays have no style; they are just absolutely 
 This is a panel. By default, panels pop up over the existing content and have a "dialog-like" UI.
 {/WFViewBlock} 
 
+<br />
+
+<a href="#" onClick="PHOCOA.runtime.getObject('dialog').show();">Show Dialog</a>
+{WFViewBlock id="dialog"}
+    {WFForm id="dialogForm"}
+        Pick a city (hint: "Atlanta" is the correct answer")<br />
+        {WFView id="pickACity"}
+        {WFView id="submit"}
+    {/WFForm}
+    <div style="overflow: scroll; width: 200px; height: 100px; margin-top: 20px;">
+    Sample content to create a scroll bar.<br />
+    Sample content to create a scroll bar.<br />
+    Sample content to create a scroll bar.<br />
+    Sample content to create a scroll bar.<br />
+    </div>
+{/WFViewBlock} 
+
+<div style="position: relative;; width: 250px; height: 300px; overflow: scroll">
+<p>This block demonstrates a fix for a bug in Firefox (Mac only).</p>
+<p>On Firefox mac, there are 2 bugs involving scrollbars and a higher-z-index layer (such as a YUI Overlay or subclass):</p>
+<ol>
+<li>If there is a scrollbar on the page BELOW the overlay, the scrollbar normally bleeds through the overlay. Notice that this doesn't happen on this page.</li>
+<li>If the overlay itself has a scrollbar, when the overlay is not visible, the scrollbar will still remain visible on the page.</li>
+</ol>
+<p>Click on Panel or Dialog above, and you will see the bug.</p>
+<br /> <br />
+<br /> <br />
+<br /> <br />
+<br /> <br />
+<br /> <br />
+<br /> <br />
+<br /> <br />
+<br /> <br />
+<br /> <br />
+</div>

@@ -1,9 +1,20 @@
----
-module:
-    class: WFYAHOO_widget_Module
-overlay:
-    class: WFYAHOO_widget_Overlay
-panel:
-    class: WFYAHOO_widget_Panel
-    properties:
-        header: Panel
+
+dialog    : 
+  class     : WFYAHOO_widget_Dialog
+  properties: 
+    header: Dialog
+dialogForm: 
+  children: 
+    pickACity: 
+      class: WFTextField
+    submit   : 
+      class: WFSubmit
+  class   : WFForm
+module    : 
+  class: WFYAHOO_widget_Module
+overlay   : 
+  class: WFYAHOO_widget_Overlay
+panel     : 
+  class     : WFYAHOO_widget_Panel
+  properties: 
+    header: Panel

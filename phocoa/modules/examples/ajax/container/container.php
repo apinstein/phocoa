@@ -18,6 +18,15 @@ class module_container extends WFModule
         $page->outlet('overlay')->addEffect('YAHOO.widget.ContainerEffect.FADE', 1);
         $page->outlet('panel')->addEffect('YAHOO.widget.ContainerEffect.SLIDE', 1);
         $page->outlet('panel')->addEffect('YAHOO.widget.ContainerEffect.FADE', 1);
+
+        $page->outlet('dialog')->addButton('YUI Submit Button', 'clickMeHandler', false);
+        $page->outlet('dialog')->setCallbackSuccess('dialogSuccessHandler');
+        $page->outlet('dialog')->setCallbackFailure('dialogFailureHandler');
+    }
+    function container_submit_Action($page)
+    {
+        if (strtolower($page->outlet('pickACity')->value()) == "atlanta") die("You're right!");
+        die("you're wrong!");
     }
 }
 ?>
