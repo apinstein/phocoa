@@ -96,11 +96,13 @@ abstract class WFView extends WFObject
         $this->setId($id);
         $this->jsActions = array();
 
-        // YUI integration
+        // js/css import infrastructure
         $this->importInHead = false;
-        $this->yuiPath = self::yuiPath();
         $this->jsImports = array();
         $this->cssImports = array();
+
+        // YUI integration
+        $this->yuiPath = self::yuiPath();
     }
 
     public static function yuiPath()
@@ -218,7 +220,7 @@ abstract class WFView extends WFObject
         $script = $this->jsStartHTML();
         if ($this->importInHead)
         {
-            foreach ($this->jsImports as $path => $nothing) {
+            foreach ($this->cssImports as $path => $nothing) {
                 $this->page->module()->invocation()->rootSkin()->addHeadString("<link rel=\"stylesheet\" type=\"text/css\" href=\"{$path}\" />");
             }
             $script .= "// importInHead = true; all css includes in head section";
