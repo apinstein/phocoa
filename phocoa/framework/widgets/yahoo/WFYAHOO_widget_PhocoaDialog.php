@@ -84,8 +84,6 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         }
         else
         {
-            $yuiPath = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/yui';
-
             // set "body" from WFModuleView if there is one
             if ($this->moduleView and !$this->deferModuleViewLoading)
             {

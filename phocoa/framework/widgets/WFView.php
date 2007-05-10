@@ -107,7 +107,7 @@ abstract class WFView extends WFObject
 
     public static function yuiPath()
     {
-        return WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/yui';
+        return WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/yui';
     }
 
     public static function exposedProperties()
@@ -317,7 +317,7 @@ abstract class WFView extends WFObject
      */
     function getWidgetWWWDir()
     {
-        return WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/widgets/' . get_class($this);
+        return WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/widgets/' . get_class($this);
     }
 
     /**

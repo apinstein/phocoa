@@ -207,7 +207,7 @@ class WFWebApplication extends WFObject
             case self::WWW_DIR_BASE:
                 return WWW_ROOT . '/www';
             case self::WWW_DIR_FRAMEWORK:
-                return WWW_ROOT . '/www/framework';
+                return WWW_ROOT . '/www/framework/' . PHOCOA_VERSION;
             default:
                 throw(new Exception("Unknown app dir: {$webDirPath}."));
         }

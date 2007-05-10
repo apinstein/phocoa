@@ -1055,7 +1055,7 @@ class WFPage extends WFObject
                         try {
                             $actionName = $this->outlet($actionOutletID)->action();
                         } catch (Exception $e) {
-                            throw( new WFException("Could not find form button (outlet) for current action: {$actionOutletID}") );
+                            throw( new WFException("Could not find form button (outlet) for current action: {$actionOutletID}. Make sure that you don't have nested forms!") );
                         }
                         $actionMethod = $this->pageName . '_' . $actionName . '_Action';
                         if (!method_exists($this->module, $actionMethod)) throw( new Exception("Action method {$actionMethod} does not exist for module " . $this->module->moduleName()) );

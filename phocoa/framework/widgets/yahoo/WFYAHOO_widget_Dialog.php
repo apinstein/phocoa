@@ -89,8 +89,6 @@ class WFYAHOO_widget_Dialog extends WFYAHOO_widget_Panel
         }
         else
         {
-            $yuiPath = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/yui';
-
             // set up basic HTML
             $html = parent::render($blockContent);
             $buttonsJS = '';

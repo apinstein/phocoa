@@ -164,8 +164,6 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
         }
         else
         {
-            $yuiPath = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_BASE) . '/framework/yui';
-
             // set up basic HTML
             $html = parent::render($blockContent);
             $script = "
