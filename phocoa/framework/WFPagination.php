@@ -124,6 +124,11 @@ class WFPaginator extends WFObject
     protected $alternativeParams;
 
     /**
+     * @var boolean Internal var used to make sure that the paginator state has been read before calling currentItems() to prevent errors.
+     */
+    private $hasReadParameterStateFromParams;
+
+    /**
      * @const Make the paginator use URL mode, which will produce pagination links via standard HTML links without Javascript.
      */
     const MODE_URL = 1;
@@ -156,6 +161,7 @@ class WFPaginator extends WFObject
         $this->defaultSortKeys = array();
         $this->mode = WFPaginator::MODE_URL;
         $this->paginatorStateParameterID = 'paginatorState';
+        $this->hasReadParameterStateFromParams = false;
         $this->alternativeParams = array();
         $this->submitID = NULL;
     }
@@ -279,10 +285,20 @@ class WFPaginator extends WFObject
      */
     function readPaginatorStateFromParams($params)
     {
+        if ($this->hasReadParameterStateFromParams) return;
         if (!in_array($this->paginatorStateParameterID, array_keys($params))) throw( new Exception("Paginator State Parameter ({$this->paginatorStateParameterID}) is not set. Make sure that you have it declared as a parameter for your page. If your paginatorStateParameterID is different from the one reported, then update it with setPaginatorStateParameterID().") );
         $this->setPaginatorState($params[$this->paginatorStateParameterID]);
+        $this->hasReadParameterStateFromParams = true;
     }
 
+    /**
+     *  Tell the paginator the name of the "parameterId" which is used for maintaining the parameter state.
+     *
+     *  For MODE_URL, your page should have a declared paramater with this id.
+     *  For MODE_FORM, your page should have a WFPaginatorState widget with this id.
+     *
+     *  @param string The parameter ID.
+     */
     function setPaginatorStateParameterID($id)
     {
         $this->paginatorStateParameterID = $id;
@@ -602,6 +618,7 @@ class WFPaginator extends WFObject
             // make sure to use the sortKeys() method as it factors in default sort keys.
             $this->currentItems = $this->dataDelegate()->itemsAtIndex($this->startItem(), $this->pageSize, $this->sortKeys());
         }
+        if (!$this->hasReadParameterStateFromParams) throw( new WFException("No call to readPaginatorStateFromParams() has been made yet. You must call readPaginatorStateFromParams() from your PageDidLoad method.") );
         return $this->currentItems;
     }
 
