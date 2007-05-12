@@ -53,6 +53,7 @@ TODO
   - Add in a bunch more "life-cycle" callbacks
     - noAction
     - preAction, or maybe validate (so that you can combine field-level KVC with validation done in the "action" callback
+    - handleException - for uncaught exceptions, give the page (and then the module?) a chance to process it.
 - Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
   - Should there exist a class WFModulePage that is the "page-centric" stuff of a module? This would allow for better documentation of page-life-cycle callbacks
     - would more cleanly encapsulate pages: great place to put callbacks for page-centric things rather than goofily named methods of modules;

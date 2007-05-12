@@ -297,11 +297,17 @@ class WFPaginator extends WFObject
      *  For MODE_URL, your page should have a declared paramater with this id.
      *  For MODE_FORM, your page should have a WFPaginatorState widget with this id.
      *
+     *  NOTE: if you are using a paginator outside of a WFModule context, you should set the paginatorStateParameterID to NULL.
+     *
      *  @param string The parameter ID.
      */
     function setPaginatorStateParameterID($id)
     {
         $this->paginatorStateParameterID = $id;
+        if ($this->paginatorStateParameterID === NULL)
+        {
+            $this->hasReadParameterStateFromParams = true;
+        }
     }
 
     /**
@@ -618,7 +624,7 @@ class WFPaginator extends WFObject
             // make sure to use the sortKeys() method as it factors in default sort keys.
             $this->currentItems = $this->dataDelegate()->itemsAtIndex($this->startItem(), $this->pageSize, $this->sortKeys());
         }
-        if (!$this->hasReadParameterStateFromParams) throw( new WFException("No call to readPaginatorStateFromParams() has been made yet. You must call readPaginatorStateFromParams() from your PageDidLoad method.") );
+        if (!$this->hasReadParameterStateFromParams) throw( new WFException("No call to readPaginatorStateFromParams() has been made yet. You must call readPaginatorStateFromParams() from your PageDidLoad method, or, if the paginator is used outside of a WFModule, call setPaginatorStateParameterID(NULL).") );
         return $this->currentItems;
     }
 
