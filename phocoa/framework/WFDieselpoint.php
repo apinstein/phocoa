@@ -361,6 +361,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
      *  Execute the search.
      *
      *  @throws object WFException If the search has already been executed.
+     *          object WFDieselSearch_ParseException If the failure is a parse error of the query.
      */
     function execute()
     {
@@ -371,7 +372,20 @@ class WFDieselSearch extends WFObject implements WFPagedData
             $this->searcher->addColumns(join(',', $this->loadTheseColumnsFromIndex));
         }
         if ($this->logPerformanceInfo()) $this->startTrackingTime();
-        $this->searcher->execute();
+        try {
+            $this->searcher->execute();
+        } catch (JavaException $e) {
+            $trace = new java("java.io.ByteArrayOutputStream");
+            $e->printStackTrace(new java("java.io.PrintStream", $trace));
+            if (preg_match('/com.dieselpoint.query.ParseException/', $trace))
+            {   
+                throw( new WFDieselSearch_ParseException("Dieselpoint could not parse the query: " . $this->getQueryString() ."\n\nDieselpoint said: " . $trace) );
+            }
+            else
+            {
+                throw($e);
+            }
+        }
         if ($this->logPerformanceInfo()) $this->stopTrackingTime("DP Search: " . $this->getQueryString());
         // if we have a paginator, we need to update the dpQueryState parameter so that pagination will work on the results.
         if ($this->paginator && $this->paginator->alternativeParameterValue($this->dpQueryStateParameterID) === NULL)
@@ -1460,4 +1474,6 @@ class WFDieselSearchHelper extends WFObject
     }
 
 }
+
+class WFDieselSearch_ParseException extends WFException {}
 ?>
