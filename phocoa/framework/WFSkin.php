@@ -216,6 +216,10 @@ class WFSkin extends WFObject
       */
     protected $templateType;
     /**
+     * @var string The absolute filesystem path to a tpl file that is automatically added to the "head" element of all skins of this skin type.
+     */
+    protected $headTemplate;
+    /**
      * @var array An array of strings of things that needed to be added to the <head> section.
      */
     protected $headStrings;
@@ -235,6 +239,7 @@ class WFSkin extends WFObject
         $this->metaKeywords = array();
         $this->metaDescription = NULL;
         $this->headStrings = array();
+        $this->headTemplate = WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/head.tpl';
     }
 
     /**
@@ -420,6 +425,18 @@ class WFSkin extends WFObject
     }
 
     /**
+      * Set the template file to be added to the "head" element of every page. Defaults to the built-in template file that sets up various PHOCOA things.
+      *
+      * If you want to include the default head content, use {$skinPhocoaHeadTpl} in your custom head template file.
+      *
+      * @param string Absolute path to new head template file.
+      */
+    function setHeadTemplate($path)
+    {
+        $this->headTemplate = $path;
+    }
+
+    /**
       * Add meta keywords to the skin.
       * @param array A list of keywords to add.
       */
@@ -485,7 +502,8 @@ class WFSkin extends WFObject
         $smarty->assign('skinDirShared', $this->getSkinDirShared() );
 
         // build the <head> section
-        $smarty->assign('skinHead', $smarty->fetch(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/head.tpl'));
+        $smarty->assign('skinPhocoaHeadTpl', WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/head.tpl');
+        $smarty->assign('skinHead', $smarty->fetch($this->headTemplate));
 
         // set the template
         if ($this->templateType == WFSkin::SKIN_WRAPPER_TYPE_RAW)
