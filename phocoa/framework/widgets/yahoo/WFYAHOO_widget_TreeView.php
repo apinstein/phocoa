@@ -68,6 +68,8 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
      *
      *  The URL should not have a trailing slash.
      *
+     *  The URL should be urlencoded.
+     *
      *  The URL should perform the following action:
      *
      *  1. Determine the child data for the passed path, and build an array of WFYAHOO_widget_TreeViewNode objects representing the children of that node. ONLY 1 LEVEL DEEP OF CHILDREN!

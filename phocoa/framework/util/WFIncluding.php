@@ -121,6 +121,7 @@ class WFIncluding
                 'WFNegateBooleanTransformer' => 'framework/ValueTransformers/WFNegateBooleanTransformer.php',
                 'WFIsEmptyTransformer' => 'framework/ValueTransformers/WFIsEmptyTransformer.php',
                 'WFIsNotEmptyTransformer' => 'framework/ValueTransformers/WFIsNotEmptyTransformer.php',
+                'WFUrlencodeTransformer' => 'framework/ValueTransformers/WFUrlencodeTransformer.php',
                 'WFObjectController' => 'framework/WFObjectController.php',
                 'WFArrayController' => 'framework/WFArrayController.php',
                 'WFError' => 'framework/WFError.php',

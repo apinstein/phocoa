@@ -14,6 +14,7 @@
 WFValueTransformer::setValueTransformerForName(new WFNegateBooleanTransformer, 'WFNegateBoolean');
 WFValueTransformer::setValueTransformerForName(new WFIsEmptyTransformer, 'WFIsEmpty');
 WFValueTransformer::setValueTransformerForName(new WFIsNotEmptyTransformer, 'WFIsNotEmpty');
+WFValueTransformer::setValueTransformerForName(new WFUrlencodeTransformer, 'WFUrlencode');
 
 /**
  * The base "widget" class. In our framework, all html form widgets are necessarily WFWidget subclasses.
