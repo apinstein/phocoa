@@ -429,6 +429,8 @@ class WFSkin extends WFObject
       *
       * If you want to include the default head content, use {$skinPhocoaHeadTpl} in your custom head template file.
       *
+      * Typically this function would be called from your SkinDelegate's loadDefaults() function.
+      *
       * @param string Absolute path to new head template file.
       */
     function setHeadTemplate($path)
