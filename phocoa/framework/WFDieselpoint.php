@@ -606,7 +606,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
             $rs = $this->searcher->getResultSet();
             if (!$rs) throw( new Exception("Invalid ResultSet returned.") );
             while ($rs->next()) {
-                $itemID = (string) $rs->getString(1);   // use (string) to force conversion from java bridge string object to native PHP tpe
+                $itemID = (string) $rs->getItem_id();   // use (string) to force conversion from java bridge string object to native PHP type. ALSO, getItem_id returns non-highlighted itemID.
                 $allIDs[] = $itemID;
                 $hit = new WFDieselHit($itemID, (string) $rs->getRelevanceScore());
                 // load custom data
@@ -615,7 +615,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 }
                 $allHits[] = $hit;
             }
-            
+
             // we support three main ways to load the matching objects; Propel-backed, custom callbacks, and none (just returns the WFDieselHit arrays -- but still can load data from index)
             if ($this->resultObjectLoaderCallbackPropelMode)
             {
