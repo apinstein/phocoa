@@ -50,7 +50,8 @@
         <input propertyname="db.module" defaultValue="${db.table}">Module Name:</input>
         <php expression="require('${phocoa.project.dir}/conf/webapp.conf')" />
         <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createModule.php ${db.module}" passthru="true" />
-        <exec dir="${phocoa.pwd}/${db.module}" command="${phocoa.project.php} ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/webapp.conf --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${phocoa.project.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
+        <exec dir="${phocoa.pwd}/${db.module}" command="${phocoa.project.php} ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/webapp.conf --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${db.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
+        <echo message="DONE! Don't forget to replace the '${db.module}.php' with 'suggested_code.php'." />
     </target>
 
     <target name="shell" description="Start an interactive PHP shell bootstrapped to the current PHOCOA project." depends="prepareProject">
