@@ -81,6 +81,11 @@ class WFModuleView extends WFWidget
 
     function render($blockContent = NULL)
     {
+        if ($this->hidden)
+        {
+            return NULL;
+        }
+
         // create an invocation, execute it, and return the HTML.
         $wfi = new WFModuleInvocation($this->invocationPath, $this->page()->module()->invocation());
         $wfi->setTargetRootModule($this->targetRootModule);
