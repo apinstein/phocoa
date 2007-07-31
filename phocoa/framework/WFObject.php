@@ -356,5 +356,10 @@ class WFObject implements WFKeyValueCoding
     {
         return print_r($this, true);
     }
+
+    function getClass()
+    {
+        return get_class($this);
+    }
 }
 ?>
