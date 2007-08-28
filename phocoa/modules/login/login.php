@@ -76,6 +76,10 @@ class login extends WFModule
             {
                 $continueURL = $ac->defaultLoginContinueURL();
             }
+            else
+            {
+                $continueURL = WFWebApplication::unserializeURL($continueURL);
+            }
             $this->gotoURL($continueURL);
         }
         
