@@ -101,7 +101,7 @@ class WFUNIXDateFormatter extends WFFormatter
             return '';
         }
         $result = strtotime($string);
-        if ($result == -1)
+        if ($result == -1 or $result === false)
         {
             $error->setErrorMessage("Could not determine time for that date/time string.");
             return NULL;
@@ -120,6 +120,46 @@ class WFUNIXDateFormatter extends WFFormatter
     function setFormatString($fmt)
     {
         $this->formatString = $fmt;
+    }
+}
+
+/**
+ * The DateTime formatter converts between human-readable dates and PHP 5.2's DateTime object.
+ *
+ * Default formatString is 'r', example: "Thu, 21 Dec 2000 16:01:07 +0200".
+ * IMPORTANT! Please be aware that some date formats are not reversible! that is, they can be shown human-readable, but not reversed into a valid time.
+ */
+class WFDateTimeFormatter extends WFUNIXDateFormatter
+{
+    function stringForValue($dtObject)
+    {
+        // allow empty values
+        if ($dtObject === NULL)
+        {
+            return '';
+        }
+        if (!($dtObject instanceof DateTime)) throw( new WFException("Parameter passed must be a DateTime object.") );
+        return $dtObject->format($this->formatString);
+    }
+
+    function valueForString($string, &$error)
+    {
+        $string = trim($string);
+        // first check for empty
+        if ($string == '')
+        {
+            return NULL;
+        }
+        $dts = new DateTime($string);
+        if ($dts === false)
+        {
+            $error->setErrorMessage("Could not determine time for that date/time string.");
+            return NULL;
+        }
+        else
+        {
+            return $dts;
+        }
     }
 }
 
