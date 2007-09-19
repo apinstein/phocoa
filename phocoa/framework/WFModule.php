@@ -43,7 +43,7 @@ class WFModuleInvocation extends WFObject
      */
     protected $parentInvocation;
     /**
-     * @var string the passed-in invocation path: /path/to/module[/Param1[/Param2]]
+     * @var string the passed-in invocation path: /path/to/module[/Param1[/Param2]]. Note that the ParamN values should be urlencoded.
      */
     protected $invocationPath;
     /**
@@ -104,7 +104,7 @@ class WFModuleInvocation extends WFObject
         parent::__construct();
 
         $this->invocationPath = ltrim($invocationPath, '/');
-        if (!$this->invocationPath) throw( new Exception("invocationPath cannot be blank.") );
+        if (!$this->invocationPath) throw( new WFException("invocationPath cannot be blank.") );
         $this->parentInvocation = $parentInvocation;
 
         $this->targetRootModule = true;
@@ -429,52 +429,72 @@ class WFModuleInvocation extends WFObject
             }
         }
 
+        // this block determines modulePath, moduleName, and pageName [optionally]
         //print_r($pathInfoParts);
         //print "URI: $<BR>";
         $foundModule = false;
-        $modulePath = '';
+        $modulePath = $possibleModulePath = '';
+        $moduleName = NULL;
+        $pageName = NULL;
         $partsUsedBeforeModule = 0;
         foreach ($pathInfoParts as $part) {
-            $modulePath .= '/' . $part;
-            $possibleModuleFilePath = $modulesDirPath . $modulePath . '/' . $part . '.php';
-            //print "Testing $possibleModuleFilePath to see if it's a module file.<BR>";
-            if (file_exists($possibleModuleFilePath))
+            // recurse into directories until there are no more dirs to drop into
+            $possibleModulePath .= '/' . $part;
+            $possibleSubModule = $modulesDirPath . $possibleModulePath;
+            //print "Testing to see if there is a directory at: '$possibleSubModule' ($possibleModulePath).<BR>";
+            if (is_dir($possibleSubModule))
             {
-                $this->modulePath = ltrim($modulePath, '/');
-                $this->moduleName = $pathInfoParts[$partsUsedBeforeModule];
-                if (isset($pathInfoParts[$partsUsedBeforeModule + 1]))
-                {
-                    $this->pageName = $pathInfoParts[$partsUsedBeforeModule + 1];
-                }
-                // parse out parameter data from URL
-                if (count($pathInfoParts) > 2)
-                {
-                    $params = array_slice($pathInfoParts, $partsUsedBeforeModule + 2);
-                    foreach ($params as $k => $v) {
-                        if ($v === WFModuleInvocation::PARAMETER_NULL_VALUE)
-                        {
-                            $params[$k] = NULL;
-                        }
-                        else
-                        {
-                            $params[$k] = urldecode($v);
-                        }
-                    }
-                    $this->invocationParameters = $params;
-                }
-                $foundModule = true;
-                $this->setModulesDir($modulesDirPath);
-                //print "Found module {$this->moduleName} in {$this->modulePath}.";
-                //if ($this->pageName) print " Found page name: {$this->pageName}";
-                //print "<BR>";
-                //print "PATH_INFO: {$this->invocationParameters}<BR>";
+                //print "Directory found<br>";
+                $modulePath .= '/' . $part;
+                $moduleName = $part;
+                $partsUsedBeforeModule++;
+                continue;
+            }
+            else
+            {
+                $pageName = $part;
+                //print "No Directory found... will look for module<br>";
                 break;
             }
-            else if (is_dir($modulesDirPath . '/' . $modulePath))
-            {
-                $partsUsedBeforeModule++;
-            }
         }
+        //print "Only POssible ModulePath: $modulePath<Br />";
+        if ($partsUsedBeforeModule < 1)
+        {
+            $possibleModuleFilePath = NULL;
+        }
+        else
+        {
+            $possibleModuleFilePath = $modulesDirPath . $modulePath . '/' . $pathInfoParts[$partsUsedBeforeModule-1] . '.php';
+        }
+        if (file_exists($possibleModuleFilePath))
+        {
+            //print "Found module at $possibleModuleFilePath<BR>";
+            $foundModule = true;
+            $this->modulePath = ltrim($modulePath, '/');
+            $this->moduleName = $moduleName;
+            $this->pageName = $pageName;
+            if ($this->pageName)
+            {
+               // parse out parameter data from URL
+               if (count($pathInfoParts) > 2)
+               {
+                   $params = array_slice($pathInfoParts, $partsUsedBeforeModule + 1);
+                   foreach ($params as $k => $v) {
+                       if ($v === WFModuleInvocation::PARAMETER_NULL_VALUE)
+                       {
+                           $params[$k] = NULL;
+                       }
+                       else
+                       {
+                           $params[$k] = urldecode($v);
+                       }
+                   }
+                   $this->invocationParameters = $params;
+               }
+            }
+            $this->setModulesDir($modulesDirPath);
+        }
+        //print "MP: {$this->modulePath}<br>Mod:{$this->moduleName}<BR>Page: {$this->pageName}<BR>Params:" . print_r($this->invocationParameters,true) . "<BR>";
 
         if (!$foundModule)
         {
@@ -502,7 +522,7 @@ class WFModuleInvocation extends WFObject
         {
             $this->pageName = $this->module->defaultPage();
         }
-        if (empty($this->pageName)) throw( new Exception("No page could be determined. Make sure you are supplying an page in the invocation path or have your module supply a defaultPage.") );
+        if (empty($this->pageName)) throw( new WFException("No page could be determined. Make sure you are supplying an page in the invocation path or have your module supply a defaultPage.") );
 
         // redirect as needed - this doesn't make sense inside of WFModuleInvocation...
         // of course cannot have invocationParameters from invocationPath unless module and pageName are specified
@@ -515,7 +535,7 @@ class WFModuleInvocation extends WFObject
             }
             else
             {
-                throw( new Exception("You must specify a complete invocationPath.") );
+                throw( new WFException("You must specify a complete invocationPath.") );
             }
         }
     }
@@ -532,7 +552,7 @@ class WFModuleInvocation extends WFObject
      *
      *  @param string The invocation path to use.
      *  @return string The resulting output of module execution.
-     *  @throws object Exception Any exception generated during execution.
+     *  @throws object WFException Any exception generated during execution.
      */
     public static function quickModule($invocationPath, $skinDelegate = NULL)
     {
@@ -622,7 +642,7 @@ abstract class WFModule extends WFObject
     {
         parent::__construct();
 
-        if (!($invocation instanceof WFModuleInvocation)) throw( new Exception("Modules must be instantiated with a WFModuleInvocation.") );
+        if (!($invocation instanceof WFModuleInvocation)) throw( new WFException("Modules must be instantiated with a WFModuleInvocation.") );
 
         $this->invocation = $invocation;
         $this->requestPage = NULL;
@@ -640,6 +660,12 @@ abstract class WFModule extends WFObject
         // set up pages
         $this->requestPage = new WFPage($this);
         $this->responsePage = NULL;
+    }
+
+    function outlet($id)
+    {
+        if (!isset($this->__sharedInstances[$id])) throw( new WFException("No shared object exists with id '{$id}'.") );
+        return $this->__sharedInstances[$id];
     }
 
     /**
@@ -660,7 +686,7 @@ abstract class WFModule extends WFObject
      *
      *  NOTE: This function may issue an HTTP 302 and redirect the user to the login page, then halt script execution.
      * 
-     *  @throws Exception if anything unexpected happens.
+     *  @throws WFException if anything unexpected happens.
      */
     private function runSecurityCheck()
     {
@@ -670,7 +696,7 @@ abstract class WFModule extends WFObject
             {
                 $authInfo = WFAuthorizationManager::sharedAuthorizationManager()->authorizationInfo();
                 $access = $this->checkSecurity($authInfo);
-                if (!in_array($access, array(WFAuthorizationManager::ALLOW, WFAuthorizationManager::DENY))) throw( new Exception("Unexpected return code from checkSecurity.") );
+                if (!in_array($access, array(WFAuthorizationManager::ALLOW, WFAuthorizationManager::DENY))) throw( new WFException("Unexpected return code from checkSecurity.") );
                 // if access is denied, see if there is a logged in user. If so, then DENY. If not, then allow login.
                 if ($access == WFAuthorizationManager::DENY)
                 {
@@ -774,7 +800,7 @@ abstract class WFModule extends WFObject
       * 
       * @param string The path to the module.
       * @return object A WFModule subclass instance.
-      * @throws Exception if the module subclass or file does not exist.
+      * @throws WFException if the module subclass or file does not exist.
       * @throws WFAuthorizationException if there is an access control violation for the module.
       */
     public static function factory($invocation)
@@ -797,7 +823,7 @@ abstract class WFModule extends WFObject
         {
             $module = new $moduleName($invocation);
         }
-        else throw( new Exception("WFModule subclass (module_{$moduleName} or {$moduleName}) could not be found.") );
+        else throw( new WFException("WFModule subclass (module_{$moduleName} or {$moduleName}) could not be found.") );
 
         $module->init();
         return $module;
@@ -854,7 +880,7 @@ abstract class WFModule extends WFObject
 
                 WFLog::log("loading config for shared instance id '$id'", WFLog::TRACE_LOG);
                 // get the instance to apply config to
-                if (!isset($this->$id)) throw( new Exception("Couldn't find shared instance with ID '$id' to configure.") );
+                if (!isset($this->$id)) throw( new WFException("Couldn't find shared instance with ID '$id' to configure.") );
                 $configObject = $this->$id;
 
                 // atrributes
@@ -870,7 +896,7 @@ abstract class WFModule extends WFObject
                                 // these are all OK, fall through
                                 break;
                             default:
-                                throw( new Exception("Config value for shared instance id::property '$id::$keyPath' is not a vaild type (" . gettype($value) . "). Only boolean, integer, double, string, or NULL allowed.") );
+                                throw( new WFException("Config value for shared instance id::property '$id::$keyPath' is not a vaild type (" . gettype($value) . "). Only boolean, integer, double, string, or NULL allowed.") );
                                 break;
                         }
                         WFLog::log("SharedConfig:: Setting '$id' property, $keyPath => $value", WFLog::TRACE_LOG);
@@ -954,7 +980,7 @@ abstract class WFModule extends WFObject
         foreach ($__config as $id => $config) {
             WFLog::log("loading config for id '$id'", WFLog::TRACE_LOG);
             // get the instance to apply config to
-            if (!isset($this->$id)) throw( new Exception("Couldn't find shared instance with ID '$id' to configure.") );
+            if (!isset($this->$id)) throw( new WFException("Couldn't find shared instance with ID '$id' to configure.") );
             $configObject = $this->$id;
 
             // atrributes
@@ -970,7 +996,7 @@ abstract class WFModule extends WFObject
                             // these are all OK, fall through
                             break;
                         default:
-                            throw( new Exception("Config value for shared instance id::property '$id::$keyPath' is not a vaild type (" . gettype($value) . "). Only boolean, integer, double, string, or NULL allowed.") );
+                            throw( new WFException("Config value for shared instance id::property '$id::$keyPath' is not a vaild type (" . gettype($value) . "). Only boolean, integer, double, string, or NULL allowed.") );
                             break;
                     }
                     WFLog::log("SharedConfig:: Setting '$id' property, $keyPath => $value", WFLog::TRACE_LOG);

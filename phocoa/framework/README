@@ -34,10 +34,19 @@ TODO
 
 1.0 Milestone:
 - The "default" class for the WFControllers is WFDictionary... I think maybe we can use ArrayObject, which is an PHP5 SPL class (or at least subclass it). Need more testing...
-- Can we add "default values" to parameters for _ParameterList('name' => 'defaultValue') the way we did for: phocoa builder/exportPhocoaBuilderIntegrationInfo.php
+- Can we add "default values" to parameters for parameterList('name' => 'defaultValue') the way we did for: phocoa builder/exportPhocoaBuilderIntegrationInfo.php
   - would simplify default value setup
   - I think it's safe re php spec
   - only worry is ordering - of course ordering is *very* important to us
+  - Maybe even add deeper options so we can automate common things like array-passing?
+    return array( 'idsToIgnore' => array(
+                                         'default' => '1,2',
+                                         'splitIntoArray' => ','
+                                         )
+                )
+- IDEA: Instead of having to restore state each time the page loads, couldn't we just serialize the entire state to the session and re-load that? Seems that it would be much faster and more accurate.
+  Of course, then have to deal with what happens when state is out-of-sync with DB.
+  Also, have to deal with 2 contexts; when having one page loaded in 2 windows, do they SHARE state or have SEPARATE state? Or do we let the developer decide?
 - Maybe phocoa shouldn't "take over" entire /WWWROOT/ URL path. Instead, just let people drop modules wherever, and those pages should start with:
   require('../conf/webapp.conf');
   WFWebApplicationMain();
@@ -45,26 +54,26 @@ TODO
   - this way we could store css, img, etc in the same folder as the module... add {$MODULE_WWW_DIR} to smarty?
 - Finish WFAutoForm
   - Talk to Mark F about his experiences
-  - Look at HTML_QuickForm
+  - Look at HTML_QuickForm, QCodo, Symfony, CodeIgniter, RoR
   - Re-build "code-gen" things to build WFAutoForm instead
   - Update PHOCOA Builder to allow browsing ( or instantiating ) of PHP Objects, & drag-drop an object onto an interface
 - WFModule/Page architecture
-  - Have a sep WFPage subclass [ or delegate? ] for each page in a module; ensure BC
+  - Can we "cache" the "state" of the page sent before rendering? And then restore it instead of "bootstrapping" again? Would mean that we could then do KVO more cleanly.
+    Could even have a "alwaysDoPostback" mode that would postBack to ensure only one UI change made at a time; this would nearly fully replicate desktop environment
+  - (DONE) Have a sep WFPage delegate for each page in a module; ensure BC (DONE)
+  - (DONE) Add some change detection to WFDynamic / WFArrayController so we can automatically and efficiently handle createWidgets() needing to be called multiple times to detect changes.
   - Add in a bunch more "life-cycle" callbacks
-    - noAction
-    - preAction, or maybe validate (so that you can combine field-level KVC with validation done in the "action" callback
-    - handleException - for uncaught exceptions, give the page (and then the module?) a chance to process it.
-- Make sure that the "page life cycle" is working most effectively. I am not positive I am happy with the order that things occur. This is mostly because of WFDynamic and the need to call createWidgets() over again? Maybe need additional callbacks? so that one can be sure that restoreState() is done, or that all dynamic widgets are made, etc?
-  - Should there exist a class WFModulePage that is the "page-centric" stuff of a module? This would allow for better documentation of page-life-cycle callbacks
-    - would more cleanly encapsulate pages: great place to put callbacks for page-centric things rather than goofily named methods of modules;
-    - BC issues? could use __call on module to to DB?
-    - could data still be easily/cleanly shared?
-  - additional life cycle callbacks? look through page setup and do one for each major phase?
-  - maybe have WFDynamic's "observe" arrayControllers and automatically update themselves... also have "WFArrayController::stopSendingUpdates()" and WFArrayController::startSendingUpdates" (find cocoa equivalent)
+    - (DONE) noAction
+    - (TBD) handleException - for uncaught exceptions, give the page (and then the module?) a chance to process it.
+    - SEE WFPageDelegate Documentation
+    - ?? preAction, or maybe validate (so that you can combine field-level KVC with validation done in the "action" callback
 - Validator Issues
   - Validators aren't run automatically; only by bindings infrastructure, is that a bad thing?
   - No way to automatically run validators for an entire object (ie to catch non-single-field validation issues)
   - No way to create validation errors from save() and have the FW catch them automatically
+    - Maybe this isn't a problem? Pages should try/catch around things that can throw and wrap errors into a WFError... 
+      OR should we do this try/catch and WFError wrapping automatically, and just let the action method OVERRIDE that if it is desirable to NOT catch that error?
+      OR maybe we could throw a special type of exception from the action method that WON'T be caught by the FW if we want the exception to escalate...
 - Something seems slightly off with binding options setup. When bind() is done, seems that it should coalesce default binding option, but it isn't. They're being done
   all over the place (pullBindings, processBindingOptions, etc). Seems that the bind() process should coalesce those for you. What does processBindingOptions do anyway?
 - Can we add "NullPlaceholder" to text field and text area so there can be some "help" text that gets automatically "converted" to/from NULL?

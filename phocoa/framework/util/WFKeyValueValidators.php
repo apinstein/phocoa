@@ -70,7 +70,8 @@ class WFKeyValueValidators extends WFObject
                 return true;
                 break;
             default:
-                return true;
+                $errors[] = new WFError("WFKeyValueValidators::validatePhone only works for country=US at present.");
+                return false;
         }
     }
 

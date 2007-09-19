@@ -61,6 +61,7 @@ class WFIncluding
                 'WFAuthorizationException' => 'framework/WFAuthorization.php',
                 'WFAuthorizationManager' => 'framework/WFAuthorization.php',
                 'WFBooleanFormatter' => 'framework/widgets/WFFormatter.php',
+                'WFDateTimeFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFUNIXDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFSQLDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFNumberFormatter' => 'framework/widgets/WFFormatter.php',
@@ -106,6 +107,7 @@ class WFIncluding
                 'WFPaginatorState' => 'framework/widgets/WFPaginatorState.php',
                 'WFModuleView' => 'framework/widgets/WFModuleView.php',
                 'WFTabView' => 'framework/widgets/WFTabView.php',
+                'WFTableView' => 'framework/widgets/WFTableView.php',
                 'WFYAHOO' => 'framework/widgets/yahoo/WFYAHOO.php',
                 'WFYAHOO_widget_TreeView' => 'framework/widgets/yahoo/WFYAHOO_widget_TreeView.php',
                 'WFYAHOO_widget_TreeViewNode' => 'framework/widgets/yahoo/WFYAHOO_widget_TreeView.php',
@@ -129,7 +131,7 @@ class WFIncluding
                 'WFUnixDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFSQLDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFNumberFormatter' => 'framework/widgets/WFFormatter.php',
-                'FCKEditor' => APP_ROOT . '/wwwroot/www/framework/FCKEditor/fckeditor.php',
+                'FCKEditor' => FRAMEWORK_DIR . '/wwwroot/www/framework/FCKEditor/fckeditor.php',
             );
         }
 

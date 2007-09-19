@@ -84,6 +84,11 @@ class WFRadio extends WFWidget
         $this->selected = $selected;
     }
 
+    function setValue($v)
+    {
+        throw( new WFException("Value is meaningless for WFRadio! Use selectedValue!") );
+    }
+
     function label()
     {
         return $this->label;

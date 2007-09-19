@@ -403,6 +403,14 @@ abstract class WFView extends WFObject
     {
         return $this->getImportJS() . $this->getImportCSS();
     }
+
+    /**
+     * After WFPage has completed the loading of all config for all widgets, it will call this function on each widget.
+     *
+     * This function is particularly useful for widgets that have children. When called, the widget can be sure that all instances and config of its children 
+     * have been loaded from the .config file.
+     */
+    function allConfigFinishedLoading() {}
 }
 
 ?>

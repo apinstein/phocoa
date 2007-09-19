@@ -33,7 +33,7 @@ PHOCOA.importJS = function(path) {
         try {
             eval(js.transport.responseText);
         } catch (err) {
-            alert('importJS: ' + path + ' failed to parse: ' + err);
+            alert('importJS: ' + path + ' failed to parse: (errNo: ' + err.number + ')' + err.message);
         }
     }
     else

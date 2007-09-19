@@ -30,20 +30,6 @@ class module_{$modName} extends WFModule
     {
         return '{$pageName}';
     }
-
-//    uncomment as needed
-//    function {$pageName}_ParameterList()
-//    {
-//        return array();
-//    }
-//
-//    function {$pageName}_SetupSkin(\$skin)
-//    {
-//    }
-//
-//    function {$pageName}_PageDidLoad(\$page, \$params)
-//    {
-//    }
 ";
     }
     $moduleTemplate .= "

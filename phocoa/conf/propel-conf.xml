@@ -29,7 +29,7 @@
         <ident>propel-##PHOCOA_PROJECT_NAME##</ident>
         <level>7</level>
         <conf>
-            <mode>438</mode>
+            <mode>664</mode>
         </conf>
     </log>
     <!--
@@ -46,6 +46,9 @@
                 <adapter>##PROPEL_DATABASE##</adapter>
                 <!-- Connection DSN.  See PEAR DSN format for other supported parameters. -->
                 <connection>
+                    <!-- propel 1.3 -->
+                    <dsn>##PROPEL_DATABASE##:dbname=##DB_NAME##;user=##DB_USER##;host=##DB_HOST##;password=##DB_PASS##</dsn>
+                    <!-- propel 1.2 -->
                     <phptype>##PROPEL_DATABASE##</phptype>
                     <hostspec>##DB_HOST##</hostspec>
                     <database>##DB_NAME##</database>

@@ -48,7 +48,7 @@ class WFSmarty extends Smarty implements WFPageRendering
 
     function render($display = true)
     {
-        if (!file_exists($this->template)) throw( new WFException("Template file '{$this->template}' could not be read.") );
+        if (!file_exists($this->template)) throw( new WFRequestController_NotFoundException("Template file '{$this->template}' could not be read.") );
         if ($display) {
             parent::display($this->template);
             return NULL;

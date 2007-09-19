@@ -59,6 +59,7 @@ class WFPaginatorState extends WFWidget
 
     function render($blockContent = NULL)
     {
+        if (!($this->paginator instanceof WFPaginator)) throw( new WFException("No paginator assigned to WFPaginatorState " . $this->id) );
         if ($this->paginator->mode() == WFPaginator::MODE_FORM)
         {
             $this->importJS("{$this->yuiPath}/yahoo-dom-event/yahoo-dom-event.js");

@@ -18,6 +18,128 @@
  */
 
 /**
+ * Informal Protocol declaration for WFPage delegates.
+ * 
+ * Function in this informal protocol are used to respond to different points in the page life cycle.
+ *
+ * Common activities include setting up dynamic widgets, responding to actions, etc.
+ */
+interface WFPageDelegate
+{
+    // delegate functions documented in calling order during page life cycle
+   
+    /**
+     *  Called when the page instances have been loaded and configured. 
+     *
+     *  You can be certain at this point that all instances in the .yaml files have been loaded and connected.
+     *
+     *  Of course, dynamically created instances may not exist yet.
+     *
+     *  @param object WFPage The page.
+     */
+    function pageInstancesDidLoad($page);
+
+    /**
+     *  Get the list of named parameters for the page.
+     *
+     *  @return array An array of names of parameters, in positional order.
+     */
+    function parameterList();
+
+    /**
+     *  Called when the page has finished loading.
+     *
+     *  State is not guaranteed to be totally restored.
+     *
+     *  The most common use for this callback is to load data objects with which the UI elements will be bound.
+     *
+     *  NOTE: This is the modern version of _PageDidLoad()
+     *
+     *  @param object WFPage The page.
+     *  @param array An array of parameters, with their values passed from the client.
+     */
+    function parametersDidLoad($page, $params);
+
+    /**
+     *  Called just before the batched binding updates are pushed from the UI state back on to the model objects.
+     *
+     *  Remember, in PHOCOA, we are approximating a stateful environment on top of a stateless one.
+     *  Thus unlike in Cocoa, we have to "batch" apply the changes made via the client. In Cocoa, all bindings are done one-at-a-time because the model is stateful
+     *  and there is no penalty for dealing with one change at a time. On the web, to deal with each change at a time would REQUIRE a "doPostback" kind of mentality
+     *  on every UI click, which leads to very painful applications for users.
+     *
+     *  NOTE: only gets called for the request page, since if you are the response page,
+     *  there is no client state in existence to which might require application of changes made with bindings.
+     *
+     *  @param object WFPage The page.
+     *  @param array An array of parameters, with their values passed from the client.
+     */
+    function willPushBindings($page, $params);
+
+    /**
+     *  Called by PHOCOA when an "action" (form submission) has taken place on the page.
+     *
+     *  If the action name is "search" then the delegate method is searchAction().
+     *
+     *  NOTE: This is the modern version of <pageName>_<actionName>_Action()
+     *
+     *  @param object WFPage The page.
+     *  @param array An array of parameters, with their values passed from the client.
+     */
+    function doAction($page, $params);
+
+    /**
+     *  Called by PHOCOA when NO action is run for the page.
+     *
+     *  This is used to set up data default data that is needed should no action be taken. For instance, exeucting a default search query if no SEARCH field and "Search" action was run.
+     *  This is common when loading a page for the first time (thus there is no way an action could have been run).
+     *
+     *  @param object WFPage The page.
+     *  @param array An array of parameters, with their values passed from the client.
+     */
+    function noAction($page, $params);
+
+    /**
+     *  Called just befored rendering, but after the skin has been initalized. 
+     *
+     *  This is a good callback to use to add head strings, meta tags, set the HTML title, set the skin to use, etc.
+     *
+     *  NOTE: This is the modern version of _SetupSkin()
+     *
+     *  @param object WFPage The page.
+     *  @param array An array of parameters, with their values passed from the client.
+     *  @param object WFSkin The skin.
+     */
+    function setupSkin($page, $parameters, $skin);
+
+    /**
+     *  Called by PHOCOA just before the page is rendered.
+     *
+     *  NOTE: Not sure what this would ever be useful for... but I am putting it in here. Please let the PHOCOA communitiy know if you're using this.
+     *  NOTE: This is called AFTER pullBindings() although no one should have to worry about this fact...
+     *
+     *  UNTESTED!
+     *
+     *  @param object WFPage The page.
+     *  @param array An array of parameters, with their values passed from the client.
+     */
+    function willRenderPage($page, $parameters);
+
+    /**
+     *  Called by PHOCOA just before after page is rendered.
+     *
+     *  This callback can be used to munge the final output of the page rendering before it is returned to the caller.
+     *
+     *  UNTESTED!
+     *
+     *  @param object WFPage The page.
+     *  @param array An array of parameters, with their values passed from the client.
+     *  @param string The rendered output. PASSED BY REFERENCE.
+     */
+    function didRenderPage($page, $parameters, &$output);
+}
+
+/**
  * The WFPage encapsulates the UI and Controller Layer state of a page.
  *
  * The Page infrastructure initializes pages by instantiating all WFView instances (including widgets) in a page (from the .instances file),
@@ -44,6 +166,7 @@ class WFPage extends WFObject
     protected $parameters;  // finalized calculated parameters in effect for the page
     protected $errors;      // all validation errors for the current page; errors are managed in real-time. Any errors added to widgets of this page 
                             // are automatically added to our page errors list.
+    protected $delegate;    // an object implementing some of WFPageDelegate. OPTIONAL.
 
     function __construct(WFModule $module)
     {
@@ -55,7 +178,30 @@ class WFPage extends WFObject
         $this->instances = array();
         $this->errors = array();
         $this->parameters = array();
+        $this->delegate = NULL;
         WFLog::log("instantiating a page", WFLog::TRACE_LOG, PEAR_LOG_DEBUG);
+    }
+
+    /**
+     *  Set the WFPageDelegate to use for this page.
+     *
+     *  @param object An object implementing some of the WFPageDelegate methods.
+     *  @throws object WFException If the parameter is not an object.
+     */
+    function setDelegate($d)
+    {
+        if (!is_object($d)) throw( new WFException("Page delegate must be an object!") );
+        $this->delegate = $d;
+    }
+
+    /**
+     *  Get the WFPageDelegate for this page.
+     *
+     *  @return object An object implementing some of the WFPageDelegate methods.
+     */
+    function delegate()
+    {
+        return $this->delegate;
     }
 
     /**
@@ -78,6 +224,19 @@ class WFPage extends WFObject
     function parameters()
     {
         return $this->parameters;
+    }
+
+    /**
+     *  Get a named parameter.
+     *
+     *  @param string The name of the desired parameter.
+     *  @return mixed The value of the desired parameter.
+     *  @throws object WFException If there is no parameter of the passed name.
+     */
+    function parameter($name)
+    {
+        if (!array_key_exists($this->parameters, $name)) throw( new WFException("Parameter '{$name}' does not exist.") );
+        return $this->parameters[$name];
     }
 
     /**
@@ -244,6 +403,17 @@ class WFPage extends WFObject
     function hasOutlet($id)
     {
         return ( isset($this->instances[$id]) );
+    }
+
+    /**
+     *  Convenience function to make it less verbose to get access to a shared outlet from a $page object (usually from a WFPageDelegate method).
+     *
+     *  @param string The ID of the outlet.
+     *  @throws object WFException If there is no outlet with that name.
+     */
+    function sharedOutlet($id)
+    {
+        return $this->module->outlet($id);
     }
 
     /**
@@ -657,8 +827,8 @@ class WFPage extends WFObject
 
         // after all config info is loaded, certain widget types need to "update" things...
         // since we don't control the order of property loading (that would get way too complex) we just handle some things at the end of the loadConfig
-        foreach ( $this->widgets() as $widgetID => $widget ) {
-            $widget->allConfigFinishedLoading();
+        foreach ( $this->instances as $viewId => $view ) {
+            $view->allConfigFinishedLoading();
         }
     }
 
@@ -865,13 +1035,20 @@ class WFPage extends WFObject
      * After the _PageDidLoad call, the UI state from the request will be applied on top of the defaults.
      *
      * @todo Something is goofy with the detection of isRequestPage surrounding the action processor... seems to be getting called on the response page too. investiage.
-     * @todo createWidgets()... works fine unless the ACTION method alters the arrayController. Then you need to call createWidgets() for each Dynamic again. Should this be automated after the "action" callback is called? If so, should we implement the "no action" handler for !hasSubmittedForm so that createWidgets() doens't get called 2x when there's an action?
+     * @todo Rename this to executePage or something... this actually runs the whole page infrastructure!
      */
     function initPage($pageName)
     {
         WFLog::log("Initing page $pageName", WFLog::TRACE_LOG);
         if (!empty($this->pageName)) throw( new Exception("Page already inited with: {$this->pageName}. Cannot initPage twice.") );
         $this->pageName = $pageName;
+        
+        // look for page delegate
+        $pageDelegateClassName = $this->module->moduleName() . '_' . $this->pageName;
+        if (class_exists($pageDelegateClassName))
+        {
+            $this->setDelegate(new $pageDelegateClassName);
+        }
 
         // calculate various file paths
         $basePagePath = $this->module->pathToPage($this->pageName);
@@ -889,8 +1066,8 @@ class WFPage extends WFObject
             }
             // after all config info is loaded, certain widget types need to "update" things...
             // since we don't control the order of property loading (that would get way too complex) we just handle some things at the end of the loadConfig
-            foreach ( $this->widgets() as $widgetID => $widget ) {
-                $widget->allConfigFinishedLoading();
+            foreach ( $this->instances as $viewId => $view ) {
+                $view->allConfigFinishedLoading();
             }
         }
         else
@@ -904,9 +1081,12 @@ class WFPage extends WFObject
                 }
 
                 // parse config file - for each instance, see if there is a config setup for that instance ID and apply it.
+                // note: this will call allConfigFinishedLoading automatically
                 $this->loadConfig($configFile);
             }
         }
+        // let delegate know the page instances are ready
+        $this->pageInstancesDidLoad();
 
         // restore UI state, if this is the requestPage
         // must happen AFTER config is loaded b/c some config options may affect how the widgets interpret the form data.
@@ -916,55 +1096,49 @@ class WFPage extends WFObject
             $this->restoreState();
         }
 
-        // give module a chance to load defaults for this page
-
         // the PARAMTERS are ONLY determined for the requestPage!
-        // determine parameters first
+        // Calculate parameters
         $parameters = array();
+        $parameterList = $this->parameterList(); // get parameter definition from delegate
         if ($this->isRequestPage())
         {
             WFLog::log("Parameterizing $pageName", WFLog::TRACE_LOG);
-            $parameterManifestMethod = "{$this->pageName}_ParameterList";
-            if (method_exists($this->module, $parameterManifestMethod))
+            if (count($parameterList) > 0)
             {
-                $parameterList = $this->module->$parameterManifestMethod($this);
-                if (count($parameterList) > 0)
-                {
-                    // first map all items through from PATH_INFO
-                    // @todo Right now this doesn't allow DEFAULT parameter values (uses NULL). Would be nice if this supported assoc_array so we could have defaults.
-                    $invocationParameters = $this->module->invocation()->parameters();
-                    for ($i = 0; $i < count($parameterList); $i++) {
-                        if (isset($invocationParameters[$i]))
-                        {
-                            $parameters[$parameterList[$i]] = $invocationParameters[$i];
-                        }
-                        else
-                        {
-                            $parameters[$parameterList[$i]] = NULL;
-                        }
-                    }
-
-                    // then over-ride with from form, if one has been submitted
-                    if ($this->hasSubmittedForm())
+                // first map all items through from PATH_INFO
+                // @todo Right now this doesn't allow DEFAULT parameter values (uses NULL). Would be nice if this supported assoc_array so we could have defaults.
+                $invocationParameters = $this->module->invocation()->parameters();
+                for ($i = 0; $i < count($parameterList); $i++) {
+                    if (isset($invocationParameters[$i]))
                     {
-                        foreach ($parameterList as $id) {
-                            if (!$this->hasOutlet($id)) continue;
-                            // see if there is an instance of the same name in the submitted form
-                            $instance = $this->outlet($id);
-                            if ($instance instanceof WFWidget)
-                            {
-                                // walk up looking for parent
-                                $parent = $instance->parent();
-                                do {
-                                    if ($parent and $parent instanceof WFForm and $parent->name() == $this->submittedFormName())
-                                    {
-                                        $parameters[$id] = $this->outlet($id)->value();
-                                        break;
-                                    }
-                                    if (!is_object($parent)) throw( new Exception("Error processing parameter overload for parameter id: '$id': found widget of same id, but cannot determine the form that it belongs to. Are you sure that widget id: '$id' is in a WFForm?") );
-                                    $parent = $parent->parent();
-                                } while ($parent);
-                            }
+                        $parameters[$parameterList[$i]] = $invocationParameters[$i];
+                    }
+                    else
+                    {
+                        $parameters[$parameterList[$i]] = NULL;
+                    }
+                }
+
+                // then over-ride with from form, if one has been submitted
+                if ($this->hasSubmittedForm())
+                {
+                    foreach ($parameterList as $id) {
+                        if (!$this->hasOutlet($id)) continue;
+                        // see if there is an instance of the same name in the submitted form
+                        $instance = $this->outlet($id);
+                        if ($instance instanceof WFWidget)
+                        {
+                            // walk up looking for parent
+                            $parent = $instance->parent();
+                            do {
+                                if ($parent and $parent instanceof WFForm and $parent->name() == $this->submittedFormName())
+                                {
+                                    $parameters[$id] = $this->outlet($id)->value();
+                                    break;
+                                }
+                                if (!is_object($parent)) throw( new Exception("Error processing parameter overload for parameter id: '$id': found widget of same id, but cannot determine the form that it belongs to. Are you sure that widget id: '$id' is in a WFForm?") );
+                                $parent = $parent->parent();
+                            } while ($parent);
                         }
                     }
                 }
@@ -973,37 +1147,22 @@ class WFPage extends WFObject
         else
         {
             WFLog::log("Skipping Parameterization for $pageName", WFLog::TRACE_LOG);
-            $parameterManifestMethod = "{$this->pageName}_ParameterList";
-            if (method_exists($this->module, $parameterManifestMethod))
+            if (count($parameterList) > 0)
             {
-                $parameterList = $this->module->$parameterManifestMethod($this);
-                if (count($parameterList) > 0)
-                {
-                    // NULL-ify all params
-                    for ($i = 0; $i < count($parameterList); $i++) {
-                        $parameters[$parameterList[$i]] = NULL;
-                    }
+                // NULL-ify all params
+                for ($i = 0; $i < count($parameterList); $i++) {
+                    $parameters[$parameterList[$i]] = NULL;
                 }
             }
         }
         // save completed parameters
         $this->parameters = $parameters;
 
-        // this is where pages will set up their bound objects, etc.
-        $didLoadMethod = "{$this->pageName}_PageDidLoad";
-        if (method_exists($this->module, $didLoadMethod))
-        {
-            WFLog::log("Calling {$didLoadMethod}", WFLog::TRACE_LOG);
-            $this->module->$didLoadMethod($this, $parameters);
-        }
+        // inform delegate that params are ready
+        $this->parametersDidLoad();
 
-        // call into all WFDynamic widgets to set up their dynamic controls.
-        foreach ($this->widgets() as $id => $obj) {
-            if ($obj instanceof WFDynamic)
-            {
-                $obj->createWidgets();
-            }
-        }
+        // parametersDidLoad may have affected the arrayControllers
+        $this->createDynamicWidgets();
 
         // restore UI state AGAIN so that any controls created dynamically can update their values based on the UI state.
         if ($this->isRequestPage())
@@ -1011,18 +1170,16 @@ class WFPage extends WFObject
             $this->restoreState();
         }
 
-        // callback method on WFModule after all state is restored (allows module to react to UI state before pushBindings())
-        $didRestoreStateMethod = "{$pageName}_DidRestoreState";
-        if (method_exists($this->module, $didRestoreStateMethod))
-        {
-            WFLog::log("Calling {$didRestoreStateMethod}", WFLog::TRACE_LOG);
-            $this->module->$didRestoreStateMethod($this);
-        }
-
         // now that the UI is set up (instantiated), it's time to propagate the values from widgets to bound objects if this is the requestPage!
         // then, once the values are propagated, we should call the action handler for the current event, if there is one.
         if ($this->isRequestPage())
         {
+            // let delegate know that we're about to push bindings - this is effectively a statement of "we're in 'postback', deal with it if you must"
+            $this->willPushBindings();
+
+            // willPushBindings may have affected the arrayControllers
+            $this->createDynamicWidgets();
+
             // push values of bound properties back to their bound objects
             $this->module->requestPage()->pushBindings();
             
@@ -1057,10 +1214,8 @@ class WFPage extends WFObject
                         } catch (Exception $e) {
                             throw( new WFException("Could not find form button (outlet) for current action: {$actionOutletID}. Make sure that you don't have nested forms!") );
                         }
-                        $actionMethod = $this->pageName . '_' . $actionName . '_Action';
-                        if (!method_exists($this->module, $actionMethod)) throw( new Exception("Action method {$actionMethod} does not exist for module " . $this->module->moduleName()) );
-                        WFLog::log("Running action: $actionMethod", WFLog::TRACE_LOG);
-                        $this->module->$actionMethod($this);
+                        // call action on delegate
+                        $this->doAction($actionName);
                     }
                     else
                     {
@@ -1076,7 +1231,33 @@ class WFPage extends WFObject
             {
                 WFLog::log("Not running action because no action occurred (i.e. no form posted)", WFLog::TRACE_LOG);
             }
+        }
 
+        // do we need to call the noAction handler?
+        if (!$this->hasSubmittedForm())
+        {
+            $this->noAction();
+        }
+
+        // action/noAction may have affecting the arrayControllers
+        $this->createDynamicWidgets();
+    }
+
+    /**
+     *  Call createWidgets on all WFDynamics.
+     *
+     *  This function is idempotent since the underlying createWidgets() is now idempotent.
+     *
+     *  This allows us to call it often without performance penalty.
+     */
+    private function createDynamicWidgets()
+    {
+        // call into all WFDynamic widgets to set up their dynamic controls.
+        foreach ($this->widgets() as $id => $obj) {
+            if ($obj instanceof WFDynamic)
+            {
+                $obj->createWidgets();
+            }
         }
     }
 
@@ -1163,25 +1344,156 @@ class WFPage extends WFObject
         // let the page set up stuff on the skin, IFF there is a skin and a delegate method, and we're the root invocation (which now should be redundant with skin in invocation
         if ($skin)
         {
+            $this->setupSkin($skin);
+        }
+
+        // return the rendered output of the page. we do this in an output buffer so that if there's an error, we can display it cleanly in the skin rather than have a
+        // half-finished template dumped on screen (which is apparently what smarty does when an error is thrown from within it)
+        $output = NULL;
+
+        // let delegate do anything it needs to pre-render
+        $this->willRenderPage();
+        try {
+            ob_start();
+            $output = $this->template->render(false);
+            ob_end_clean();
+        } catch(Exception $e) {
+            ob_end_clean();
+            throw($e);
+        }
+
+        // let delegate munge output
+        $this->didRenderPage($output);
+
+        return $output;
+    }
+
+    // DELEGATE FUNCTIONS
+    function pageInstancesDidLoad()
+    {
+        if ($this->delegate && method_exists($this->delegate, 'pageInstancesDidLoad'))
+        {
+            $this->delegate->pageInstancesDidLoad($this);
+        }
+    }
+    
+    function parameterList()
+    {
+        $parameters = array();
+        if ($this->delegate)
+        {
+            // WFPageDelegate
+            if (method_exists($this->delegate, 'parameterList'))
+            {
+                $parameters = $this->delegate->parameterList();
+            }
+        }
+        else
+        {
+            // old-school callback on module
+            $parameterManifestMethod = "{$this->pageName}_ParameterList";
+            if (method_exists($this->module, $parameterManifestMethod))
+            {
+                $parameters = $this->module->$parameterManifestMethod();
+            }
+        }
+        return $parameters;
+    }
+
+    function parametersDidLoad()
+    {
+        if ($this->delegate)
+        {
+            // WFPageDelegate
+            if (method_exists($this->delegate, 'parametersDidLoad'))
+            {
+                $parameters = $this->delegate->parametersDidLoad($this, $this->parameters());
+            }
+        }
+        else
+        {
+            // old-school callback on module
+            // this is where pages will set up their bound objects, etc.
+            $didLoadMethod = "{$this->pageName}_PageDidLoad";
+            if (method_exists($this->module, $didLoadMethod))
+            {
+                $this->module->$didLoadMethod($this, $this->parameters());
+            }
+        }
+    }
+
+    function willPushBindings()
+    {
+        if ($this->delegate)
+        {
+            if (method_exists($this->delegate, 'willPushBindings'))
+            {
+                $this->delegate->willPushBindings($this, $this->parameters());
+            }
+        }
+    }
+
+    function doAction($actionName)
+    {
+        WFLog::log("Running action: '{$actionName}'", WFLog::TRACE_LOG);
+        if ($this->delegate)
+        {
+            $actionMethod = $actionName . 'Action';
+            if (!method_exists($this->delegate, $actionMethod)) throw( new Exception("Action method {$actionMethod} does not exist in page delegate for page " . $this->pageName . " of module " . $this->module->moduleName()) );
+            $this->delegate->$actionMethod($this, $this->parameters());
+        }
+        else
+        {
+            // old-school callback on module
+            $actionMethod = $this->pageName . '_' . $actionName . '_Action';
+            if (!method_exists($this->module, $actionMethod)) throw( new Exception("Action method {$actionMethod} does not exist for module " . $this->module->moduleName()) );
+            $this->module->$actionMethod($this);
+        }
+    }
+
+    function noAction()
+    {
+        WFLog::log("Running noAction...", WFLog::TRACE_LOG);
+        if ($this->delegate && method_exists($this->delegate, 'noAction'))
+        {
+            $this->delegate->noAction($this, $this->parameters());
+        }
+    }
+
+    function setupSkin($skin)
+    {
+        if ($this->delegate)
+        {
+            if (method_exists($this->delegate, 'setupSkin'))
+            {
+                $this->delegate->setupSkin($this, $this->parameters(), $skin);
+            }
+        }
+        else
+        {
+            // old-school callback on module
             $pageSkinSetupMethod = "{$this->pageName}_SetupSkin";
             if ($this->module->invocation()->isRootInvocation() and method_exists($this->module, $pageSkinSetupMethod))
             {
                 $this->module->$pageSkinSetupMethod($skin);
             }
         }
+    }
 
-        // return the rendered HTML of the page. we do this in an output buffer so that if there's an error, we can display it cleanly in the skin rather than have a
-        // half-finished template dumped on screen (which is apparently what smarty does when an error is thrown from within it)
-        $html = NULL;
-        try {
-            ob_start();
-            $html = $this->template->render(false);
-            ob_end_clean();
-        } catch(Exception $e) {
-            ob_end_clean();
-            throw($e);
+    function willRenderPage()
+    {
+        if ($this->delegate && method_exists($this->delegate, 'willRenderPage'))
+        {
+            $this->delegate->willRenderPage($this, $this->parameters());
         }
-        return $html;
+    }
+
+    function didRenderPage(&$output)
+    {
+        if ($this->delegate && method_exists($this->delegate, 'didRenderPage'))
+        {
+            $this->delegate->didRenderPage($this, $this->parameters(), $output);
+        }
     }
 
     /**

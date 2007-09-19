@@ -1,6 +1,6 @@
 <?xml version="1.0"?> 
 <!-- NOTE:: All paths should leave off trailing slash!!! -->
-<project name="phocoa" default="newproject">
+<project name="phocoa" default="newProject">
     <!-- Set up tasks -->
     <!-- taskdef name="build-pear-package" classname="tasks.BuildPearPackage" /-->
     <taskdef name="realpathexpandhome" classname="tasks.RealPathExpandHome" />
@@ -51,7 +51,14 @@
         <php expression="require('${phocoa.project.dir}/conf/webapp.conf')" />
         <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createModule.php ${db.module}" passthru="true" />
         <exec dir="${phocoa.pwd}/${db.module}" command="${phocoa.project.php} ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/webapp.conf --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${db.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
-        <echo message="DONE! Don't forget to replace the '${db.module}.php' with 'suggested_code.php'." />
+        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/util/convertModuleToYAML.php ${db.module}" passthru="true" />
+        <delete>
+          <fileset dir="${phocoa.pwd}/${db.module}">
+            <include name="*.instances" />
+            <include name="*.config" />
+          </fileset>
+        </delete>
+        <exec dir="${phocoa.pwd}/${db.module}" command="mv suggested_code.php ${db.module}.php" />
     </target>
 
     <target name="shell" description="Start an interactive PHP shell bootstrapped to the current PHOCOA project." depends="prepareProject">
@@ -70,14 +77,16 @@
         <input propertyname="db.pass">Enter the database password:</input>
         <input propertyname="db.host" defaultValue="localhost">Enter the database host:</input>
         <property userProperty="true" name="propel.project" value="${phocoa.project.name}" />
-        <property userProperty="true" name="propel.database.url" value="${propel.database}://${db.user}:${db.pass}@${db.host}/${db.name}" />
+        <property userProperty="true" name="propel.database.url" value="${propel.database}://${db.user}:${db.pass}+${db.host}/${db.name}" />
+        <property userProperty="true" name="propel.database.creole.url" value="${propel.database}://${db.user}:${db.pass}@${db.host}/${db.name}" />
         <property userProperty="true" name="propel.targetPackage" value="${db.name}" />
-        <property userProperty="true" name="propel.autoloadCoreClasses" value="1" />
-        <property userProperty="true" name="propel.autoloadGeneratedClasses" value="1" />
         <property userProperty="true" name="propel.output.dir" value="${phocoa.propel.dir}" />
         <property userProperty="true" name="propel.php.dir" value="${phocoa.project.dir}/classes" />
         <property userProperty="true" name="propel.phpconf.dir" value="${phocoa.project.dir}/conf" />
         <property userProperty="true" name="propel.sql.dir" value="${phocoa.propel.dir}/db/sql" />
+        <property userProperty="true" name="propel.useDateTimeClass" value="true" />
+        <property userProperty="true" name="propel.autoloadCoreClasses" value="1" />
+        <property userProperty="true" name="propel.autoloadGeneratedClasses" value="1" />
         <writeconffile namespace="propel" file="${phocoa.propel.dir}/build.properties" />
         <echo message="Building Propel... setup conf file, reverse engineer database, build db classes." />
         <copy file="${phocoa.dir}/conf/propel-conf.xml" tofile="${phocoa.propel.dir}/runtime-conf.xml">
@@ -97,9 +106,7 @@
         <echo message="Propel general setup complete." />
         <echo message="To complete propel integration, complete the following manual tasks:" />
         <echo message="1. Make sure that propel is available in your include_path. If not, edit webapp.conf and munge include_path." />
-        <echo message="2. Add define('PROPEL_CONF', APP_ROOT . '/conf/${phocoa.project.name}-conf.php'); to your webapp.conf." />
-        <echo message="3. Add Propel::init(PROPEL_CONF); to your WFWebApplicationDelegate's initialize() method." />
-        <echo message="4. Edit the propel/runtime/classes/propel/om/BaseObject.php BaseObject declaration to this: 'abstract class BaseObject extends WFObject'." />
+        <echo message="2. Edit the propel/runtime/classes/propel/om/BaseObject.php BaseObject declaration to this: 'abstract class BaseObject extends WFObject'." />
         <input propertyname="db.generate" validArgs="yes,no" defaultValue="no">If your database already exists, we can generate a PHP interface to your database objects. Does your database already exist?</input>
         <if>
             <equals arg1="${db.generate}" arg2="1" />
@@ -151,7 +158,7 @@
         <mkdir dir="${phocoa.project.dir}" />
     </target>
 
-    <target name="newproject" description="Create a new project workspace." depends="prepareGeneral"> 
+    <target name="newProject" description="Create a new project workspace." depends="prepareGeneral"> 
         <!-- Gather information -->
         <input propertyname="phocoa.project.name">Enter the name of the new project:</input>
         <echo msg="The container directory for your PHOCOA project will be used to place the log, runtime, and project directories. Please be careful!" /> 
@@ -188,6 +195,7 @@
             </fileset>
             <filterchain>
                 <replacetokens begintoken="##" endtoken="##">
+                    <token key="PHOCOA_PROJECT_NAME" value="${phocoa.project.name}" />
                     <token key="PHOCOA_BASE_DIR" value="${phocoa.dir}" />
                     <token key="PHOCOA_APP_CONTAINER_DIR" value="${phocoa.project.container}" />
                     <token key="PHOCOA_APP_DIR" value="${phocoa.project.dir}" />

@@ -1,0 +1,9 @@
+DOCBOOK Tags we use
+
+filename - for all filesystem things
+code - for code snippets
+classname, property, methodname, functionname  - for classes and interfaces
+token - to put emphasis on a "named" something that is not a programming entity, etc etc used in code, but not a complete code snippet
+screen - for terminal/screen caps
+command - for command-line script names
+

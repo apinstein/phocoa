@@ -58,4 +58,10 @@ function __autoload($className)
     }
 }
 
+// register the autoloader on higher PHP versions for compatibility with other systems.
+if (function_exists('spl_autoload_register'))
+{
+    spl_autoload_register('__autoload');
+}
+
 ?>

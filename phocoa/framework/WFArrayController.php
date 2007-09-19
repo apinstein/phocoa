@@ -65,16 +65,27 @@ class WFArrayController extends WFObjectController implements Iterator
      * @var int Iterator object list, for the Iterator interface.
      */
     protected $iteratorObjects;
+
+    /**
+     * @var int An integer which increments with each change. Used by WFDynamic to see if it needs to re-call createWidgets. Eventually will be replaced by observing.
+     */
+    protected $changeCount;
     
     function __construct()
     {
         parent::__construct();
 
         $this->content = array();
+        $this->changeCount = 0;
 
         $this->setClassIdentifiers(WFArrayController::USE_ARRAY_INDEXES_AS_ID);
         $this->selectedIdentifiersHash = array();
         $this->selectOnInsert = false;
+    }
+
+    function changeCount()
+    {
+        return $this->changeCount;
     }
 
     function setSelectOnInsert($bool)
@@ -271,6 +282,9 @@ class WFArrayController extends WFObjectController implements Iterator
         if (!is_object($obj)) throw( new Exception("Passed object is, well, not an object!") );
         if (!($obj instanceof $this->class)) throw( new Exception("Passed object not of class {$this->class} as expected, but instead: " . get_class($obj) . '.') );
 
+        // record change
+        $this->changeCount++;
+
         // need to ensure its key is correct!
         if ($this->usingIndexedMode)
         {
@@ -337,6 +351,9 @@ class WFArrayController extends WFObjectController implements Iterator
         if (!class_exists($this->class)) throw( new Exception("Managed class {$this->class} does not exist.") );
         if (!is_object($obj)) throw( new Exception("Passed object is, well, not an object!") );
         if (!($obj instanceof $this->class)) throw( new Exception("Passed object not of class {$this->class} as expected, but instead: " . get_class($obj) . '.') );
+
+        // record change
+        $this->changeCount++;
 
         // need to ensure its key is correct!
         if ($this->usingIndexedMode)
@@ -521,6 +538,10 @@ class WFArrayController extends WFObjectController implements Iterator
     function addSelectionIdentifiers($idsToAdd)
     {
         if (!is_array($idsToAdd)) throw( new Exception("Must pass an array of ids.") );
+        if (count($idsToAdd) == 0) return;
+
+        // record change
+        $this->changeCount++;
 
         foreach ($idsToAdd as $id) {
             // only add to selection if they exist!
@@ -542,6 +563,10 @@ class WFArrayController extends WFObjectController implements Iterator
     function removeSelectionIdentifiers($idsToRemove)
     {
         if (!is_array($idsToRemove)) throw( new Exception("Must pass an array of ids.") );
+        if (count($idsToRemove) == 0) return;
+
+        // record change
+        $this->changeCount++;
 
         foreach ($idsToRemove as $id) {
             // remove from selection, only if it exists!

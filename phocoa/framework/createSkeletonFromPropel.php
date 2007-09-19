@@ -92,15 +92,23 @@ require_once($__config['propelConfFile']);
 // load desired object file - we need to load the main, peer, and base files so that Propel::init() sees that the table is loaded.
 $propelClassesDir = $__config['propelOutputDir'] . "/{$__config['propelDatabaseName']}";
 $propelObjectName = NameFactory::generateName(NameFactory::PHP_GENERATOR, array($__config['tableName'], NameGenerator::CONV_METHOD_PHPNAME));
-require_once( $propelClassesDir . '/' . $propelObjectName . '.php');
-require_once( $propelClassesDir . '/om/Base' . $propelObjectName . '.php');
-require_once( $propelClassesDir . '/om/Base' . $propelObjectName . 'Peer.php');
+$propelObjectPeerName = $propelObjectName . 'Peer';
+// make sure that the classes are all loaded; this has to happen before propel::init() or the tables won't be in the map.
+if (!class_exists($propelObjectName))
+{
+    throw( new Exception("Can't locate propel object {$propelObjectName}.") );
+}
+if (!class_exists($propelObjectPeerName))
+{
+    throw( new Exception("Can't locate propel peer object {$propelObjectPeerName}.") );
+}
 Propel::init($__config['propelConfFile']);
 // load databaseMap into inst var
 $propelDBMap = Propel::getDatabaseMap($__config['propelDatabaseName']);
 
-$sdp = new SkeletonDumperPropel($propelDBMap, $__config['tableName'], $__config['columnName']);
-$moduleCode = array();
+$moduleName = basename(getcwd());
+$sdp = new SkeletonDumperPropel($propelDBMap, $__config['tableName'], $__config['columnName'], $moduleName);
+$pageDelegatesCode = array();
 $pageNames = explode(',', $__config['phocoaPageName']);
 $pageTypes = explode(',', $__config['pageType']);
 if (!(count($pageTypes) == count($pageNames))) throw( new Exception("Must have 1 phocoaPageName for each pageType entry.") );
@@ -111,28 +119,34 @@ for ( $i = 0; $i < count($pageTypes); $i++) {
     print "Setting up page: {$pageType}\n";
     switch ($pageType) {
         case 'edit':
-            $moduleCode[] = $sdp->updateEditPage($pageName);
+            $pageDelegatesCode[] = $sdp->updateEditPage($pageName);
             break;
         case 'search':
-            $moduleCode[] = $sdp->updateSearchPage($pageName);
+            $pageDelegatesCode[] = $sdp->updateSearchPage($pageName);
             break;
         case 'detail':
-            $moduleCode[] = $sdp->updateDetailPage($pageName);
+            $pageDelegatesCode[] = $sdp->updateDetailPage($pageName);
             break;
     }
 }
-$moduleName = basename(getcwd());
 $file = "<?php
 class module_{$moduleName} extends WFModule
 {
     function defaultPage() { return 'search'; }
 
+    // this function should throw an exception if the user is not permitted to edit (add/edit/delete) in the current context
+    function verifyEditingPermission(\$page)
+    {
+        // example
+        // \$authInfo = WFAuthorizationManager::sharedAuthorizationManager()->authorizationInfo();
+        // if (\$authInfo->userid() != \$page->sharedOutlet('{$sdp->sharedInstanceID}')->selection()->getUserId()) throw( new Exception(\"You don't have permission to edit {$sdp->className}.\") );
+    }
+}
     ";
-foreach ($moduleCode as $code) {
+foreach ($pageDelegatesCode as $code) {
     $file .= "\n$code\n";
 }
     $file .= "
-}
 ?>";
 file_put_contents('./suggested_code.php', $file);
 print "Suggested module code in suggested_code.php\n";
@@ -142,8 +156,10 @@ class SkeletonDumperPropel
     protected $dbMap;
     protected $tableName;
     protected $singlePrimaryKey;
+    public $sharedInstanceID;
+    public $className;
     
-    function __construct($dbMap, $tableName, $mainColumnName)
+    function __construct($dbMap, $tableName, $mainColumnName, $moduleName)
     {
         $this->tableName = $tableName;
         $colNameAsPHPName = NameFactory::generateName(NameFactory::PHP_GENERATOR, array($mainColumnName, NameGenerator::CONV_METHOD_PHPNAME));
@@ -153,6 +169,7 @@ class SkeletonDumperPropel
         $this->sharedInstanceID = $this->className;
         $this->dbMap = $dbMap;
         $this->singlePrimaryKey = NULL;
+        $this->moduleName = $moduleName;
 
         // figure out modulePath
         // walk up PWD until we hit "modules" and use that.
@@ -297,14 +314,31 @@ class SkeletonDumperPropel
         $tpl = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
 <h2>{$this->className}</h2>
 
-{WFForm id=\"{$formID}\"}
-    {WFPaginatorState id=\"paginatorState\"}
-    {WFTextField id=\"query\"} {WFSubmit id=\"search\"} <a href=\"{WFURL action=\"edit\"}\">Add a new {$this->className}.</a>
-{/WFForm}
+<div class=\"form-container\">
+{WFViewBlock id=\"{$formID}\"}
+    {WFView id=\"paginatorState\"}
+    <fieldset>
+		<legend>{$this->className} Search</legend>
+		
+		<div>
+			<label for=\"query\">name:</label>
+			{WFView id=\"query\"}
+		</div>
+    </fieldset>
 
-<p>{WFPaginatorPageInfo id=\"paginatorPageInfo\"} {WFPaginatorNavigation id=\"paginatorNavigation\"}</p>
-<table border=\"1\" cellspacing=\"0\" cellpadding=\"5\">
-{section name=items loop=\$itemCount}
+    <div class=\"buttonrow\">
+	    {WFView id=\"search\"}<br />
+	</div>
+
+    <br />
+	<a href=\"{WFURL action=\"edit\"}\">Add a new {$this->className}.</a>
+{/WFViewBlock}
+</div>{* end form-container *}
+
+<p>{WFView id=\"paginatorPageInfo\"} {WFView id=\"paginatorNavigation\"}</p>
+
+<table border=\"0\" cellspacing=\"0\" cellpadding=\"5\" class=\"datagrid\">
+{section name=items loop=\$__module->valueForKeyPath('{$this->sharedInstanceID}.arrangedObjectCount')}
     {if \$smarty.section.items.first}
     <tr>
         <th>{$this->mainColumnName}</th>
@@ -312,8 +346,8 @@ class SkeletonDumperPropel
     </tr>
     {/if}
     <tr>
-        <td>{WFDynamic id=\"{$this->mainColumnName}\"}</td>
-        <td>{WFDynamic id=\"editLink\"} {WFDynamic id=\"deleteLink\"}</td>
+        <td>{WFView id=\"{$this->mainColumnName}\"}</td>
+        <td>{WFView id=\"editLink\"} {WFView id=\"deleteLink\"}</td>
     </tr>
 {sectionelse}
     <tr><td>No items found.</td></tr>
@@ -410,28 +444,29 @@ document.forms.{$formID}.query.focus();
 
         // suggested module code
         return "
-    function {$pageName}_ParameterList()
+class module_{$this->moduleName}_{$pageName}
+{
+    function parameterList()
     {
         return array('paginatorState');
     }
-    function {$pageName}_PageDidLoad(\$page, \$params)
+    
+    function parametersDidLoad(\$page, \$params)
     {
-        \$this->paginator->readPaginatorStateFromParams(\$params);
-        if (!\$page->hasSubmittedForm())
-        {
-            \$this->{$pageName}_doSearch(\$page);
-        }
+        \$page->sharedOutlet('paginator')->readPaginatorStateFromParams(\$params);
     }
-    function {$pageName}_search_Action(\$page)
+    
+    function noAction(\$page, \$params)
+    {
+        \$this->doSearch(\$page);
+    }
+    
+    function searchAction(\$page)
     {   
-        \$this->{$pageName}_doSearch(\$page);
-        
-        // re-build dynamic widgets
-        \$page->outlet('{$this->mainColumnName}')->createWidgets();
-        \$page->outlet('editLink')->createWidgets();
-        \$page->outlet('deleteLink')->createWidgets();
-    }   
-    function {$pageName}_doSearch(\$page)
+        \$this->doSearch(\$page);
+    }
+    
+    function doSearch(\$page)
     {
         \$query = \$page->outlet('query')->value();
         \$c = new Criteria();
@@ -442,11 +477,16 @@ document.forms.{$formID}.query.focus();
             \$c->add({$this->className}Peer::{$this->mainColumnPropelConstName}, \$querySubStr, Criteria::ILIKE);
         }
 
-        \$this->paginator->setDataDelegate(new WFPagedPropelQuery(\$c, '{$this->className}Peer'));
-        \$this->{$this->sharedInstanceID}->setContent(\$this->paginator->currentItems());
-
-        \$page->assign('itemCount', \$this->{$this->sharedInstanceID}->arrangedObjectCount());
+        \$page->sharedOutlet('paginator')->setDataDelegate(new WFPagedPropelQuery(\$c, '{$this->className}Peer'));
+        \$page->sharedOutlet('{$this->sharedInstanceID}')->setContent(\$page->sharedOutlet('paginator')->currentItems());
     }
+
+    function setupSkin(\$page, \$parameters, \$skin)
+    {   
+        \$skin->addHeadString('<link rel=\"stylesheet\" type=\"text/css\" href=\"' . \$skin->getSkinDirShared() . '/form.css\" />');
+        \$skin->setTitle(\$this->mainColumnName . ' Search');
+    }
+}
         ";
     }
 
@@ -479,7 +519,7 @@ document.forms.{$formID}.query.focus();
         }
         
         // deal with all of the columns
-        $tpl = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}\n" . '<table border="1" cellpadding="3" cellspacing="0">' . "\n";
+        $tpl = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}\n" . '<table border="0" cellpadding="3" cellspacing="0" class="datadetail">' . "\n";
         foreach ($this->dbMap->getTable($this->tableName)->getColumns() as $col) {
             $widgetID = strtolower(substr($col->getPhpName(), 0, 1)) . substr($col->getPhpName(), 1);
             if (!isset($pageInstances[$widgetID]))
@@ -500,7 +540,7 @@ document.forms.{$formID}.query.focus();
                                                                 )
                                             );
             }
-            $tpl .= "    <tr>\n        <td valign=\"top\">" . ucwords(strtolower(str_replace('_', ' ', $col->getColumnName()))) . "</td>\n        <td valign=\"top\">{WFLabel id=\"$widgetID\"}</td>\n    </tr>\n";
+            $tpl .= "    <tr>\n        <td valign=\"top\">" . ucwords(strtolower(str_replace('_', ' ', $col->getColumnName()))) . "</td>\n        <td valign=\"top\">{WFView id=\"$widgetID\"}</td>\n    </tr>\n";
         }
         $tpl .= "</table>\n";
         print "Saving updated {$pageName}.instances\n";
@@ -519,14 +559,17 @@ document.forms.{$formID}.query.focus();
 
         // suggested module code
         return "
-    function {$pageName}_ParameterList()
+class module_{$this->moduleName}_{$pageName}
+{
+    function parameterList()
     {
         return array('id');
     }
-    function {$pageName}_PageDidLoad(\$page, \$params)
+    function parametersDidLoad(\$page, \$params)
     {
-        \$this->{$this->sharedInstanceID}->setContent(array({$this->className}Peer::retrieveByPK(\$params['id'])));
+        \$page->sharedOutlet('{$this->sharedInstanceID}')->setContent(array({$this->className}Peer::retrieveByPK(\$params['id'])));
     }
+}
         ";
     }
 
@@ -566,7 +609,17 @@ document.forms.{$formID}.query.focus();
             $pageInstances[$formID] = array('class' => 'WFForm', 'children' => array());
         }
         // deal with all of the columns
-        $tpl = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}\n{WFLabel id=\"statusMessage\"}\n{WFShowErrors}\n{WFForm id=\"{$formID}\"}\n" . '<table border="1" cellpadding="3" cellspacing="0">' . "\n";
+        $tpl = "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}\n";
+        $tpl .= "<h2>{$this->className}</h2>\n\n";
+        $tpl .= "<div class=\"form-container\">\n";
+        $tpl .= "{* <div class=\"errors\"> *}\n";
+        $tpl .= "    {WFView id=\"statusMessage\"}\n";
+        $tpl .= "    {WFShowErrors}\n";
+        $tpl .= "{* </div> *}\n";
+        $tpl .= "{WFViewBlock id=\"{$formID}\"}\n";
+        $tpl .= "    <fieldset>\n";
+        $tpl .= "    <legend>{$this->className} Detail</legend>\n";
+        
         foreach ($this->dbMap->getTable($this->tableName)->getColumns() as $col) {
             $displayInLayout = true;
             $widgetID = strtolower(substr($col->getPhpName(), 0, 1)) . substr($col->getPhpName(), 1);
@@ -579,12 +632,61 @@ document.forms.{$formID}.query.focus();
             }
             else
             {
-                switch ($col->getCreoleType()) {
-                    case CreoleTypes::TEXT:
-                        $class = 'WFTextArea';
-                        break;
-                    default:
-                        $class = 'WFTextField';
+                if (0)
+                {
+                    // propel 1.2
+                    switch ($col->getCreoleType()) {
+                        case CreoleTypes::TEXT:
+                            $class = 'WFTextArea';
+                            break;
+                        default:
+                            $class = 'WFTextField';
+                    }
+                }
+                else
+                {
+                    // propel 1.3
+                    //    const CHAR = "CHAR";
+                    //    const VARCHAR = "VARCHAR";
+                    //    const LONGVARCHAR = "LONGVARCHAR";
+                    //    const CLOB = "CLOB";
+                    //    const NUMERIC = "NUMERIC";
+                    //    const DECIMAL = "DECIMAL";
+                    //    const TINYINT = "TINYINT";
+                    //    const SMALLINT = "SMALLINT";
+                    //    const INTEGER = "INTEGER";
+                    //    const BIGINT = "BIGINT";
+                    //    const REAL = "REAL";
+                    //    const FLOAT = "FLOAT";
+                    //    const DOUBLE = "DOUBLE";
+                    //    const BINARY = "BINARY";
+                    //    const VARBINARY = "VARBINARY";
+                    //    const LONGVARBINARY = "LONGVARBINARY";
+                    //    const BLOB = "BLOB";
+                    //    const DATE = "DATE";
+                    //    const TIME = "TIME";
+                    //    const TIMESTAMP = "TIMESTAMP";
+                    //
+                    //    const BU_DATE = "BU_DATE";
+                    //    const BU_TIMESTAMP = "BU_TIMESTAMP";
+                    //
+                    //    const BOOLEAN = "BOOLEAN";
+                    switch ($col->getType()) {
+                        case PropelColumnTypes::CHAR:
+                        case PropelColumnTypes::VARCHAR:
+                        case PropelColumnTypes::LONGVARCHAR;
+                            if (!$col->getSize() or $col->getSize() > 250)
+                            {
+                                $class = 'WFTextArea';
+                            }
+                            else
+                            {
+                                $class = 'WFTextField';
+                            }
+                            break;
+                        default:
+                            $class = 'WFTextField';
+                    }
                 }
             }
             if (!isset($pageInstances[$formID]['children'][$widgetID]))
@@ -606,11 +708,15 @@ document.forms.{$formID}.query.focus();
             }
             if ($displayInLayout)
             {
-                $tpl .= "    <tr>\n        <td valign=\"top\">" . ucwords(strtolower(str_replace('_', ' ', $col->getColumnName()))) . "</td>\n        <td valign=\"top\">{{$class} id=\"$widgetID\"}{WFShowErrors id=\"{$widgetID}\"}</td>\n    </tr>\n";
+                // $tpl .= "    ucwords(strtolower(str_replace('_', ' ', $col->getColumnName()))) . "</td>\n        <td valign=\"top\">{{$class} id=\"$widgetID\"}{WFShowErrors id=\"{$widgetID}\"}</td>\n    </tr>\n";
+                $tpl .= "    <div>\n";
+                $tpl .= "        <label for=\"$widgetID\">" . ucwords(strtolower(str_replace('_', ' ', $col->getColumnName()))) . ":</label>\n";
+                $tpl .= "        {WFView id=\"$widgetID\"}{WFShowErrors id=\"{$widgetID}\"}\n";
+                $tpl .= "    </div>\n";
             }
             else
             {
-                $tpl .= "    {{$class} id=\"{$widgetID}\"}\n";
+                $tpl .= "    {WFView id=\"{$widgetID}\"}\n";
             }
 
         }
@@ -626,6 +732,7 @@ document.forms.{$formID}.query.focus();
             $pageConfig['new'] = array(
                                         'properties' => array(
                                                             'label' => 'Create ' . $this->className,
+                                                            'action' => 'save'
                                                             ),
                                         'bindings' => array(
                                                             'hidden' => array(
@@ -671,8 +778,12 @@ document.forms.{$formID}.query.focus();
                                                             )
                                         );
         }
-        $tpl .= "    <tr><td valign=\"top\" colspan=\"2\">{WFSubmit id=\"new\"}{WFSubmit id=\"save\"}{WFSubmit id=\"delete\"}</td></tr>\n";
-        $tpl .= "</table>\n{/WFForm}\n";
+        $tpl .= "    </fieldset>\n";
+        $tpl .= "    <div class=\"buttonrow\">\n";
+        $tpl .= "        {WFView id=\"new\"}{WFView id=\"save\"}{WFView id=\"delete\"}\n";
+        $tpl .= "    </div>\n";
+        $tpl .= "{/WFViewBlock}\n";
+        $tpl .= "</div>{* end form-container *}";
 
         print "Saving updated {$pageName}.instances\n";
         PHPArrayDumper::arrayToPHPFileWithArray($pageInstances, '__instances', $instanceFile);
@@ -692,84 +803,88 @@ document.forms.{$formID}.query.focus();
         $deleteSuccessPageName = 'deleteSuccess';
         $confirmDeletePageName = 'confirmDelete';
         $editCode = "
-    // this function should throw an exception if the user is not permitted to edit (add/edit/delete) in the current context
-    function verifyEditingPermission()
-    {
-        // example
-        // \$authInfo = WFAuthorizationManager::sharedAuthorizationManager()->authorizationInfo();
-        // if (\$authInfo->userid() != \$this->{$this->sharedInstanceID}->selection()->getUserId()) throw( new Exception(\"You don't have permission to edit {$this->className}.\") );
-    }
-    function {$pageName}_ParameterList()
+class module_{$this->moduleName}_{$pageName}
+{
+    function parameterList()
     {
         return array('{$this->singlePrimaryKey}');
     }
-    function {$pageName}_PageDidLoad(\$page, \$params)
+    function parametersDidLoad(\$page, \$params)
     {
-        if (\$this->{$this->sharedInstanceID}->selection() === NULL)
+        if (\$page->sharedOutlet('{$this->sharedInstanceID}')->selection() === NULL)
         {
             if (\$params['{$this->singlePrimaryKey}'])
             {
-                \$this->{$this->sharedInstanceID}->setContent(array({$this->className}Peer::retrieveByPK(\$params['{$this->singlePrimaryKey}'])));
-                \$this->verifyEditingPermission();
+                \$page->sharedOutlet('{$this->sharedInstanceID}')->setContent(array({$this->className}Peer::retrieveByPK(\$params['{$this->singlePrimaryKey}'])));
+                \$page->module()->verifyEditingPermission(\$page);
             }
             else
             {
                 // prepare content for new
-                \$this->{$this->sharedInstanceID}->setContent(array(new {$this->className}()));
+                \$page->sharedOutlet('{$this->sharedInstanceID}')->setContent(array(new {$this->className}()));
             }
         }
     }
-    function save{$this->className}(\$page)
+    function saveAction(\$page)
     {
         try {
-            \$this->{$this->sharedInstanceID}->selection()->save();
+            \$page->sharedOutlet('{$this->sharedInstanceID}')->selection()->save();
             \$page->outlet('statusMessage')->setValue(\"{$this->className} saved successfully.\");
         } catch (Exception \$e) {
             \$page->addError( new WFError(\$e->getMessage()) );
         }
     }
-    function {$pageName}_new_Action(\$page)
+    function deleteAction(\$page)
     {
-        \$this->save{$this->className}(\$page);
-    }
-    function {$pageName}_save_Action(\$page)
-    {
-        \$this->save{$this->className}(\$page);
-    }
-    function {$pageName}_delete_Action(\$page)
-    {
-        \$this->verifyEditingPermission();
-        \$this->setupResponsePage('{$confirmDeletePageName}');
+        \$this->module()->verifyEditingPermission(\$page);
+        \$page->module()->setupResponsePage('{$confirmDeletePageName}');
     }
 
-    function {$confirmDeletePageName}_ParameterList()
+    function setupSkin(\$page, \$parameters, \$skin)
+    {   
+        \$skin->addHeadString('<link rel=\"stylesheet\" type=\"text/css\" href=\"' . \$skin->getSkinDirShared() . '/form.css\" />');
+        if (\$page->sharedOutlet('{$this->sharedInstanceID}')->selection()->isNew())
+        {
+            \$title = 'New {$this->mainColumnName}';
+        }
+        else
+        {
+            \$title = 'Edit {$this->mainColumnName}:' . \$page->sharedOutlet('{$this->sharedInstanceID}')->selection()->get{$this->mainColumnName}();
+        }
+        \$skin->setTitle(\$title);
+    }
+}
+
+class module_{$this->moduleName}_{$confirmDeletePageName}
+{
+    function parameterList()
     {
         return array('{$this->singlePrimaryKey}');
     }
-    function {$confirmDeletePageName}_PageDidLoad(\$page, \$params)
+    function parametersDidLoad(\$page, \$params)
     {
         // if we're a redirected action, then the {$this->className} object is already loaded. If there is no object loaded, try to load it from the object ID passed in the params.
-        if (\$this->{$this->sharedInstanceID}->selection() === NULL)
+        if (\$page->sharedOutlet('{$this->sharedInstanceID}')->selection() === NULL)
         {
             \$objectToDelete = {$this->className}Peer::retrieveByPK(\$params['{$this->singlePrimaryKey}']);
             if (!\$objectToDelete) throw( new Exception(\"Could not load {$this->className} object to delete.\") );
-            \$this->{$this->sharedInstanceID}->setContent(array(\$objectToDelete));
+            \$page->sharedOutlet('{$this->sharedInstanceID}')->setContent(array(\$objectToDelete));
         }
-        if (\$this->{$this->sharedInstanceID}->selection() === NULL) throw( new Exception(\"Could not load {$this->className} object to delete.\") );
+        if (\$page->sharedOutlet('{$this->sharedInstanceID}')->selection() === NULL) throw( new Exception(\"Could not load {$this->className} object to delete.\") );
     }
-    function {$confirmDeletePageName}_cancel_Action(\$page)
+    function cancelAction(\$page)
     {
-        \$this->setupResponsePage('{$pageName}');
+        \$page->module()->setupResponsePage('{$pageName}');
     }
-    function {$confirmDeletePageName}_delete_Action(\$page)
+    function deleteAction(\$page)
     {
-        \$this->verifyEditingPermission();
-        \$myObj = \$this->{$this->sharedInstanceID}->selection();
+        \$page->module()->verifyEditingPermission(\$page);
+        \$myObj = \$page->sharedOutlet('{$this->sharedInstanceID}')->selection();
         \$myObj->delete();
-        \$this->{$this->sharedInstanceID}->removeObject(\$myObj);
-        \$this->setupResponsePage('{$deleteSuccessPageName}');
+        \$page->sharedOutlet('{$this->sharedInstanceID}')->removeObject(\$myObj);
+        \$page->module()->setupResponsePage('{$deleteSuccessPageName}');
     }
-
+}
         \n";
         // write out confirmDelete page
         if (!file_exists($confirmDeletePageName . '.tpl'))
@@ -843,11 +958,20 @@ document.forms.{$formID}.query.focus();
             // set up tpl
             print "Creating {$confirmDeletePageName}.tpl file.\n";
             file_put_contents($confirmDeletePageName . '.tpl', "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
-{WFMessageBox id=\"confirmMessage\"}
-{WFForm id=\"{$this->className}ConfirmDeleteForm\"}
-    {WFHidden id=\"{$this->singlePrimaryKey}\"}
-    {WFSubmit id=\"cancel\"}{WFSubmit id=\"delete\"}
-{/WFForm}
+<h2>{$this->className}</h2>
+
+<div class=\"form-container\">
+{WFViewBlock id=\"{$this->className}ConfirmDeleteForm\"}
+    {WFView id=\"{$this->singlePrimaryKey}\"}
+	{* <div class=\"errors\"> *}
+        {WFView id=\"confirmMessage\"}
+    {* </div> *}
+
+    <div class=\"buttonrow\">
+        {WFView id=\"cancel\"}{WFView id=\"delete\"}
+    </div>
+{/WFViewBlock}
+</div>{* end form-container *}
             ");
         }
         else
@@ -894,7 +1018,7 @@ document.forms.{$formID}.query.focus();
             print "Saving updated {$deleteSuccessPageName}.config\n";
             PHPArrayDumper::arrayToPHPFileWithArray($pageConfig, '__config', $configFile);
             print "Creating {$deleteSuccessPageName}.tpl file.\n";
-            file_put_contents($deleteSuccessPageName . '.tpl', "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}\n{WFMessageBox id=\"statusMessage\"}");
+            file_put_contents($deleteSuccessPageName . '.tpl', "{* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}\n{WFView id=\"statusMessage\"}");
         }
         else
         {

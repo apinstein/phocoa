@@ -113,6 +113,10 @@ class WFDynamic extends WFWidget
      * @var object WFView A prototype object to use for each widget created. Can be NULL.
      */
     protected $prototype;
+    /**
+     * @var int The arrayController's changeCount when createdWidgets was last called
+     */
+    protected $createdWidgetsChangeCount;
     
     /**
       * Constructor.
@@ -128,6 +132,7 @@ class WFDynamic extends WFWidget
         $this->processedWidgetConfig = false;
         $this->renderIteration = 0;
         $this->createdWidgets = array();
+        $this->createdWidgetsChangeCount = 0;
         $this->simpleBindKeyPath = NULL;
         $this->prototype = NULL;
 
@@ -396,6 +401,23 @@ class WFDynamic extends WFWidget
      */
     function createWidgets()
     {
+        // check params
+        if (!is_object($this->arrayController)) throw( new Exception("No WFArrayController assigned to WFDynamic. Set the arrayController object for WFDynamic '{$this->id}'."));
+        if (!($this->arrayController instanceof WFArrayController)) throw( new Exception("arrayController must be a WFArrayController instance."));
+
+        // have we already done createWidgets for this version of the arrayController?
+        if ($this->arrayController->changeCount() == $this->createdWidgetsChangeCount)
+        {
+            WFLog::log("Not rebuilding widgets because changeCount has not changed... " . $this->arrayController->changeCount() .  ' ' . $this->id(), WFLog::TRACE_LOG);
+            return;
+        }
+        else
+        {
+            WFLog::log("rebuilding widgets because changeCount changed... " . $this->arrayController->changeCount() .  ' ' . $this->id(), WFLog::TRACE_LOG);
+        }
+        // update change count
+        $this->createdWidgetsChangeCount = $this->arrayController->changeCount();
+
         // remove existing widgets from page
         foreach ($this->createdWidgets as $existingWidget) {
             WFLog::log("Removing dynamically created widget: " . $existingWidget->id(), WFLog::WARN_LOG);
@@ -416,8 +438,6 @@ class WFDynamic extends WFWidget
 
         // check params
         if (!class_exists($widgetClass)) throw( new Exception("There is no widget class '$widgetClass'.") );
-        if (!is_object($this->arrayController)) throw( new Exception("No WFArrayController assigned to WFDynamic. Set the arrayController object for WFDynamic '{$this->id}'."));
-        if (!($this->arrayController instanceof WFArrayController)) throw( new Exception("arrayController must be a WFArrayController instance."));
 
         $this->processWidgetConfig();
 
