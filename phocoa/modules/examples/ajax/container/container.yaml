@@ -18,3 +18,17 @@ panel     :
   class     : WFYAHOO_widget_Panel
   properties: 
     header: Panel
+phocoaDialog     : 
+  class     : WFYAHOO_widget_PhocoaDialog
+  properties: 
+    header: AJAX-based WFModuleView
+    width: '500px'
+    height: '500px'
+    deferModuleViewLoading: true
+    modal: true
+  children:
+    emailModule:
+      class: WFModuleView
+      properties:
+        targetRootModule: false
+        invocationPath: examples/ajax/autocomplete/example

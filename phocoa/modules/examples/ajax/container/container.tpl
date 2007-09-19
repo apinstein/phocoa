@@ -60,6 +60,13 @@ This is a panel. By default, panels pop up over the existing content and have a 
     </div>
 {/WFViewBlock} 
 
+<br />
+
+<a href="#" onClick="PHOCOA.runtime.getObject('phocoaDialog').show();">Show PhocoaDialog</a> - A PhocoaDialog is a custom YUI subclass that allows you to drop in any PHOCOA module as an AJAX-based workflow. This one includes the <a href="{WFURL module="examples/ajax/autocomplete/example"}">autocomplete example</a>.
+{WFView id="phocoaDialog"}
+
+<hr />
+
 <div style="position: relative;; width: 250px; height: 300px; overflow: scroll">
 <p>This block demonstrates a fix for a bug in Firefox (Mac only).</p>
 <p>On Firefox mac, there are 2 bugs involving scrollbars and a higher-z-index layer (such as a YUI Overlay or subclass):</p>
