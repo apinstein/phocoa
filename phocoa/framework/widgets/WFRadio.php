@@ -102,7 +102,10 @@ class WFRadio extends WFWidget
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();
-        $myBindings[] = new WFBindingSetup('label', 'The label for the radio -- Text to label the radio with, or empty.');
+        $newValBinding = new WFBindingSetup('label', 'The label for the radio -- Text to label the radio with, or empty.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $newValBinding->setReadOnly(true);
+        $myBindings[] = $newValBinding;
         $myBindings[] = new WFBindingSetup('selectedValue', 'The value of the radio to use if it is selected.');
         return $myBindings;
     }

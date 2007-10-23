@@ -82,11 +82,11 @@ class WFBindingSetup extends WFObject
     const WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND = 1;
     const WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR = 2;
 
-    // info for PATTERN bindings
+    // info for PATTERN bindings -- ooops should this be in WFBinding?
     const WFBINDINGSETUP_PATTERN_OPTION_NAME = 'ValuePattern';
     const WFBINDINGSETUP_PATTERN_OPTION_VALUE = '%1%';
 
-    // NullPlaceholder stuff.
+    // NullPlaceholder stuff. -- ooops should this be in WFBinding?
     const WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER = 'InsertsNullPlaceholder';
     const WFBINDINGSETUP_NULL_PLACEHOLDER = 'NullPlaceholder';
 
@@ -263,13 +263,16 @@ class WFBindingSetup extends WFObject
  * The binding object encapsulates all information about a particular bound property of an object. These instances are created at runtime each time the
  * {@link bind} function of the WFKeyValueBindingCreation protocol is used.
  * 
- * @todo Incorporate commonly used binding options here??? In addition to valueTransformer?
+ * @todo Incorporate commonly used binding options here??? In addition to valueTransformer? I think I ended up putting a bunch in WFBindingSetup... coalesce?
+ * @todo Does formatter need to assert for !readOnly? or MULTIVALUE? anything else? I think truly we only want to do it on multivalue bindings, b/c o/w you should just use the
+ *       widget's formatter. Also, it should only work on read-only ones lest someone get the idea that it can go both ways.
  * http://developer.apple.com/documentation/Cocoa/Reference/CocoaBindingsRef/Concepts/BindingsOptions.html
  */
 class WFBinding extends WFObject
 {
     // commonly used binding options available globally
-    const VALUE_TRANSFORMER_NAME = "ValueTransformer";
+    const VALUE_TRANSFORMER_NAME = 'ValueTransformer';
+    const VALUE_FORMATTER_NAME = 'Formatter';
 
     /**
      * @var object The object that this property is bound to.
@@ -397,6 +400,25 @@ class WFBinding extends WFObject
     function setOptions($options)
     {
         $this->options = $options;
+    }
+
+    function formatter()
+    {
+        if (isset($this->options[WFBinding::VALUE_FORMATTER_NAME]))
+        {
+            if (!$this->bindingSetup()->readOnly() or $this->bindingSetup()->bindingType() != WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN) throw( new WFException("Formatters are only allowed on read-only, multi-value-pattern bindings.") );
+            // seamlessly allow for #module#
+            $formatterName = $this->options[WFBinding::VALUE_FORMATTER_NAME];
+            if (strncmp('#module#', $formatterName, 8) == 0)
+            {
+                $formatterName = substr($formatterName, 8);
+            }
+            return $formatterName;
+        }
+        else
+        {
+            return NULL;
+        }
     }
 
     function valueTransformerName()

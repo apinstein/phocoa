@@ -369,6 +369,14 @@ abstract class WFWidget extends WFView
             WFLog::log("Transformed value: " . var_export($boundValue, true), WFLog::TRACE_LOG);
         }
 
+        if ($binding->formatter())
+        {
+            WFLog::log("Formatting value " . var_export($boundValue, true) . " with " . $binding->formatter(), WFLog::TRACE_LOG);
+            $formatter = $this->page()->module()->valueForKey($binding->formatter());
+            $boundValue = $formatter->stringForValue($boundValue);
+            WFLog::log("Formatted value: " . var_export($boundValue, true), WFLog::TRACE_LOG);
+        }
+
         WFLog::log("Using value " . var_export($boundValue, true) . " for binding '$prop'", WFLog::TRACE_LOG);
         return $boundValue;
     }
@@ -482,7 +490,7 @@ abstract class WFWidget extends WFView
                 }
                 WFLog::log("FINAL value " . var_export($boundValue, true) . " for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
                 $this->setValueForKey($boundValue, $prop);  // must do this to allow accessors to be called!
-            } catch (Exception $e) {
+            } catch (WFUndefinedKeyException $e) {
                 if ($binding->raisesForNotApplicableKeys())
                 {
                     throw($e);
@@ -491,6 +499,8 @@ abstract class WFWidget extends WFView
                 {
                     WFExceptionReporting::log($e);
                 }
+            } catch (Exception $e) {
+                throw($e);
             }
         }
     }

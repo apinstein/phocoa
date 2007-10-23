@@ -90,10 +90,22 @@ class WFRadioGroup extends WFWidget
         foreach ($this->children() as $id => $radio) {
             if ($radio instanceof WFDynamic) continue;  // special sauce to skip the WFDynamic that created the WFRadio's
             if (!($radio instanceof WFRadio)) throw( new Exception("All child objects of WFRadioGroup must be WFRadio's.") );
-            if ($radio->selectedValue() == $this->value)
+            // see if the value being set matches the value of this radio; type check for NULLs
+            if (is_null($this->value))
             {
-                $this->setSelectedRadio($radio);
-                break;
+                if ($radio->selectedValue() === $this->value)
+                {
+                    $this->setSelectedRadio($radio);
+                    break;
+                }
+            }
+            else
+            {
+                if ($radio->selectedValue() == $this->value)
+                {
+                    $this->setSelectedRadio($radio);
+                    break;
+                }
             }
         }
     }
