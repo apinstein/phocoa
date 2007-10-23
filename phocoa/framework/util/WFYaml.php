@@ -7,6 +7,9 @@ class WFYaml
         if (function_exists('syck_load'))
         {
             // php-lib-c version, much faster!
+            // ******* NOTE: if using libsyck with PHP, you should install from pear/pecl (http://trac.symfony-project.com/wiki/InstallingSyck)
+            // ******* NOTE: as it escalates YAML syntax errors to PHP Exceptions.
+            // ******* NOTE: without this, if your YAML has a syntax error, you will be really confused when trying to debug it b/c syck_load will just return NULL.
             $yaml = NULL;
             $yamlfile = file_get_contents($file);
             if (strlen($yamlfile) != 0)
