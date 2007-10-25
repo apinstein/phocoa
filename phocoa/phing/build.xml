@@ -134,7 +134,7 @@
             </then>
             <else>
                 <echo message="Installing .htaccess file" />
-                <move file="${phocoa.project.container}/${phocoa.project.name}/conf/.htaccess" tofile="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/wwwroot/.htaccess" />
+                <move file="${phocoa.project.dir}/conf/.htaccess" tofile="${phocoa.project.dir}/wwwroot/.htaccess" />
                 <echo message="Setting up symlinks for www accesss" />
                 <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/docs" destination="${phocoa.dir}/docs/phpdocs" />
                 <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/framework" destination="${phocoa.dir}/wwwroot/www/framework" />
