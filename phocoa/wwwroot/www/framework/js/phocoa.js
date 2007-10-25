@@ -38,6 +38,7 @@ PHOCOA.importJS = function(path) {
     }
     else
     {
+        var a;
         // this method has no scoping problems, but isn't synchronous.
         // var head = document.getElementsByTagName("head")[0];
         // script = document.createElement('script');
@@ -46,7 +47,7 @@ PHOCOA.importJS = function(path) {
         // head.appendChild(script);
         // //alert('adding script tag for: ' +script.src);
     }
-}
+};
 
 // programmatically include CSS code from a URL
 PHOCOA.importCSS = function(path) {
@@ -55,7 +56,7 @@ PHOCOA.importCSS = function(path) {
     newCSS.setAttribute('type', 'text/css');
     newCSS.setAttribute('href', path);
     document.getElementsByTagName('head')[0].appendChild(newCSS);
-}
+};
 
 // set up the runtime - this is the interface that you use to access objects added by phocoa from individual pages
 PHOCOA.runtime = PHOCOA.runtime || {};
@@ -71,7 +72,7 @@ PHOCOA.runtime.addObject = function(o, id)
         return;
     }
     PHOCOA.runtime.objectList[oid] = o;
-}
+};
 
 PHOCOA.runtime.setupObjectCache = function()
 {
@@ -80,7 +81,7 @@ PHOCOA.runtime.setupObjectCache = function()
     {
         PHOCOA.runtime.objectList = {};
     }
-}
+};
 
 PHOCOA.runtime.getObject = function(id)
 {
@@ -91,5 +92,5 @@ PHOCOA.runtime.getObject = function(id)
         o = PHOCOA.runtime.objectList[id];
     }
     return o;
-}
+};
 
