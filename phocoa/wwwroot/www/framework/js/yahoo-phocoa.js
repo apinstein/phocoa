@@ -11,6 +11,8 @@
 */
 YAHOO.widget.PhocoaDialog = function(el, userConfig) {
 	YAHOO.widget.PhocoaDialog.superclass.constructor.call(this, el, userConfig);
+
+    this.moduleViewHasLoaded = false;
 };
 
 YAHOO.extend(YAHOO.widget.PhocoaDialog, YAHOO.widget.Panel);
@@ -26,6 +28,11 @@ YAHOO.widget.PhocoaDialog._DEFAULT_CONFIG = {
 
     "DEFER_MODULE_VIEW_LOADING": { 
        key: "deferModuleViewLoading", 
+       value: false
+    },              
+
+    "CACHE_MODULE_VIEW": { 
+       key: "cacheModuleView", 
        value: false
     },              
 
@@ -76,18 +83,13 @@ YAHOO.widget.PhocoaDialog.prototype.initDefaultConfig = function() {
 		* @property callback.argument
 		* @type Object
 		*/
-		argument: this
+		argument: this,
+        scope: this
 	};
 
 	// Add form dialog config properties //
     var DEFAULT_CONFIG = YAHOO.widget.PhocoaDialog._DEFAULT_CONFIG;
     
-    /** 
-    * The method to use for posting the PhocoaDialog's form. Possible values are "async", "form", and "manual".
-    * @config postmethod
-    * @type String      
-    * @default async        
-    */                  
     this.cfg.addProperty(   
                DEFAULT_CONFIG.DEFER_MODULE_VIEW_LOADING.key,
                 {
@@ -96,12 +98,14 @@ YAHOO.widget.PhocoaDialog.prototype.initDefaultConfig = function() {
                 }
             );                                          
                                                         
-    /**                                                 
-    * Object literal(s) defining the buttons for the PhocoaDialog's footer.
-    * @config buttons
-    * @type Object[]
-    * @default "none"
-    */
+    this.cfg.addProperty(   
+               DEFAULT_CONFIG.CACHE_MODULE_VIEW.key,
+                {
+                    handler: this.configCacheModuleView,
+                    value: DEFAULT_CONFIG.CACHE_MODULE_VIEW.value
+                }
+            );                                          
+                                                        
     this.cfg.addProperty(
                DEFAULT_CONFIG.MODULE_VIEW_INVOCATION_PATH.key,
                 {
@@ -132,7 +136,10 @@ YAHOO.widget.PhocoaDialog.prototype.callbackSuccess = function(o) {
         var node = scriptEls[idx];
         window.eval(node.innerHTML);
     }
-}
+
+    // mark content as loaded
+    this.moduleViewHasLoaded = true;
+};
 
 /**
 * Default callback functions.
@@ -140,7 +147,7 @@ YAHOO.widget.PhocoaDialog.prototype.callbackSuccess = function(o) {
 */
 YAHOO.widget.PhocoaDialog.prototype.callbackFailure = function(o) {
     alert('Problem submitting XHR request.');
-}
+};
 
 /**
 * Initializes the custom events for PhocoaDialog which are fired automatically at appropriate times by the PhocoaDialog class.
@@ -314,6 +321,17 @@ YAHOO.widget.PhocoaDialog.prototype.configDeferModuleViewLoading = function(type
 };
 
 /**            
+* The default event handler for the "cacheModuleView" configuration property
+* @method configCacheModuleView
+* @param {String} type  The CustomEvent type (usually the property name)
+* @param {Object[]} args    The CustomEvent arguments. For configuration handlers, args[0] will equal the newly applied value for the property.
+* @param {Object} obj   The scope object. For configuration handlers, this will usually equal the owner.
+*/                          
+YAHOO.widget.PhocoaDialog.prototype.configCacheModuleView = function(type, args, obj) {
+    this.cacheModuleView = args[0];
+};
+
+/**            
 * The default event handler for the "moduleViewInvocationPath" configuration property
 * @method configModuleViewInvocationPath
 * @param {String} type  The CustomEvent type (usually the property name)
@@ -353,7 +371,7 @@ YAHOO.widget.PhocoaDialog.prototype.cancel = function() {
 */
 YAHOO.widget.PhocoaDialog.prototype.show = function() {
     // need to load the initial content if deferModuleViewLoading is set
-    if (this.deferModuleViewLoading)
+    if (this.deferModuleViewLoading && ( (this.cacheModuleView === false ) || (this.cacheModuleView === true && this.moduleViewHasLoaded === false)) )
     {
         this.setBody('Loading...');
         YAHOO.widget.PhocoaDialog.superclass.show.call(this);

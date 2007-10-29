@@ -25,11 +25,14 @@
  * <b>Required:</b><br>
  * 
  * <b>Optional:</b><br>
+ * deferModuleViewLoading - boolean - True to defer loading of the WFModuleView content until the module is shown, false to load immediately. Default true.
+ * cacheModuleView - boolean - True to locally cache the result of the WFModuleView, false to re-load it every time the module is shown. Default false.
  */
 class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
 {
     protected $moduleView;
     protected $deferModuleViewLoading;
+    protected $cacheModuleView;
 
     /**
       * Constructor.
@@ -40,6 +43,7 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         $this->containerClass = 'PhocoaDialog';
         $this->moduleView = NULL;
         $this->deferModuleViewLoading = false;
+        $this->cacheModuleView = false;
 
         $this->importYahooJS("connection/connection-min.js");
         $this->importJS(WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/yahoo-phocoa.js');
@@ -50,7 +54,13 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         $items = parent::exposedProperties();
         return array_merge($items, array(
             'deferModuleViewLoading' => array('true', 'false'),
+            'cacheModuleView' => array('true', 'false')
             ));
+    }
+
+    public function setCacheModuleView($b)
+    {
+        $this->cacheModuleView = $b;
     }
 
     public function setDeferModuleViewLoading($b)
@@ -106,6 +116,7 @@ YAHOO.phocoa.widgets.PhocoaDialog.init_{$this->id} = function() {
     YAHOO.phocoa.widgets.panel.init_{$this->id}();
     var phocoaDialog = PHOCOA.runtime.getObject('{$this->id}');
     phocoaDialog.cfg.setProperty('deferModuleViewLoading', " . ($this->deferModuleViewLoading ? 'true' : 'false') . ");
+    phocoaDialog.cfg.setProperty('cacheModuleView', " . ($this->cacheModuleView ? 'true' : 'false') . ");
     phocoaDialog.cfg.setProperty('moduleViewInvocationPath', " . ($this->moduleView ? "'" . WWW_ROOT . '/' . $this->moduleView->invocationPath() . "'" : 'null') . ");
 }
 " .
