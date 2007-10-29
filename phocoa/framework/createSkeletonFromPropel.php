@@ -458,16 +458,11 @@ class module_{$this->moduleName}_{$pageName}
     
     function noAction(\$page, \$params)
     {
-        \$this->doSearch(\$page);
+        \$this->searchAction(\$page, \$params);
     }
     
-    function searchAction(\$page)
+    function searchAction(\$page, \$params)
     {   
-        \$this->doSearch(\$page);
-    }
-    
-    function doSearch(\$page)
-    {
         \$query = \$page->outlet('query')->value();
         \$c = new Criteria();
         if (!empty(\$query))
