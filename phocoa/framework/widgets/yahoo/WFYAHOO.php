@@ -29,7 +29,7 @@ class WFYAHOO extends WFWidget
         parent::__construct($id, $page);
 
         // all WFYAHOO subclasses need this.
-        $this->importYahooJS("yahoo-dom-event/yahoo-dom-event.js");
+        $this->importJS("{$this->yuiPath}/yahoo-dom-event/yahoo-dom-event.js", 'YAHOO');
     }
 
     /**

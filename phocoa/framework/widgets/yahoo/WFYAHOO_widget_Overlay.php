@@ -189,30 +189,32 @@ YAHOO.phocoa.widgets.overlay.init_{$this->id} = function() {
     ($this->y ? "\n    overlay.cfg.setProperty('y', '{$this->y}');" : NULL ) .
     ($this->zIndex ? "\n    overlay.cfg.setProperty('zIndex', '{$this->zIndex}');" : NULL ) . "
     // hopefully this next chunk can be removed when YUI fixes this internally
-    if (overlay.platform == \"mac\" && overlay.browser == \"gecko\")
-    {
-        var overlayEl = YAHOO.util.Dom.get('{$this->id}');
-        if (!overlay.cfg.getProperty('visible'))
-        {
-            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
-            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
-        }
-        else
-        {
-            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
-            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
-        }
-        overlay.showEvent.subscribe( function() {
-                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
-                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
-                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
-                                                } );
-        overlay.hideEvent.subscribe( function() {
-                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
-                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
-                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
-                                                } );
-    }
+    // supposedly fixed in 2.3.0: https://sourceforge.net/tracker/?func=detail&atid=836476&aid=1723530&group_id=165715
+    // we'll comment out for a bit to verify
+//    if (overlay.platform == \"mac\" && overlay.browser == \"gecko\")
+//    {
+//        var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+//        if (!overlay.cfg.getProperty('visible'))
+//        {
+//            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
+//            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
+//        }
+//        else
+//        {
+//            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
+//            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
+//        }
+//        overlay.showEvent.subscribe( function() {
+//                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+//                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
+//                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
+//                                                } );
+//        overlay.hideEvent.subscribe( function() {
+//                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+//                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
+//                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
+//                                                } );
+//    }
 }
 " .
 ( (get_class($this) == 'WFYAHOO_widget_Overlay') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.overlay.init_{$this->id});" : NULL ) . "

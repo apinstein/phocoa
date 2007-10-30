@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.2.2
+version: 2.3.1
 */
 /**
  * The treeview widget is a generic tree building tool.
@@ -279,12 +279,13 @@ YAHOO.widget.TreeView.prototype = {
         // Set up the root node
         this.root = new YAHOO.widget.RootNode(this);
 
+        var LW = YAHOO.widget.LogWriter;
 
 
-        //YAHOO.util.Event.onContentReady(this.id, this.handleAvailable, this, true);
-        YAHOO.util.Event.on(this.id, "click", this.handleClick, this, true);
+
+        // YAHOO.util.Event.onContentReady(this.id, this.handleAvailable, this, true);
+        // YAHOO.util.Event.on(this.id, "click", this.handleClick, this, true);
     },
-
 
     //handleAvailable: function() {
         //var Event = YAHOO.util.Event;
@@ -453,6 +454,18 @@ YAHOO.widget.TreeView.prototype = {
     },
 
     /**
+     * wait until the animation is complete before deleting 
+     * to avoid javascript errors
+     * @method _removeChildren_animComplete
+     * @param o the custom event payload
+     * @private
+     */
+    _removeChildren_animComplete: function(o) {
+        this.unsubscribe(this._removeChildren_animComplete);
+        this.removeChildren(o.node);
+    },
+
+    /**
      * Deletes this nodes child collection, recursively.  Also collapses
      * the node, and resets the dynamic load flag.  The primary use for
      * this method is to purge a node and allow it to fetch its data
@@ -461,17 +474,28 @@ YAHOO.widget.TreeView.prototype = {
      * @param {Node} node the node to purge
      */
     removeChildren: function(node) { 
+
+        if (node.expanded) {
+            // wait until the animation is complete before deleting to
+            // avoid javascript errors
+            if (this._collapseAnim) {
+                this.subscribe("animComplete", 
+                        this._removeChildren_animComplete, this, true);
+                node.collapse();
+                return;
+            }
+
+            node.collapse();
+        }
+
         while (node.children.length) {
             this._deleteNode(node.children[0]);
         }
 
         node.childrenRendered = false;
         node.dynamicLoadComplete = false;
-        if (node.expanded) {
-            node.collapse();
-        } else {
-            node.updateIcon();
-        }
+
+        node.updateIcon();
     },
 
     /**
@@ -671,19 +695,26 @@ YAHOO.widget.TreeView.removeHandler = function (el, sType, fn) {
  * images to preload, default is ygtv
  * @static
  */
-YAHOO.widget.TreeView.preload = function(prefix) {
+YAHOO.widget.TreeView.preload = function(e, prefix) {
     prefix = prefix || "ygtv";
+
+
     var styles = ["tn","tm","tmh","tp","tph","ln","lm","lmh","lp","lph","loading"];
+    // var styles = ["tp"];
 
     var sb = [];
     
-    for (var i = 0; i < styles.length; ++i) { 
+    // save the first one for the outer container
+    for (var i=1; i < styles.length; i=i+1) { 
         sb[sb.length] = '<span class="' + prefix + styles[i] + '">&#160;</span>';
     }
 
     var f = document.createElement("div");
     var s = f.style;
+    s.className = prefix + styles[0];
     s.position = "absolute";
+    s.height = "1px";
+    s.width = "1px";
     s.top = "-1000px";
     s.left = "-1000px";
     f.innerHTML = sb.join("");
@@ -983,6 +1014,14 @@ YAHOO.widget.Node.prototype = {
         this.children[this.children.length] = childNode;
         childNode.applyParent(this);
 
+        // part of the IE display issue workaround. If child nodes
+        // are added after the initial render, and the node was
+        // instantiated with expanded = true, we need to show the
+        // children div now that the node has a child.
+        if (this.childrenRendered && this.expanded) {
+            this.getChildrenEl().style.display = "";
+        }
+
         return childNode;
     },
 
@@ -1259,18 +1298,25 @@ YAHOO.widget.Node.prototype = {
      * toggle style, and collapses its siblings if multiExpand is not set.
      * @method expand
      */
-    expand: function() {
+    expand: function(lazySource) {
         // Only expand if currently collapsed.
         if (this.expanded) { return; }
 
-        // fire the expand event handler
-        var ret = this.tree.onExpand(this);
+        var ret = true;
 
-        if (false === ret) {
-            return;
+        // When returning from the lazy load handler, expand is called again
+        // in order to render the new children.  The "expand" event already
+        // fired before fething the new data, so we need to skip it now.
+        if (!lazySource) {
+            // fire the expand event handler
+            ret = this.tree.onExpand(this);
+
+            if (false === ret) {
+                return;
+            }
+            
+            ret = this.tree.fireEvent("expand", this);
         }
-        
-        ret = this.tree.fireEvent("expand", this);
 
         if (false === ret) {
             return;
@@ -1502,10 +1548,15 @@ YAHOO.widget.Node.prototype = {
      */
     getChildrenHtml: function() {
 
+
         var sb = [];
         sb[sb.length] = '<div class="ygtvchildren"';
         sb[sb.length] = ' id="' + this.getChildrenElId() + '"';
-        if (!this.expanded) {
+
+        // This is a workaround for an IE rendering issue, the child div has layout
+        // in IE, creating extra space if a leaf node is created with the expanded
+        // property set to true.
+        if (!this.expanded || !this.hasChildren()) {
             sb[sb.length] = ' style="display:none;"';
         }
         sb[sb.length] = '>';
@@ -1595,7 +1646,7 @@ YAHOO.widget.Node.prototype = {
         this.getChildrenEl().innerHTML = this.completeRender();
         this.dynamicLoadComplete = true;
         this.isLoading = false;
-        this.expand();
+        this.expand(true);
         this.tree.locked = false;
     },
 
@@ -1968,18 +2019,31 @@ YAHOO.extend(YAHOO.widget.HTMLNode, YAHOO.widget.Node, {
     /**
      * Sets up the node label
      * @property initContent
-     * @param {object} An html string or object containing an html property
-     * @param {boolean} hasIcon determines if the node will be rendered with an
+     * @param oData {object} An html string or object containing an html property
+     * @param hasIcon {boolean} determines if the node will be rendered with an
      * icon or not
      */
     initContent: function(oData, hasIcon) { 
-        if (typeof oData == "string") {
-            oData = { html: oData };
-        }
-
-        this.html = oData.html;
+        this.setHtml(oData);
         this.contentElId = "ygtvcontentel" + this.index;
         this.hasIcon = hasIcon;
+
+    },
+
+    /**
+     * Synchronizes the node.data, node.html, and the node's content
+     * @property setHtml
+     * @param o {object} An html string or object containing an html property
+     */
+    setHtml: function(o) {
+
+        this.data = o;
+        this.html = (typeof o === "string") ? o : o.html;
+
+        var el = this.getContentEl();
+        if (el) {
+            el.innerHTML = this.html;
+        }
 
     },
 
@@ -2245,4 +2309,4 @@ YAHOO.widget.TVFadeOut.prototype = {
     }
 };
 
-YAHOO.register("treeview", YAHOO.widget.TreeView, {version: "2.2.2", build: "204"});
+YAHOO.register("treeview", YAHOO.widget.TreeView, {version: "2.3.1", build: "541"});

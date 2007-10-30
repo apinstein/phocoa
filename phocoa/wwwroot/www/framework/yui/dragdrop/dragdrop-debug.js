@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.2.2
+version: 2.3.1
 */
 /**
  * The drag and drop utility provides a framework for building drag and drop
@@ -115,12 +115,12 @@ YAHOO.util.DragDropMgr = function() {
 
         /**
          * Internal flag that is set to true when drag and drop has been
-         * intialized
+         * initialized
          * @property initialized
          * @private
          * @static
          */
-        initalized: false,
+        initialized: false,
 
         /**
          * All drag and drop can be disabled.
@@ -129,7 +129,6 @@ YAHOO.util.DragDropMgr = function() {
          * @static
          */
         locked: false,
-
 
         /**
          * Provides additional information about the the current set of
@@ -440,7 +439,7 @@ YAHOO.util.DragDropMgr = function() {
         getRelated: function(p_oDD, bTargetsOnly) {
             var oDDs = [];
             for (var i in p_oDD.groups) {
-                for (j in this.ids[i]) {
+                for (var j in this.ids[i]) {
                     var dd = this.ids[i][j];
                     if (! this.isTypeOfDD(dd)) {
                         continue;
@@ -565,9 +564,12 @@ YAHOO.util.DragDropMgr = function() {
         startDrag: function(x, y) {
             YAHOO.log("firing drag start events", "info", "DragDropMgr");
             clearTimeout(this.clickTimeout);
-            if (this.dragCurrent) {
-                this.dragCurrent.b4StartDrag(x, y);
-                this.dragCurrent.startDrag(x, y);
+            var dc = this.dragCurrent;
+            if (dc) {
+                dc.b4StartDrag(x, y);
+            }
+            if (dc) {
+                dc.startDrag(x, y);
             }
             this.dragThreshMet = true;
         },
@@ -581,23 +583,20 @@ YAHOO.util.DragDropMgr = function() {
          * @static
          */
         handleMouseUp: function(e) {
+            if (this.dragCurrent) {
+                clearTimeout(this.clickTimeout);
 
-            if (! this.dragCurrent) {
-                return;
+                if (this.dragThreshMet) {
+                    YAHOO.log("mouseup detected - completing drag", "info", "DragDropMgr");
+                    this.fireEvents(e, true);
+                } else {
+                    YAHOO.log("drag threshold not met", "info", "DragDropMgr");
+                }
+
+                this.stopDrag(e);
+
+                this.stopEvent(e);
             }
-
-            clearTimeout(this.clickTimeout);
-
-            if (this.dragThreshMet) {
-                YAHOO.log("mouseup detected - completing drag", "info", "DragDropMgr");
-                this.fireEvents(e, true);
-            } else {
-                YAHOO.log("drag threshold not met", "info", "DragDropMgr");
-            }
-
-            this.stopDrag(e);
-
-            this.stopEvent(e);
         },
 
         /**
@@ -618,18 +617,27 @@ YAHOO.util.DragDropMgr = function() {
         },
 
         /** 
-         * Internal function to clean up event handlers after the drag 
-         * operation is complete
+         * Ends the current drag, cleans up the state, and fires the endDrag
+         * and mouseUp events.  Called internally when a mouseup is detected
+         * during the drag.  Can be fired manually during the drag by passing
+         * either another event (such as the mousemove event received in onDrag)
+         * or a fake event with pageX and pageY defined (so that endDrag and
+         * onMouseUp have usable position data.).  Alternatively, pass true
+         * for the silent parameter so that the endDrag and onMouseUp events
+         * are skipped (so no event data is needed.)
+         *
          * @method stopDrag
-         * @param {Event} e the event
-         * @private
+         * @param {Event} e the mouseup event, another event (or a fake event) 
+         *                  with pageX and pageY defined, or nothing if the 
+         *                  silent parameter is true
+         * @param {boolean} silent skips the enddrag and mouseup events if true
          * @static
          */
-        stopDrag: function(e) {
+        stopDrag: function(e, silent) {
             // YAHOO.log("mouseup - removing event handlers");
 
             // Fire the drag end event for the item that was dragged
-            if (this.dragCurrent) {
+            if (this.dragCurrent && !silent) {
                 if (this.dragThreshMet) {
                     YAHOO.log("firing endDrag events", "info", "DragDropMgr");
                     this.dragCurrent.b4EndDrag(e);
@@ -643,7 +651,6 @@ YAHOO.util.DragDropMgr = function() {
             this.dragCurrent = null;
             this.dragOvers = {};
         },
-
 
         /** 
          * Internal function to handle the mousemove event.  Will be invoked 
@@ -661,41 +668,44 @@ YAHOO.util.DragDropMgr = function() {
          */
         handleMouseMove: function(e) {
             //YAHOO.log("handlemousemove");
-            if (! this.dragCurrent) {
+            
+            var dc = this.dragCurrent;
+            if (dc) {
                 // YAHOO.log("no current drag obj");
-                return true;
-            }
 
-            // var button = e.which || e.button;
-            // YAHOO.log("which: " + e.which + ", button: "+ e.button);
+                // var button = e.which || e.button;
+                // YAHOO.log("which: " + e.which + ", button: "+ e.button);
 
-            // check for IE mouseup outside of page boundary
-            if (YAHOO.util.Event.isIE && !e.button) {
-                YAHOO.log("button failure", "info", "DragDropMgr");
-                this.stopEvent(e);
-                return this.handleMouseUp(e);
-            }
-
-            if (!this.dragThreshMet) {
-                var diffX = Math.abs(this.startX - YAHOO.util.Event.getPageX(e));
-                var diffY = Math.abs(this.startY - YAHOO.util.Event.getPageY(e));
-                // YAHOO.log("diffX: " + diffX + "diffY: " + diffY);
-                if (diffX > this.clickPixelThresh || 
-                            diffY > this.clickPixelThresh) {
-                    YAHOO.log("pixel threshold met", "info", "DragDropMgr");
-                    this.startDrag(this.startX, this.startY);
+                // check for IE mouseup outside of page boundary
+                if (YAHOO.util.Event.isIE && !e.button) {
+                    YAHOO.log("button failure", "info", "DragDropMgr");
+                    this.stopEvent(e);
+                    return this.handleMouseUp(e);
                 }
+
+                if (!this.dragThreshMet) {
+                    var diffX = Math.abs(this.startX - YAHOO.util.Event.getPageX(e));
+                    var diffY = Math.abs(this.startY - YAHOO.util.Event.getPageY(e));
+                    // YAHOO.log("diffX: " + diffX + "diffY: " + diffY);
+                    if (diffX > this.clickPixelThresh || 
+                                diffY > this.clickPixelThresh) {
+                        YAHOO.log("pixel threshold met", "info", "DragDropMgr");
+                        this.startDrag(this.startX, this.startY);
+                    }
+                }
+
+                if (this.dragThreshMet) {
+                    dc.b4Drag(e);
+                    if (dc) {
+                        dc.onDrag(e);
+                    }
+                    if (dc) {
+                        this.fireEvents(e, false);
+                    }
+                }
+
+                this.stopEvent(e);
             }
-
-            if (this.dragThreshMet) {
-                this.dragCurrent.b4Drag(e);
-                this.dragCurrent.onDrag(e);
-                this.fireEvents(e, false);
-            }
-
-            this.stopEvent(e);
-
-            return true;
         },
 
         /**
@@ -716,22 +726,21 @@ YAHOO.util.DragDropMgr = function() {
                 return;
             }
 
-            var x = YAHOO.util.Event.getPageX(e);
-            var y = YAHOO.util.Event.getPageY(e);
-            var pt = new YAHOO.util.Point(x,y);
-            var pos = dc.getTargetCoord(pt.x, pt.y);
-            var el = dc.getDragEl();
-            curRegion = new YAHOO.util.Region( pos.y, 
+            var x = YAHOO.util.Event.getPageX(e),
+                y = YAHOO.util.Event.getPageY(e),
+                pt = new YAHOO.util.Point(x,y),
+                pos = dc.getTargetCoord(pt.x, pt.y),
+                el = dc.getDragEl(),
+                curRegion = new YAHOO.util.Region( pos.y, 
                                                pos.x + el.offsetWidth,
                                                pos.y + el.offsetHeight, 
-                                               pos.x );
-            // cache the previous dragOver array
-            var oldOvers = [];
-
-            var outEvts   = [];
-            var overEvts  = [];
-            var dropEvts  = [];
-            var enterEvts = [];
+                                               pos.x ),
+            
+                oldOvers = [], // cache the previous dragOver array
+                outEvts   = [],
+                overEvts  = [],
+                dropEvts  = [],
+                enterEvts = [];
 
 
             // Check to see if the object(s) we were hovering over is no longer 
@@ -811,24 +820,37 @@ YAHOO.util.DragDropMgr = function() {
                 if (outEvts.length) {
                     YAHOO.log(dc.id+" onDragOut: " + outEvts, "info", "DragDropMgr");
                     dc.b4DragOut(e, outEvts);
-                    dc.onDragOut(e, outEvts);
+                    if (dc) {
+                        dc.onDragOut(e, outEvts);
+                    }
                 }
 
                 if (enterEvts.length) {
                     YAHOO.log(dc.id+" onDragEnter: " + enterEvts, "info", "DragDropMgr");
-                    dc.onDragEnter(e, enterEvts);
+                    if (dc) {
+                        dc.onDragEnter(e, enterEvts);
+                    }
                 }
 
                 if (overEvts.length) {
                     YAHOO.log(dc.id+" onDragOver: " + overEvts, "info", "DragDropMgr");
-                    dc.b4DragOver(e, overEvts);
-                    dc.onDragOver(e, overEvts);
+                    if (dc) {
+                        dc.b4DragOver(e, overEvts);
+                    }
+
+                    if (dc) {
+                        dc.onDragOver(e, overEvts);
+                    }
                 }
 
                 if (dropEvts.length) {
                     YAHOO.log(dc.id+" onDragDrop: " + dropEvts, "info", "DragDropMgr");
-                    dc.b4DragDrop(e, dropEvts);
-                    dc.onDragDrop(e, dropEvts);
+                    if (dc) {
+                        dc.b4DragDrop(e, dropEvts);
+                    }
+                    if (dc) {
+                        dc.onDragDrop(e, dropEvts);
+                    }
                 }
 
             } else {
@@ -836,29 +858,44 @@ YAHOO.util.DragDropMgr = function() {
                 var len = 0;
                 for (i=0, len=outEvts.length; i<len; ++i) {
                     YAHOO.log(dc.id+" onDragOut: " + outEvts[i].id, "info", "DragDropMgr");
-                    dc.b4DragOut(e, outEvts[i].id);
-                    dc.onDragOut(e, outEvts[i].id);
+                    if (dc) {
+                        dc.b4DragOut(e, outEvts[i].id);
+                    }
+                    if (dc) {
+                        dc.onDragOut(e, outEvts[i].id);
+                    }
                 }
                  
                 // fire enter events
                 for (i=0,len=enterEvts.length; i<len; ++i) {
                     YAHOO.log(dc.id + " onDragEnter " + enterEvts[i].id, "info", "DragDropMgr");
                     // dc.b4DragEnter(e, oDD.id);
-                    dc.onDragEnter(e, enterEvts[i].id);
+
+                    if (dc) {
+                        dc.onDragEnter(e, enterEvts[i].id);
+                    }
                 }
          
                 // fire over events
                 for (i=0,len=overEvts.length; i<len; ++i) {
                     YAHOO.log(dc.id + " onDragOver " + overEvts[i].id, "info", "DragDropMgr");
-                    dc.b4DragOver(e, overEvts[i].id);
-                    dc.onDragOver(e, overEvts[i].id);
+                    if (dc) {
+                        dc.b4DragOver(e, overEvts[i].id);
+                    }
+                    if (dc) {
+                        dc.onDragOver(e, overEvts[i].id);
+                    }
                 }
 
                 // fire drop events
                 for (i=0, len=dropEvts.length; i<len; ++i) {
                     YAHOO.log(dc.id + " dropped on " + dropEvts[i].id, "info", "DragDropMgr");
-                    dc.b4DragDrop(e, dropEvts[i].id);
-                    dc.onDragDrop(e, dropEvts[i].id);
+                    if (dc) {
+                        dc.b4DragDrop(e, dropEvts[i].id);
+                    }
+                    if (dc) {
+                        dc.onDragDrop(e, dropEvts[i].id);
+                    }
                 }
 
             }
@@ -1113,11 +1150,11 @@ YAHOO.log("Could not get the loc for " + oDD.id, "warn", "DragDropMgr");
 
             this._execOnAll("unreg", []);
 
-            for (i in this.elementCache) {
-                delete this.elementCache[i];
-            }
+            //for (var i in this.elementCache) {
+                //delete this.elementCache[i];
+            //}
+            //this.elementCache = {};
 
-            this.elementCache = {};
             this.ids = {};
         },
 
@@ -1126,6 +1163,7 @@ YAHOO.log("Could not get the loc for " + oDD.id, "warn", "DragDropMgr");
          * @property elementCache
          * @private
          * @static
+         * @deprecated elements are not cached now
          */
         elementCache: {},
         
@@ -1580,7 +1618,7 @@ YAHOO.util.DragDrop.prototype = {
     unlock: function() { this.locked = false; },
 
     /**
-     * By default, all insances can be a drop target.  This can be disabled by
+     * By default, all instances can be a drop target.  This can be disabled by
      * setting isTarget to false.
      * @method isTarget
      * @type boolean
@@ -1733,6 +1771,30 @@ YAHOO.util.DragDrop.prototype = {
     hasOuterHandles: false,
 
     /**
+     * Property that is assigned to a drag and drop object when testing to
+     * see if it is being targeted by another dd object.  This property
+     * can be used in intersect mode to help determine the focus of
+     * the mouse interaction.  DDM.getBestMatch uses this property first to
+     * determine the closest match in INTERSECT mode when multiple targets
+     * are part of the same interaction.
+     * @property cursorIsOver
+     * @type boolean
+     */
+    cursorIsOver: false,
+
+    /**
+     * Property that is assigned to a drag and drop object when testing to
+     * see if it is being targeted by another dd object.  This is a region
+     * that represents the area the draggable element overlaps this target.
+     * DDM.getBestMatch uses this property to compare the size of the overlap
+     * to that of other targets in order to determine the closest match in
+     * INTERSECT mode when multiple targets are part of the same interaction.
+     * @property overlap 
+     * @type YAHOO.util.Region
+     */
+    overlap: null,
+
+    /**
      * Code that executes immediately before the startDrag event
      * @method b4StartDrag
      * @private
@@ -1877,7 +1939,7 @@ YAHOO.util.DragDrop.prototype = {
      * @method onAvailable
      */
     onAvailable: function () { 
-        this.logger.log("onAvailable (base)"); 
+        //this.logger.log("onAvailable (base)"); 
     },
 
     /**
@@ -1914,7 +1976,8 @@ YAHOO.util.DragDrop.prototype = {
      */
     init: function(id, sGroup, config) {
         this.initTarget(id, sGroup, config);
-        Event.on(this.id, "mousedown", this.handleMouseDown, this, true);
+        Event.on(this._domRef || this.id, "mousedown", 
+                        this.handleMouseDown, this, true);
         // Event.on(this.id, "selectstart", Event.preventDefault);
     },
 
@@ -1933,13 +1996,15 @@ YAHOO.util.DragDrop.prototype = {
 
         // create a local reference to the drag and drop manager
         this.DDM = YAHOO.util.DDM;
-        // initialize the groups array
+
+        // initialize the groups object
         this.groups = {};
 
         // assume that we have an element reference instead of an id if the
         // parameter is not a string
         if (typeof id !== "string") {
             YAHOO.log("id is not a string, assuming it is an HTMLElement");
+            this._domRef = id;
             id = Dom.generateId(id);
         }
 
@@ -1996,7 +2061,7 @@ YAHOO.util.DragDrop.prototype = {
      * @private
      */
     handleOnAvailable: function() {
-        this.logger.log("handleOnAvailable");
+        //this.logger.log("handleOnAvailable");
         this.available = true;
         this.resetConstraints();
         this.onAvailable();
@@ -2523,18 +2588,17 @@ this.logger.log("clickValidator returned false, drag not initiated");
     /**
      * resetConstraints must be called if you manually reposition a dd element.
      * @method resetConstraints
-     * @param {boolean} maintainOffset
      */
     resetConstraints: function() {
 
-        this.logger.log("resetConstraints");
+        //this.logger.log("resetConstraints");
 
         // Maintain offsets if necessary
         if (this.initPageX || this.initPageX === 0) {
-            this.logger.log("init pagexy: " + this.initPageX + ", " + 
-                               this.initPageY);
-            this.logger.log("last pagexy: " + this.lastPageX + ", " + 
-                               this.lastPageY);
+            //this.logger.log("init pagexy: " + this.initPageX + ", " + 
+                               //this.initPageY);
+            //this.logger.log("last pagexy: " + this.lastPageX + ", " + 
+                               //this.lastPageY);
             // figure out how much this thing has moved
             var dx = (this.maintainOffset) ? this.lastPageX - this.initPageX : 0;
             var dy = (this.maintainOffset) ? this.lastPageY - this.initPageY : 0;
@@ -2940,15 +3004,14 @@ YAHOO.extend(YAHOO.util.DDProxy, YAHOO.util.DD, {
      * @method createFrame
      */
     createFrame: function() {
-        var self = this;
-        var body = document.body;
+        var self=this, body=document.body;
 
         if (!body || !body.firstChild) {
             setTimeout( function() { self.createFrame(); }, 50 );
             return;
         }
 
-        var div = this.getDragEl();
+        var div=this.getDragEl(), Dom=YAHOO.util.Dom;
 
         if (!div) {
             div    = document.createElement("div");
@@ -2960,6 +3023,21 @@ YAHOO.extend(YAHOO.util.DDProxy, YAHOO.util.DD, {
             s.cursor     = "move";
             s.border     = "2px solid #aaa";
             s.zIndex     = 999;
+            s.height     = "25px";
+            s.width      = "25px";
+
+            var _data = document.createElement('div');
+            Dom.setStyle(_data, 'height', '100%');
+            Dom.setStyle(_data, 'width', '100%');
+            /**
+            * If the proxy element has no background-color, then it is considered to the "transparent" by Internet Explorer.
+            * Since it is "transparent" then the events pass through it to the iframe below.
+            * So creating a "fake" div inside the proxy element and giving it a background-color, then setting it to an
+            * opacity of 0, it appears to not be there, however IE still thinks that it is so the events never pass through.
+            */
+            Dom.setStyle(_data, 'background-color', '#ccc');
+            Dom.setStyle(_data, 'opacity', '0');
+            div.appendChild(_data);
 
             // appendChild can blow up IE if invoked prior to the window load event
             // while rendering a table.  It is possible there are other scenarios 
@@ -2978,7 +3056,7 @@ YAHOO.extend(YAHOO.util.DDProxy, YAHOO.util.DD, {
     },
 
     applyConfig: function() {
-        this.logger.log("DDProxy applyConfig");
+        //this.logger.log("DDProxy applyConfig");
         YAHOO.util.DDProxy.superclass.applyConfig.call(this);
 
         this.resizeFrame = (this.config.resizeFrame !== false);
@@ -3051,7 +3129,10 @@ YAHOO.extend(YAHOO.util.DDProxy, YAHOO.util.DD, {
         var x = YAHOO.util.Event.getPageX(e);
         var y = YAHOO.util.Event.getPageY(e);
         this.autoOffset(x, y);
-        this.setDragElPos(x, y);
+
+        // This causes the autoscroll code to kick off, which means autoscroll can
+        // happen prior to the check for a valid drag handle.
+        // this.setDragElPos(x, y);
     },
 
     // overrides YAHOO.util.DragDrop
@@ -3123,4 +3204,4 @@ YAHOO.extend(YAHOO.util.DDTarget, YAHOO.util.DragDrop, {
         return ("DDTarget " + this.id);
     }
 });
-YAHOO.register("dragdrop", YAHOO.util.DragDropMgr, {version: "2.2.2", build: "204"});
+YAHOO.register("dragdrop", YAHOO.util.DragDropMgr, {version: "2.3.1", build: "541"});

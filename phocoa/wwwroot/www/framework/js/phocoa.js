@@ -7,7 +7,7 @@
 window.PHOCOA = window.PHOCOA || {};
 
 // programmatically include JS code from a URL
-PHOCOA.importJS = function(path) { 
+PHOCOA.importJS = function(path, globalNamespace, localNamespace) { 
     // synchronously download and eval() the js code at the given path
     // cache
     if (!PHOCOA.importJSCache)
@@ -31,21 +31,32 @@ PHOCOA.importJS = function(path) {
                 }
             );
         try {
-            eval(js.transport.responseText);
+            PHOCOA.sandbox(js.transport.responseText, globalNamespace);
         } catch (err) {
             alert('importJS: ' + path + ' failed to parse: (errNo: ' + err.number + ')' + err.message);
         }
     }
+//    else
+//    {
+//        // this method has no scoping problems, but isn't synchronous.
+//        var head = document.getElementsByTagName("head")[0];
+//        script = document.createElement('script');
+//        script.type = 'text/javascript';
+//        script.src = path;
+//        head.appendChild(script);
+//        //alert('adding script tag for: ' +script.src);
+//    }
+};
+
+PHOCOA.sandbox = function(jsCode, globalNamespace, localNamespace) {
+    if (globalNamespace)
+    {
+        if (!localNamespace) localNamespace = globalNamespace;
+        eval( jsCode + "\n\nwindow. " + globalNamespace + " = " + localNamespace + ";" );
+    }
     else
     {
-        var a;
-        // this method has no scoping problems, but isn't synchronous.
-        // var head = document.getElementsByTagName("head")[0];
-        // script = document.createElement('script');
-        // script.type = 'text/javascript';
-        // script.src = path;
-        // head.appendChild(script);
-        // //alert('adding script tag for: ' +script.src);
+        eval(jsCode);
     }
 };
 

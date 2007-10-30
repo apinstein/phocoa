@@ -1,5 +1,25 @@
 Slider - Release Notes
 
+2.3.1
+
+   * getValue will return the last value or 0 rather than NaN if the control 
+     is display:none.
+
+   * The slider will not fire slideStart/change/slideEnd events during its
+     initial setup unless setValue was called prior to initialization.
+
+   * slideStart/slideEnd now fire consistently among the various methods of
+     changing the slider value (setValue, bg click, thumb drag).  A bg click
+     and drag continuation will result in two start/end events.
+
+   * Added a silent flag to setValue and setRegionValue to silence all of the
+     events during that operation.
+
+2.3.0
+   * Added valueChangeSource, which specifies whether the last value change
+     was the result of user interaction with the control, or a result of a
+     programmatic update (setValue)
+
 2.2.2
    * No change
 
@@ -8,14 +28,14 @@ Slider - Release Notes
 
 2.2.0
    * Added the missing "force" parameter to the signature for setRegionValue
-   * deprecated the moveComplete flag
+   * Deprecated the moveComplete flag
 
 0.12.2
    * No change
 
 0.12.1
 
-   * Removed unneccessary getXY calls that were contribuing to slower performance
+   * Removed unnecessary getXY calls that were contributing to slower performance
      in FireFox when the slider was deeply nested in the DOM.
 
 0.12.0

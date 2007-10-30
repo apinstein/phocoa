@@ -7,8 +7,9 @@ require('framework/util/WFIncluding.php');
 require('framework/WFWebApplication.php'); // need this because it decleare the WFWebApplicationMain() entry point that is used to get things going.
 require('framework/WFLog.php');    // need this for the PEAR_LOG_* constants below.
 
-// This version number should be updated with each release
-define('PHOCOA_VERSION', '0.1');
+// This version number should be updated with each release - this version number, among other things, is used to construct version-unique URLs for static resources
+// thus anytime anything in wwwroot/www/framework changes, this should be bumped. This version string should match [0-9\.]*
+define('PHOCOA_VERSION', '0.1.1');
 
 if (IS_PRODUCTION)
 {

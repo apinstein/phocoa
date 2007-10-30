@@ -55,7 +55,7 @@ abstract class WFView extends WFObject
      */
     protected $enabled;
     /**
-     * @var assoc_array An array whose keys are the paths to javascript files to be included.
+     * @var assoc_array An array whose keys are the paths to javascript files to be included. The value has 3 keys; url, globalNamespace, localNamespace.
      */
     protected $jsImports;
     /**
@@ -169,10 +169,14 @@ abstract class WFView extends WFObject
      *  However, it has the downside of requiring that the js code is eval-clean (that is, unless you assign your functions to variables they will not "exist").
      *
      *  @param string The JS file path to include.
+     *  @param string When importing javascript libraries, the global variable name you want the library loaded as. Default NULL (not a library).
+     *  @param string When importing javascript libraries, the local variable name that contains the library in included code. Default to same as globalNamespace.
      */
-    protected function importJS($path)
+    protected function importJS($path, $globalNamespace = NULL, $localNamespace = NULL)
     {
-        $this->jsImports[$path] = $path;
+        $this->jsImports[$path]['url'] = $path;
+        $this->jsImports[$path]['globalNamespace'] = $globalNamespace;
+        $this->jsImports[$path]['localNamespace'] = $localNamespace;
     }
 
     /**
@@ -198,6 +202,7 @@ abstract class WFView extends WFObject
         $script = $this->jsStartHTML();
         if ($this->importInHead)
         {
+            // no namespace issues when importInHead
             foreach ($this->jsImports as $path => $nothing) {
                 $this->page->module()->invocation()->rootSkin()->addHeadString("<script type=\"text/javascript\" src=\"{$path}\" ></script>");
             }
@@ -205,8 +210,17 @@ abstract class WFView extends WFObject
         }
         else
         {
-            foreach ($this->jsImports as $path => $nothing) {
-                $script .= "PHOCOA.importJS('{$path}');\n";
+            foreach ($this->jsImports as $path => $jsInfo) {
+                $script .= "PHOCOA.importJS('{$path}'";
+                if ($jsInfo['globalNamespace'])
+                {
+                    $script .= ", '{$jsInfo['globalNamespace']}'";
+                }
+                if ($jsInfo['localNamespace'])
+                {
+                    $script .= ", '{$jsInfo['localNamespace']}'";
+                }
+                $script .= ");\n";
             }
         }
         $script .= $this->jsEndHTML();
