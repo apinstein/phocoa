@@ -129,6 +129,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         parent::__construct($id, $page);
 
         $this->importYahooJS("autocomplete/autocomplete-min.js");
+        $this->importCSS("{$this->yuiPath}/autocomplete/assets/skins/sam/autocomplete.css");
     }
 
     function setupExposedBindings()
@@ -219,29 +220,11 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
 #{$myWidgetContainer} {
     position: relative;
     width: {$this->width};
+    " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : 'height: 1em;') . "
 }
 #{$this->id} {
     width: 100%;
     " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : '') . "
-}
-#{$myAutoCompleteContainer} {
-    width: {$this->autocompleteWidth};
-    position: absolute;
-    background: white;
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-}
-#{$myAutoCompleteContainer} ul {
-    border: 1px solid black;
-    padding: 5px 0;
-    margin: 0;
-}
-#{$myAutoCompleteContainer} li.yui-ac-prehighlight {
-    background: yellow;
-}
-#{$myAutoCompleteContainer} li.yui-ac-highlight {
-    background: yellow;
 }
 </style>
             ";
