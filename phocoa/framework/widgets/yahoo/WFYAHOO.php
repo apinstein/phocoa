@@ -7,6 +7,117 @@
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
+ 
+
+/**
+ * Wrapper for YUILoader
+ *
+ * @todo Deal with filters.
+ * @todo Document.
+ */
+class WFYAHOO_yuiloader
+{
+    static protected $_instance = NULL;
+
+    protected $base;
+    protected $required = array();
+    protected $allowRollup = true;
+    protected $loadOptional = true; // needs to be TRUE for 2.3.1, otherwise YUILoader doesn't sort optional but explicitly included dependencies
+    protected $debug = false;
+
+    protected $hasRendered = false;
+
+    private function __construct() 
+    {
+        $this->base = WFYAHOO::yuiPath() . '/';
+    }
+
+    public function yuiRequire($requires)
+    {
+        $modules = explode(',', $requires);
+        foreach ($modules as $module) {
+            $this->required[$module] = true;
+        }
+    }
+
+    public function sharedYuiLoader()
+    {
+        if (!self::$_instance)
+        {
+            self::$_instance = new WFYAHOO_yuiloader;
+        }
+        return self::$_instance;
+    }
+
+    public function quotedRequired()
+    {
+        $a = array();
+        foreach ($this->required as $mod => $unused) {
+            $a[] = '"' . $mod . '"';
+        }
+        return $a;
+    }
+
+    public function allowRollup()
+    {
+        return $this->allowRollup;
+    }
+
+    public function setAllowRollup($b)
+    {
+        $this->allowRollup = $b;
+    }
+
+    public function setBase($path)
+    {
+        $this->base = $path;
+    }
+
+    public function base()
+    {
+        return $this->base;
+    }
+
+    public function setDebug($path)
+    {
+        $this->debug = $path;
+    }
+
+    public function debug()
+    {
+        return $this->debug;
+    }
+
+    public function setLoadOptional($b)
+    {
+        $this->loadOptional = $b;
+    }
+
+    public function loadOptional()
+    {
+        return $this->loadOptional;
+    }
+
+    public function jsLoaderCode($callback = NULL)
+    {
+        if (count($this->required) == 0) return NULL;
+
+        //if ($this->hasRendered) return NULL;
+        $this->hasRendered = true;
+
+        return "
+                     (function() {
+                         var yl = new YAHOO.util.YUILoader();
+                         " . ($this->debug() ? 'yl.filter = "DEBUG";' : NULL) . "
+                         " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
+                         yl.require(" . join(',', $this->quotedRequired()) . ");
+                         yl.allowRollup = " . ($this->allowRollup() ? 'true' : 'false') . ";
+                         yl.loadOptional = " . ($this->loadOptional() ? 'true' : 'false') . ";
+                         yl.insert({$callback});
+                     })();
+         ";
+    }
+}
 
 /**
  * A YAHOO base class for our framework.
@@ -19,7 +130,7 @@
  *
  * @todo Also need to decide about phocoa.js and prototype.js; should these be included in the skin, or by the widgets that need them (I think this is tricky b/c then those widgets can't be added via AJAX since these base js files won't exist), or by modules that know they are using them?
  */
-class WFYAHOO extends WFWidget
+abstract class WFYAHOO extends WFWidget
 {
     /**
       * Constructor.
@@ -28,21 +139,32 @@ class WFYAHOO extends WFWidget
     {
         parent::__construct($id, $page);
 
-        // all WFYAHOO subclasses need this.
-        $this->importJS("{$this->yuiPath}/yahoo-dom-event/yahoo-dom-event.js", 'YAHOO');
+        // for now (2.3.1) we must include yahoo-dom-event beforehand to prevent race conditions with yahoo global object loading...
+        // maybe later we can turn this off and revert to independent yahoo/dom/event loading with YUILoader (which hepls with managing debugging, rollups, & deps)
+        $this->importJS(self::yuiPath() . "/yahoo-dom-event/yahoo-dom-event.js", 'YAHOO');
+        $this->importJS(self::yuiPath() . "/yuiloader/yuiloader-beta-debug.js");
+        //$this->yuiloader()->yuiRequire('yahoo', 'dom', 'event');
+    }
+
+    public function yuiloader()
+    {
+        return WFYAHOO_yuiloader::sharedYuiLoader();
     }
 
     /**
-     *  A comma-separated list of yahoo js libs to load.
+     * The bootstrapJS function is where YUI widgets perform their bootstrap/initialization.
      *
-     *  @param string Example: "event/event.js,dom/dom.js"
+     * The YUI integration also includes some delegate methods for performing pre- and post- initialization tasks.
+     *
+     * These are the delegate method for YUI widget instantiation:
+     * - PHOCOA.widgets.<widgetId>.yuiDelegate.widgetWillLoad()
+     * - PHOCOA.widgets.<widgetId>.yuiDelegate.widgetDidLoad(obj) // obj is the YUI widget instance, also available from PHOCOA.runtime.getObject('<widgetId>')
+     *
+     *
+     * @param string The content of the YUI widget as a block, if needed. Some YUI widgets like the Container family need access to this in the bootstrap routines.
+     * @return string The JS code to run to instantiate the YUI widget.
      */
-    function importYahooJS($libs)
-    {
-        foreach (split(',', $libs) as $lib) {
-            $this->importJS("{$this->yuiPath}/{$lib}");
-        }
-    }
+    abstract public function bootstrapJS($blockContent);
 
     function canPushValueBinding() { return false; }
 
@@ -88,6 +210,24 @@ class WFYAHOO extends WFWidget
         {
             // set up basic HTML
             $html = parent::render($blockContent);
+            $html .= $this->jsStartHTML() . $this->yuiloader()->jsLoaderCode(
+                                                                            "function() {
+    PHOCOA.namespace('widgets.{$this->id}.yuiDelegate');
+    if (PHOCOA.widgets.{$this->id}.yuiDelegate.widgetWillLoad)
+    {
+        PHOCOA.widgets.{$this->id}.yuiDelegate.widgetWillLoad();
+    }
+
+// bootstrap widget\n" .
+$this->bootstrapJS($blockContent)
+. "
+
+    if (PHOCOA.widgets.{$this->id}.yuiDelegate.widgetDidLoad)
+    {
+        PHOCOA.widgets.{$this->id}.yuiDelegate.widgetDidLoad(PHOCOA.runtime.getObject('{$this->id}'));
+    }
+}"
+                                                                            ) . $this->jsEndHTML();
         }
         return $html;
     }

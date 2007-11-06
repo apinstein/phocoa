@@ -22,6 +22,8 @@ class module_container extends WFModule
         $page->outlet('dialog')->addButton('YUI Submit Button', 'clickMeHandler', false);
         $page->outlet('dialog')->setCallbackSuccess('dialogSuccessHandler');
         $page->outlet('dialog')->setCallbackFailure('dialogFailureHandler');
+
+        new WFYAHOO_widget_Logger('logger', $page);
     }
     function container_submit_Action($page)
     {

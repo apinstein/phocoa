@@ -47,8 +47,7 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         $this->dynamicCallback = NULL;
         $this->nodeType = 'HTMLNode';
 
-        $this->importYahooJS("treeview/treeview-min.js,connection/connection-min.js");
-        $this->importCSS("{$this->yuiPath}/treeview/assets/skins/sam/treeview.css");
+        $this->yuiloader()->yuiRequire('treeview,connection');
     }
 
     public static function exposedProperties()

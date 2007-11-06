@@ -50,8 +50,7 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Overlay
         $this->modal = false;
         $this->close = true;
 
-        $this->importYahooJS("dragdrop/dragdrop-min.js,animation/animation-min.js");
-        $this->importCSS("{$this->yuiPath}/container/assets/container.css");
+        $this->yuiloader()->yuiRequire("dragdrop,animation");
     }
 
     public static function exposedProperties()
@@ -90,18 +89,22 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Overlay
         {
             // set up basic HTML
             $html = parent::render($blockContent);
-            $script = "
-<script type=\"text/javascript\">
-//<![CDATA[
+            return $html;
+        }
+    }
 
-YAHOO.namespace('phocoa.widgets.panel');
-YAHOO.phocoa.widgets.module.queueProps_Panel_{$this->id} = function(o) {
-    YAHOO.phocoa.widgets.module.queueProps_Overlay_{$this->id}(o);
+    function bootstrapJS($blockContent)
+    {
+        $script .= parent::bootstrapJS($blockContent);
+        $script .= "
+PHOCOA.namespace('widgets.{$this->id}.Panel');
+PHOCOA.widgets.{$this->id}.Panel.queueProps = function(o) {
+    PHOCOA.widgets.{$this->id}.Overlay.queueProps(o);   // queue parent props
     // alert('id={$this->id}: queue Panel props');
     // queue Panel props here
 }
-YAHOO.phocoa.widgets.panel.init_{$this->id} = function() {
-    YAHOO.phocoa.widgets.overlay.init_{$this->id}();
+PHOCOA.widgets.{$this->id}.Panel.init = function() {
+    PHOCOA.widgets.{$this->id}.Overlay.init();  // init parent
     var panel = PHOCOA.runtime.getObject('{$this->id}');
     panel.cfg.setProperty('underlay', '{$this->underlay}');
     panel.cfg.setProperty('close', " . ($this->close ? 'true' : 'false') . ");
@@ -109,15 +112,9 @@ YAHOO.phocoa.widgets.panel.init_{$this->id} = function() {
     panel.cfg.setProperty('modal', " . ($this->modal ? 'true' : 'false') . ");
 }
 " .
-( (get_class($this) == 'WFYAHOO_widget_Panel') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.panel.init_{$this->id});" : NULL ) . "
-//]]>
-</script>";
-            // output script
-            $html .= "\n{$script}\n";
-            return $html;
-        }
+( (get_class($this) == 'WFYAHOO_widget_Panel') ? "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.Panel.init);" : NULL );
+        return $script;
     }
-
     function canPushValueBinding() { return false; }
 }
 

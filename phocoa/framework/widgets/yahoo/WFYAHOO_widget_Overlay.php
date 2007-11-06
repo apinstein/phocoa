@@ -166,18 +166,22 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
         {
             // set up basic HTML
             $html = parent::render($blockContent);
-            $script = "
-<script type=\"text/javascript\">
-//<![CDATA[
+            return $html;
+        }
+    }
 
-YAHOO.namespace('phocoa.widgets.overlay');
-YAHOO.phocoa.widgets.module.queueProps_Overlay_{$this->id} = function(o) {
-    YAHOO.phocoa.widgets.module.queueProps_Module_{$this->id}(o);
+    function bootstrapJS($blockContent)
+    {
+        $script .= parent::bootstrapJS($blockContent);
+        $script .= "
+PHOCOA.namespace('widgets.{$this->id}.Overlay');
+PHOCOA.widgets.{$this->id}.Overlay.queueProps = function(o) {
+    PHOCOA.widgets.{$this->id}.Module.queueProps(o);    // queue parent props
     // alert('id={$this->id}: queue Overlay props');
     // queue Overlay props here
 }
-YAHOO.phocoa.widgets.overlay.init_{$this->id} = function() {
-    YAHOO.phocoa.widgets.module.init_{$this->id}();
+PHOCOA.widgets.{$this->id}.Overlay.init = function() {
+    PHOCOA.widgets.{$this->id}.Module.init();  // init parent
     var overlay = PHOCOA.runtime.getObject('{$this->id}');
     overlay.cfg.setProperty('fixedcenter', " . ($this->fixedcenter ? 'true' : 'false') . ");
     overlay.cfg.setProperty('iframe', " . ($this->iframe ? 'true' : 'false') . ");
@@ -190,41 +194,40 @@ YAHOO.phocoa.widgets.overlay.init_{$this->id} = function() {
     ($this->zIndex ? "\n    overlay.cfg.setProperty('zIndex', '{$this->zIndex}');" : NULL ) . "
     // hopefully this next chunk can be removed when YUI fixes this internally
     // supposedly fixed in 2.3.0: https://sourceforge.net/tracker/?func=detail&atid=836476&aid=1723530&group_id=165715
-    // we'll comment out for a bit to verify
-//    if (overlay.platform == \"mac\" && overlay.browser == \"gecko\")
-//    {
-//        var overlayEl = YAHOO.util.Dom.get('{$this->id}');
-//        if (!overlay.cfg.getProperty('visible'))
-//        {
-//            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
-//            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
-//        }
-//        else
-//        {
-//            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
-//            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
-//        }
-//        overlay.showEvent.subscribe( function() {
-//                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
-//                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
-//                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
-//                                                } );
-//        overlay.hideEvent.subscribe( function() {
-//                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
-//                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
-//                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
-//                                                } );
-//    }
-}
-" .
-( (get_class($this) == 'WFYAHOO_widget_Overlay') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.overlay.init_{$this->id});" : NULL ) . "
-//]]>
-</script>";
-            // output script
-            $html .= "\n{$script}\n";
-            return $html;
+    // we'll comment out for a bit to verify -- nope, not fixed... need to report to YAHOO once we get a repro case online
+    if (overlay.platform == \"mac\" && overlay.browser == \"gecko\")
+    {
+        var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+        if (!overlay.cfg.getProperty('visible'))
+        {
+            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
+            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
         }
+        else
+        {
+            YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
+            YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
+        }
+        overlay.showEvent.subscribe( function() {
+                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'auto');
+                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'block');
+                                                } );
+        overlay.hideEvent.subscribe( function() {
+                                                    var overlayEl = YAHOO.util.Dom.get('{$this->id}');
+                                                    YAHOO.util.Dom.setStyle(overlayEl, 'overflow', 'hidden');
+                                                    YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
+                                                } );
     }
+}
+";
+        if ( get_class($this) == 'WFYAHOO_widget_Overlay')
+        {
+           $script .= "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.Overlay.init);";
+        }
+        return $script;
+    }
+
 
     function canPushValueBinding() { return false; }
 }

@@ -45,8 +45,8 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         $this->deferModuleViewLoading = false;
         $this->cacheModuleView = false;
 
-        $this->importYahooJS("connection/connection-min.js");
         $this->importJS(WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/yahoo-phocoa.js');
+        $this->yuiloader()->yuiRequire("connection");
     }
 
     public static function exposedProperties()
@@ -100,35 +100,32 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
                 $this->setBody($this->moduleView->render());
             }
 
-            // set up basic HTML
             $html = parent::render($blockContent);
-            $script = "
-<script type=\"text/javascript\">
-//<![CDATA[
+            return $html;
+        }
+    }
 
-YAHOO.namespace('phocoa.widgets.PhocoaDialog');
-YAHOO.phocoa.widgets.module.queueProps_PhocoaDialog_{$this->id} = function(o) {
-    YAHOO.phocoa.widgets.module.queueProps_Panel_{$this->id}(o);
-    // alert('id={$this->id}: queue Dialog props');
+    function bootstrapJS($blockContent)
+    {
+        $script .= parent::bootstrapJS($blockContent);
+        $script .= "
+PHOCOA.namespace('widgets.{$this->id}.PhocoaDialog');
+PHOCOA.widgets.{$this->id}.PhocoaDialog.queueProps = function(o) {
+    PHOCOA.widgets.{$this->id}.Panel.queueProps(o); // queue parent props
+    // alert('id={$this->id}: queue PhocoaDialog props');
     // queue PhocoaDialog props here
 }
-YAHOO.phocoa.widgets.PhocoaDialog.init_{$this->id} = function() {
-    YAHOO.phocoa.widgets.panel.init_{$this->id}();
+PHOCOA.widgets.{$this->id}.PhocoaDialog.init = function() {
+    PHOCOA.widgets.{$this->id}.Panel.init();   // init parent
     var phocoaDialog = PHOCOA.runtime.getObject('{$this->id}');
     phocoaDialog.cfg.setProperty('deferModuleViewLoading', " . ($this->deferModuleViewLoading ? 'true' : 'false') . ");
     phocoaDialog.cfg.setProperty('cacheModuleView', " . ($this->cacheModuleView ? 'true' : 'false') . ");
     phocoaDialog.cfg.setProperty('moduleViewInvocationPath', " . ($this->moduleView ? "'" . WWW_ROOT . '/' . $this->moduleView->invocationPath() . "'" : 'null') . ");
 }
 " .
-( (get_class($this) == 'WFYAHOO_widget_PhocoaDialog') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.PhocoaDialog.init_{$this->id});" : NULL ) . "
-//]]>
-</script>";
-            // output script
-            $html .= "\n{$script}\n";
-            return $html;
-        }
+( (get_class($this) == 'WFYAHOO_widget_PhocoaDialog') ? "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.PhocoaDialog.init);" : NULL );
+        return $script;
     }
-
     function canPushValueBinding() { return false; }
 }
 

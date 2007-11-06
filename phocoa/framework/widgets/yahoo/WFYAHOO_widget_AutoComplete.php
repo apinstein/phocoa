@@ -128,8 +128,25 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     {
         parent::__construct($id, $page);
 
-        $this->importYahooJS("autocomplete/autocomplete-min.js");
-        $this->importCSS("{$this->yuiPath}/autocomplete/assets/skins/sam/autocomplete.css");
+        $this->yuiloader()->yuiRequire('autocomplete');
+    }
+
+    public function setAnimVert($b)
+    {
+        if ($b)
+        {
+            $this->yuiloader()->yuiRequire('animation');
+        }
+        $this->animVert = $b;
+    }
+
+    public function setAnimHoriz($b)
+    {
+        if ($b)
+        {
+            $this->yuiloader()->yuiRequire('animation');
+        }
+        $this->animHoriz = $b;
     }
 
     function setupExposedBindings()
@@ -202,18 +219,10 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             // sanity checks
             if ($this->datasource === NULL) throw( new WFException("No datasource defined.") );
 
-            // setup dependencies before calling parent::render()
-            if ($this->animVert or $this->animHoriz)
-            {
-                $this->importYahooJS("animation/animation-min.js");
-            }
             $html = parent::render($blockContent);
 
             $myWidgetContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_container";
             $myAutoCompleteContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_autocomplete";
-
-            $myJSDatasourceVarName = "WFYAHOO_widget_AutoComplete_{$this->id}_datasource";
-            $myJsAutoCompleteVarName = "WFYAHOO_widget_AutoComplete_{$this->id}";
 
             $html .= "
 <style type=\"text/css\">
@@ -244,99 +253,105 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             }
             $html .= "<div id=\"{$myAutoCompleteContainer}\"></div>
             </div>";
-            $html .= $this->jsStartHTML();
-            switch ($this->datasource) {
-                case WFYAHOO_widget_AutoComplete::DATASOURCE_JS_ARRAY:
-                    $myJSDatasourceArrayVarName = "WFYAHOO_widget_AutoComplete_{$this->id}_datasource_array";
-                    $html .= "var {$myJSDatasourceArrayVarName} = [";
-                    $first = true;
-                    // we allow 
-                    $multiColumnData = false;
-                    foreach ($this->datasourceJSArray as $item) {
-                        if ($first)
-                        {
-                            $first = false;
-                            if (is_array($item))
-                            {
-                                $multiColumnData = true;
-                            }
-                        }
-                        else
-                        {
-                            $html .= ", ";
-                        }
-                        if ($multiColumnData)
-                        {
-                            $subItems = $item;
-                            array_walk($subItems, create_function('&$v,$k', '$v = \'"\' . str_replace(\'"\', \'\\"\', $v) . \'"\';'));
-                            $html .= '[' . join(',', $subItems) . ']';
-                        }
-                        else
-                        {
-                            $html .= '"' . str_replace('"', '\\"', $item) . '"';
-                        }
-                    }
-                    $html .= "];\n";
-                    $html .= "var {$myJSDatasourceVarName} = new YAHOO.widget.DS_JSArray({$myJSDatasourceArrayVarName});";
-                    break;
-                default:
-                    throw( new WFException("Unsupported datasource type.") );
-            }
-            // add properties to datasource
-            $html .= $this->jsForSimplePropertyConfig($myJSDatasourceVarName, 'maxCacheEntries', $this->datasourceMaxCacheEntries);
-            $html .= $this->jsForSimplePropertyConfig($myJSDatasourceVarName, 'queryMatchCase', $this->datasourceQueryMatchCase);
-            $html .= $this->jsForSimplePropertyConfig($myJSDatasourceVarName, 'queryMatchContains', $this->datasourceQueryMatchContains);
-            $html .= $this->jsForSimplePropertyConfig($myJSDatasourceVarName, 'queryMatchSubset', $this->datasourceQueryMatchSubset);
-            // set up widget
-            $html .= "\nvar {$myJsAutoCompleteVarName} = new YAHOO.widget.AutoComplete('{$this->id}','{$myAutoCompleteContainer}', {$myJSDatasourceVarName});\n";
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'animVert', $this->animVert);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'animHoriz', $this->animHoriz);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'animSpeed', $this->animSpeed);
+            return $html;
+        }
+    }
 
-            // calculate delimiter
-            $delimJs = NULL;
-            if (is_array($this->delimChar))
-            {
-                $delimJs = '[';
+    function bootstrapJS($blockContent)
+    {
+        $myWidgetContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_container";
+        $myAutoCompleteContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_autocomplete";
+
+        $html = NULL;
+        switch ($this->datasource) {
+            case WFYAHOO_widget_AutoComplete::DATASOURCE_JS_ARRAY:
+                $html .= "var jsDSArray = [";
                 $first = true;
-                foreach ($this->delimChar as $c) {
+                // we allow 
+                $multiColumnData = false;
+                foreach ($this->datasourceJSArray as $item) {
                     if ($first)
                     {
                         $first = false;
+                        if (is_array($item))
+                        {
+                            $multiColumnData = true;
+                        }
                     }
                     else
                     {
-                        $delimJs .= ', ';
+                        $html .= ", ";
                     }
-                    $delimJs .= "'{$c}'";
+                    if ($multiColumnData)
+                    {
+                        $subItems = $item;
+                        array_walk($subItems, create_function('&$v,$k', '$v = \'"\' . str_replace(\'"\', \'\\"\', $v) . \'"\';'));
+                        $html .= '[' . join(',', $subItems) . ']';
+                    }
+                    else
+                    {
+                        $html .= '"' . str_replace('"', '\\"', $item) . '"';
+                    }
                 }
-                $delimJs .= ']';
-            }
-            else if ($this->delimChar)
-            {
-                $delimJs = "'{$this->delimChar}'";
-            }
-            if ($delimJs)
-            {
-                $html .= "\n{$myJsAutoCompleteVarName}.delimChar = {$delimJs};\n";
-            }
-
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'maxResultsDisplayed', $this->maxResultsDisplayed);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'minQueryLength', $this->minQueryLength);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'queryDelay', $this->queryDelay);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'autoHighlight', $this->autoHighlight);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'highlightClassName', $this->highlightClassName);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'prehighlightClassName', $this->prehighlightClassName);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'useShadow', $this->useShadow);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'useIFrame', $this->IFrame);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'forceSelection', $this->forceSelection);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'typeAhead', $this->typeAhead);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'allowBrowserAutocomplete', $this->allowBrowserAutocomplete);
-            $html .= $this->jsForSimplePropertyConfig($myJsAutoCompleteVarName, 'alwaysShowContainer', $this->alwaysShowContainer);
-            $html .= "
-" . $this->jsEndHTML();
-            return $html;
+                $html .= "];\n";
+                $html .= "var AutoCompleteWidgetDSArray = new YAHOO.widget.DS_JSArray(jsDSArray);";
+                break;
+            default:
+                throw( new WFException("Unsupported datasource type.") );
         }
+        // add properties to datasource
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidgetDSArray', 'maxCacheEntries', $this->datasourceMaxCacheEntries);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidgetDSArray', 'queryMatchCase', $this->datasourceQueryMatchCase);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidgetDSArray', 'queryMatchContains', $this->datasourceQueryMatchContains);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidgetDSArray', 'queryMatchSubset', $this->datasourceQueryMatchSubset);
+        // set up widget
+        $html .= "\nvar AutoCompleteWidget = new YAHOO.widget.AutoComplete('{$this->id}','{$myAutoCompleteContainer}', AutoCompleteWidgetDSArray);\n";
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animVert', $this->animVert);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animHoriz', $this->animHoriz);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animSpeed', $this->animSpeed);
+
+        // calculate delimiter
+        $delimJs = NULL;
+        if (is_array($this->delimChar))
+        {
+            $delimJs = '[';
+            $first = true;
+            foreach ($this->delimChar as $c) {
+                if ($first)
+                {
+                    $first = false;
+                }
+                else
+                {
+                    $delimJs .= ', ';
+                }
+                $delimJs .= "'{$c}'";
+            }
+            $delimJs .= ']';
+        }
+        else if ($this->delimChar)
+        {
+            $delimJs = "'{$this->delimChar}'";
+        }
+        if ($delimJs)
+        {
+            $html .= "\nAutoCompleteWidget.delimChar = {$delimJs};\n";
+        }
+
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'maxResultsDisplayed', $this->maxResultsDisplayed);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'minQueryLength', $this->minQueryLength);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'queryDelay', $this->queryDelay);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'autoHighlight', $this->autoHighlight);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'highlightClassName', $this->highlightClassName);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'prehighlightClassName', $this->prehighlightClassName);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'useShadow', $this->useShadow);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'useIFrame', $this->IFrame);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'forceSelection', $this->forceSelection);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'typeAhead', $this->typeAhead);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'allowBrowserAutocomplete', $this->allowBrowserAutocomplete);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'alwaysShowContainer', $this->alwaysShowContainer);
+        $html .= "\nPHOCOA.runtime.addObject(AutoCompleteWidget, '{$this->id}');\n";
+        return $html;
     }
 
     function canPushValueBinding() { return true; }

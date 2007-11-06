@@ -63,10 +63,6 @@ abstract class WFView extends WFObject
      */
     protected $cssImports;
     /**
-     * @var string The to the YUI library.
-     */
-    protected $yuiPath;
-    /**
      * @var boolean TRUE to include JS and CSS files in a less-efficient, but more-debuggable way. Basically, will include with link/script tags if true, otherwise will use
      * javascript to include the files with the PHOCOA.importCSS() javascript function.
      */
@@ -100,9 +96,6 @@ abstract class WFView extends WFObject
         $this->importInHead = false;
         $this->jsImports = array();
         $this->cssImports = array();
-
-        // YUI integration
-        $this->yuiPath = self::yuiPath();
     }
 
     public static function yuiPath()
@@ -252,21 +245,27 @@ abstract class WFView extends WFObject
     /**
      *  Helper function to get the proper "start" block for using Javascript in a web page.
      *
+     *  NOTE: The conventions used here are from Douglas Crockford's "Theory of DOM" video.
+     *  - Comments not needed since Mosaic and Netscape 1.
+     *  - type attribute IGNORED. They only trust mime-type header on actual file.
+     *  - language attribute IGNORED.
+     *
      *  @return string HTML code for the "start" block of a JS script section.
      */
     function jsStartHTML()
     {
-        return "\n" . '<script type="text/javascript">//<![CDATA[' . "\n";
+        return "\n<script>\n";
     }
 
     /**
      *  Helper function to get the proper "end" block for using Javascript in a web page.
      *
      *  @return string HTML code for the "end" block of a JS script section.
+     *  @see jsStartHTML()
      */
     function jsEndHTML()
     {
-        return "\n" . '//]]></script>' . "\n";
+        return "\n</script>\n";
     }
 
     /**

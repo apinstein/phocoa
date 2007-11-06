@@ -85,3 +85,4 @@ This is a panel. By default, panels pop up over the existing content and have a 
 <br /> <br />
 <br /> <br />
 </div>
+{WFView id="logger"}

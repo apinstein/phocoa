@@ -27,8 +27,7 @@ class WFYAHOO_widget_Logger extends WFYAHOO
     {
         parent::__construct($id, $page);
 
-        $this->importYahooJS("logger/logger-min.js");
-        $this->importCSS("{$this->yuiPath}/logger/assets/logger.css");
+        $this->yuiloader()->yuiRequire("logger");
     }
 
     public static function exposedProperties()
@@ -47,12 +46,16 @@ class WFYAHOO_widget_Logger extends WFYAHOO
         else
         {
             $html = parent::render($blockContent);
-            $html .= $this->jsStartHTML() . "
-    var WFYAHOO_widget_Logger_{$this->id} = new YAHOO.widget.LogReader(null, {top:'4em',fontSize:'92%',width:'30em',height:'20em'});
-    PHOCOA.runtime.addObject(WFYAHOO_widget_Logger_{$this->id});
-" . $this->jsEndHTML();
             return $html;
         }
+    }
+
+    function bootstrapJS($blockContent)
+    {
+        return "
+var WFYAHOO_widget_Logger_{$this->id} = new YAHOO.widget.LogReader(null, {top:'4em',fontSize:'92%',width:'30em',height:'20em'});
+PHOCOA.runtime.addObject(WFYAHOO_widget_Logger_{$this->id});
+";
     }
 
     function canPushValueBinding() { return false; }

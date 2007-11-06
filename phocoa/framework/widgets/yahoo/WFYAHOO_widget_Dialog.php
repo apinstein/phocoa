@@ -48,7 +48,7 @@ class WFYAHOO_widget_Dialog extends WFYAHOO_widget_Panel
         $this->callbackSuccess = NULL;
         $this->callbackFailure = NULL;
 
-        $this->importYahooJS("connection/connection-min.js");
+        $this->yuiloader()->yuiRequire("connection");
     }
 
     public static function exposedProperties()
@@ -100,32 +100,31 @@ class WFYAHOO_widget_Dialog extends WFYAHOO_widget_Panel
                 }
                 $buttonsJS .= ']';
             }
-            $script = "
-<script type=\"text/javascript\">
-//<![CDATA[
+            return $html;
+        }
+    }
 
-YAHOO.namespace('phocoa.widgets.dialog');
-YAHOO.phocoa.widgets.module.queueProps_Dialog_{$this->id} = function(o) {
-    YAHOO.phocoa.widgets.module.queueProps_Panel_{$this->id}(o);
+    function bootstrapJS($blockContent)
+    {
+        $script .= parent::bootstrapJS($blockContent);
+        $script .= "
+PHOCOA.namespace('widgets.{$this->id}.Dialog');
+PHOCOA.widgets.{$this->id}.Dialog.queueProps = function(o) {
+    PHOCOA.widgets.{$this->id}.Panel.queueProps(o); // queue parent props
     // alert('id={$this->id}: queue Dialog props');
     // queue Dialog props here
     " . ($buttonsJS ? "o.cfg.queueProperty(\"buttons\", {$buttonsJS});" : NULL) . "
 }
-YAHOO.phocoa.widgets.dialog.init_{$this->id} = function() {
-    YAHOO.phocoa.widgets.panel.init_{$this->id}();
+PHOCOA.widgets.{$this->id}.Dialog.init = function() {
+    PHOCOA.widgets.{$this->id}.Panel.init();  // init parent
     var dialog = PHOCOA.runtime.getObject('{$this->id}');
     dialog.cfg.setProperty('postmethod', '{$this->postmethod}');
     " . ($this->callbackSuccess ? "dialog.callback.success = {$this->callbackSuccess};" : NULL) . "
     " . ($this->callbackFailure ? "dialog.callback.failure = {$this->callbackFailure};" : NULL) . "
 }
 " .
-( (get_class($this) == 'WFYAHOO_widget_Dialog') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.dialog.init_{$this->id});" : NULL ) . "
-//]]>
-</script>";
-            // output script
-            $html .= "\n{$script}\n";
-            return $html;
-        }
+( (get_class($this) == 'WFYAHOO_widget_Dialog') ? "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.Dialog.init);" : NULL );
+        return $script;
     }
 
     function canPushValueBinding() { return false; }

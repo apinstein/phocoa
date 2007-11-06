@@ -63,15 +63,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->containerClass = 'Module';
         $this->buildModuleProgrammatically = false;
 
-        if (0 /* 1 for debug */)
-        {
-            $this->importInHead=true;
-            $this->importYahooJS("container/container-debug.js");
-        }
-        else
-        {
-            $this->importYahooJS("container/container-min.js");
-        }
+        $this->yuiloader()->yuiRequire('container');
     }
 
     public static function exposedProperties()
@@ -84,6 +76,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
     function addEffect($effectName, $duration = 0.5)
     {
         $this->effects[$effectName] = $duration;
+        $this->yuiloader()->yuiRequire('animation');
     }
 
     function setupExposedBindings()
@@ -138,16 +131,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
             $html = parent::render($blockContent);
             // determine body html
             $bodyHTML = ($blockContent === NULL ? $this->body : $blockContent);
-            // calcualte effects
-            $effects = array();
-            foreach ($this->effects as $name => $duration) {
-                $effects[] = "{ effect: {$name}, duration: {$duration} }";
-            }
-            $addEffectsJS = NULL;
-            if (count($effects))
-            {
-                $addEffectsJS = '[ ' . join(', ', $effects) . ' ]';
-            }
+
             // set up basic HTML -- in order to prevent a "flash of content" for non-visible content, we must make it visibility: hidden
             // however, while that prevents the content from being SEEN, you will still see BLANK space where it goes, thus we must also set display: none
             // YUI's show()/hide() functions to display the module content work differently depending on the module's class...
@@ -175,64 +159,83 @@ class WFYAHOO_widget_Module extends WFYAHOO
 </div>
 ";
             }
-            $script = "
-<script type=\"text/javascript\">
-//<![CDATA[
-YAHOO.namespace('phocoa.widgets.module');
-YAHOO.phocoa.widgets.module.queueProps_Module_{$this->id} = function(o) {
+            else
+            {
+                $html .= "<div id=\"{$this->id}\"{$visibility}></div>";
+            }
+            return $html;
+        }
+    }
+
+    function bootstrapJS($blockContent)
+    {
+        // determine body html
+        $bodyHTML = ($blockContent === NULL ? $this->body : $blockContent);
+        // calcualte effects
+        $effects = array();
+        foreach ($this->effects as $name => $duration) {
+            $effects[] = "{ effect: {$name}, duration: {$duration} }";
+        }
+        $addEffectsJS = NULL;
+        if (count($effects))
+        {
+            $addEffectsJS = '[ ' . join(', ', $effects) . ' ]';
+        }
+
+        $script = "
+PHOCOA.namespace('widgets.{$this->id}.Module');
+PHOCOA.widgets.{$this->id}.Module.queueProps = function(o) {
     // alert('id={$this->id}: queue Module props');
     // queue Module props here
 }
-YAHOO.phocoa.widgets.module.init_{$this->id} = function() {
+PHOCOA.widgets.{$this->id}.Module.init = function() {
     var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\");
     module.cfg.queueProperty('visible', " . ($this->visible ? 'true' : 'false') . ");
     module.cfg.queueProperty('monitorresize', " . ($this->monitorresize ? 'true' : 'false') . ");
-    YAHOO.phocoa.widgets.module.queueProps_{$this->containerClass}_{$this->id}(module);";
+    PHOCOA.widgets.{$this->id}.{$this->containerClass}.queueProps(module);";
 
-            if ($this->buildModuleProgrammatically)
-            {
-                if ($this->header)
-                {
-                    $script .= "
-    module.setHeader(" . WFJSON::json_encode($this->header) . ");
-";
-                }
-                if ($bodyHTML)
-                {
-                    $script .= "
-    module.setBody(" . WFJSON::json_encode($bodyHTML) . ");
-";
-                }
-                if ($this->footer)
-                {
-                    $script .= "
-    module.setFooter(" . WFJSON::json_encode($this->footer) . ");
-";
-                }
-                    $script .= "
-    module.render(document.body);
-";
-            }
-            else
+        if ($this->buildModuleProgrammatically)
+        {
+            if ($this->header)
             {
                 $script .= "
-    module.render();
+    module.setHeader(" . WFJSON::json_encode($this->header) . ");
 ";
             }
-            $script .= 
-    ( $addEffectsJS ? "\n    module.cfg.setProperty('effect', {$addEffectsJS});" : NULL ) . 
-    // Module visibility controlled by display attr; subclass visibility controlled by visibilty. Non-modules must be display: block so that they'll appear when asked
-    ( (get_class($this) != 'WFYAHOO_widget_Module') ? "\n   YAHOO.util.Dom.setStyle('{$this->id}', 'display', 'block')" : NULL) . "
-    PHOCOA.runtime.addObject(module);
-}
-" . 
-( (get_class($this) == 'WFYAHOO_widget_Module') ? "YAHOO.util.Event.addListener(window, 'load', YAHOO.phocoa.widgets.module.init_{$this->id});" : NULL ) . "
-//]]>
-</script>";
-            // output script
-            $html .= "\n{$script}\n";
-            return $html;
+            if ($bodyHTML)
+            {
+                $script .= "
+    module.setBody(" . WFJSON::json_encode($bodyHTML) . ");
+";
+            }
+            if ($this->footer)
+            {
+                $script .= "
+    module.setFooter(" . WFJSON::json_encode($this->footer) . ");
+";
+            }
+                $script .= "
+    module.render(document.body);
+";
         }
+        else
+        {
+            $script .= "
+    module.render();
+";
+        }
+        $script .= 
+( $addEffectsJS ? "\n    module.cfg.setProperty('effect', {$addEffectsJS});" : NULL ) . 
+// Module visibility controlled by display attr; subclass visibility controlled by visibilty. Non-modules must be display: block so that they'll appear when asked
+( (get_class($this) != 'WFYAHOO_widget_Module') ? "\n    YAHOO.util.Dom.setStyle('{$this->id}', 'display', 'block')" : NULL) . "
+    PHOCOA.runtime.addObject(module, '{$this->id}');
+}
+";
+        if ( get_class($this) == 'WFYAHOO_widget_Module')
+        {
+           $script .= "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.Module.init);";
+        }
+        return $script;
     }
 
     function canPushValueBinding() { return false; }

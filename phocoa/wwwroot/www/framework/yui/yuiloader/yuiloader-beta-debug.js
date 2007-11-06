@@ -102,7 +102,7 @@ version: 2.3.1
             'requires': ['dom', 'event'],
             // button is optional, but creates a circular dep
             //'optional': ['dragdrop', 'animation', 'button'],
-            'optional': ['dragdrop', 'animation'],
+            'optional': ['dragdrop', 'animation', 'connection'],
             'supersedes': ['containercore'],
             'skinnable': true
         },
