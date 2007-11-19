@@ -43,14 +43,19 @@
         <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createPage.php ${page.name}" passthru="true" />
     </target>
 
-    <target name="createSkeletonFromPropel" description="Create a skeleton module for editing a table from Propel." depends="prepareProject">
+    <target name="setConfFile" unless="phocoa.project.confFile">
+        <echo>No phocoa.project.confFile was specified, using default of webapp.conf</echo>
+        <property name="phocoa.project.confFile" value="webapp.conf" override="true"/>
+    </target>
+
+    <target name="createSkeletonFromPropel" description="Create a skeleton module for editing a table from Propel." depends="prepareProject,setConfFile">
         <input propertyname="db.name" defaultValue="${phocoa.project.name}">Database Name:</input>
         <input propertyname="db.table">Table Name:</input>
         <input propertyname="db.column">Column name of single column that best describes the table:</input>
         <input propertyname="db.module" defaultValue="${db.table}">Module Name:</input>
-        <php expression="require('${phocoa.project.dir}/conf/webapp.conf')" />
+        <php expression="require('${phocoa.project.dir}/conf/${phocoa.project.confFile}')" />
         <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createModule.php ${db.module}" passthru="true" />
-        <exec dir="${phocoa.pwd}/${db.module}" command="${phocoa.project.php} ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/webapp.conf --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${db.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
+        <exec dir="${phocoa.pwd}/${db.module}" command="${phocoa.project.php} ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/${phocoa.project.confFile} --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${db.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
         <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/util/convertModuleToYAML.php ${db.module}" passthru="true" />
         <delete>
           <fileset dir="${phocoa.pwd}/${db.module}">

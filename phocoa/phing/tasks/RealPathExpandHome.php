@@ -76,6 +76,10 @@ class RealPathExpandHome extends Task {
         }
         
         $path = $this->file;
+        if (! file_exists($path)) { // this chunk fixes a bug with realpath on non-BSD systems in which realpath fails if it finds a missing path section.
+            mkdir($path, 0755);
+        }
+
         if (isset($_ENV['HOME']))
         {
             $path = str_replace('~', $_ENV['HOME'], $path);

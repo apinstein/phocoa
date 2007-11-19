@@ -47,7 +47,7 @@
                 <!-- Connection DSN.  See PEAR DSN format for other supported parameters. -->
                 <connection>
                     <!-- propel 1.3 -->
-                    <dsn>##PROPEL_DATABASE##:dbname=##DB_NAME##;user=##DB_USER##;host=##DB_HOST##;password=##DB_PASS##</dsn>
+                    <dsn>##PROPEL_DATABASE##:dbname=##DB_NAME##;host=##DB_HOST##;password=##DB_PASS##</dsn>
                     <user>##DB_USER##</user>
                     <!-- propel 1.2 -->
                     <phptype>##PROPEL_DATABASE##</phptype>
