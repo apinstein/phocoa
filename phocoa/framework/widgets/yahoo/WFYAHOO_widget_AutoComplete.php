@@ -121,6 +121,10 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
      */
     protected $datasourceJSArray = NULL;
 
+    // dynamic data loading
+    protected $dynamicDataLoader = NULL;
+    protected $dynamicDataLoaderSchema = NULL;
+
     /**
       * Constructor.
       */
@@ -129,7 +133,72 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         parent::__construct($id, $page);
 
         $this->yuiloader()->yuiRequire('autocomplete');
+
+        $this->initializeWaitsForID = "WFYAHOO_widget_AutoComplete_{$this->id}_container";
     }
+
+    /**
+     *  Set up a dataloader callback for dynamically loading autocomplete matches.
+     *
+     *  The callback function prototype is:
+     *
+     *  (array) loadMatchesForQuery($query)
+     *
+     *  @param mixed Callback.
+     *         string A method on the page delegate object to call to get the child nodes.
+     *         array  A php callback structure.
+     *  @param array An array strings with the schema of the data returned from the callback.
+     *  @return array An array of assoc_arrays in structure ["QueryKey","AdditionalData1",..."AdditionalDataN"]
+     *  @throws object WFException If the callback is invalid.
+     */
+    function setDynamicDataLoader($callback, $schema = array('k'))
+    {
+        $this->datasource = WFYAHOO_widget_AutoComplete::DATASOURCE_XHR;
+        $this->yuiloader()->yuiRequire('connection');
+
+        if (is_string($callback))
+        {
+            $callback = array($this->page()->delegate(), $callback);
+        }
+        if (!is_callable($callback)) throw( new WFException('Invalid callback.') );
+
+        $this->dynamicDataLoader = $callback;
+        if (!is_array($schema)) throw( new WFException("Schema must be an array.") );
+        $this->dynamicDataLoaderSchema = $schema;
+    }
+
+    function setDynamicDataLoaderSchema($schema)
+    {
+        if (is_string($schema))
+        {
+            $schema = explode(',', $schema);
+            $schema = array_map('trim', $schema);
+        }
+        if (!is_array($schema)) throw( new WFException("Schema must be an array.") );
+        $this->dynamicDataLoaderSchema = $schema;
+    }
+
+    public function ajaxLoadData($page, $params)
+    {
+        if (!isset($_REQUEST['query'])) throw( new WFException("No query passed to ajaxLoadData.") );
+
+        // perform query
+        $callbackResults = call_user_func($this->dynamicDataLoader, $page, $params, $_REQUEST['query']);
+
+        // initialize results structure
+        $results = array();
+        $results['results'] = array();
+        if (count($callbackResults))
+        {
+            // sanity check results format
+            if (count($callbackResults[0]) != count($this->dynamicDataLoaderSchema)) throw( new WFException("dynamicDataLoader returned a different number of items than declared in the schema.") );
+            foreach ($callbackResults as $res) {
+                $results['results'][] = array_combine( $this->dynamicDataLoaderSchema, $res );
+            }
+        }
+        return new WFActionResponseJSON($results);
+    }
+
 
     public function setAnimVert($b)
     {
@@ -221,12 +290,11 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
 
             $html = parent::render($blockContent);
 
-            $myWidgetContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_container";
             $myAutoCompleteContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_autocomplete";
 
             $html .= "
 <style type=\"text/css\">
-#{$myWidgetContainer} {
+#{$this->initializeWaitsForID} {
     position: relative;
     width: {$this->width};
     " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : 'height: 1em;') . "
@@ -238,7 +306,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
 </style>
             ";
             $html .= "
-            <div id=\"{$myWidgetContainer}\">";
+            <div id=\"{$this->initializeWaitsForID}\">";
             if ($this->inputType == self::INPUT_TYPE_TEXTFIELD)
             {
                 $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"{$this->value}\" />";
@@ -257,12 +325,13 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         }
     }
 
-    function bootstrapJS($blockContent)
+    function initJS($blockContent)
     {
-        $myWidgetContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_container";
         $myAutoCompleteContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_autocomplete";
 
-        $html = NULL;
+        $html = "
+        PHOCOA.widgets.{$this->id}.init = function() {
+        ";
         switch ($this->datasource) {
             case WFYAHOO_widget_AutoComplete::DATASOURCE_JS_ARRAY:
                 $html .= "var jsDSArray = [";
@@ -294,18 +363,33 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
                     }
                 }
                 $html .= "];\n";
-                $html .= "var AutoCompleteWidgetDSArray = new YAHOO.widget.DS_JSArray(jsDSArray);";
+                $html .= "var acDatasource = new YAHOO.widget.DS_JSArray(jsDSArray);";
+                break;
+            case WFYAHOO_widget_AutoComplete::DATASOURCE_XHR:
+                $html .= "
+                    // need to create a PHOCOA.RPC to get the URL for the query
+                    var acXHRRPC = new PHOCOA.WFRPC('" . WWW_ROOT . '/' . $this->page()->module()->invocation()->invocationPath() . "', '#page#{$this->id}', 'ajaxLoadData');
+                ";
+                $schema = array("'results'");
+                foreach ($this->dynamicDataLoaderSchema as $field) {
+                    $schema[] = "'{$field}'";
+                }
+                $html .= "
+                    var acXHRSchema = [". join(',', $schema) . "];
+                    var acDatasource = new YAHOO.widget.DS_XHR(acXHRRPC.actionURL(), acXHRSchema);
+                    acDatasource.scriptQueryAppend = acXHRRPC.actionURLParams();
+                    ";
                 break;
             default:
                 throw( new WFException("Unsupported datasource type.") );
         }
         // add properties to datasource
-        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidgetDSArray', 'maxCacheEntries', $this->datasourceMaxCacheEntries);
-        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidgetDSArray', 'queryMatchCase', $this->datasourceQueryMatchCase);
-        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidgetDSArray', 'queryMatchContains', $this->datasourceQueryMatchContains);
-        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidgetDSArray', 'queryMatchSubset', $this->datasourceQueryMatchSubset);
+        $html .= $this->jsForSimplePropertyConfig('acDatasource', 'maxCacheEntries', $this->datasourceMaxCacheEntries);
+        $html .= $this->jsForSimplePropertyConfig('acDatasource', 'queryMatchCase', $this->datasourceQueryMatchCase);
+        $html .= $this->jsForSimplePropertyConfig('acDatasource', 'queryMatchContains', $this->datasourceQueryMatchContains);
+        $html .= $this->jsForSimplePropertyConfig('acDatasource', 'queryMatchSubset', $this->datasourceQueryMatchSubset);
         // set up widget
-        $html .= "\nvar AutoCompleteWidget = new YAHOO.widget.AutoComplete('{$this->id}','{$myAutoCompleteContainer}', AutoCompleteWidgetDSArray);\n";
+        $html .= "\nvar AutoCompleteWidget = new YAHOO.widget.AutoComplete('{$this->id}','{$myAutoCompleteContainer}', acDatasource);\n";
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animVert', $this->animVert);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animHoriz', $this->animHoriz);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animSpeed', $this->animSpeed);
@@ -351,6 +435,8 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'allowBrowserAutocomplete', $this->allowBrowserAutocomplete);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'alwaysShowContainer', $this->alwaysShowContainer);
         $html .= "\nPHOCOA.runtime.addObject(AutoCompleteWidget, '{$this->id}');\n";
+
+        $html .= "\n};";
         return $html;
     }
 

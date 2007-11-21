@@ -14,7 +14,8 @@
  *  The error is rendered by the "form_error.tpl" template file.
  *
  *  Smarty Params:
- *  id - The id of the WFWidget to show errors for. OPTIONAL -- if BLANK, will show ALL errors from form submission.
+ *  id - The id of the WFWidget to show errors for. OPTIONAL -- if the ID is for a WFForm, will show ALL errors from form submission. 
+ 8       NOTE: DEPRECATED: You can also leave the ID BLANK to show all errors. But this has been deprecated b/c we need the ID to make AJAX updating work.
  *       NOTE: to show errors on WFDynamic-generated widgets, use WFShowErrors with the ID of the WFDynamic. The WFShowErrors tag must occur AFTER the WFDynamic tag.
  *
  *  @param array The params from smarty tag.
@@ -22,7 +23,6 @@
  *  @return string The rendered HTML of the error.
  *  @todo Need to make it not-hard-coded to get the form_error.tpl file... should be able to override this in userland.
  */
-
 function smarty_function_WFShowErrors($params, &$smarty)
 {
     static $errorSmarty = NULL;
@@ -33,8 +33,18 @@ function smarty_function_WFShowErrors($params, &$smarty)
         $errorSmarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/form_error.tpl');
     }
 
+    // if the ID is a WFForm, that is the same as "all errors"
+    $getErrorsForId = NULL;
+    if (!empty($params['id']))
+    {
+        if ( !($smarty->getPage()->outlet($params['id']) instanceof WFForm) )
+        {
+            $getErrorsForId = $params['id'];
+        }
+    }
+
     // get error list
-    if (empty($params['id']))
+    if ($getErrorsForId === NULL)
     {
         // get all errors
         $page = $smarty->getPage();
@@ -52,11 +62,9 @@ function smarty_function_WFShowErrors($params, &$smarty)
     }
 
     $errorHTML = '';
-    if (count($errors) > 0)
-    {
-        $errorSmarty->assign('errorList', $errors);
-        $errorHTML = $errorSmarty->render(false);
-    }
+    $errorSmarty->assign('errorList', $errors);
+    $errorSmarty->assign('id', (empty($params['id']) ? NULL : $params['id'] ) );
+    $errorHTML = $errorSmarty->render(false);
     return $errorHTML;
 }
 ?>

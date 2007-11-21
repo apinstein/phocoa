@@ -22,12 +22,10 @@ Dependencies
 4) Phing
 5) YUI: http://developer.yahoo.com/yui
 --> To upgrade the YUI, download it from YAHOO, then:
-rsync --dry-run -vvr ~/Desktop/yui/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
+rsync --dry-run -vvrC --del ~/Desktop/yui/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
 ** when happy, remove --dry-run
-** when done, edit yahoo.js, yahoo-min.js, and yahoo-dom-event.js to put the YAHOO var in the global namespace:
-var YAHOO = {};
-becomes
-window.YAHOO = {};
+** We used to have to edit YUI code, but we've fixed that with our internal sandboxing solution. 
+** Consider making phocoa use yahoo-hosted-yui-files out of the box, with an alternative to download.
 
 
 TODO
@@ -52,7 +50,7 @@ TODO
   WFWebApplicationMain();
   // WFModule subclass here
   - this way we could store css, img, etc in the same folder as the module... add {$MODULE_WWW_DIR} to smarty?
-- Finish WFAutoForm
+- Finish WFAutoForm - is this really useful? do we really want some kind of "template" system for common list/detail/edit views?
   - Talk to Mark F about his experiences
   - Look at HTML_QuickForm, QCodo, Symfony, CodeIgniter, RoR
   - Re-build "code-gen" things to build WFAutoForm instead

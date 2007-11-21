@@ -49,6 +49,19 @@ class WFIncluding
                 'WFSkin' => 'framework/WFSkin.php',
                 'WFModule' => 'framework/WFModule.php',
                 'WFModuleInvocation' => 'framework/WFModule.php',
+
+                // working
+                'WFAction' => 'framework/WFRPC.php',
+                'WFEvent' => 'framework/WFRPC.php',
+                'WFClickEvent' => 'framework/WFRPC.php',
+                'WFJSAction' => 'framework/WFRPC.php',
+                'WFRPC' => 'framework/WFRPC.php',
+                'WFAjaxResponse' => 'framework/WFRPC.php',
+                'WFAjaxResponsePlain' => 'framework/WFRPC.php',
+                'WFAjaxResponseJSON' => 'framework/WFRPC.php',
+                'WFAjaxResponseXML' => 'framework/WFRPC.php',
+                'WFAjaxResponseJavascript' => 'framework/WFRPC.php',
+
                 'WFPage' => 'framework/WFPage.php',
                 'WFPageRendering' => 'framework/WFPageRendering.php',
                 'WFView' => 'framework/widgets/WFView.php',

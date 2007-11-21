@@ -3,8 +3,8 @@
 
 class module_autocomplete extends WFModule
 {
-    protected $rainbow = array('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet');
-    protected $states = array(
+    public $rainbow = array('red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet');
+    public $states = array(
         array('Alabama', 'AL'),  
         array('Alaska', 'AK'),  
         array('Arizona', 'AZ'),  
@@ -58,31 +58,40 @@ class module_autocomplete extends WFModule
         array('Wyoming', 'WY'),
         );
 
-    function sharedInstancesDidLoad()
-    {
-    }
-
     function defaultPage()
     {
         return 'example';
     }
 
-//    uncomment as needed
-//    function example_ParameterList()
-//    {
-//        return array();
-//    }
-//
-    function example_SetupSkin($skin)
+    function states()
+    {
+        return $this->states;
+    }
+
+}
+
+class module_autocomplete_example
+{
+    function setupSkin($page, $params, $skin)
     {
         $skin->addMetaKeywords(array('YUI Autocomplete', 'ajax combo box', 'ajax autocomplete', 'autocomplete ajax', 'autocomplete javascript', 'javascript autocomplete', 'php autocomplete', 'autocomplete php', 'php ajax', 'yui', 'combo box', 'ajax'));
         $skin->setMetaDescription('Example ajax autocomplete via YUI AutoComplete widget.');
         $skin->setTitle('YUI AutoComplete Example in PHP');
     }
-//
-//   function example_PageDidLoad($page, $params)
-//   {
-//   }
+    
+    function stateSearcher($page, $params, $query)
+    {
+        $res = array();
 
+        $len = strlen($query);
+        foreach ($page->module()->states() as $stateInfo) {
+            if (strncasecmp($stateInfo[0], $query, $len) == 0)
+            {
+                $res[] = array($stateInfo[0], $stateInfo[1]);
+            }
+        }
+
+        return $res;
+    }
 }
 ?>

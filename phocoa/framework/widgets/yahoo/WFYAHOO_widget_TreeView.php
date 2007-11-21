@@ -16,21 +16,21 @@
  * <b>Required:</b><br>
  * 
  * <b>Optional:</b><br>
- * - {@link WFWidget::$value value} An array of WFYAHOO_widget_TreeViewNode objects. If {@link WFYAHOO_widget_TreeView::$dynamicallyLoadData}, then value should be just the top level items, otherwise it should be the entire tree.
+ * - {@link WFWidget::$value value} An array of WFYAHOO_widget_TreeViewNode objects.
+ * - {@link WFYAHOO_widget_TreeView::$dynamicDataLoader} A php callback function which the TreeView can use to load data. See {@link WFYAHOO_widget_TreeView::setDynamicDataLoader()}.
  *
- * @todo For dynamic loading, add support to tell the system that a node definitely has no kids, so that the [+] sign isn't displayed, which is confusing.
  * @todo Add capability for multi-selection of tree items. This one is gonna be tricky! Esp. with dynamic data; need to keep track of checked items even if they never become visisble.
  */
 class WFYAHOO_widget_TreeView extends WFYAHOO
 {
     /**
-     * @var boolean Is the tree data loaded statically (all at once) or dynamically (using AJAX callbacks)
+     * @var string an http url to serve as the "root" callback url for loading dynamic data. the "path" of the node to load data for will be passed in as the first parameter.
      */
-	protected $dynamicallyLoadData;
+    protected $bcCallback;
     /**
-     * @var string An http URL to serve as the "root" callback URL for loading dynamic data. The "path" of the node to load data for will be passed in as the first parameter.
+     * @var array A PHP callback structure. See {@link setDynamicDataLoader} for details.
      */
-    protected $dynamicCallback;
+    protected $dynamicDataLoader;
     /**
      * @var string The YAHOO! NodeType to use for the tree nodes. Originally I thought this would be user-selectable, but I don't think it needs to be now.
      */
@@ -42,11 +42,9 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
-        $this->value = array();
-        $this->dynamicallyLoadData = false;
-        $this->dynamicCallback = NULL;
+        $this->dynamicDataLoader = NULL;
+        $this->bcCallback = NULL;
         $this->nodeType = 'HTMLNode';
-
         $this->yuiloader()->yuiRequire('treeview,connection');
     }
 
@@ -54,32 +52,87 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
     {
         $items = parent::exposedProperties();
         return array_merge($items, array(
-            'dynamicallyLoadData' => array('true', 'false'),
-            'dynamicCallback',
+            'dynamicDataLoader',
             ));
     }
 
     /**
-     *  Set the base URL used for the dynamic data loading.
+     *  Are we in dynamic data loading mode?
      *
-     *  The format of the callback is that WFYAHOO_widget_TreeView will add one parameter to the end of that URL which contains the "path" to the tree node that child data is needed for.
-     *  For example, a parameter of "GA|Atlanta Metro|Decatur" means that the child data for the node at "GA > Atlanta Metro > Decatur" is needed.
-     *
-     *  The URL should not have a trailing slash.
-     *
-     *  The URL should be urlencoded.
-     *
-     *  The URL should perform the following action:
-     *
-     *  1. Determine the child data for the passed path, and build an array of WFYAHOO_widget_TreeViewNode objects representing the children of that node. ONLY 1 LEVEL DEEP OF CHILDREN!
-     *  2. Call WFYAHOO_widget_TreeView::sendTree() with an array of WFYAHOO_widget_TreeViewNode objects.
-     *
-     *  @param string The base URL for node data loading.
+     *  @return boolean
      */
-    function setDynamicCallback($url)
+    function dynamicallyLoadsData()
     {
-        $this->dynamicCallback = $url;
-        $this->dynamicallyLoadData = true;
+        return ($this->bcCallback or $this->dynamicDataLoader);
+    }
+
+    /**
+     *  Set up a dataloader callback for dynamically loading child data.
+     *
+     *  The callback function prototype is:
+     *
+     *  (array) loadNodesCallback($path)
+     *
+     *  Where $path is a '|' separated list of ID's to the node whose child data is needed, and you return an array of {@link WFYAHOO_widget_TreeViewNode} objects.
+     *
+     *  For example, a $path of "USA|Georgia" means that the child data for the node at "USA > Georgia" is needed.
+     *
+     *  @param mixed Callback.
+     *         string A method on the page delegate object to call to get the child nodes.
+     *         array  A php callback structure.
+     *  @return array An array of WFYAHOO_widget_TreeViewNode objects.
+     *  @throws object WFException If the callback is invalid.
+     */
+    function setDynamicDataLoader($callback)
+    {
+        if (is_string($callback))
+        {
+            $callback = array($this->page()->delegate(), $callback);
+        }
+        if (!is_callable($callback)) throw( new WFException('Invalid callback.') );
+
+        $this->dynamicDataLoader = $callback;
+    }
+
+    /**
+     *  Convert an array of WFYAHOO_widget_TreeViewNode objects into the XML that the UI widget expects in JS.
+     *
+     *  @param array Array of WFYAHOO_widget_TreeViewNode objects.
+     *  @return string The XML of the items.
+     *  @throws object WFException On Error.
+     */
+    static function itemsAsXML($items)
+    {
+        // sanitize inputs
+        if (is_null($items))
+        {
+            $items = array();
+        }
+
+        $xml = "<items>\n";
+        foreach ($items as $item)
+        {
+            if (!($item instanceof WFYAHOO_widget_TreeViewNode)) throw( new WFException("Items in tree data must be WFYAHOO_widget_TreeViewNode instances.") );
+            $xml .= $item->toXML() . "\n";
+        }
+        $xml .= "</items>";
+        return $xml;
+    }
+
+    /**
+     *  AJAX callback function which will be called when the tree needs more node data.
+     *
+     *  NOTE: must be public or is_callable fails.
+     *
+     *  @param array An array of node id's to the node we need child data for.
+     *  @return object WFActionResponseXML.
+     *  @throws object WFException On Error.
+     */
+    public function ajaxLoadData($page, $params, $path)
+    {
+        $nodes = call_user_func($this->dynamicDataLoader, $path);
+        $xml = $this->itemsAsXML($nodes);
+        return new WFActionResponseXML($xml);
     }
 
     function render($blockContent = NULL)
@@ -93,12 +146,15 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
             // set up basic HTML
             $html = parent::render($blockContent);
             $html .= "<div id=\"{$this->id}\"></div>\n";
-            $tv = "treeView_{$this->id}";
+            return $html;
+        }
+    }
+
+    function initJS($blockcontent)
+    {
             $script = "
-<script type=\"text/javascript\">
-//<![CDATA[
-WFYAHOO_widget_TreeView_{$tv} = {};
-WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadData = function(node, fnLoadComplete)
+PHOCOA.namespace('widgets.{$this->id}');
+PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
 {
     var tNode = node;
     var pathParts = new Array();
@@ -109,16 +165,34 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadData = function(node, fnLoadComplete)
     }
     pathParts.reverse();
     path = encodeURIComponent(pathParts.join('|'));
-    var url = '{$this->dynamicCallback}/' + path;
+";
+            if ($this->dynamicDataLoader)
+            {
+                $script .= "
+    var rpc = new PHOCOA.WFRPC('" . WWW_ROOT . '/' . $this->page()->module()->invocation()->invocationPath() . "', '#page#{$this->id}', 'ajaxLoadData');
+    rpc.callback.success = PHOCOA.widgets.{$this->id}.loadDataHandleSuccess;
+    rpc.callback.failure = PHOCOA.widgets.{$this->id}.loadDataHandleFailure;
+    rpc.callback.argument = { loadComplete: fnLoadComplete, node: node };
+    rpc.execute(path);
+    ";
+            }
+            else
+            {
+                // backwards compatibility
+                $script .= "
+    var url = '{$this->bcCallback}/' + path;
     var callback = {
-        success: WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadDataHandleSuccess,
-        failure: WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadDataHandleFailure,
+        success: PHOCOA.widgets.{$this->id}.loadDataHandleSuccess,
+        failure: PHOCOA.widgets.{$this->id}.loadDataHandleFailure,
         argument: { loadComplete: fnLoadComplete, node: node }
     };
     var transaction = YAHOO.util.Connect.asyncRequest('GET', url, callback);
-}
+    ";
+            }
+            $script .= "
+};
 
-WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadDataHandleSuccess = function(o)
+PHOCOA.widgets.{$this->id}.loadDataHandleSuccess = function(o)
 {
     // process XML data - this is the only x-browser way I could find since Safari doesn't support XPath yet
     var xml = o.responseXML.documentElement;
@@ -138,19 +212,32 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadDataHandleSuccess = function(o)
 
     // redraw
     o.argument.loadComplete();
-}
+};
 
-WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadDataHandleFailure = function(o)
+PHOCOA.widgets.{$this->id}.loadDataHandleFailure = function(o)
 {
     alert('failed to load data');
-}
+};
 
-WFYAHOO_widget_TreeView_{$tv}.{$tv}_treeInit = function()
+PHOCOA.widgets.{$this->id}.init = function()
 {
-    var {$tv} = new YAHOO.widget.TreeView('{$this->id}');
-    var root = {$tv}.getRoot();
+    var {$this->id} = new YAHOO.widget.TreeView('{$this->id}');
+    var root = {$this->id}.getRoot();
     var nodes = new Array();
 ";
+
+            // load the root data set if it hasn't been set already
+            if ($this->value === NULL)
+            {
+                if ($this->dynamicDataLoader)
+                {
+                    $this->setValue( call_user_func($this->dynamicDataLoader, NULL) );
+                }
+                else
+                {
+                    $this->setValue( array() );
+                }
+            }
 
             // add items
             // iterative algorithm for travesing nested list and creating JS to add all nodes in proper order
@@ -171,7 +258,7 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_treeInit = function()
                 $currentParentPath = array_pop($itemParentPaths);
 
                 // if we're not in dynamic data loading mode, we can auto-calculate couldHaveChildren
-                if (!$this->dynamicallyLoadData)
+                if (!$this->dynamicallyLoadsData())
                 {
                     if (!$currentItem->hasChildren())
                     {
@@ -207,24 +294,22 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_treeInit = function()
             }
 
             // add dynamic loader if needed
-            if ($this->dynamicallyLoadData)
+            if ($this->dynamicallyLoadsData())
             {
-                $script .= "{$tv}.setDynamicLoad(WFYAHOO_widget_TreeView_{$tv}.{$tv}_loadData, 1);\n";
+                $script .= "{$this->id}.setDynamicLoad(PHOCOA.widgets.{$this->id}.loadData, 1);\n";
                 //throw( new WFException("dynamic loading not yet implemented"));
             }
             
             // finish script init function
             $script .= "
-    {$tv}.draw();
+    {$this->id}.draw();
 }
-WFYAHOO_widget_TreeView_{$tv}.{$tv}_treeInit();
-//]]>
-</script>";
-            // output script
-            $html .= "\n{$script}\n";
-            return $html;
-        }
+YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.init);
+";
+        return $script;
     }
+
+    function canPushValueBinding() { return false; }
 
     /**
      *  Helper function for the dynamicCallback page to use to send the data back to the WFYAHOO_widget_TreeView via AJAX.
@@ -234,28 +319,36 @@ WFYAHOO_widget_TreeView_{$tv}.{$tv}_treeInit();
      *  NOTE: Script execution stops inside of this function.
      *
      *  @param array An array of WFYAHOO_widget_TreeViewNode objects representing the children of the node passed in to the dynamicCallback URL.
+     *  @deprecated
      */
     static function sendTree($items)
     {
-        // sanitize inputs
-        if (is_null($items))
-        {
-            $items = array();
-        }
-
-        $html = "<items>\n";
-        foreach ($items as $item)
-        {
-            if (!($item instanceof WFYAHOO_widget_TreeViewNode)) throw( new Exception("Items in tree data must be WFYAHOO_widget_TreeViewNode instances.") );
-            $html .= $item->toXML() . "\n";
-        }
-        $html .= "</items>";
         header('Content-Type: text/xml');
-        die($html);
+        die(self::itemsAsXML($items));
     }
 
-
-    function canPushValueBinding() { return false; }
+    /**
+     *  Set the base URL used for the dynamic data loading.
+     *
+     *  The format of the callback is that WFYAHOO_widget_TreeView will add one parameter to the end of that URL which contains the "path" to the tree node that child data is needed for.
+     *  For example, a parameter of "GA|Atlanta Metro|Decatur" means that the child data for the node at "GA > Atlanta Metro > Decatur" is needed.
+     *
+     *  The URL should not have a trailing slash.
+     *
+     *  The URL should be urlencoded.
+     *
+     *  The URL should perform the following action:
+     *
+     *  1. Determine the child data for the passed path, and build an array of WFYAHOO_widget_TreeViewNode objects representing the children of that node. ONLY 1 LEVEL DEEP OF CHILDREN!
+     *  2. Call WFYAHOO_widget_TreeView::sendTree() with an array of WFYAHOO_widget_TreeViewNode objects.
+     *
+     *  @param string The base URL for node data loading.
+     *  @deprecated Use {WFYAHOO_widget_TreeView::setDynamicDataLoader()}.
+     */
+    function setDynamicCallback($url)
+    {
+        $this->bcCallback = $url;
+    }
 }
 
 /**
@@ -283,7 +376,7 @@ class WFYAHOO_widget_TreeViewNode extends WFObject
      * @var boolean TRUE if the node does/could have children. If true, the node will be "expandable". FALSE if the node definitely doesn't have kids; it will be a leaf node.
      */
     protected $couldHaveChildren;
-    
+
     /**
      *  To create a node, the ID and DATA are required.
      *

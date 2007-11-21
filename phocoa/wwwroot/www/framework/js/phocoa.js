@@ -3,6 +3,7 @@
  * @constructor
  *
  * The PHOCOA namespace contains JS utility and support functions.
+ * @todo Potentially convert all YAHOO usage to prototype? This way we can avoid requireing YUI for non-YUI widgets...
  */
 window.PHOCOA = window.PHOCOA || {};
 
@@ -89,13 +90,12 @@ PHOCOA.importCSS = function(path) {
 };
 
 // set up the runtime - this is the interface that you use to access objects added by phocoa from individual pages
-PHOCOA.runtime = PHOCOA.runtime || {};
-
+PHOCOA.namespace('runtime');
 PHOCOA.runtime.addObject = function(o, id)
 {
     PHOCOA.runtime.setupObjectCache();
     var oid = id || o.id;
-    if (!oid) throw "No ID could be found.";
+    if (!oid) { throw "No ID could be found."; }
     if (PHOCOA.runtime.objectList[oid])
     {
         alert('error - cannot add duplicate object: ' + oid);
@@ -122,5 +122,262 @@ PHOCOA.runtime.getObject = function(id)
         o = PHOCOA.runtime.objectList[id];
     }
     return o;
+};
+
+// RPC
+PHOCOA.namespace('WFRPC');
+PHOCOA.WFRPC = function(url, target, action) {
+    this.target = '#page#delegate';
+    this.action = null;
+    this.form = null;   // id of form
+    this.runsIfInvalid = false;
+    this.invocationPath = null;
+    this.transaction = null;
+    this.isAjax = true;
+    this.submitButton = null;
+    // yui-style callback
+    this.callback = {
+            success: this.ajaxCallbackSuccess,
+            failure: this.ajaxCallbackFailure
+        };
+
+    if (url) this.invocationPath = url;
+    if (target) this.target = target;
+    if (action) this.action = action;
+    return this;
+};
+
+PHOCOA.WFRPC.prototype = {
+    ajaxCallbackSuccess: function() {
+        alert('ajax callback succeeded (not yet implemented).');
+    },
+
+    ajaxCallbackFailure: function() {
+        alert('ajax callback failed.');
+    },
+
+    actionURL: function() {
+        return this.invocationPath;
+    },
+    actionURLParams: function(args, append) {
+        args = args || [];
+        append = append || false;
+        var url = (append ? '&' : '');
+        url += '__phocoa_rpc_enable=1';
+        url += '&__phocoa_rpc_target=' + escape(this.target);
+        url += '&__phocoa_rpc_action=' + this.action;
+        url += '&__phocoa_rpc_runsIfInvalid=' + this.runsIfInvalid;
+        if (args.length)
+        {
+            for (var i = 0; i < args.length; i++) {
+                var argvName = '__phocoa_rpc_argv_' + i;
+                url += '&' + argvName + '=' + args[i];
+            }
+        }
+        url += '&__phocoa_rpc_argc=' + args.length;
+        return url;
+    },
+
+    // args should be an array of arguments
+    actionAsURL: function(args) {
+        return this.actionURL() + '?' + this.actionURLParams(args);
+    },
+
+    phocoaRPCParameters: function(args) {
+        args = args || [];
+        var params = {};
+        params.__phocoa_rpc_enable = 1;
+        params.__phocoa_rpc_target = this.target;
+        params.__phocoa_rpc_action = this.action;
+        params.__phocoa_rpc_runsIfInvalid = this.runsIfInvalid;
+        if (args.length)
+        {
+            for (var i = 0; i < args.length; i++) {
+                var argvName = '__phocoa_rpc_argv_' + i;
+                params[argvName] = args[i];
+            }
+        }
+        params.__phocoa_rpc_argc = args.length;
+        return params;
+    },
+
+    // args passed into this will be passed on via the RPC
+    execute: function() {
+        // @todo Do we need to deal with serializing requests so that we can make sure to process responses in order?
+        if (this.form)
+        {
+            // turn off all form errors...
+            $$('.phocoaWFFormError').each( function(e) { e.update(null); } );
+            if ( this.isAjax === false /* refreshPage */)
+            {
+                var theForm = $(this.form);
+                // insert phocoa ajax elems, submit button pressed into form and submit the form
+                if (this.submitButton)
+                {
+                    // add submit button to form before submitting
+                    var submitEl = '<input type="hidden" name="' + $(this.submitButton).name + '" value="' + $(this.submitButton).value + '" />';
+                    Element.insert(theForm, submitEl);
+                }
+                theForm.submit();
+            }
+            else /* ajax form submit */
+            {
+                // see Prototype.Form.request()
+                $(this.form).request(   {
+                                            method: 'GET',
+                                            parameters: this.phocoaRPCParameters(this.execute.arguments),
+                                            onComplete: this.callback.success.bind(this.callback.scope),
+                                            onFailure: this.callback.failure.bind(this.callback.scope)
+                                        });
+            }
+        }
+        else
+        {
+            // set up XHR request & callback
+            var url = this.actionAsURL(this.execute.arguments);
+            this.transaction = YAHOO.util.Connect.asyncRequest('GET', url, this.callback);
+        }
+    }
+};
+
+// JS Actions - potentially kill this object
+PHOCOA.namespace('WFAction');
+PHOCOA.WFAction = function(elId, eventName) {
+    this.elId = elId;
+    this.eventName = eventName;
+    this.callback = PHOCOA.widgets[this.elId].events[this.eventName].handleEvent;
+    this.rpc = null;
+    YAHOO.util.Event.addListener(this.elId, this.eventName, this.yuiTrigger, this, true);
+    return this;
+};
+
+PHOCOA.WFAction.prototype = {
+    yuiTrigger: function(event) {
+        YAHOO.util.Event.preventDefault(event);
+        this.execute(event);
+    },
+
+    execute: function(event) {
+        // collect arguments - should be: (event, arg1, arg2)
+        var args = [], jsCallbackArgs;
+        if (PHOCOA.widgets[this.elId].events[this.eventName].collectArguments)
+        {
+            args = PHOCOA.widgets[this.elId].events[this.eventName].collectArguments();
+        }
+        // prepare the argument array used for the JS callbacks
+        jsCallbackArgs = args.slice(0); // make a copy
+        jsCallbackArgs.splice(0, 0, event);
+
+        // is the callback an RPC or just a js function?
+        if (this.rpc)
+        {
+            // call the handleEvent function first, so that the client can do any cleanup or prep work (such as hiding divs)
+            if (this.callback)
+            {
+                this.callback.apply(this.jsCallbackArgs);
+            }
+
+            // the event callback for RPC is of the prototype: phpFunc($page, $sender, $event, [$arg1, $arg2, ..])
+            // we just pass the senderID to the server; it will convert it to an object.
+            // the event is also just passed as the event ID
+            args.splice(0, 0, Event.element(event).identify(), event.type); // since we aren't using prototype Event.observe() here yet, on IE7 we must do Event.element(event) instead of just event.element() in order to get the "extended" methods. If we used prototype for observing here, we'd be able to use the cleaner syntax.
+            // the callback is called after the RPC completes
+            // @todo The RPC callback should be our wrapper that parses out the result based on mime type and passes stuff on to ajaxSuccess
+            this.rpc.callback.argument = jsCallbackArgs;
+            this.rpc.callback.success = this.rpcCallbackSuccess;
+            this.rpc.callback.scope = this;
+            
+            this.rpc.execute.apply(this.rpc, args);
+        }
+        else
+        {
+            // the event callback for JS is of the prototype: JsFunc(event, [$arg1, $arg2, ..])
+            // the Event object in JS contains the "sender" so no need to send it separately
+            // the callback is just a JS function
+            this.callback.apply(this, jsCallbackArgs);
+        }
+    },
+
+    runScriptsInElement: function(el) {
+        var scriptEls = el.getElementsByTagName('script');
+        for (idx = 0; idx < scriptEls.length; idx++) {
+            var node = scriptEls[idx];
+            window.eval(node.innerHTML);
+        }
+    },
+
+    doPhocoaUIUpdatesJSON: function(updateList) {
+        var id, el;
+        if (updateList.update)
+        {
+            for (id in updateList.update) {
+                el = $(id);
+                el.update(updateList.update[id]);
+                this.runScriptsInElement(el);
+                // need to add code to process style blocks
+            }
+        }
+        if (updateList.replace)
+        {
+            for (id in updateList.replace) {
+                el = $(id);
+                el.replace(updateList.replace[id]);
+                this.runScriptsInElement(el);
+                // need to add code to process style blocks
+            }
+        }
+        if (updateList.run)
+        {
+            for (id = 0; id < updateList.run.length; id++) {
+                window.eval(updateList.run[id]);
+            }
+        }
+    },
+
+    // should the response parsing be in WFAction or WFRPC?
+    rpcCallbackSuccess: function(o) {
+        var theResponse;
+        // the callback for ajaxSucces in JS is of the prototype: JsFunc(parsedResult, event, [$arg1, $arg2, ..])
+        // where parseResult is the text from a text/plain reponse, xml from a text/xml response, and a JS Object from a JSON response.
+        var contentType = null;
+        if (typeof o.getResponseHeader == 'function')
+        {
+            // prototype
+            contentType = o.getResponseHeader('Content-Type');
+        }
+        else
+        {
+            // yui
+            contentType = o.getResponseHeader['Content-Type'];
+        }
+        contentType = contentType.strip();
+        switch (contentType) {
+            case 'application/x-json':
+                theResponse = eval('(' + o.responseText + ')');
+                break;
+            case 'text/xml':
+                theResponse = o.responseXML;
+                break;
+            case 'application/x-json-phocoa-ui-updates':
+                theResponse = eval('(' + o.responseText + ')');
+                this.doPhocoaUIUpdatesJSON(theResponse);
+                return;
+                break;
+            case 'text/plain':
+                theResponse = o.responseText;
+                break;
+            default: 
+                theResponse = o.responseText;
+                break;
+        }
+        // call the right callback, if one is supplied
+        if (PHOCOA.widgets[this.elId].events[this.eventName].ajaxSuccess)
+        {
+            // use the argument data from the callback instead of the response object (works for both YUI response and Prototype response)
+            var cbArgs = this.rpc.callback.argument.slice(0);   // make a copy
+            cbArgs.splice(0, 0, theResponse);
+            PHOCOA.widgets[this.elId].events[this.eventName].ajaxSuccess.apply(null, cbArgs);
+        }
+    }
 };
 

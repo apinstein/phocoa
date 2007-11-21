@@ -93,9 +93,9 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Overlay
         }
     }
 
-    function bootstrapJS($blockContent)
+    function initJS($blockContent)
     {
-        $script .= parent::bootstrapJS($blockContent);
+        $script .= parent::initJS($blockContent);
         $script .= "
 PHOCOA.namespace('widgets.{$this->id}.Panel');
 PHOCOA.widgets.{$this->id}.Panel.queueProps = function(o) {
@@ -112,7 +112,7 @@ PHOCOA.widgets.{$this->id}.Panel.init = function() {
     panel.cfg.setProperty('modal', " . ($this->modal ? 'true' : 'false') . ");
 }
 " .
-( (get_class($this) == 'WFYAHOO_widget_Panel') ? "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.Panel.init);" : NULL );
+( (get_class($this) == 'WFYAHOO_widget_Panel') ? "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.Panel.init(); };" : NULL );
         return $script;
     }
     function canPushValueBinding() { return false; }

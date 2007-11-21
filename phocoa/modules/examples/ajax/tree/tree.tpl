@@ -8,7 +8,7 @@
 {WFView id="yuiTreeStatic"}
 
 <h2>Dynamic AJAX TreeView</h2>
-<p>In the dynamic example, only the "top level" of items is loaded with the initial page data. All other data is loaded dynamically when the node is "expanded".</p>
+<p>In the dynamic example, only the "top level" of items is loaded with the initial page data. All other data is loaded dynamically (via AJAX) when the node is "expanded".</p>
 <p>This is the ideal way to build a tree view interface when the tree represents a large amount of data or the time to build all data is longer than desired.</p>
 {WFView id="yuiTreeDynamic"}
 

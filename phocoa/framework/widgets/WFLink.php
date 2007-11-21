@@ -105,7 +105,8 @@ class WFLink extends WFWidget
             }
             $label = ($this->label ? $this->label : $this->value);
             $title = ($this->title ? " title=\"{$this->title}\" " : NULL);
-            return "<a href=\"{$this->value}\" {$class}{$target}{$title}" . $this->getJSActions() . ">{$label}</a>";
+            return "<a id=\"{$this->id}\" href=\"{$this->value}\" {$class}{$target}{$title}" . $this->getJSActions() . ">{$label}</a>\n" . 
+                    $this->jsStartHTML() . $this->getListenerJS() . $this->jsEndHTML();
         }
     }
 

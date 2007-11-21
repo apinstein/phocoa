@@ -132,6 +132,8 @@ class WFYAHOO_yuiloader
  */
 abstract class WFYAHOO extends WFWidget
 {
+    protected $initializeWaitsForID;
+
     /**
       * Constructor.
       */
@@ -142,8 +144,9 @@ abstract class WFYAHOO extends WFWidget
         // for now (2.3.1) we must include yahoo-dom-event beforehand to prevent race conditions with yahoo global object loading...
         // maybe later we can turn this off and revert to independent yahoo/dom/event loading with YUILoader (which hepls with managing debugging, rollups, & deps)
         $this->importJS(self::yuiPath() . "/yahoo-dom-event/yahoo-dom-event.js", 'YAHOO');
-        $this->importJS(self::yuiPath() . "/yuiloader/yuiloader-beta-debug.js");
+        $this->importJS(self::yuiPath() . "/yuiloader/yuiloader-beta-debug.js");    // use debug for now since we've patched things. Switch to min once mature.
         //$this->yuiloader()->yuiRequire('yahoo', 'dom', 'event');
+        $this->initializeWaitsForID = $this->id;
     }
 
     public function yuiloader()
@@ -152,7 +155,7 @@ abstract class WFYAHOO extends WFWidget
     }
 
     /**
-     * The bootstrapJS function is where YUI widgets perform their bootstrap/initialization.
+     * The initJS function is where YUI widgets perform their bootstrap/initialization.
      *
      * The YUI integration also includes some delegate methods for performing pre- and post- initialization tasks.
      *
@@ -164,7 +167,7 @@ abstract class WFYAHOO extends WFWidget
      * @param string The content of the YUI widget as a block, if needed. Some YUI widgets like the Container family need access to this in the bootstrap routines.
      * @return string The JS code to run to instantiate the YUI widget.
      */
-    abstract public function bootstrapJS($blockContent);
+    abstract public function initJS($blockContent);
 
     function canPushValueBinding() { return false; }
 
@@ -213,20 +216,22 @@ abstract class WFYAHOO extends WFWidget
             $html .= $this->jsStartHTML() . $this->yuiloader()->jsLoaderCode(
                                                                             "function() {
     PHOCOA.namespace('widgets.{$this->id}.yuiDelegate');
-    if (PHOCOA.widgets.{$this->id}.yuiDelegate.widgetWillLoad)
-    {
-        PHOCOA.widgets.{$this->id}.yuiDelegate.widgetWillLoad();
-    }
+    // let widget inject JS that depends on YUI libs, and define the init function
+    " . $this->initJS($blockContent) . "
 
-// bootstrap widget\n" .
-$this->bootstrapJS($blockContent)
-. "
-
-    if (PHOCOA.widgets.{$this->id}.yuiDelegate.widgetDidLoad)
-    {
-        PHOCOA.widgets.{$this->id}.yuiDelegate.widgetDidLoad(PHOCOA.runtime.getObject('{$this->id}'));
-    }
-}"
+    YAHOO.util.Event.onContentReady('{$this->initializeWaitsForID}', function() {
+        if (PHOCOA.widgets.{$this->id}.yuiDelegate.widgetWillLoad)
+        {
+            PHOCOA.widgets.{$this->id}.yuiDelegate.widgetWillLoad();
+        }
+        PHOCOA.widgets.{$this->id}.init();
+        if (PHOCOA.widgets.{$this->id}.yuiDelegate.widgetDidLoad)
+        {
+            PHOCOA.widgets.{$this->id}.yuiDelegate.widgetDidLoad(PHOCOA.runtime.getObject('{$this->id}'));
+        }
+    });
+}
+"
                                                                             ) . $this->jsEndHTML();
         }
         return $html;

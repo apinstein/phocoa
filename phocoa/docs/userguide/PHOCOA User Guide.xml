@@ -2242,6 +2242,8 @@ Total time: 2.8443 seconds
       <section>
         <title>Appendix A: Dependencies</title>
 
+        <bridgehead>Required Dependencies</bridgehead>
+
         <para><itemizedlist>
             <listitem>
               <para>PHP5 - PHOCOA requires PHP version 5.0.</para>
@@ -2252,21 +2254,42 @@ Total time: 2.8443 seconds
             </listitem>
 
             <listitem>
-              <para>PEAR::Mail + PEAR::Mail_Mime - Optional; needed to use the
-              included Mail_Mailer class.</para>
-            </listitem>
-
-            <listitem>
               <para>Phing - PHP build system. Required.</para>
             </listitem>
 
             <listitem>
-              <para>Propel - not required, but certainly recommended if you're
-              building a database-driven project. You can use whatever ORM you
-              like as long as the classes can set WFObject as the base class.
-              Version 1.2+ required.</para>
+              <para>Propel - not explicitly required, but certainly
+              recommended if you're building a database-driven project. You
+              can use whatever ORM you like as long as the classes can set
+              WFObject as the base class. Version 1.2+ required.</para>
             </listitem>
-          </itemizedlist>That's all the current dependencies.</para>
+          </itemizedlist>That's all the current required dependencies.</para>
+
+        <bridgehead>Optional Dependencies</bridgehead>
+
+        <para><itemizedlist>
+            <listitem>
+              <para>PEAR::Mail + PEAR::Mail_Mime - Optional; needed to use the
+              included Mail_Mailer class</para>
+            </listitem>
+
+            <listitem>
+              <para>syck - A php extension for YAML parsing that GREATLY
+              improves performance. </para>
+
+              <para>We recommend that you install syck from PEAR with:</para>
+
+              <screen>pecl install channel://pecl.php.net/syck-0.9.1
+</screen>
+
+              <para>This will ensure that the syck library has the appropriate
+              PHP integration. Without this, YAML parsing failures silently
+              return no data, causing confusion if you have a syntax error in
+              your YAML. With the properly installed extension, a
+              SyckException will be thrown and tell you where the syntax error
+              is.</para>
+            </listitem>
+          </itemizedlist></para>
       </section>
 
       <section>

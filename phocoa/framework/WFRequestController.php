@@ -61,14 +61,21 @@ class WFRequestController extends WFObject
 
         // display the error and exit
         $body_html = $exceptionPage->render(false);
-        $skin = new WFSkin();
-        $skin->setDelegateName(WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
-        $skin->setBody($body_html);
-        $skin->setTitle("An error has occurred.");
 
         // output error info
         header("HTTP/1.0 500 Uncaught Exception");
-        $skin->render();
+        if ($this->isAjax())
+        {
+            print strip_tags($body_html);
+        }
+        else
+        {
+            $skin = new WFSkin();
+            $skin->setDelegateName(WFWebApplication::sharedWebApplication()->defaultSkinDelegate());
+            $skin->setBody($body_html);
+            $skin->setTitle("An error has occurred.");
+            $skin->render();
+        }
         exit;
     }
 
@@ -109,7 +116,7 @@ class WFRequestController extends WFObject
                 $modInvocationPath = WFWebApplication::sharedWebApplication()->defaultInvocationPath();
             }
             // create the root invocation; only skin if we're not in an XHR
-            $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL, ($this->isXHR() ? NULL : WFWebApplication::sharedWebApplication()->defaultSkinDelegate()) );
+            $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL, ($this->isAjax() ? NULL : WFWebApplication::sharedWebApplication()->defaultSkinDelegate()) );
 
             // get HTML result of the module, and output it
             print $this->rootModuleInvocation->execute();
@@ -140,9 +147,10 @@ class WFRequestController extends WFObject
      *
      *  @return boolean
      */
-    function isXHR()
+    function isAjax()
     {
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) and strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') return true;
+        if (isset($_REQUEST['HTTP_X_REQUESTED_WITH']) and strtolower($_REQUEST['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') return true;  // for debugging
         return false;
     }
 

@@ -1,0 +1,6 @@
+
+People: 
+  class     : WFArrayController
+  properties: 
+    class           : Person
+    classIdentifiers: id

@@ -104,9 +104,9 @@ class WFYAHOO_widget_Dialog extends WFYAHOO_widget_Panel
         }
     }
 
-    function bootstrapJS($blockContent)
+    function initJS($blockContent)
     {
-        $script .= parent::bootstrapJS($blockContent);
+        $script .= parent::initJS($blockContent);
         $script .= "
 PHOCOA.namespace('widgets.{$this->id}.Dialog');
 PHOCOA.widgets.{$this->id}.Dialog.queueProps = function(o) {
@@ -123,7 +123,7 @@ PHOCOA.widgets.{$this->id}.Dialog.init = function() {
     " . ($this->callbackFailure ? "dialog.callback.failure = {$this->callbackFailure};" : NULL) . "
 }
 " .
-( (get_class($this) == 'WFYAHOO_widget_Dialog') ? "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.Dialog.init);" : NULL );
+( (get_class($this) == 'WFYAHOO_widget_Dialog') ? "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.Dialog.init(); };" : NULL );
         return $script;
     }
 

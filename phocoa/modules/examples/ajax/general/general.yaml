@@ -1,0 +1,34 @@
+
+ajaxForm       : 
+  children: 
+    ajaxFormSubmitNormal: 
+      class: WFSubmit
+      properties:
+        label: Normal Submit
+    ajaxFormSubmitAjax:
+      class: WFSubmit
+      properties:
+        label: Ajax Submit
+    textField     : 
+      bindings: 
+        value: 
+          controllerKey: selection
+          instanceID   : testObj
+          modelKeyPath : value
+      class   : WFTextField
+    textField2    : 
+      bindings: 
+        value: 
+          controllerKey: selection
+          instanceID   : testObj
+          modelKeyPath : value2
+      class   : WFTextField
+  class   : WFForm
+localAction    : 
+  class     : WFLink
+  properties: 
+    label: Local JS Action
+rpcPageDelegate: 
+  class     : WFLink
+  properties: 
+    label: AjaxAction

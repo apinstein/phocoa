@@ -35,6 +35,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
     protected $monitorresize;
     /**
      * @var array An array of ContainerEffects to use for show/hide.
+     * @todo Move these to Overlay (which is the first class that can have effects)
      */
     protected $effects;
 
@@ -167,7 +168,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
         }
     }
 
-    function bootstrapJS($blockContent)
+    function initJS($blockContent)
     {
         // determine body html
         $bodyHTML = ($blockContent === NULL ? $this->body : $blockContent);
@@ -233,7 +234,7 @@ PHOCOA.widgets.{$this->id}.Module.init = function() {
 ";
         if ( get_class($this) == 'WFYAHOO_widget_Module')
         {
-           $script .= "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.Module.init);";
+           $script .= "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.Module.init(); };";
         }
         return $script;
     }

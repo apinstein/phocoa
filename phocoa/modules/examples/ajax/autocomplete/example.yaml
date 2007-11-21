@@ -1,3 +1,5 @@
+logger:
+  class: WFYAHOO_widget_Logger
 color: 
   bindings  : 
     datasourceJSArray: 
@@ -5,7 +7,6 @@ color:
       modelKeyPath: rainbow
   class     : WFYAHOO_widget_AutoComplete
   properties: 
-    alwaysShowContainer: true
     minQueryLength     : 0
     width              : 100px
 state: 
@@ -15,6 +16,10 @@ state:
       modelKeyPath: states
   class     : WFYAHOO_widget_AutoComplete
   properties: 
-    animVert : true
-    delimChar: ','
-    inputType: textarea
+    minQueryLength     : 2
+stateAjax: 
+  class     : WFYAHOO_widget_AutoComplete
+  properties: 
+    dynamicDataLoader: stateSearcher
+    dynamicDataLoaderSchema: state, st
+    minQueryLength     : 2

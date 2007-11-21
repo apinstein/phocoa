@@ -15,8 +15,8 @@
  *
  * <b>Required:</b><br>
  * - {@link WFLink::$label label} The label for the button.
- * - {@link WFLink::$postSubmitLabel postSubmitLabel} The label for the button that will be shown after the button is clicked. Requires JS.
- * - {@link WFLink::$duplicateSubmitMessage duplicateSubmitMessage} The message that will be displayed if the submit button is pressed more than once. This also prevents duplicate submission.
+ * - {@link WFLink::$postSubmitLabel postSubmitLabel} The label for the button that will be shown after the button is clicked. Requires JS. This does NOT prevent duplicate submission.
+ * - {@link WFLink::$duplicateSubmitMessage duplicateSubmitMessage} The message that will be displayed if the submit button is pressed more than once. This also prevents duplicate submission. NOTE: with AJAX forms, you cannot prevent duplicate submission.
  * 
  * <b>Optional:</b><br>
  * - {@link WFLink::$class class} The class of the <a> tag.
@@ -27,12 +27,12 @@
 class WFSubmit extends WFWidget
 {
     /**
-    * @var string The "action" that will be performed on the view when the button is clicked.
-    */
-    protected $action;
+     * @var object WFClickEvent The event fired when the button is submitted. Default action is to call the method named "id" of the submit with ($page, $params).
+     */
+    private $submitEvent;
     /**
-    * @var string The label to show.
-    */
+     * @var string The label to show.
+     */
     protected $label;
     /**
      * @var string THe image path to use. By default empty. If non-empty, turns the submit into an image submit.
@@ -53,11 +53,18 @@ class WFSubmit extends WFWidget
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
-        $this->action = $id;
+        $this->submitEvent = new WFClickEvent( WFAction::ServerAction() );
+        $this->setListener( $this->submitEvent );
+        $this->setAction($id);
         $this->label = "Submit";
         $this->imagePath = NULL;
         $this->duplicateSubmitMessage = NULL;
         $this->postSubmitLabel = NULL;
+    }
+
+    function allConfigFinishedLoading()
+    {
+        $this->submitEvent->action()->setForm($this->parent()->id());
     }
 
     public static function exposedProperties()
@@ -77,14 +84,14 @@ class WFSubmit extends WFWidget
         $this->imagePath = $path;
     }
 
-    function setAction($action)
+    function submitAction()
     {
-        $this->action = $action;
+        return $this->submitEvent->action();
     }
 
-    function action()
+    function setAction($action)
     {
-        return $this->action;
+        $this->submitEvent->action()->setAction($action);
     }
 
     function setLabel($label)
@@ -106,54 +113,54 @@ class WFSubmit extends WFWidget
     {
         if ($this->hidden) return NULL;
 
-        // onClick function
-        if ($this->duplicateSubmitMessage or $this->postSubmitLabel)
-        {
-            $duplicateSubmitMessage = ($this->duplicateSubmitMessage ? $this->duplicateSubmitMessage : '');
-            $postSubmitLabel = ($this->postSubmitLabel ? $this->postSubmitLabel : '');
-            $onClickFunc = "
-            <script type=\"text/javascript\">
-            var {$this->id}_isSubmitted = false;
-            function {$this->id}_onClick_handler()
-            {
-                duplicateSubmitMessage = '{$duplicateSubmitMessage}';
-                postSubmitLabel = '{$postSubmitLabel}';
-                btn = document.getElementById('{$this->id}');
-                if ({$this->id}_isSubmitted && duplicateSubmitMessage)
-                {
-                    alert(duplicateSubmitMessage);
-                    return false;
-                }
-                if (postSubmitLabel)
-                {
-                    btn.value = postSubmitLabel;
-                }
-                {$this->id}_isSubmitted = true;
-                return true;
-            }
-            </script>
-            ";
-            $this->page()->module()->invocation()->rootSkin()->addHeadString($onClickFunc);
-            $this->setJSonClick("return {$this->id}_onClick_handler();");
-        }
-
         // get there reference to the named item
         // set the name / value
         // render
-        return '<input type="' . ($this->imagePath ? 'image' : 'submit') . '"' .
+        $html = '<input type="' . ($this->imagePath ? 'image' : 'submit') . '"' .
                     ($this->imagePath ? ' src="' . $this->imagePath . '"' : '') .
                     ($this->class ? ' class="' . $this->class . '"' : '') .
                     ' id="' . $this->id() . '"' . 
                     ' name="action|' . $this->id() . '"' . 
                     ' value="' . $this->label() . '"' . 
                     $this->getJSActions() . 
-                    '/>';
+                    "/>\n" . 
+                    $this->jsStartHTML() . $this->getListenerJS() . $this->jsEndHTML();
+
+        if ($this->duplicateSubmitMessage or $this->postSubmitLabel)
+        {
+            $duplicateSubmitMessage = ($this->duplicateSubmitMessage ? $this->duplicateSubmitMessage : '');
+            $postSubmitLabel = ($this->postSubmitLabel ? $this->postSubmitLabel : '');
+            $html .= $this->jsStartHTML() . "
+            PHOCOA.namespace('widgets.{$this->id}');
+            PHOCOA.widgets.{$this->id}.isSubmitted = false;
+            $('{$this->id}').observe('click', function(e) {
+                var duplicateSubmitMessage = " .  WFJSON::json_encode($duplicateSubmitMessage) . ";
+                var postSubmitLabel = " .  WFJSON::json_encode($postSubmitLabel) . ";
+                if (PHOCOA.widgets.{$this->id}.isSubmitted && duplicateSubmitMessage)
+                {
+                    alert(duplicateSubmitMessage);
+                    e.stop();
+                }
+                if (postSubmitLabel)
+                {
+                    $('{$this->id}').setValue(postSubmitLabel);
+                }
+                PHOCOA.widgets.{$this->id}.isSubmitted = true;
+            });
+            " . $this->jsEndHTML();
+        }
+
+        return $html;
     }
 
     /**
-     *  Renders the button as hidden (for use with {@link WFForm::$defaultSubmitID defaultSubmitID}).
+     * Renders the button as hidden (for use with {@link WFForm::$defaultSubmitID defaultSubmitID}).
      *
-     *  @return string The HTML of the button's core attrs with no ID.
+     * @internal Some browsers by default submit the "first" button they see if ENTER is pressed in a text field. Thus we need to 
+     *           insert an invisible "fake" version of the default button to ensure consistent cross-browser operation of defaultSubmitID.
+     *           The widget must be both display: block and visibility: visible to ensure proper operation in all browsers.
+     *           IIRC Safari requires visbility and IE requires display. FF is cool... The 0px is needed on the input as well to make it invisible on IE7.
+     * @return string The HTML of the button's core attrs with no ID.
      */
     function renderDefaultButton()
     {
@@ -161,7 +168,7 @@ class WFSubmit extends WFWidget
                 <input type="submit"' .
                     ' name="action|' . $this->id() . '"' . 
                     ' value="' . $this->label() . '"' . 
-                    ' style="position: absolute; left: -20000px;"' .
+                    ' style="position: absolute; left: -20000px; width: 0px;"' .
                     ' />
                 </div>';
     }

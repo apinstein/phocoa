@@ -29,7 +29,13 @@
  *
  * @see WFKeyValueCoding
  * @see WFKeyValueBindingCreation
- * @todo Should there be a "canSelectMultiple" setting? This was if you're using it in a Master-Detail interface it'd be easier to manage the selection? In this case a combo of selectOnInsert and addObject would make it easy to managed.
+ * @todo Should there be a "canSelectMultiple" setting? This was if you're using it in a Master-Detail interface it'd be easier to manage the selection? In this case a combo of selectOnInsert and addObject would make it easy to managed. NO! This is an attribute of the "matrix" widget, not the controller. ArrayController should always be "on" for multiple selections.
+ * @todo Normalize property names. Keep naming convention; properties should read like "class property -> WFArrayController selectsInsertedObjects"
+ * @todo Upgrade to cocoa-compatible defaults
+ *       DONE! avoidsEmptySelection TRUE - ADD this function
+ *       DONE! selectsInsertedObjects TRUE - deprecate selectOnInsert, but keep func for BC. WE will keep our FALSE because it makes more sense.
+ *       (not yet implemented)
+ *       preservesSelection TRUE
  */
 class WFArrayController extends WFObjectController implements Iterator
 {
@@ -55,7 +61,11 @@ class WFArrayController extends WFObjectController implements Iterator
     /**
      * @var boolean TRUE if all objects should be added to the selection upon adding them to the content. This is useful if you want all objects to be selected by default.
      */
-    protected $selectOnInsert;
+    protected $selectsInsertedObjects;
+    /**
+     * @var boolean TRUE If you want there to always be at least one selected object. Will always keep at least one object selected unless there are no arranged objects.
+     */
+    protected $avoidsEmptySelection;
 
     /**
      * @var int Iterator index, for the Iterator interface.
@@ -80,7 +90,8 @@ class WFArrayController extends WFObjectController implements Iterator
 
         $this->setClassIdentifiers(WFArrayController::USE_ARRAY_INDEXES_AS_ID);
         $this->selectedIdentifiersHash = array();
-        $this->selectOnInsert = false;
+        $this->selectsInsertedObjects = false;
+        $this->avoidsEmptySelection = true;
     }
 
     function changeCount()
@@ -88,14 +99,42 @@ class WFArrayController extends WFObjectController implements Iterator
         return $this->changeCount;
     }
 
-    function setSelectOnInsert($bool)
+    /**
+     *  If true, the array controller will automatically add all objects inserted to the selection.
+     *
+     *  @param boolean
+     */
+    function setSelectsInsertedObjects($bool)
     {
-        $this->selectOnInsert = $bool;
+        $this->selectsInsertedObjects = $bool;
     }
 
-    function selectOnInsert()
+    function selectsInsertedObjects()
     {
-        return $this->selectOnInsert;
+        return $this->selectsInsertedObjects;
+    }
+
+    /**
+     *  @deprecated Use setSelectsInsertedObjects
+     */
+    function setSelectOnInsert($bool)
+    {
+        $this->setSelectsInsertedObjects($bool);
+    }
+
+    /**
+     *  If true, the array controller will always make sure that there is at least one object selected, as long as the array controller isn't empty.
+     *
+     *  @param boolean
+     */
+    function setAvoidsEmptySelection($bool)
+    {
+        $this->avoidsEmptySelection = $bool;
+    }
+
+    function avoidsEmptySelection()
+    {
+        return $this->avoidsEmptySelection;
     }
 
     function classIdentifiers()
@@ -310,6 +349,11 @@ class WFArrayController extends WFObjectController implements Iterator
             unset($this->content["$hash"]);
         }
 
+        if ($this->avoidsEmptySelection and $this->selectionCount() == 0 and $this->arrangedObjectCount() > 0)
+        {
+            // select first object 
+            $this->addSelectedObject($this->content[0]);
+        }
     }
 
     /**
@@ -366,7 +410,12 @@ class WFArrayController extends WFObjectController implements Iterator
             $this->content["$hash"] = $obj;
         }
 
-        if ($this->selectOnInsert)
+        if ($this->selectsInsertedObjects)
+        {
+            $this->addSelectedObject($obj);
+        }
+
+        if ($this->avoidsEmptySelection and $this->selectionCount() == 0)
         {
             $this->addSelectedObject($obj);
         }

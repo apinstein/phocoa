@@ -7,7 +7,7 @@ dialogForm:
   children: 
     pickACity: 
       class: WFTextField
-    submit   : 
+    dialogFormSubmit   : 
       class: WFSubmit
   class   : WFForm
 module    : 

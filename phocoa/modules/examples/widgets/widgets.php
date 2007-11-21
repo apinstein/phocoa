@@ -2,10 +2,12 @@
 
 require_once('exampleClasses.php');
 
-class widgets extends WFModule
+class module_widgets extends WFModule
 {
     protected $person;
     protected $cities;
+    protected $creationDTSFormatter;
+    protected $selectedPeople;
 
     function __construct($invocation)
     {
@@ -13,8 +15,11 @@ class widgets extends WFModule
 
         // can easily set skin parameters for ALL views in this module in the constructor
         $skin = $this->invocation()->rootSkin();
-        $skin->setTitle('PHOCOA Examples');
-        $skin->addMetaKeywords(array('example', 'widgets', 'phocoa'));
+        if ($skin)
+        {
+            $skin->setTitle('PHOCOA Examples');
+            $skin->addMetaKeywords(array('example', 'widgets', 'phocoa'));
+        }
     }
 
     /**
@@ -68,4 +73,50 @@ class widgets extends WFModule
     }
 }
 
+class module_widgets_form
+{
+    function normalButton1($page, $params)
+    {
+        $page->assign('normalButtonPressed', 'First button');
+    }
+    function normalButton2($page, $params)
+    {
+        $page->assign('normalButtonPressed', 'Second button');
+    }
+    function normalButton3($page, $params)
+    {
+        $page->assign('normalButtonPressed', 'Third button');
+    }
+
+    function ajaxButton1($page, $params)
+    {
+        $page->assign('ajaxButtonPressed', 'First button');
+        if (WFRequestController::sharedRequestController()->isAjax())
+        {
+            sleep(1);   // kill some time so viewers can see the postSubmitLabel working...
+            return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()
+                                                        ->addUpdateHTML('ajaxButtonPressed', 'First Button')
+                                                        ->addRunScript("$('ajaxButton1').setValue('" . $page->outlet('ajaxButton1')->label() . "');");
+        }
+    }
+    function ajaxButton2($page, $params)
+    {
+        $page->assign('ajaxButtonPressed', 'Second button');
+        if (WFRequestController::sharedRequestController()->isAjax())
+        {
+            sleep(1);   // kill some time so viewers can see the postSubmitLabel working...
+            return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()
+                                                        ->addUpdateHTML('ajaxButtonPressed', 'Second Button')
+                                                        ->addRunScript("$('ajaxButton2').setValue('" . $page->outlet('ajaxButton2')->label() . "');");
+        }
+    }
+    function ajaxButton3($page, $params)
+    {
+        $page->assign('ajaxButtonPressed', 'Third button');
+        if (WFRequestController::sharedRequestController()->isAjax())
+        {
+            return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()->addUpdateHTML('ajaxButtonPressed', 'Third Button');
+        }
+    }
+}
 ?>

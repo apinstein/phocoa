@@ -26,6 +26,14 @@
  * The following properties of the WFObjectController can be bound:
  *   content
  *   editable        UNIMPLEMENTED
+ *
+ * @todo Upgrade to cocoa-compatible defaults
+ *       automaticallyPreparesContent FALSE --> BC-breaking CHANGE; will require testing all apps that use it
+ *       avoidsEmptySelection TRUE
+ *       selectsInsertedObjects TRUE
+ *       (not yet implemented)
+ *       editable TRUE
+ *       preservesSelection TRUE
  */
 class WFObjectController extends WFObject
 {

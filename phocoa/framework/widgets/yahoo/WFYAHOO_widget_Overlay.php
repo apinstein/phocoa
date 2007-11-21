@@ -170,9 +170,9 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
         }
     }
 
-    function bootstrapJS($blockContent)
+    function initJS($blockContent)
     {
-        $script .= parent::bootstrapJS($blockContent);
+        $script .= parent::initJS($blockContent);
         $script .= "
 PHOCOA.namespace('widgets.{$this->id}.Overlay');
 PHOCOA.widgets.{$this->id}.Overlay.queueProps = function(o) {
@@ -195,6 +195,7 @@ PHOCOA.widgets.{$this->id}.Overlay.init = function() {
     // hopefully this next chunk can be removed when YUI fixes this internally
     // supposedly fixed in 2.3.0: https://sourceforge.net/tracker/?func=detail&atid=836476&aid=1723530&group_id=165715
     // we'll comment out for a bit to verify -- nope, not fixed... need to report to YAHOO once we get a repro case online
+    // new bug with scrollbars being flaky: see ichat with pieper on 11/13/2007 for js code to fix
     if (overlay.platform == \"mac\" && overlay.browser == \"gecko\")
     {
         var overlayEl = YAHOO.util.Dom.get('{$this->id}');
@@ -223,7 +224,7 @@ PHOCOA.widgets.{$this->id}.Overlay.init = function() {
 ";
         if ( get_class($this) == 'WFYAHOO_widget_Overlay')
         {
-           $script .= "YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.Overlay.init);";
+           $script .= "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.Overlay.init(); };";
         }
         return $script;
     }

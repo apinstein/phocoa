@@ -46,15 +46,18 @@ class WFYAHOO_widget_Logger extends WFYAHOO
         else
         {
             $html = parent::render($blockContent);
+            $html .= "<div id=\"{$this->id}\"></div>";
             return $html;
         }
     }
 
-    function bootstrapJS($blockContent)
+    function initJS($blockContent)
     {
         return "
-var WFYAHOO_widget_Logger_{$this->id} = new YAHOO.widget.LogReader(null, {top:'4em',fontSize:'92%',width:'30em',height:'20em'});
-PHOCOA.runtime.addObject(WFYAHOO_widget_Logger_{$this->id});
+PHOCOA.widgets.{$this->id}.init = function() {
+    var WFYAHOO_widget_Logger_{$this->id} = new YAHOO.widget.LogReader(null, {top:'4em',fontSize:'92%',width:'30em',height:'20em'});
+    PHOCOA.runtime.addObject(WFYAHOO_widget_Logger_{$this->id}, '{$this->id}');
+};
 ";
     }
 

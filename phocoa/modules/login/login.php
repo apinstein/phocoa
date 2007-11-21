@@ -10,7 +10,7 @@ class login extends WFModule
     function gotoURL($url)
     {
         // for now, always use internal redirects; in future may want to pass this as param along with continueURL
-        if (WFRequestController::isXHR() or 1)
+        if (WFRequestController::isAjax() or 1)
         {
             throw( new WFRequestController_InternalRedirectException($url) );
         }

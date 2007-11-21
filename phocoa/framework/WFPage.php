@@ -1182,15 +1182,19 @@ class WFPage extends WFObject
 
             // push values of bound properties back to their bound objects
             $this->module->requestPage()->pushBindings();
-            
-            // Are we performing an action? 
-            // initialize to PERFORM NO ACTION
-            $actionOutletID = NULL;
-            // only perform an action if there is one in the form, and that form is valid
-            if ($this->hasSubmittedForm()) {
-                if ($this->formIsValid()) {
+
+            // Determine action: do we need to call the noAction handler?
+            $rpc = NULL;
+            if ($this->hasSubmittedForm())
+            {
+                // look for action in the form data
+                $rpc = WFRPC::rpcFromRequest();
+                if (!$rpc) // if not found; look for action specified via submit button in form (gracefully degrade for non-js client)
+                {
+                    // look for the submit button;
                     // look up the instance ID for the specified action... look for "action|<actionOutletID>" in $_REQUEST...
                     // but need to skip the _x and _y fields submitted with image submit buttons
+                    $actionOutletID = NULL;
                     foreach ($_REQUEST as $name => $value) 
                     {
                         if (strncmp("action|", $name, 7) == 0 and !in_array(substr($name, -2, 2), array('_x', '_y')))
@@ -1210,37 +1214,130 @@ class WFPage extends WFObject
                     if ($actionOutletID)
                     {
                         try {
-                            $actionName = $this->outlet($actionOutletID)->action();
+                            $action = $this->outlet($actionOutletID)->submitAction();
+                            $action->rpc()->setArguments( array( $actionOutletID, 'click' ) );
+                            $rpc = $action->rpc();
                         } catch (Exception $e) {
                             throw( new WFException("Could not find form button (outlet) for current action: {$actionOutletID}. Make sure that you don't have nested forms!") );
                         }
-                        // call action on delegate
-                        $this->doAction($actionName);
                     }
                     else
                     {
-                        WFLog::log("Not running action because no action occurred (no action specified in form data)", WFLog::WARN_LOG);
+                        WFLog::log("No action occurred (no action specified in form data)", WFLog::WARN_LOG);
                     }
-                }
-                else
-                {
-                    WFLog::log("Not running action because form data did not validate.", WFLog::TRACE_LOG);
                 }
             }
             else
             {
-                WFLog::log("Not running action because no action occurred (i.e. no form posted)", WFLog::TRACE_LOG);
+                // look for action in Params
+                // new-school WFAction stuff; 
+                $rpc = WFRPC::rpcFromRequest();
             }
-        }
 
-        // do we need to call the noAction handler?
-        if (!$this->hasSubmittedForm())
-        {
-            $this->noAction();
-        }
+            // deal with action
+            if ($rpc)
+            {
+                $shouldRun = false;
+                if ($this->hasSubmittedForm())
+                {
+                    if (
+                            $rpc->runsIfInvalid() or
+                            (!$rpc->runsIfInvalid() and $this->formIsValid())
+                       )
+                    {
+                        $shouldRun = true;
+                    }
+                    else if (WFRequestController::sharedRequestController()->isAjax())
+                    {
+                        // Collect all errors and send them back in a WFActionResponsePhocoaUIUpdater
+                        $errorSmarty = new WFSmarty;
+                        $errorSmarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/form_error.tpl');
 
-        // action/noAction may have affecting the arrayControllers
-        $this->createDynamicWidgets();
+                        $uiUpdates = new WFActionResponsePhocoaUIUpdater();
+                        foreach ($this->widgets() as $id => $obj) {
+                            $errors = $obj->errors();
+                            if (count($errors))
+                            {
+                                $errorSmarty->assign('errorList', $errors);
+                                $errorSmarty->assign('id', $id);
+                                $errId = "phocoaWFFormError_{$id}";
+                                $uiUpdates->addReplaceHTML($errId, $errorSmarty->render(false));
+                            }
+                        }
+                        // put "all errors" in the submitted form err handler
+                        $errorSmarty->assign('errorList', $this->errors());
+                        $errorSmarty->assign('id', $this->submittedFormName());
+                        $errId = "phocoaWFFormError_" . $this->submittedFormName();
+                        $uiUpdates->addReplaceHTML($errId, $errorSmarty->render(false));
+                        $uiUpdates->send();
+                    }
+                }
+                else
+                {
+                    $shouldRun = true;
+                }
+                if ($shouldRun)
+                {
+                    $rpc->execute($this);
+                }
+            }
+            else
+            {
+                $this->noAction();
+            }
+
+        #   // Are we performing an action? 
+        #   // initialize to PERFORM NO ACTION
+        #   $actionOutletID = NULL;
+        #   // only perform an action if there is one in the form, and that form is valid
+        #   if ($this->hasSubmittedForm()) {
+        #       if ($this->formIsValid()) {
+        #           // look up the instance ID for the specified action... look for "action|<actionOutletID>" in $_REQUEST...
+        #           // but need to skip the _x and _y fields submitted with image submit buttons
+        #           foreach ($_REQUEST as $name => $value) 
+        #           {
+        #               if (strncmp("action|", $name, 7) == 0 and !in_array(substr($name, -2, 2), array('_x', '_y')))
+        #               {
+        #                   list(,$actionOutletID) = explode('|', $name);
+        #                   break;
+        #               }
+        #           }
+        #           // if there is no button found in the parameters, we ask the WFForm what the default submit button is
+        #           if (!$actionOutletID)
+        #           {
+        #               $form = $this->outlet($this->submittedFormName());
+        #               $actionOutletID = $form->defaultSubmitID();
+        #               WFLog::log("Form submitted, but no action button detected. Using default button: {$actionOutletID}", WFLog::TRACE_LOG);
+        #           }
+        #           // call the ACTION handler for the page, if there is an action.
+        #           if ($actionOutletID)
+        #           {
+        #               try {
+        #                   $actionName = $this->outlet($actionOutletID)->action();
+        #               } catch (Exception $e) {
+        #                   throw( new WFException("Could not find form button (outlet) for current action: {$actionOutletID}. Make sure that you don't have nested forms!") );
+        #               }
+        #               // call action on delegate
+        #               $this->doAction($actionName);
+        #           }
+        #           else
+        #           {
+        #               WFLog::log("Not running action because no action occurred (no action specified in form data)", WFLog::WARN_LOG);
+        #           }
+        #       }
+        #       else
+        #       {
+        #           WFLog::log("Not running action because form data did not validate.", WFLog::TRACE_LOG);
+        #       }
+        #   }
+        #   else
+        #   {
+        #       WFLog::log("Not running action because no action occurred (i.e. no form posted)", WFLog::TRACE_LOG);
+        #   }
+
+            // action/noAction may have affecting the arrayControllers
+            $this->createDynamicWidgets();
+        }
     }
 
     /**

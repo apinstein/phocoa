@@ -72,6 +72,8 @@ abstract class WFView extends WFObject
      */
     protected $jsActions;
 
+    protected $jsEvents;
+
     /**
       * Constructor.
       *
@@ -91,11 +93,32 @@ abstract class WFView extends WFObject
         $this->page = $page;
         $this->setId($id);
         $this->jsActions = array();
+        $this->jsEvents = array();
 
         // js/css import infrastructure
         $this->importInHead = false;
         $this->jsImports = array();
         $this->cssImports = array();
+    }
+
+    public function setListener($event)
+    {
+        if ( !($event instanceof WFEvent) ) throw( new WFException("Event must be a WFEvent.") );
+        $event->setWidget($this);   // point back to ourselves
+
+        $eventName = $event->name();
+        //if (isset($this->jsEvents[$eventName])) throw ( new WFException("There is already a listener for event '{$eventName}' on {$this->id}. Having multiple event handlers isn't a good idea because you can't guarantee the order in which the handlers are called.") );
+
+        $this->jsEvents[$eventName] = $event;
+    }
+
+    public function getListenerJS()
+    {
+        $script = NULL;
+        foreach ($this->jsEvents as $eventName => $event) {
+            $script .= $event->action()->jsSetup();
+        }
+        return $script;
     }
 
     public static function yuiPath()

@@ -55,6 +55,11 @@ class WFForm extends WFWidget
     private $numberOfSubmitButtons;
 
     /**
+     * @var boolean Set to true to turn this into an ajax-enabled form.
+     */
+    protected $isAjax;
+
+    /**
       * Constructor.
       *
       * Sets up the smarty object for this module.
@@ -77,6 +82,8 @@ class WFForm extends WFWidget
         $this->method = WFForm::METHOD_POST;
         $this->defaultSubmitID = $this->calculatedDefaultSubmitID = NULL;
         $this->numberOfSubmitButtons = 0;
+
+        $this->isAjax = false;
     }
 
     public static function exposedProperties()
@@ -115,6 +122,27 @@ class WFForm extends WFWidget
         {
             $this->defaultSubmitID = $this->calculatedDefaultSubmitID;
         }
+
+        // ajax-enable submit buttons
+        if ($this->isAjax())
+        {
+            foreach ($this->children() as $id => $widget) {
+                if ($widget instanceof WFSubmit)
+                {
+                    $widget->setListener( new WFClickEvent(WFAction::AjaxAction()->setAction($id)) );
+                }
+            }
+        }
+    }
+
+    function isAjax()
+    {
+        return $this->isAjax;
+    }
+
+    function setIsAjax($b)
+    {
+        $this->isAjax = $b;
     }
 
     function defaultSubmitID()
@@ -152,9 +180,10 @@ class WFForm extends WFWidget
         $defaultFormButtonHTML = NULL;
         if ($this->defaultSubmitID and $this->numberOfSubmitButtons >= 2)
         {
+            if (!isset($this->children[$this->defaultSubmitID])) throw( new WFException("The default button specified: '" . $this->defaultSubmitID . '" does not exist.') );
             $defaultFormButtonHTML = "\n" . $this->children[$this->defaultSubmitID]->renderDefaultButton();
         }
-        return "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $encType . '>' .
+        $html =  "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $encType . '>' .
                "\n" . '<input type="hidden" name="__modulePath" value="' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '" />' .
                //"\n" . '<input type="hidden" name="__currentModule" value="' . $this->page->module()->invocation()->modulePath() . '" />' .
                //"\n" . '<input type="hidden" name="__currentPage" value="' . $this->page->pageName() . '" />' .
@@ -163,6 +192,17 @@ class WFForm extends WFWidget
                "\n" . $blockContent .
                "\n</form>\n" .
                "\n";
+        if ($this->isAjax())
+        {
+            $html .= $this->jsStartHTML() . "Element.observe('{$this->id}', 'keypress', function(e) {
+                            if (e.element().type === 'text' && (e.keyCode === Event.KEY_RETURN || e.keyCode === 3)) // safari enter not normalized
+                            {
+                                e.stop();
+                                $('{$this->defaultSubmitID}').click();
+                            }
+                        } );" . $this->jsEndHTML();
+        }
+        return $html;
     }
 
     function canPushValueBinding() { return false; }

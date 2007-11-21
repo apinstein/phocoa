@@ -42,7 +42,8 @@ class MyWebApplicationDelegate
         }
         if ($requirePath)
         {
-            require($requirePath);                                                                                                                                                                                            return true;
+            require($requirePath);
+            return true;
         }
         return false;
     }

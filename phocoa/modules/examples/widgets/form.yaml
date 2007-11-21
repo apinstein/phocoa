@@ -1,0 +1,45 @@
+
+normalForm: 
+  children  : 
+    normalButton1: 
+      class     : WFSubmit
+      properties: 
+        label: First Button
+        duplicateSubmitMessage: "Be patient! The form is processing..."
+        postSubmitLabel: "Processing..."
+    normalButton2: 
+      class     : WFSubmit
+      properties: 
+        postSubmitLabel: "Processing..."
+        label: Second button
+    normalButton3: 
+      class     : WFSubmit
+      properties: 
+        label: Third Button
+    normalInput  : 
+      class: WFTextField
+  class     : WFForm
+  properties: 
+    defaultSubmitID: normalButton2
+ajaxForm: 
+  children  : 
+    ajaxButton1: 
+      class     : WFSubmit
+      properties: 
+        postSubmitLabel: "Processing..."
+        label: First Button
+    ajaxButton2: 
+      class     : WFSubmit
+      properties: 
+        postSubmitLabel: "Processing..."
+        label: Second button
+    ajaxButton3: 
+      class     : WFSubmit
+      properties: 
+        label: Third Button
+    ajaxInput  : 
+      class: WFTextField
+  class     : WFForm
+  properties: 
+    defaultSubmitID: ajaxButton2
+    isAjax: true

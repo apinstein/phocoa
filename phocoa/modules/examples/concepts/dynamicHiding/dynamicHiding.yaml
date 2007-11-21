@@ -1,0 +1,35 @@
+
+city    : 
+  bindings: 
+    value: 
+      controllerKey: selection
+      instanceID   : People
+      modelKeyPath : city
+  class   : WFLabel
+listName: 
+  children  : 
+    listNamePrototype: 
+      bindings: 
+        hidden: 
+          controllerKey: '#current#'
+          instanceID   : People
+          modelKeyPath : hidden
+        value : 
+          controllerKey: '#current#'
+          instanceID   : People
+          modelKeyPath : name
+      class   : WFLabel
+  class     : WFDynamic
+  properties: 
+    arrayController: '#module#People'
+name    : 
+  bindings: 
+    hidden: 
+      controllerKey: selection
+      instanceID   : People
+      modelKeyPath : hidden
+    value : 
+      controllerKey: selection
+      instanceID   : People
+      modelKeyPath : name
+  class   : WFLabel
