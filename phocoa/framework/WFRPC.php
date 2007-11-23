@@ -228,6 +228,15 @@ class WFRPC extends WFObject
      */
     function execute($page)
     {
+        $bcMode = false;
+        // setup backwqrds-compatibility for really old-school
+        if (!$page->delegate() and strncmp($this->target, WFRPC::TARGET_PAGE, strlen(WFRPC::TARGET_PAGE)) == 0)
+        {
+            $bcMode = true;
+            $this->action = $page->pageName() . '_' . $this->action . '_Action';
+            $this->target = '#module#';
+        }
+
         // calculate target
         $matches = array();
         if (!preg_match('/^(#page#|#module#)([^\.]+)?(.*)/', $this->target, $matches)) throw( new WFException("Couldn't parse target: {$this->target}.") );
@@ -260,7 +269,21 @@ class WFRPC extends WFObject
         }
         
         $rpcCall = array($targetObj, $this->action);
-        if (!is_callable($rpcCall)) throw( new WFException("WFRPC Invocation is not callable: " . print_r($rpcCall, true)) );
+        if (!is_callable($rpcCall))
+        {
+            if ($bcMode)
+            {
+                // old-school
+                throw( new WFException("Backwards-compatibility mode WFRPC: action is not callable: " . $this->action ) );
+            }
+            else
+            {
+                // new school
+                throw( new WFException("WFRPC Invocation is not callable: " . $this->target . "->" . $this->action . "(). Please ensure that there is a method of that name on the specified object.") );
+
+
+            }
+        }
         $result = call_user_func_array($rpcCall, array_merge( array($page, $page->parameters()), $this->args ));
         if ($result !== NULL)
         {
