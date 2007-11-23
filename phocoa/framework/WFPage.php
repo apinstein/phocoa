@@ -1045,7 +1045,7 @@ class WFPage extends WFObject
         
         // look for page delegate
         $pageDelegateClassName = $this->module->moduleName() . '_' . $this->pageName;
-        if (class_exists($pageDelegateClassName))
+        if (class_exists($pageDelegateClassName, false))
         {
             $this->setDelegate(new $pageDelegateClassName);
         }
