@@ -304,7 +304,6 @@ PHOCOA.widgets.{$this->id}.init = function()
             $script .= "
     {$this->id}.draw();
 }
-YAHOO.util.Event.onContentReady('{$this->id}', PHOCOA.widgets.{$this->id}.init);
 ";
         return $script;
     }
