@@ -53,6 +53,5 @@ PHOCOA.widgets.stateAjax.yuiDelegate.widgetDidLoad = function(ac) {
 <p>Pick a US state: {WFView id="state"}</p>
 
 <h2>AutoComplete with Dynamic Data (via AJAX)</h2>
-<blockquote>NOTE: for some reason, multiple instances of AutoComplete on the same page seem to be conflicting, so the one below doesn't work...</blockquote>
 <p>This is the same as the state example above, but using AJAX to look for autocomplete matches.</p>
 <p>Pick a US state: {WFView id="stateAjax"}</p>
