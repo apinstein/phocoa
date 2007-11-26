@@ -105,8 +105,13 @@ class WFYAHOO_yuiloader
         //if ($this->hasRendered) return NULL;
         $this->hasRendered = true;
 
+        // for now (with YUI 2.3.1) we must include yahoo-dom-event beforehand to prevent race conditions with yahoo global object loading...
+        // maybe later we can turn this off and revert to independent yahoo/dom/event loading with YUILoader (which hepls with managing debugging, rollups, & deps)
+        //$this->yuiloader()->yuiRequire('yahoo', 'dom', 'event');
         return "
                      (function() {
+                         PHOCOA.importJS('" . WFView::yuiPath() . "/yahoo-dom-event/yahoo-dom-event.js', 'YAHOO');
+                         PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-debug.js');
                          var yl = new YAHOO.util.YUILoader();
                          " . ($this->debug() ? 'yl.filter = "DEBUG";' : NULL) . "
                          " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
@@ -141,11 +146,6 @@ abstract class WFYAHOO extends WFWidget
     {
         parent::__construct($id, $page);
 
-        // for now (2.3.1) we must include yahoo-dom-event beforehand to prevent race conditions with yahoo global object loading...
-        // maybe later we can turn this off and revert to independent yahoo/dom/event loading with YUILoader (which hepls with managing debugging, rollups, & deps)
-        $this->importJS(self::yuiPath() . "/yahoo-dom-event/yahoo-dom-event.js", 'YAHOO');
-        $this->importJS(self::yuiPath() . "/yuiloader/yuiloader-beta-debug.js");    // use debug for now since we've patched things. Switch to min once mature.
-        //$this->yuiloader()->yuiRequire('yahoo', 'dom', 'event');
         $this->initializeWaitsForID = $this->id;
     }
 

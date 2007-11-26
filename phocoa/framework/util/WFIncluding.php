@@ -122,6 +122,7 @@ class WFIncluding
                 'WFTabView' => 'framework/widgets/WFTabView.php',
                 'WFTableView' => 'framework/widgets/WFTableView.php',
                 'WFYAHOO' => 'framework/widgets/yahoo/WFYAHOO.php',
+                'WFYAHOO_yuiloader' => 'framework/widgets/yahoo/WFYAHOO.php',
                 'WFYAHOO_widget_TreeView' => 'framework/widgets/yahoo/WFYAHOO_widget_TreeView.php',
                 'WFYAHOO_widget_TreeViewNode' => 'framework/widgets/yahoo/WFYAHOO_widget_TreeView.php',
                 'WFYAHOO_widget_Module' => 'framework/widgets/yahoo/WFYAHOO_widget_Module.php',
