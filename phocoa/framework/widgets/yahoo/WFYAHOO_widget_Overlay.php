@@ -148,7 +148,7 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
      *  @param string Which corner of the element to anchor to. One of "tr", "tl", "br", "bl".
      *  @param string Which corner of this content to anchor to the element's anchor corner. One of "tr", "tl", "br", "bl".
      */
-    function setContext($id, $elementCorner, $contextCorner)
+    function setContext($id, $elementCorner = 'tl', $contextCorner = 'tl')
     {
         $this->context['id'] = $id;
         $this->context['elementCorner'] = $elementCorner;
