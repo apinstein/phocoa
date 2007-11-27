@@ -659,7 +659,7 @@ class WFArrayController extends WFObjectController implements Iterator
 
         if ($this->classIdentifiersMulti)
         {
-            $this->addSelectionIdentifiers(array($this->identifierValuesForObject($obj)));
+            $this->addSelectionIdentifiers(array($this->identifierValuesForObject($obj)));  // this looks like a bug; probably shouldn't be wrapped in an array; need to test!
         }
         else
         {
