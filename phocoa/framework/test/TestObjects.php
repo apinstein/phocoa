@@ -46,12 +46,16 @@ class Person extends WFObject
     public $uid;
     public $child;
 
-    function __construct($first, $last, $id)
+    public static $gid = 0;
+
+    function __construct($first = NULL, $last = NULL, $id = NULL)
     {
         $this->first = $first;
         $this->last = $last;
         $this->uid = $id;
         $this->child = NULL;
+
+        if ($this->uid === NULL) $this->uid = self::$gid++;
     }
 
     function validateFirstName(&$value, &$edited, &$errors)

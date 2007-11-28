@@ -9,13 +9,12 @@ error_reporting(E_ALL);
 require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
 require_once('framework/WFWebApplication.php');
 
-require_once "PHPUnit2/Framework/TestCase.php";
 require_once "framework/WFObject.php";
 require_once "framework/WFArrayController.php";
 
 require_once "TestObjects.php";
 
-class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
+class WFArrayControllerTest extends PHPUnit_Framework_TestCase
 {
     private $personArray;
     private $personIDArray;
@@ -36,6 +35,7 @@ class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
     {
         // setup
         $this->ac->setClass('Person');
+        $this->ac->setClassIdentifiers('uid');
         $this->ac->setContent($this->personArray);
 
         // test once
@@ -63,6 +63,7 @@ class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
     public function testSimpleArrayRoundTrip()
     {
         $this->ac->setClass('Person');
+        $this->ac->setClassIdentifiers('uid');
         $this->ac->setContent($this->personArray);
 
         $result = $this->ac->arrangedObjects();
@@ -169,15 +170,32 @@ class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
     public function testAutomaticallyPrepareContentOn()
     {
         $this->ac->setClass('Person');
+        $this->ac->setClassIdentifiers('uid');
         $result = $this->ac->arrangedObjects();
         self::assertTrue(count($result) == 1);
         self::assertTrue($result[0] instanceof Person);
     }
 
-    public function testStartsWithNoSelection()
+    // avoidsEmptySelection is TRUE by default...
+    public function testStartsWithSelection()
     {
         $this->ac->setClass('Person');
         $this->ac->setClassIdentifiers('uid');
+        $this->ac->setContent($this->personArray);
+
+        $result = $this->ac->selection();
+        self::assertTrue($result !== NULL);
+
+        $result = $this->ac->selectedObjects();
+        self::assertTrue(is_array($result) and count($result) == 1);
+
+    }
+
+    public function testStartsWithNoSelectionIfAvoidsEmptySelectionIsFalse()
+    {
+        $this->ac->setClass('Person');
+        $this->ac->setClassIdentifiers('uid');
+        $this->ac->setAvoidsEmptySelection(false);
         $this->ac->setContent($this->personArray);
 
         $result = $this->ac->selection();
@@ -195,6 +213,7 @@ class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
         $this->ac->setContent($this->personArray);
 
         // ensure no selection
+        $this->ac->clearSelection();
         $result = $this->ac->selectionIdentifiers();
         self::assertTrue(count($result) == 0);
 
@@ -215,6 +234,7 @@ class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
         $this->ac->setContent($this->personIDArray);
 
         // ensure no selection
+        $this->ac->clearSelection();
         $result = $this->ac->selectionIdentifiers();
         self::assertTrue(count($result) == 0);
 
@@ -242,6 +262,7 @@ class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
         $this->ac->setContent($this->personIDArray);
 
         // ensure no selection
+        $this->ac->clearSelection();
         $result = $this->ac->selectionIdentifiers();
         self::assertTrue(count($result) == 0);
 
@@ -269,6 +290,7 @@ class WFArrayControllerTest extends PHPUnit2_Framework_TestCase
         $this->ac->setContent($this->personIDArray);
 
         // ensure no selection
+        $this->ac->clearSelection();
         $result = $this->ac->selectionIdentifiers();
         self::assertTrue(count($result) == 0);
 
