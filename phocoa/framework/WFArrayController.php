@@ -34,6 +34,7 @@
  * @todo Upgrade to cocoa-compatible defaults
  *       DONE! avoidsEmptySelection TRUE - ADD this function
  *       DONE! selectsInsertedObjects TRUE - deprecate selectOnInsert, but keep func for BC. WE will keep our FALSE because it makes more sense.
+ *       Something is wrong with #arrayIndexes# mode I think... see todo's
  *       (not yet implemented)
  *       preservesSelection TRUE
  */
@@ -94,6 +95,22 @@ class WFArrayController extends WFObjectController implements Iterator
         $this->avoidsEmptySelection = true;
     }
 
+    /**
+     * Make sure the passed object is of the type that this array controller manages.
+     *
+     * NOTE: This check will succeed as long as the object is a instance of the class, subclass, or implements the interface, in {@link WFArrayController::$class class}.
+     * NOTE: {@link WFArrayController::insert() insert} enforces an additional check, in that {@link WFArrayController::$class class} must be a class, so that it is instantiable.
+     *
+     * @param object WFObject An instance of the object to check.
+     * @throws object WFException If the passed object is not of the type managed by this ArrayController.
+     */
+    function checkObjectClass($obj)
+    {
+        if ($obj === NULL) throw( new WFException("NULL passed instead of object of type {$this->class}.") );
+        if (!is_object($obj)) throw( new WFException("Passed parameter is not an object.") );
+        if (!($obj instanceof $this->class)) throw( new WFException("Object must be of type managed by this array controller.") );
+    }
+
     function changeCount()
     {
         return $this->changeCount;
@@ -151,6 +168,9 @@ class WFArrayController extends WFObjectController implements Iterator
      * Set the id key(s) used to generate Identifiers for the managed objects.
      *
      * For instance, if the WFArrayController's class is Person, maybe you'd pass 'uid'. If the WFArrayController's class is MyTwoColumnPKObject, you'd pass array('col1', 'col2').
+     *
+     * NOTE: calling this function resets the selection to EMPTY since the previous id's are no longer valid.
+     *
      * @param mixed The ID key(s) to use. If it's an array, it should be an array of strings. The managed object should be KVC compliant for the passed keys.
      *              If it's a string, the managed object should be KVC compliant for that key.
      */
@@ -177,11 +197,10 @@ class WFArrayController extends WFObjectController implements Iterator
         }
         else
         {
-            throw( new Exception("Identifiers must be either an array of strings or a single string.") );
+            throw( new WFException("Identifiers must be either an array of strings or a single string.") );
         }
 
-        // necessarily resets selection
-        $this->setSelectionIdentifiers(array());
+        $this->clearSelection();
     }
 
     /**
@@ -189,7 +208,7 @@ class WFArrayController extends WFObjectController implements Iterator
      *
      *  @param mixed ID information, either an array or a string/integer.
      *  @return boolean
-     *  @throws object Exception
+     *  @throws object WFException
      */
     function identifierIsSelected($id)
     {
@@ -206,7 +225,7 @@ class WFArrayController extends WFObjectController implements Iterator
     {
         if ($this->classIdentifiersMulti)
         {
-            if (!is_array($id)) throw( new Exception("Array of values required when there is more than one classIdentifier.") );
+            if (!is_array($id)) throw( new WFException("Array of values required when there is more than one classIdentifier.") );
             return join(WFArrayController::ID_DELIMITER, $id);
         }
         else
@@ -235,8 +254,9 @@ class WFArrayController extends WFObjectController implements Iterator
       */
     function identifierValuesForObject($obj)
     {
-        if ($this->usingIndexedMode) throw( new Exception('Cannot call identifierValuesForObject() when using WFArrayController::USE_ARRAY_INDEXES_AS_ID.') );
-        if (!is_object($obj) or !($obj instanceof $this->class)) throw( new Exception("Passed object not of class {$this->class} as expected.") );
+        if ($this->usingIndexedMode) throw( new WFException('Cannot call identifierValuesForObject() when using WFArrayController::USE_ARRAY_INDEXES_AS_ID.') );
+        $this->checkObjectClass($obj);
+        //if (!is_object($obj) or !($obj instanceof $this->class)) throw( new WFException("Passed object not of class {$this->class} as expected.") );
 
         if ($this->classIdentifiersMulti)
         {
@@ -292,11 +312,14 @@ class WFArrayController extends WFObjectController implements Iterator
 
     /**
      * Insert a new instance of the managed class at the end of the contentArray.
+     *
+     * NOTE: insert() requires that the value of {@link WFArrayController::$class class} is a class, not an interface.
+     *
      * @return object The new object.
      */
     function insert()
     {
-        if (!class_exists($this->class)) throw( new Exception("Class {$this->class} does not exist. ArrayController cannot automatically prepare.") );
+        if (!class_exists($this->class)) throw( new WFException("Class {$this->class} does not exist. ArrayController cannot automatically prepare.") );
         $newObject = new $this->class();
         $this->addObject($newObject);
         return $newObject;
@@ -312,14 +335,15 @@ class WFArrayController extends WFObjectController implements Iterator
      *  NOTE: UNTESTED!!!
      *
      *  @param object WFObject An object of the proper class managed by the array controller.
-     *  @throws Exception For various circumstances like invalid parameter, couldn't find object, etc.
+     *  @throws WFException For various circumstances like invalid parameter, couldn't find object, etc.
      */
     function removeObject($obj)
     {
         // check class
-        if (!class_exists($this->class)) throw( new Exception("Managed class {$this->class} does not exist.") );
-        if (!is_object($obj)) throw( new Exception("Passed object is, well, not an object!") );
-        if (!($obj instanceof $this->class)) throw( new Exception("Passed object not of class {$this->class} as expected, but instead: " . get_class($obj) . '.') );
+        $this->checkObjectClass($obj);
+        //if (!class_exists($this->class)) throw( new WFException("Managed class {$this->class} does not exist.") );
+        //if (!is_object($obj)) throw( new WFException("Passed object is, well, not an object!") );
+        //if (!($obj instanceof $this->class)) throw( new WFException("Passed object not of class {$this->class} as expected, but instead: " . get_class($obj) . '.') );
 
         // record change
         $this->changeCount++;
@@ -342,7 +366,7 @@ class WFArrayController extends WFObjectController implements Iterator
             $hash = $this->identifierHashForObject($obj);
             if (!isset($this->content["$hash"]))
             {
-                throw( new Exception("removeObject cannot remove passed object because it is not in the array.") );
+                throw( new WFException("removeObject cannot remove passed object because it is not in the array.") );
             }
             // make sure it's unselected
             $this->removeSelectionIdentifiers(array($hash));
@@ -359,7 +383,7 @@ class WFArrayController extends WFObjectController implements Iterator
     /**
      *  Remove all selected objects from the array controller.
      *
-     *  @throws Exception
+     *  @throws WFException
      */
     function cullSelectedObjects()
     {
@@ -372,7 +396,7 @@ class WFArrayController extends WFObjectController implements Iterator
     /**
      *  Remove all unselected objects from the array controller.
      *
-     *  @throws Exception
+     *  @throws WFException
      */
     function cullUnselectedObjects()
     {
@@ -392,9 +416,10 @@ class WFArrayController extends WFObjectController implements Iterator
     function addObject($obj)
     {
         // check class
-        if (!class_exists($this->class)) throw( new Exception("Managed class {$this->class} does not exist.") );
-        if (!is_object($obj)) throw( new Exception("Passed object is, well, not an object!") );
-        if (!($obj instanceof $this->class)) throw( new Exception("Passed object not of class {$this->class} as expected, but instead: " . get_class($obj) . '.') );
+        $this->checkObjectClass($obj);
+        //if (!class_exists($this->class)) throw( new WFException("Managed class {$this->class} does not exist.") );
+        //if (!is_object($obj)) throw( new WFException("Passed object is, well, not an object!") );
+        //if (!($obj instanceof $this->class)) throw( new WFException("Passed object not of class {$this->class} as expected, but instead: " . get_class($obj) . '.') );
 
         // record change
         $this->changeCount++;
@@ -428,7 +453,7 @@ class WFArrayController extends WFObjectController implements Iterator
      */
     function addObjects($arr)
     {
-        if (!is_array($arr)) throw( new Exception("The first parameter must be a PHP array.") );
+        if (!is_array($arr)) throw( new WFException("The first parameter must be a PHP array.") );
         foreach ($arr as $obj) {
             $this->addObject($obj);
         }
@@ -446,7 +471,7 @@ class WFArrayController extends WFObjectController implements Iterator
     {
         if (is_object($arr) and (is_array($arr))) throw( new WFException("I don't understand how to deal with objects that have array interfaces yet") );
         if (is_object($arr)) $arr = array($arr);
-        if (!is_array($arr)) throw( new Exception("The passed content must be a PHP array.") );
+        if (!is_array($arr)) throw( new WFException("The passed content must be a PHP array.") );
 
         // clear content
         $this->content = array();
@@ -492,11 +517,12 @@ class WFArrayController extends WFObjectController implements Iterator
      *  @return boolean TRUE if selected, FALSE otherwise.
      *  @throws If the passed item is not an object, or not an object that is managed by this array controller instance.
      */
-    function objectIsSelected($object)
+    function objectIsSelected($obj)
     {
-        if (!is_object($object)) throw( new Exception("First argument to objectIsSelected() must be an object.") );
-        if (!($object instanceof $this->class)) throw( new Exception("Object must be of type managed by this array controller.") );
-        $objectHash = $this->identifierHashForObject($object);
+        $this->checkObjectClass($obj);
+        //if (!is_object($obj)) throw( new WFException("First argument to objectIsSelected() must be an object.") );
+        //if (!($obj instanceof $this->class)) throw( new WFException("Object must be of type managed by this array controller.") );
+        $objectHash = $this->identifierHashForObject($obj);
         if (isset($this->selectedIdentifiersHash[$objectHash]))
         {
             return true;
@@ -528,13 +554,21 @@ class WFArrayController extends WFObjectController implements Iterator
      */
     function setSelectionIdentifiers($idsToSelect)
     {
-        if (!is_array($idsToSelect)) throw( new Exception("Must pass an array of ids.") );
+        if (!is_array($idsToSelect)) throw( new WFException("Must pass an array of ids.") );
 
         // reset selection
         $this->selectedIdentifiersHash = array();
 
         // add to selection
         $this->addSelectionIdentifiers($idsToSelect);
+    }
+
+    /**
+     * Clear all selected items.
+     */
+    function clearSelection()
+    {
+        $this->setSelectionIdentifiers(array());
     }
 
     /**
@@ -582,11 +616,11 @@ class WFArrayController extends WFObjectController implements Iterator
      * Add the passed ids to the selected list.
      *
      * @param array An array of ids: array(1,2). The ids, if they are multi-key ids, should be passed as array(array(1,2),array(1,3)).
-     * @throws Exception if the passed parameter is not an array.
+     * @throws WFException if the passed parameter is not an array.
      */
     function addSelectionIdentifiers($idsToAdd)
     {
-        if (!is_array($idsToAdd)) throw( new Exception("Must pass an array of ids.") );
+        if (!is_array($idsToAdd)) throw( new WFException("Must pass an array of ids.") );
         if (count($idsToAdd) == 0) return;
 
         // record change
@@ -606,12 +640,12 @@ class WFArrayController extends WFObjectController implements Iterator
      *  Remove the passed objects from the arrayController's selection.
      *
      *  @param array An array of hashes of the objects to be removed: array(1,2). Hashes are string for both single and multi-key arrays.
-     *  @throws Exception if the passed parameter is not an array.
+     *  @throws WFException if the passed parameter is not an array.
      *  @see identifierHashForObject, identifierHashForValues
      */
     function removeSelectionIdentifiers($idsToRemove)
     {
-        if (!is_array($idsToRemove)) throw( new Exception("Must pass an array of ids.") );
+        if (!is_array($idsToRemove)) throw( new WFException("Must pass an array of ids.") );
         if (count($idsToRemove) == 0) return;
 
         // record change
@@ -654,8 +688,9 @@ class WFArrayController extends WFObjectController implements Iterator
     function addSelectedObject($obj)
     {
         // check class
-        if (!class_exists($this->class)) throw( new Exception("Managed class {$this->class} does not exist.") );
-        if (!is_object($obj) or !($obj instanceof $this->class)) throw( new Exception("Passed object not of class {$this->class} as expected.") );
+        $this->checkObjectClass($obj);
+        //if (!class_exists($this->class)) throw( new WFException("Managed class {$this->class} does not exist.") );
+        //if (!is_object($obj) or !($obj instanceof $this->class)) throw( new WFException("Passed object not of class {$this->class} as expected.") );
 
         if ($this->classIdentifiersMulti)
         {
@@ -670,13 +705,13 @@ class WFArrayController extends WFObjectController implements Iterator
     /**
      * Get the selected object, or NULL if no objects are selected.
      * @return object The seleted object, if there is one object selected; NULL if there is no selection, and throws an exception if there are multiple items selected.
-     * @throws Exception If multiple objects are selected.
+     * @throws WFException If multiple objects are selected.
      */
     function selection()
     {
         $this->prepareContent();
         $selCount = $this->selectionCount();
-        if ($selCount > 1) throw( new Exception("Multiple items are selected.") );
+        if ($selCount > 1) throw( new WFException("Multiple items are selected.") );
         if ($selCount == 0) return NULL;
         $selectedHashes = array_keys($this->selectedIdentifiersHash);
         return $this->content[$selectedHashes[0]];
