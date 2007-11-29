@@ -376,7 +376,8 @@ class WFArrayController extends WFObjectController implements Iterator
         if ($this->avoidsEmptySelection and $this->selectionCount() == 0 and $this->arrangedObjectCount() > 0)
         {
             // select first object 
-            $this->addSelectedObject($this->content[0]);
+            $keys = array_keys($this->content);
+            $this->addSelectedObject($this->content[$keys[0]]);
         }
     }
 
