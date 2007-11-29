@@ -94,7 +94,7 @@ class WFSelect extends WFWidget
         parent::__construct($id, $page);
         $this->values = array();
         $this->multiple = false;
-        $this->visibleItems = 5;
+        $this->visibleItems = 1;
         $this->contentValues = array();
         $this->contentLabels = array();
         $this->width = NULL;
@@ -195,7 +195,6 @@ class WFSelect extends WFWidget
 
     function setVisibleItems($numItems)
     {
-        $this->assertMultiple(true);
         $this->visibleItems = $numItems;
     }
     function visibleItems()
@@ -212,6 +211,11 @@ class WFSelect extends WFWidget
     {
         if (!is_bool($multiple)) throw( new Exception("multiple must be boolean.") );
         $this->multiple = $multiple;
+        // only setVisibleItems to a reasonable default for multiple=true if it's 1. We have to check b/c it visibleItems could get set BEFORE the call to setMultiple
+        if ($this->visibleItems() == 1)
+        {
+            $this->setVisibleItems(5);
+        }
     }
 
     function setValue($val)
@@ -361,10 +365,12 @@ class WFSelect extends WFWidget
 
     function render($blockContent = NULL)
     {
-        $multiple = $this->multiple() ? ' multiple size="' . $this->visibleItems() . '" ' : '';
+        $multiple = $this->multiple() ? ' multiple ' : NULL;
+        $size = ($this->visibleItems() != 1) ? 'size="' . $this->visibleItems() . '" ' : NULL;
 
         $output = '<select name="' . $this->name() . ($this->multiple() ? '[]' : '') . '" ' .
                     $multiple .
+                    $size .
                     ($this->enabled() ? '' : ' disabled readonly ') .
                     ($this->width ? ' style="width: ' . $this->width . ';" ' : '') . 
                     $this->getJSActions() . 
