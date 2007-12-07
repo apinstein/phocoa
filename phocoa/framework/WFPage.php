@@ -235,7 +235,7 @@ class WFPage extends WFObject
      */
     function parameter($name)
     {
-        if (!array_key_exists($this->parameters, $name)) throw( new WFException("Parameter '{$name}' does not exist.") );
+        if (!array_key_exists($name, $this->parameters)) throw( new WFException("Parameter '{$name}' does not exist.") );   // must use array_key_exists b/c we want to legitimately return null.
         return $this->parameters[$name];
     }
 
