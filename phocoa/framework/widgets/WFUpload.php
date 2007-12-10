@@ -105,7 +105,7 @@ class WFUpload extends WFWidget
 
     function render($blockContent = NULL)
     {
-        return '<input type="file" name="' . $this->name . '" />';
+        return '<input type="file" id="' . $this->id . '" name="' . $this->name . '" />';
     }
 
     function canPushValueBinding() { return false; }
