@@ -368,7 +368,7 @@ class WFSelect extends WFWidget
         $multiple = $this->multiple() ? ' multiple ' : NULL;
         $size = ($this->visibleItems() != 1) ? 'size="' . $this->visibleItems() . '" ' : NULL;
 
-        $output = '<select name="' . $this->name() . ($this->multiple() ? '[]' : '') . '" ' .
+        $output = '<select id="' . $this->id . '" name="' . $this->name() . ($this->multiple() ? '[]' : '') . '" ' .
                     $multiple .
                     $size .
                     ($this->enabled() ? '' : ' disabled readonly ') .
