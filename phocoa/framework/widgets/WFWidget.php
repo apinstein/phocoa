@@ -402,6 +402,12 @@ abstract class WFWidget extends WFView
                 WFLog::log("skipping pullBindings for {$this->id} / $prop because the value is an error.", WFLog::TRACE_LOG);
                 continue;
             }
+            // process readwrite mode option
+            if (!$binding->canReadBoundValue())
+            {
+                WFLog::log("skipping pullBindings for {$this->id} / $prop because the binding option for ReadWriteMode is set to writeonly.", WFLog::TRACE_LOG);
+                continue;
+            }
         
             try {
                 $bindingSetup = $binding->bindingSetup();
@@ -602,6 +608,7 @@ abstract class WFWidget extends WFView
     function pushBindings()
     {
         if (!$this->canPushValueBinding()) return;
+        if ($this->bindingByName('value') and !$this->bindingByName('value')->canWriteBoundValue()) return;
         if (!$this->enabled()) return;  // disabled HTML controls do not submit data, thus they'll be empty! Thus don't push data or we'll blow away valid data.
 
         WFLog::log("pushBindings() for for widget id '{$this->id}'", WFLog::TRACE_LOG);
@@ -669,6 +676,7 @@ abstract class WFWidget extends WFView
 
         // assert for r/o bindings.
         if ($binding->bindingSetup()->readOnly()) throw( new Exception("Attempt to propagateValueToBinding for a read-only binding: {$this->id} / $bindingName.") );
+        if (!$binding->canWriteBoundValue()) throw( new Exception("Attempt to propagateValueToBinding for a binding with that doesn't allow writing.") );
 
         // normalize "" string values to NULL. Do this pre-validation; that function can do normalization etc.
         // we simply cover the case of TOTALLY EMPTY STRING is equivalent to NULL here.

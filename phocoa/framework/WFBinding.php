@@ -274,6 +274,11 @@ class WFBinding extends WFObject
     const VALUE_TRANSFORMER_NAME = 'ValueTransformer';
     const VALUE_FORMATTER_NAME = 'Formatter';
 
+    const VALUE_READ_WRITE_MODE = 'ReadWriteMode';  // 'normal', 'readonly', 'writeonly'. Default 'normal'. A way to use a binding option on any binding to make it act read-only, write-only, or read-write. This cannot add any capability not allowed in the binding's setup.
+    const VALUE_READ_WRITE_MODE_NORMAL = 'normal'; 
+    const VALUE_READ_WRITE_MODE_WRITE_ONLY = 'writeonly'; 
+    const VALUE_READ_WRITE_MODE_READ_ONLY = 'readonly'; 
+
     /**
      * @var object The object that this property is bound to.
      */
@@ -419,6 +424,21 @@ class WFBinding extends WFObject
         {
             return NULL;
         }
+    }
+
+    function canReadBoundValue()
+    {
+        if (!isset($this->options[WFBinding::VALUE_READ_WRITE_MODE])) return true;
+        if ($this->options[WFBinding::VALUE_READ_WRITE_MODE] == WFBinding::VALUE_READ_WRITE_MODE_NORMAL) return true;
+        if ($this->options[WFBinding::VALUE_READ_WRITE_MODE] == WFBinding::VALUE_READ_WRITE_MODE_READ_ONLY) return true;
+        return false;
+    }
+    function canWriteBoundValue()
+    {
+        if (!isset($this->options[WFBinding::VALUE_READ_WRITE_MODE])) return true;
+        if ($this->options[WFBinding::VALUE_READ_WRITE_MODE] == WFBinding::VALUE_READ_WRITE_MODE_NORMAL) return true;
+        if ($this->options[WFBinding::VALUE_READ_WRITE_MODE] == WFBinding::VALUE_READ_WRITE_MODE_WRITE_ONLY) return true;
+        return false;
     }
 
     function valueTransformerName()
