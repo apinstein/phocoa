@@ -927,6 +927,7 @@ class WFPagedCreoleQuery implements WFPagedData
     protected $baseSQL;
     protected $connection;
     protected $countQueryRowsMode;
+    protected $populateObjectsCallback;
 
     /**
       * Create a WFPagedCreoleQuery paged query.
@@ -942,12 +943,34 @@ class WFPagedCreoleQuery implements WFPagedData
         $this->baseSQL = $sql;
         $this->countQueryRowsMode = $countQueryRowsMode;
         $this->connection = $connection;
+        $this->populateObjectsCallback = NULL;
+    }
+
+    /**
+     * By default, WFPagedCreoleQuery returns an associative array of selected columns.
+     *
+     * If you are using a creole query load Propel objects with a custom query (ie something too complex for criteria) but you still want propel objects returned,
+     * call this function with your peer name. Note that your query should contain the proper select columns as Criteria would set them up, ie the result of
+     * TourPeer::getFieldNames(BasePeer::TYPE_COLNAME)
+     *
+     * @param string The propel peer name used to call populateObjects.
+     */
+    function setPopulateObjects($peerName)
+    {
+        $this->populateObjectsCallback = array($peerName, 'populateObjects');
     }
 
     function itemCount()
     {
         $matches = array();
-        $matchCount = preg_match('/.*(\bfrom\b.*)/si', $this->baseSQL, $matches);
+        if (stripos($this->baseSQL, 'order by'))
+        {
+            $matchCount = preg_match('/^.*(\bfrom\b.*)(\border by\b.*)$/si', $this->baseSQL, $matches);
+        }
+        else
+        {
+            $matchCount = preg_match('/^.*(\bfrom\b.*)$/si', $this->baseSQL, $matches);
+        }
         if ($matchCount != 1) throw(new Exception("Could not parse sql statement."));
 
         if ($this->countQueryRowsMode === true)
@@ -992,12 +1015,20 @@ class WFPagedCreoleQuery implements WFPagedData
 
         // run query
         $stmt = $this->connection->createStatement();
-        $rs = $stmt->executeQuery($pageSQL, ResultSet::FETCHMODE_ASSOC);
         
         // prepare results into an array of row data
-        $results = array();
-        while ($rs->next()) {
-            $results[] = $rs->getRow();
+        if ($this->populateObjectsCallback)
+        {
+            $rs = $stmt->executeQuery($pageSQL, ResultSet::FETCHMODE_NUM);
+            $results = call_user_func($this->populateObjectsCallback, $rs);
+        }
+        else
+        {
+            $rs = $stmt->executeQuery($pageSQL, ResultSet::FETCHMODE_ASSOC);
+            $results = array();
+            while ($rs->next()) {
+                $results[] = $rs->getRow();
+            }
         }
 
         return $results;
