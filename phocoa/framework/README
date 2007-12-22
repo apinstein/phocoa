@@ -35,7 +35,7 @@ TODO
 - Can we add "default values" to parameters for parameterList('name' => 'defaultValue') the way we did for: phocoa builder/exportPhocoaBuilderIntegrationInfo.php
   - would simplify default value setup
   - I think it's safe re php spec
-  - only worry is ordering - of course ordering is *very* important to us
+      - only worry is ordering - of course ordering is *very* important to us; I am pretty sure that PHP arrays always preserve key ordering
   - Maybe even add deeper options so we can automate common things like array-passing?
     return array( 'idsToIgnore' => array(
                                          'default' => '1,2',
@@ -45,11 +45,13 @@ TODO
 - IDEA: Instead of having to restore state each time the page loads, couldn't we just serialize the entire state to the session and re-load that? Seems that it would be much faster and more accurate.
   Of course, then have to deal with what happens when state is out-of-sync with DB.
   Also, have to deal with 2 contexts; when having one page loaded in 2 windows, do they SHARE state or have SEPARATE state? Or do we let the developer decide?
+- Instead of having to make Propel or Doctrine subclass WFObject, try http://www.php.net/aggregate to inject WFObject protocol...
 - Maybe phocoa shouldn't "take over" entire /WWWROOT/ URL path. Instead, just let people drop modules wherever, and those pages should start with:
   require('../conf/webapp.conf');
   WFWebApplicationMain();
   // WFModule subclass here
   - this way we could store css, img, etc in the same folder as the module... add {$MODULE_WWW_DIR} to smarty?
+- Add Expires header automatically to skin system? For css and such? Or just add it in code...
 - Finish WFAutoForm - is this really useful? do we really want some kind of "template" system for common list/detail/edit views?
   - Talk to Mark F about his experiences
   - Look at HTML_QuickForm, QCodo, Symfony, CodeIgniter, RoR
@@ -79,10 +81,7 @@ TODO
 - Have the newproject script make -dev and -production and -staging versions of conf files
 - Do we need namespacing for modules? What if you have 2 "included" modules on a page that both have a widget with id=name? Things won't work right... right?
 - E_STRICT support
-- Improve 'default' template to a nice-looking
-    - Ubertemplate
-    - Menu based on YUI
-      - WFTreeController
+- WFTreeController
 - Integrate YAHOO js library to the extent that events can be attached to widgets; build a nice infrastructure for that
   - deprecate current js action handlers? dunno... direct onClick handlers and such are still very useful
   - support tooltips on all wfview objects
@@ -132,6 +131,9 @@ TODO
   - store modulepage caches in runtime/
   - benchmark?
 
+- Improve 'default' template to a nice-looking
+    - (Done) YUI CSS
+    - (Done) Menu based on YUI
 - (DONE) Idea to get stuff in TPL file into <head> section! Create a {WFHead} block tag and have it addHeadString() if there's a skin; dump directly if not.
   - document this - probably need a section on "page template and layout control"
 - (DONE) Fix bug in base64_encode -- this is *NOT* URL safe as base64 uses / character! see WFModule / showcase EncryptionUtil hexencode/hexdecode

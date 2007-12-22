@@ -9,4 +9,7 @@ Codes:
 Version 0.1.1
 - [BC-break] WFYAHOO is now an abstract class. Some applications may have previously instantiated WFYAHOO objects to bootstrap the YUI lib. This will now break.
              To update, you should remove any WFYAHOO instances from your application and instead use the {YUI} smarty plugin, which utilizes the new YUILoader support.
+- [BC-break] If you are using WFArrayController with USE_ARRAY_INDEXES_AS_ID (#arrayIndexes#), by default your array controllers will break,
+             due to the new avoidsEmptySelection property, which is true by default. To fix this, either convert your array controllers
+             to use ids, or set avoidsEmptySelection to false.
 - [new] Ajax infrastructure has been added to PHOCOA. Refer to docs for details, as it is a big system.

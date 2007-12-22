@@ -97,7 +97,7 @@ class WFSkinDelegate
       * Example:
       *
       * $skin->setSkin('exampleskin2');
-      * $skin->setTheme('red', 'skinThemeName');
+      * $skin->setTheme('red');
       * $skin->setMetaDescription('This is the default description.');
       * $skin->addMetaKeywords(array('more', 'keywords'));
       * $skin->setTitle('Page Title');

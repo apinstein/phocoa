@@ -1991,30 +1991,38 @@ Total time: 2.8443 seconds
             not a layout in and of itself; rather it is just an implementation
             of the layout from a semantic perspective. The Skin Delegate
             provides an interface for the skins (explained below) to access
-            the data common to the layout. An example of a skin type would be
-            an "Admin" interface and a "Public" interface for an
-            application.</para>
+            the data common to the layout. Many applications have only one
+            skin type. However, you might have different portions of your site
+            that have different sets of data to present, and this is a reason
+            that you might create a new skin type. For instance, you might
+            create an additional skin type for the "Admin" interface of your
+            web site since it has a different set of "components" that need to
+            be displayed on each page.</para>
           </listitem>
 
           <listitem>
-            <para><emphasis>Skin</emphasis> Each skin is a concrete
-            implementation of an actual layout. There can be any number of
-            skins that implement layouts for each Skin Type.</para>
+            <para><emphasis>Skin</emphasis> A skin is an actual layout
+            implementation of the elements defined by a <emphasis>skin
+            type</emphasis>. Each <emphasis>skin type</emphasis> can have any
+            number of <emphasis>skin</emphasis> implementations.</para>
           </listitem>
 
           <listitem>
-            <para><emphasis>Template Type</emphasis> Each skin by default has
-            just one template file, template_normal.tpl. If you want minor
+            <para><emphasis>Skin Theme</emphasis> Each
+            <emphasis>skin</emphasis> can optionally be partitioned into
+            themes. Themes provide an easy way to use the same basic layout
+            (the Skin) while changing colorschemes, graphics packages, etc.
+            This is done effectively by swapping out a css file and the "path"
+            to the skin's assets (images, etc).</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>Template Type</emphasis> Each
+            <emphasis>skin</emphasis> by default has just one template file,
+            <filename>template_normal.tpl</filename>. If you want minor
             variations of the same look and feel, such as for a popup or
             mobile version, this is the way to do it. Different template types
             of the same skin will still be "themed".</para>
-          </listitem>
-
-          <listitem>
-            <para><emphasis>Skin Theme</emphasis> Each skin is further
-            subdivided, optionally, into themes. Themes provide an easy way to
-            use the same basic layout (the Skin) while changing colorschemes,
-            graphics packages, etc.</para>
           </listitem>
         </itemizedlist>By default, a new PHOCOA application has a single Skin
       Type (simple) and two Skins (simple1, simple2). Simple1 has only one
@@ -2035,25 +2043,29 @@ Total time: 2.8443 seconds
         <listitem>
           <para>If you just want a slight variation on an existing look and
           feel (i.e., different header graphics, different colors), then you
-          should use make a skin theme for each variation.</para>
+          should use just one <emphasis>skin type</emphasis> with one
+          <emphasis>skin</emphasis> and make a <emphasis>skin theme</emphasis>
+          for each variation.</para>
         </listitem>
 
         <listitem>
           <para>If you are keeping the same look and feel, but want a slightly
           different layout (maybe for a pop-up window or a mobile version),
-          then you should make a new templateType for your skin.</para>
+          then you should make a new <emphasis>template type</emphasis> for
+          your skin.</para>
         </listitem>
 
         <listitem>
           <para>If you want a different look and feel, but need to display all
           of the same elements on the page, you should create a new
-          skin.</para>
+          <emphasis>skin</emphasis>.</para>
         </listitem>
 
         <listitem>
           <para>If you need to represent an entirely different set of elements
           on the web page, such as for an admin interface vs. the public
-          interface, then you should create a new skin type.</para>
+          interface, then you should create a new <emphasis>skin
+          type</emphasis>.</para>
         </listitem>
       </itemizedlist>
 
@@ -2062,6 +2074,141 @@ Total time: 2.8443 seconds
       too overwhelmed with the options. The flexibility in the skin system is
       primarily intended for CMS applications or large web applications with
       multiple "sections".</para>
+
+      <bridgehead>Authoring Skins</bridgehead>
+
+      <para>When authoring skins, you will need to know how the skin systems
+      stores its files and also how to create URL's pointing to the themed CSS
+      files and other assets (images, js, etc) of your skin.</para>
+
+      <para>For convenience, all files related to a skin are stored along with
+      the skin delegate code. PHOCOA takes care of mapping incoming URL
+      requests to the proper folders. All skins are stored under the
+      <filename>skins</filename> directory at the top level of your PHOCOA
+      project.</para>
+
+      <para><filename>skins/</filename> - Contains only directories; each
+      directory represents a <emphasis>Skin Type</emphasis>.</para>
+
+      <para><filename>skins/&lt;skinType&gt;/</filename> - For each
+      <emphasis>skin type</emphasis>, pick a unique name and create a
+      directory.</para>
+
+      <para><filename>skins/&lt;skinType&gt;/&lt;skinType&gt;_SkinDelegate.php</filename>
+      - A php file containing exactly one class, named
+      <filename>&lt;skinType&gt;_SkinDelegate</filename>, that is the
+      <classname>WFSkinDelegate</classname> for the <emphasis>Skin
+      Type</emphasis>.</para>
+
+      <para><filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/</filename> -
+      Also in the <emphasis>skin type</emphasis> directory are other
+      directories, one for each <emphasis>skin</emphasis> that can be used for
+      the <emphasis>Skin Type</emphasis>.</para>
+
+      <para><filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/&lt;skinName&gt;_SkinManifestDelegate.php</filename>
+      - The <classname>WFSkinManifestDelegate</classname> for the
+      <emphasis>skin</emphasis> &lt;skinName&gt;.</para>
+
+      <para><filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/</filename> -
+      Other files in here are the various tpl and css files used for this
+      <emphasis>skin</emphasis>.</para>
+
+      <para><filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/www/</filename>
+      - Web root of the <emphasis>skin</emphasis>. Nothing actually goes in
+      this folder but other folders.</para>
+
+      <para><filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/www/shared/</filename>
+      - Files that need to be accesible to the WWW and are shared by multiple
+      themes of this <emphasis>skin</emphasis> go here.</para>
+
+      <para><filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/www/&lt;themeName&gt;/</filename>
+      - Files that need to be accessible to the WWW and are specific to a
+      <emphasis>theme</emphasis> go here. Each <emphasis>theme</emphasis> has
+      its own folder to contain "themed" versions of resources. Typically
+      every <emphasis>theme</emphasis> has the same set of resources, but of
+      course customized for that <emphasis>theme</emphasis>.</para>
+
+      <para>PHOCOA automatically adds some template variables to make it easy
+      to access <emphasis>skin</emphasis> assets.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><token>skinDir</token> Absolute URL path to the
+          <filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/www/&lt;themeName&gt;/</filename>
+          directory.</para>
+        </listitem>
+
+        <listitem>
+          <para><token>skinDirShared</token> Absoulte URL path to the
+          <filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/www/shared/
+          directory.</filename></para>
+        </listitem>
+
+        <listitem>
+          <para><token>skinBody</token> The raw output of the current PHOCOA
+          request. This is where the "page content" goes.</para>
+        </listitem>
+
+        <listitem>
+          <para><token>skinHead</token> The raw output PHOCOA generates to go
+          in the &lt;head&gt; section of the web page. You can "override"
+          default head elements in your own skin by placing references to css,
+          js, etc. after skinHead.</para>
+        </listitem>
+
+        <listitem>
+          <para><token>skinThemeVars</token> The data returned by your skin's
+          <function>loadTheme($theme)</function> function.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>In addition to these variables, PHOCOA also includes a Smarty
+      plugin to generate the correct CSS reference to include themed CSS
+      files. The syntax is:</para>
+
+      <para><function>{WFSkinCSS file="myFile.css"
+      media="screen"}</function></para>
+
+      <para>The <token>media</token> attribute is optional.</para>
+
+      <para>You don't have to use this method to include CSS files. You can
+      simply put them in your theme's www directory, or in the shared
+      directory. The difference, however, is that if you use the themed css
+      syntax, your CSS file will be processed as a template and thus have
+      access to the <token>skinThemeVars</token> variable. This is
+      particularly useful if the only difference between your different theme
+      css files is just a different colorscheme, for instance. Instead of
+      having to maintain multiple copies of nearly identical CSS files, you
+      can just have one that is run through the themed CSS system, and simply
+      subsitute the colorscheme info via template variables.</para>
+
+      <bridgehead>Previewing Skins</bridgehead>
+
+      <para>PHOCOA includes a useful utility for browsing and previewing
+      installed skin types, skins, themes, and template types. See
+      http://phocoa.com/webapp/examples/skininfo/skinTypes for a demo.</para>
+
+      <bridgehead>Including Module/Page Content in a Skin</bridgehead>
+
+      <para>At this time, skin template files cannot make use of PHOCOA
+      widgets or other PHOCOA technologies for building web pages. However, a
+      special Smarty plugin is provided to allow you to include the output of
+      a module/page in a skin. This is useful for cases such as building menu
+      navigation systems, including a login form on every page, etc. </para>
+
+      <para>PHOCOA ships with a module/page called "menu" which makes it easy
+      to include a YUI-based menu system on your site. You simply include the
+      menu module with the <function>WFSkinModuleView</function> plugin,
+      passing the name of the "namedContent" you want to use from your skin,
+      and optionally a 1 to indicate that your menu is a horizontal menu bar.
+      </para>
+
+      <para>For example, this creates a horizontal menu bar with drop-down
+      menus, using the content supplied by the skin's "mainMenu"
+      content:</para>
+
+      <para><function>{WFModuleView
+      invocationPath="menu/menu/mainMenu/1"}</function></para>
     </section>
 
     <section>
@@ -2275,7 +2422,7 @@ Total time: 2.8443 seconds
 
             <listitem>
               <para>syck - A php extension for YAML parsing that GREATLY
-              improves performance. </para>
+              improves performance.</para>
 
               <para>We recommend that you install syck from PEAR with:</para>
 

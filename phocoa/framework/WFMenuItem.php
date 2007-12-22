@@ -194,7 +194,7 @@ class WFMenuTree
      *  This algorithm is intended to adapt a flat list of objects which contain information on their place within a hierarchy.
      *  For instance, this could be a list of "web page objects" that each know about their proper place in a hierarchical navigation system.
      *
-     *  This algorithm takes an array of objects, each having a menuPath in the form of "a/b/c/d", and returns them in tree form. The tree form is suitable for WFDynarchMenu or other menu subsytems.
+     *  This algorithm takes an array of objects, each having a menuPath in the form of "a/b/c/d", and returns them in tree form. The tree form is suitable for WFDynarchMenu, WFYAHOO_widget_Menu, or other menu subsytems.
      *
      *  Items can be both a menu item and have children.
      *

@@ -131,6 +131,7 @@ class WFIncluding
                 'WFYAHOO_widget_Dialog' => 'framework/widgets/yahoo/WFYAHOO_widget_Dialog.php',
                 'WFYAHOO_widget_PhocoaDialog' => 'framework/widgets/yahoo/WFYAHOO_widget_PhocoaDialog.php',
                 'WFYAHOO_widget_Logger' => 'framework/widgets/yahoo/WFYAHOO_widget_Logger.php',
+                'WFYAHOO_widget_Menu' => 'framework/widgets/yahoo/WFYAHOO_widget_Menu.php',
                 'WFYAHOO_widget_AutoComplete' => 'framework/widgets/yahoo/WFYAHOO_widget_AutoComplete.php',
                 'WFPaginatorPageInfo' => 'framework/widgets/WFPaginatorPageInfo.php',
                 'WFValueTransformer' => 'framework/ValueTransformers/WFValueTransformer.php',

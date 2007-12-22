@@ -2,7 +2,7 @@
 Copyright (c) 2007, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.3.1
+version: 2.4.1
 */
 /**
 * @module button
@@ -42,7 +42,6 @@ version: 2.3.1
 * @namespace YAHOO.widget
 * @requires yahoo, dom, element, event
 * @optional container, menu
-* @beta
 */
 
 
@@ -675,11 +674,11 @@ version: 2.3.1
         * @property RADIO_CHECKED_TITLE
         * @description String representing the title applied to buttons of 
         * type "radio" when checked.
-        * @default "Checked.  Click to uncheck."
+        * @default "Checked.  Click another button to uncheck"
         * @final
         * @type String
         */
-        RADIO_CHECKED_TITLE: "Checked.  Click to uncheck.",
+        RADIO_CHECKED_TITLE: "Checked.  Click another button to uncheck",
         
         
         /**
@@ -1034,7 +1033,7 @@ version: 2.3.1
 
             var bLazyLoad = this.get("lazyloadmenu"),
                 oButtonElement = this.get("element"),
-                sMenuCSSClassName = Menu.prototype.CSS_CLASS_NAME,
+                sMenuCSSClassName,
         
                 /*
                     Boolean indicating if the value of p_oMenu is an instance 
@@ -1059,12 +1058,11 @@ version: 2.3.1
                 return false;
             
             }
-        
-        
-            if (!Menu) {
-        
-        
-                return false;
+
+
+            if (Menu) {
+            
+                sMenuCSSClassName = Menu.prototype.CSS_CLASS_NAME;
             
             }
         
@@ -1091,7 +1089,7 @@ version: 2.3.1
                     oMenu.renderEvent.subscribe(this._onMenuRender, null, this);
         
         
-                    if (oMenu instanceof Menu) {
+                    if (Menu && oMenu instanceof Menu) {
         
                         oMenu.keyDownEvent.subscribe(this._onMenuKeyDown, 
                             this, true);
@@ -1113,7 +1111,7 @@ version: 2.3.1
                         }
         
                     }
-                    else if (oMenu instanceof Overlay) {
+                    else if (Overlay && oMenu instanceof Overlay) {
         
                         if (!m_oOverlayManager) {
         
@@ -1132,7 +1130,7 @@ version: 2.3.1
         
                     if (!bInstance) {
         
-                        if (bLazyLoad && !(oMenu instanceof Menu)) {
+                        if (bLazyLoad && Menu && !(oMenu instanceof Menu)) {
         
                             /*
                                 Mimic Menu's "lazyload" functionality by adding  
@@ -1167,7 +1165,7 @@ version: 2.3.1
             }
         
         
-            if (p_oMenu && (p_oMenu instanceof Menu)) {
+            if (p_oMenu && Menu && (p_oMenu instanceof Menu)) {
         
                 oMenu = p_oMenu;
                 aItems = oMenu.getItems();
@@ -1200,7 +1198,7 @@ version: 2.3.1
                 initMenu.call(this);
         
             }
-            else if (p_oMenu && (p_oMenu instanceof Overlay)) {
+            else if (Overlay && p_oMenu && (p_oMenu instanceof Overlay)) {
         
                 oMenu = p_oMenu;
                 bInstance = true;
@@ -1211,7 +1209,7 @@ version: 2.3.1
                 initMenu.call(this);
         
             }
-            else if (Lang.isArray(p_oMenu)) {
+            else if (Menu && Lang.isArray(p_oMenu)) {
         
                 this.on("appendTo", function () {
         
@@ -1229,7 +1227,7 @@ version: 2.3.1
         
                 if (oMenuElement) {
         
-                    if (Dom.hasClass(oMenuElement, sMenuCSSClassName) || 
+                    if (Menu && Dom.hasClass(oMenuElement, sMenuCSSClassName) || 
                         oMenuElement.nodeName.toUpperCase() == "SELECT") {
             
                         oMenu = new Menu(p_oMenu, { lazyload: bLazyLoad });
@@ -1237,7 +1235,7 @@ version: 2.3.1
                         initMenu.call(this);
             
                     }
-                    else {
+                    else if (Overlay) {
         
                         oMenu = new Overlay(p_oMenu, { visible: false, 
                             context: [oButtonElement, "tl", "bl"] });
@@ -1251,7 +1249,7 @@ version: 2.3.1
             }
             else if (p_oMenu && p_oMenu.nodeName) {
         
-                if (Dom.hasClass(p_oMenu, sMenuCSSClassName) || 
+                if (Menu && Dom.hasClass(p_oMenu, sMenuCSSClassName) || 
                         p_oMenu.nodeName.toUpperCase() == "SELECT") {
         
                     oMenu = new Menu(p_oMenu, { lazyload: bLazyLoad });
@@ -1259,7 +1257,7 @@ version: 2.3.1
                     initMenu.call(this);
         
                 }
-                else {
+                else if (Overlay) {
         
                     if (!p_oMenu.id) {
                     
@@ -1330,7 +1328,7 @@ version: 2.3.1
                 oMenuItem;
 
 
-            if (oMenu && oMenu instanceof Menu) {
+            if (Menu && oMenu && oMenu instanceof Menu) {
 
                 oMenuItem = oMenu.getItem(p_nIndex);
                 
@@ -1474,8 +1472,6 @@ version: 2.3.1
         },
         
         
-        _originalMaxHeight: -1,
-        
         
         /**
         * @method _showMenu
@@ -1486,33 +1482,148 @@ version: 2.3.1
         * the display of the menu.
         */
         _showMenu: function (p_oEvent) {
-        
-            YAHOO.widget.MenuManager.hideVisible();
+
+            if (YAHOO.widget.MenuManager) {
+
+                YAHOO.widget.MenuManager.hideVisible();
+            
+            }
+
         
             if (m_oOverlayManager) {
         
                 m_oOverlayManager.hideAll();
             
             }
+
+
+            var nViewportOffset = Overlay.VIEWPORT_OFFSET,   
         
-        
-            var oMenu = this._menu,
-                nViewportHeight = Dom.getViewportHeight(),
+                oMenu = this._menu,
+                oButton = this,
+                oButtonEL = oButton.get("element"),
+                bMenuFlipped = false,
+                nButtonY = Dom.getY(oButtonEL),
+                nScrollTop = Dom.getDocumentScrollTop(),
+                nMenuMinScrollHeight,
                 nMenuHeight,
-                nScrollTop,
-                nY;
+                oMenuShadow;
+    
+    
+            if (nScrollTop) {
+        
+                nButtonY = nButtonY - nScrollTop;
+        
+            }
         
         
-            if (oMenu && (oMenu instanceof Menu)) {
+            var nTopRegion = nButtonY,
+                nBottomRegion = (Dom.getViewportHeight() - 
+                    (nButtonY + oButtonEL.offsetHeight));
         
-                oMenu.cfg.applyConfig({ context: [this.get("id"), "tl", "bl"],
-                    constraintoviewport: false,
+
+            /*
+                 Uses the Button's position to calculate the availble height 
+                 above and below it to display its corresponding Menu.
+            */
+        
+            function getMenuDisplayRegionHeight() {
+        
+                if (bMenuFlipped) {
+        
+                    return (nTopRegion - nViewportOffset);
+        
+                }
+                else {
+        
+                    return (nBottomRegion - nViewportOffset);
+        
+                }
+        
+            }
+
+    
+    
+            /*
+                Sets the Menu's "maxheight" configuration property and trys to 
+                place the Menu in the best possible position (either above or 
+                below its corresponding Button).
+            */
+        
+            function sizeAndPositionMenu() {
+        
+                var nDisplayRegionHeight = getMenuDisplayRegionHeight();
+        
+        
+                if (nMenuHeight > nDisplayRegionHeight) {
+        
+                    nMenuMinScrollHeight = oMenu.cfg.getProperty("minscrollheight");
+        
+        
+                    if (nDisplayRegionHeight > nMenuMinScrollHeight) {
+        
+                        oMenu.cfg.setProperty("maxheight", 
+                                    nDisplayRegionHeight);
+            
+        
+                        if (bMenuFlipped) {
+                        
+                            oMenu.align("bl", "tl");
+                        
+                        }
+            
+                    }
+            
+        
+                    if (nDisplayRegionHeight < nMenuMinScrollHeight) {
+                   
+                        if (bMenuFlipped) {
+            
+                            /*
+                                 All possible positions and values for the 
+                                 "maxheight" configuration property have been 
+                                 tried, but none were successful, so fall back 
+                                 to the original size and position.
+                            */
+        
+                            oMenu.cfg.setProperty("context", 
+                                [oButtonEL, "tl", "bl"], true);
+
+                            oMenu.align("tl", "bl");
+                            
+                        }
+                        else {
+            
+                            oMenu.cfg.setProperty("context", 
+                                [oButtonEL, "bl", "tl"], true);
+
+                            oMenu.align("bl", "tl");
+            
+                            bMenuFlipped = true;
+            
+                            return sizeAndPositionMenu();
+            
+                        }
+                    
+                    }
+                
+                }
+        
+            }
+
+
+            if (Menu && oMenu && (oMenu instanceof Menu)) {
+        
+                oMenu.cfg.applyConfig({ context: [oButtonEL, "tl", "bl"],
                     clicktohide: false,
                     visible: true });
                     
                 oMenu.cfg.fireQueue();
+                
+                oMenu.cfg.setProperty("maxheight", 0);
             
                 oMenu.align("tl", "bl");
+        
         
                 /*
                     Stop the propagation of the event so that the MenuManager 
@@ -1524,61 +1635,45 @@ version: 2.3.1
                     Event.stopPropagation(p_oEvent);
         
                 }
-
-
+        
+                
+                nMenuHeight = oMenu.element.offsetHeight;
+                
+                oMenuShadow = oMenu.element.lastChild; 
+        
+                sizeAndPositionMenu();
+        
                 if (this.get("focusmenu")) {
         
                     this._menu.focus();
                 
                 }
-        
-                nMenuHeight = oMenu.element.offsetHeight;
-        
-        
-                if ((oMenu.cfg.getProperty("y") + nMenuHeight) > 
-                    nViewportHeight) {
-        
-        
-                    oMenu.align("bl", "tl");
-        
-                    nY = oMenu.cfg.getProperty("y");
-        
-                    nScrollTop = Dom.getDocumentScrollTop();
-        
-        
-                    if (nScrollTop >= nY) {
-        
-                        if (this._originalMaxHeight == -1) {
-        
-                            this._originalMaxHeight = 
-                                    oMenu.cfg.getProperty("maxheight");
-        
-                        }
-        
-                        oMenu.cfg.setProperty("maxheight", 
-                                    (nMenuHeight - ((nScrollTop - nY) + 20)));
-        
-                        oMenu.align("bl", "tl");
-        
-                    }
-        
-                }
-        
+
             }
-            else if (oMenu && (oMenu instanceof Overlay)) {
+            else if (Overlay && oMenu && (oMenu instanceof Overlay)) {
         
                 oMenu.show();
                 oMenu.align("tl", "bl");
+                
+                var nDisplayRegionHeight = getMenuDisplayRegionHeight();
 
                 nMenuHeight = oMenu.element.offsetHeight;
-        
-        
-                if ((oMenu.cfg.getProperty("y") + nMenuHeight) > 
-                    nViewportHeight) {
-        
-        
+
+
+                if (nDisplayRegionHeight < nMenuHeight) {
+
                     oMenu.align("bl", "tl");
+
+                    bMenuFlipped = true;
+
+                    nDisplayRegionHeight = getMenuDisplayRegionHeight();
+
+                    if (nDisplayRegionHeight < nMenuHeight) {
+
+                        oMenu.align("tl", "bl");
                     
+                    }
+
                 }
         
             }
@@ -1642,7 +1737,14 @@ version: 2.3.1
                 this.addStateCSSClasses("activeoption");
             
             }
+
+
+            if (this._activationButtonPressed || this._bOptionPressed) {
         
+                Event.removeListener(document, "mouseup", this._onDocumentMouseUp);
+        
+            }
+
         },
         
         
@@ -1685,14 +1787,24 @@ version: 2.3.1
             this._activationButtonPressed = false;
             this._bOptionPressed = false;
         
-            var sType = this.get("type");
+            var sType = this.get("type"),
+                oTarget,
+                oMenuElement;
         
             if (sType == "menu" || sType == "split") {
+
+                oTarget = Event.getTarget(p_oEvent);
+                oMenuElement = this._menu.element;
         
-                this.removeStateCSSClasses(
-                    (sType == "menu" ? "active" : "activeoption"));
-        
-                this._hideMenu();
+                if (oTarget != oMenuElement && 
+                    !Dom.isAncestor(oMenuElement, oTarget)) {
+
+                    this.removeStateCSSClasses((sType == "menu" ? 
+                        "active" : "activeoption"));
+            
+                    this._hideMenu();
+
+                }
         
             }
         
@@ -2163,7 +2275,7 @@ version: 2.3.1
             }
         
         
-            if (oMenu && (oMenu instanceof Menu)) {
+            if (Menu && oMenu && (oMenu instanceof Menu)) {
         
                 this.resetValue("selectedMenuItem");
         
@@ -2180,10 +2292,11 @@ version: 2.3.1
         * passed back by the event utility (YAHOO.util.Event).
         */
         _onDocumentMouseDown: function (p_oEvent) {
-        
+
             var oTarget = Event.getTarget(p_oEvent),
                 oButtonElement = this.get("element"),
                 oMenuElement = this._menu.element;
+           
         
             if (oTarget != oButtonElement && 
                 !Dom.isAncestor(oButtonElement, oTarget) && 
@@ -2294,14 +2407,6 @@ version: 2.3.1
                 sTitle,
                 sState;
         
-            if (oMenu && (oMenu instanceof Menu) && 
-                this._originalMaxHeight != -1) {
-            
-                this._menu.cfg.setProperty("maxheight", 
-                    this._originalMaxHeight);
-        
-            }
-        
             
             if (this.get("type") == "split") {
         
@@ -2391,16 +2496,16 @@ version: 2.3.1
         * that was fired.
         * @param {Array} p_aArgs Array of arguments sent when the event 
         * was fired.
-        * @param {Number} p_nItem Number representing the index of the menu
-        * item that subscribed to the event.
+        * @param {MenuItem} p_oItem Object representing the menu item that
+        * subscribed to the event.
         */
-        _onMenuItemSelected: function (p_sType, p_aArgs, p_nItem) {
+        _onMenuItemSelected: function (p_sType, p_aArgs, p_oItem) {
 
             var bSelected = p_aArgs[0];
 
             if (bSelected) {
             
-                this.set("selectedMenuItem", p_nItem);
+                this.set("selectedMenuItem", p_oItem);
 
             }
         
@@ -2424,9 +2529,7 @@ version: 2.3.1
             var oItem = p_aArgs[0];
         
             oItem.cfg.subscribeToConfigEvent("selected", 
-                this._onMenuItemSelected, 
-                oItem.index, 
-                this);
+                this._onMenuItemSelected, oItem, this);
         
         },
         
@@ -2587,11 +2690,11 @@ version: 2.3.1
                 oMenu = this._menu;
             
             
-                if (oMenu && (oMenu instanceof Menu)) {
+                if (Menu && oMenu && (oMenu instanceof Menu)) {
         
         
                     oMenuField = oMenu.srcElement;
-                    oMenuItem = oMenu.getItem(this.get("selectedMenuItem"));
+                    oMenuItem = this.get("selectedMenuItem");
 
                     if (oMenuItem) {
 
@@ -3209,15 +3312,14 @@ version: 2.3.1
 
             /**
             * @attribute selectedMenuItem
-            * @description Number representing the index of the item in the 
-            * button's menu that is currently selected.
+            * @description Object representing the item in the button's menu 
+            * that is currently selected.
             * @type Number
             * @default null
             */
             this.setAttributeConfig("selectedMenuItem", {
         
-                value: 0,
-                validator: Lang.isNumber,
+                value: null,
                 method: this._setSelectedMenuItem
         
             });
@@ -3376,7 +3478,7 @@ version: 2.3.1
             if (oMenu) {
         
 
-                if (m_oOverlayManager.find(oMenu)) {
+                if (m_oOverlayManager && m_oOverlayManager.find(oMenu)) {
 
                     m_oOverlayManager.remove(oMenu);
 
@@ -3657,6 +3759,25 @@ version: 2.3.1
     
     };
     
+
+    /**
+    * @method YAHOO.widget.Button.getButton
+    * @description Returns a button with the specified id.
+    * @param {String} p_sId String specifying the id of the root node of the 
+    * HTML element representing the button to be retrieved.
+    * @return {YAHOO.widget.Button}
+    */
+    YAHOO.widget.Button.getButton = function (p_sId) {
+
+        var oButton = m_oButtons[p_sId];
+
+        if (oButton) {
+        
+            return oButton;
+        
+        }
+
+    };
     
     
     // Events
@@ -4531,4 +4652,4 @@ version: 2.3.1
     });
 
 })();
-YAHOO.register("button", YAHOO.widget.Button, {version: "2.3.1", build: "541"});
+YAHOO.register("button", YAHOO.widget.Button, {version: "2.4.1", build: "742"});
