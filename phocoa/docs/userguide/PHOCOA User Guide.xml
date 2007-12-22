@@ -2025,8 +2025,8 @@ Total time: 2.8443 seconds
             of the same skin will still be "themed".</para>
           </listitem>
         </itemizedlist>By default, a new PHOCOA application has a single Skin
-      Type (simple) and two Skins (simple1, simple2). Simple1 has only one
-      theme, while simple2 has two themes set up.</para>
+      Type (simple) and two Skins (topnav, sidenav). topnav has only one
+      theme, while sidenav has two themes set up.</para>
 
       <para>The bundled "SkinInfo" module provides an interactive browser for
       the installed skins on any PHOCOA application to make it easy to
