@@ -6,12 +6,13 @@ class simple_SkinDelegate
     function loadDefaults(&$skin)
     {
         // look at URL and determine skin.
-        $skin->setSkin('simple1');
+        $skin->setSkin('sidenav');
+        $skin->setTheme('brushed');
 
         // set up other skin defaults
-        $skin->setMetaDescription('Default Skin Type Description Goes Here');
-        $skin->addMetaKeywords(array('default keywords'));
-        $skin->setTitle('Default Skin Type Title');
+        $skin->setMetaDescription('PHOCOA Skin Type based on YUI CSS principles.');
+        $skin->addMetaKeywords(array('yui, yui css, yahoo css'));
+        $skin->setTitle('YUI Skin for PHOCOA');
     }
 
     /**
@@ -33,7 +34,7 @@ class simple_SkinDelegate
                         );
                 break;
             case 'copyright':
-                return "Copyright (c) 2005 Open Development. All Rights Reserved.";
+                return "&copy; 2005-" . date('Y') . " Alan Pinstein. All Rights Reserved.";
                 break;
         }
     }

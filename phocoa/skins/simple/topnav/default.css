@@ -1,0 +1,34 @@
+{literal}
+a:link {
+    color: #0066CC;
+}
+a:visited {
+    color: #666666;
+}
+a:hover, a:active {
+    color: {/literal}{$skinThemeVars.headingColor}{literal};
+}
+html { 
+    background-image: url({/literal}{$skinDir}{literal}/bg.jpg);
+    background-repeat: repeat; 
+} 
+#hd {
+    text-align: left;
+}
+#bd {
+    margin-top: 10px;
+}
+#yui-main .yui-b {
+    padding: 10px;
+    border: 1pt solid #777777;
+    background-color: {/literal}{$skinThemeVars.contentBG}{literal};
+}
+#ft {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 80%
+}
+h1, h2, h3, h4, h5, h6 {
+    color: {/literal}{$skinThemeVars.headingColor}{literal};
+}
+{/literal}
