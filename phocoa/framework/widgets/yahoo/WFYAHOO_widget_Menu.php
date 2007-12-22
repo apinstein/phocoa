@@ -89,7 +89,7 @@ class WFYAHOO_widget_Menu extends WFYAHOO
     {
         $html = "
         PHOCOA.widgets.{$this->id}.init = function() {
-            var oMenu = new YAHOO.widget." . ($this->horizontal ? 'MenuBar' : 'Menu') . "('{$this->id}', { position: 'static', autosubmenudisplay: true, hidedelay: 750, lazyload: true });
+            var oMenu = new YAHOO.widget." . ($this->horizontal ? 'MenuBar' : 'Menu') . "('{$this->id}', { position: 'static', autosubmenudisplay: true, hidedelay: 750, showdelay: 50, lazyload: true });
             oMenu.render();
             oMenu.show();
         };
