@@ -7,7 +7,7 @@
     {WFSkinCSS file="default.css"}
 </head>
 <body class="yui-skin-sam">
-<div id="doc4" class="{$skinThemeVars.yuiTemplate}">
+<div id="doc4">
     <div id="hd">
         <a href="/"><img src="{$skinDirShared}/phocoa-logo.png" alt="PHOCOA - a php web framework" /></a>
     </div>
