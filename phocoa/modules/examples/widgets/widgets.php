@@ -119,4 +119,12 @@ class module_widgets_form
         }
     }
 }
+
+class module_widgets_toc
+{
+    function setupSkin($page, $params, $skin)
+    {
+        $skin->setMetaDescription('PHOCOA Examples: Widget Toolkit, forms, bindings, pagination, AJAX integration, and more.');
+    }
+}
 ?>

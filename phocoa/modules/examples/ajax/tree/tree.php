@@ -53,7 +53,8 @@ class module_tree_tree
     function setupSkin($params, $page, $skin)
     {
         $skin->setTitle('YUI TreeView Example');
-        $skin->addMetaKeywords(array('yui treeview', 'yui tree', 'yahoo tree view example', 'yui treeview example', 'yui ajax tree', 'ajax tree view', 'yui example'));
+        $skin->addMetaKeywords(array('php ajax tree view', 'ajax treeview', 'yui treeview', 'yui tree', 'ajax tree view', 'yui treeview example', 'yui ajax tree', 'ajax tree view', 'yahoo tree view example', 'yui example'));
+        $skin->setMetaDescription('YUI Tree View Examples: Static and Dynamically-loaded Data (AJAX Tree View)');
     }
 }
 ?>

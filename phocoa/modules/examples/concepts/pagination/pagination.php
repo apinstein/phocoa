@@ -42,6 +42,10 @@ class pagination extends WFModule
         $this->people->setContent($this->paginator->currentItems());
         $page->assign('people', $this->people->arrangedObjects());
     }
+    function example_SetupSkin($skin)
+    {
+        $skin->setMetaDescription('PHOCOA Pagination: Built-in paginator with automatic pagination and sorting, including data that changes based on form submission.');
+    }
 
     function exampleWithForm_ParameterList()
     {

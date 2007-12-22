@@ -23,6 +23,7 @@ class bindings extends WFModule
     function example_SetupSkin($skin)
     {
         $skin->setTitle('PHOCOA Bindings Explanation and Examples');
+        $skin->setMetaDescription('PHOCOA Bindings: How the PHOCOA PHP framework makes your life easy through data bindings.');
     }
 }
 ?>

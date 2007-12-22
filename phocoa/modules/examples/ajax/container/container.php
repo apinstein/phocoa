@@ -31,5 +31,9 @@ class module_container_container
         echo("you're wrong!");
         exit;
     }
+    function setupSkin($page, $params, $skin)
+    {
+        $skin->setMetaDescription('YUI Container Examples: Module, Overlay, Panel, and PHOCOA Dialog.');
+    }
 }
 ?>

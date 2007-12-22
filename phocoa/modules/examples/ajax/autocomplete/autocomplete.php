@@ -74,7 +74,7 @@ class module_autocomplete_example
 {
     function setupSkin($page, $params, $skin)
     {
-        $skin->addMetaKeywords(array('YUI Autocomplete', 'ajax combo box', 'ajax autocomplete', 'autocomplete ajax', 'autocomplete javascript', 'javascript autocomplete', 'php autocomplete', 'autocomplete php', 'php ajax', 'yui', 'combo box', 'ajax'));
+        $skin->addMetaKeywords(array('YUI Autocomplete', 'yui combobox', 'ajax combo box', 'ajax autocomplete', 'autocomplete ajax', 'autocomplete javascript', 'javascript autocomplete', 'php autocomplete', 'autocomplete php', 'php ajax', 'yui', 'combo box', 'ajax'));
         $skin->setMetaDescription('Example ajax autocomplete via YUI AutoComplete widget.');
         $skin->setTitle('YUI AutoComplete Example in PHP');
     }
