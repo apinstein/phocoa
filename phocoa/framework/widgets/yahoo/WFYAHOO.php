@@ -111,7 +111,7 @@ class WFYAHOO_yuiloader
 
         return "
                      (function() {
-                         PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-debug.js', 'YAHOO');
+                         PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-" . ($this->debug ? 'debug' : 'min') . ".js', 'YAHOO');
                          var yl = new YAHOO.util.YUILoader();
                          " . ($this->debug() ? 'yl.filter = "DEBUG";' : NULL) . "
                          " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
