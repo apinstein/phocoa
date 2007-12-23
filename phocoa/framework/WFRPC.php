@@ -384,6 +384,95 @@ class WFClickEvent extends WFEvent
         $this->name = 'click';
     }
 }
+/**
+ * Maps to the DOM "mousedown" event.
+ */
+class WFMousedownEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'mousedown';
+    }
+}
+/**
+ * Maps to the DOM "mouseup" event.
+ */
+class WFMouseupEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'mouseup';
+    }
+}
+/**
+ * Maps to the DOM "mouseover" event.
+ */
+class WFMouseoverEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'mouseover';
+    }
+}
+/**
+ * Maps to the DOM "mousemove" event.
+ */
+class WFMousemoveEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'mousemove';
+    }
+}
+/**
+ * Maps to the DOM "mouseout" event.
+ */
+class WFMouseoutEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'mouseout';
+    }
+}
+/**
+ * Maps to the DOM "change" event.
+ */
+class WFChangeEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'change';
+    }
+}
+/**
+ * Maps to the DOM "focus" event.
+ */
+class WFFocusEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'focus';
+    }
+}
+/**
+ * Maps to the DOM "blur" event.
+ */
+class WFBlurEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'blur';
+    }
+}
+
 
 /**
  * WFAction represents an action that is called when a WFEvent occurs on the client.
@@ -505,10 +594,7 @@ class WFAction extends WFObject
     {
         // sanity check things
 
-        $script = "
-        (function(){
-                PHOCOA.importJS('" . WFView::yuiPath() . "/yahoo-dom-event/yahoo-dom-event.js', 'YAHOO');
-                PHOCOA.importJS('" . WFView::yuiPath() . "/connection/connection.js', 'YAHOO');
+        $script = "function() {
                 PHOCOA.namespace('widgets." . $this->event()->widget()->id() . ".events." . $this->event()->name() . "');
                 var action = new PHOCOA.WFAction('" . $this->event()->widget()->id() . "', '" . $this->event()->name() . "');
             ";
@@ -552,9 +638,11 @@ class WFAction extends WFObject
                 action.rpc.isAjax = " . ( $this->rpc->isAjax() ? 'true' : 'false') . ";
                      ";
         }
-        $script .= "
-        }());
-        ";
+        $script .= "}";
+        // yuiloader wrapper
+        $yl = WFYAHOO_yuiloader::sharedYuiLoader();
+        $yl->yuiRequire('connection');
+        $script = $yl->jsLoaderCode($script);
         return $script;
     }
 
