@@ -113,6 +113,68 @@ abstract class WFView extends WFObject
     }
 
     /**
+     * Get the form associated with this element, if there is one.
+     * @return object WFForm The form that contains this element, or NULL if it is not in a form.
+     */
+    public function getForm()
+    {
+        do {
+            $parent = $this->parent();
+            if ($parent instanceof WFForm) return $parent;
+        } while ($parent);
+        return NULL;
+    }
+
+    public function setOnEvent($str)
+    {
+        $matches = array();
+        // syntax: <event> do <l|r>:[action]
+        if (preg_match('/^\W*([A-z]*)\W*do\W*([jsa]):?((#(page|module)#[^:]*):)?(.*)$/', $str, $matches))
+        {
+            list(, $eventName, $lr, , $target, , $actionArgument) = $matches;
+            if (empty($actionArgument)) $actionArgument = NULL; // normalize to null
+            if (empty($target)) $target = NULL; // normalize to null
+            if ($lr === 'j')
+            {
+                $action = WFAction::JSAction();
+                if ($actionArgument !== NULL)
+                {
+                    $action->setJsEventHandler( "function() { " . $actionArgument . " };" );
+                }
+            }
+            else if ($lr === 's')
+            {
+                $action = WFAction::ServerAction();
+                if ($actionArgument !== NULL)
+                {
+                    if ($target !== NULL)
+                    {
+                        $action->setTarget($target);
+                    }
+                    $action->setAction($actionArgument);
+                }
+            }
+            else if ($lr === 'a')
+            {
+                $action = WFAction::AjaxAction();
+                if ($actionArgument !== NULL)
+                {
+                    if ($target !== NULL)
+                    {
+                        $action->setTarget($target);
+                    }
+                    $action->setAction($actionArgument);
+                }
+            }
+            $this->setListener( WFEvent::factory($eventName, $action) );
+        }
+        else
+        {
+            throw( new WFException("Couldn't parse onEvent statement: " . $str) );
+        }
+    }
+
+    /**
      * Get the JS code to set up the PHOCOA-AJAX integrations. This is just the javascript, so that it can be include easily from <script> blocks that you already have.
      * @return string The JS code that sets up all PHOCOA-AJAX integrations for this element.
      */

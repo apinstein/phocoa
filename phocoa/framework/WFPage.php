@@ -365,6 +365,16 @@ class WFPage extends WFObject
     }
 
     /**
+     * Get all instances of the page.
+     *
+     * @return array An array of all instances.
+     */
+    function instances()
+    {
+        return $this->instances;
+    }
+
+    /**
      * Has the page been loaded?
      * This becomes true once initPage() is called.
      * @return boolean TRUE if loaded, FALSE otherwise.
@@ -1188,7 +1198,7 @@ class WFPage extends WFObject
             if ($this->hasSubmittedForm())
             {
                 // look for action in the form data
-                $rpc = WFRPC::rpcFromRequest();
+                $rpc = WFRPC::rpcFromRequest($this->module()->invocation()->invocationPath());
                 if (!$rpc) // if not found; look for action specified via submit button in form (gracefully degrade for non-js client)
                 {
                     // look for the submit button;
@@ -1231,7 +1241,7 @@ class WFPage extends WFObject
             {
                 // look for action in Params
                 // new-school WFAction stuff; 
-                $rpc = WFRPC::rpcFromRequest();
+                $rpc = WFRPC::rpcFromRequest($this->module()->invocation()->invocationPath());
             }
 
             // deal with action

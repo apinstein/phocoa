@@ -36,6 +36,7 @@ class WFRPC extends WFObject
 
     // fire the action specified in the request
     const PARAM_ENABLE = '__phocoa_rpc_enable';
+    const PARAM_INVOCATION_PATH = '__phocoa_rpc_invocationPath';
     const PARAM_TARGET = '__phocoa_rpc_target';
     const PARAM_ACTION = '__phocoa_rpc_action';
     const PARAM_RUNS_IF_VALID = '__phocoa_rpc_runsIfInvalid';
@@ -43,6 +44,10 @@ class WFRPC extends WFObject
     const PARAM_ARGC = '__phocoa_rpc_argc';
     const PARAM_ARGV_PREFIX = '__phocoa_rpc_argv_';
 
+    /**
+     * @var string The module path of the module/page that is producing the WFRPC.
+     */
+    protected $invocationPath;
     /**
      *  @var string A specially formatted string specifying the target object to call the action method on.
      *       This string takes on one of two formats:
@@ -76,6 +81,7 @@ class WFRPC extends WFObject
 
     public function __construct()
     {
+        $this->invocationPath = NULL;
         $this->target = NULL;
         $this->action = NULL;
         $this->args = array();
@@ -93,6 +99,11 @@ class WFRPC extends WFObject
     public static function RPC()
     {
         return new WFRPC();
+    }
+
+    public function setInvocationPath($mp)
+    {
+        $this->invocationPath = $mp;
     }
     
     /**
@@ -147,6 +158,10 @@ class WFRPC extends WFObject
         else if ($form instanceof WFForm)
         {
             $this->formId = $form->id();
+        }
+        else if ($form === NULL)
+        {
+            $this->formId = NULL;
         }
         else throw( new WFException("Form must be either a formID or a WFForm instance.") );
         return $this;
@@ -300,20 +315,28 @@ class WFRPC extends WFObject
     }
 
     /**
-     * Detects from the HTTP request whether or not there is an RPC request.
+     * Detects from the HTTP request whether or not there is an RPC request for the passed invocationPath.
+     *
+     * NOTE: Will only return the RPC if the RPC in the parameters is for the passed invocation path.
+     * This allows PHOCOA to distinguish if an AJAX request is intended for the current module. Otherwise composited modules would all try to respond.
      *
      * @return object WFRPC
      * @throws object WFException
      */
-    static public function rpcFromRequest()
+    static public function rpcFromRequest($invocationPath)
     {
         if (!isset($_REQUEST[self::PARAM_ENABLE])) return NULL;
 
-        $rpc = WFRPC::RPC();
+        if (!isset($_REQUEST[self::PARAM_INVOCATION_PATH])) throw( new WFException('action invocationPath missing.') );
         if (!isset($_REQUEST[self::PARAM_TARGET])) throw( new WFException('action target missing.') );
         if (!isset($_REQUEST[self::PARAM_ACTION])) throw( new WFException('action method missing.') );
         if (!isset($_REQUEST[self::PARAM_ARGC])) throw( new WFException('action argc missing.') );
 
+        $invocationPathWithWWW = WWW_ROOT . '/' . $invocationPath;
+        if ($invocationPathWithWWW !== $_REQUEST[self::PARAM_INVOCATION_PATH]) return NULL;
+
+        $rpc = WFRPC::RPC();
+        $rpc->setInvocationPath($_REQUEST[self::PARAM_INVOCATION_PATH]);
         $rpc->setTarget($_REQUEST[self::PARAM_TARGET]);
         $rpc->setAction($_REQUEST[self::PARAM_ACTION]);
         $rpc->setRunsIfInvalid($_REQUEST[self::PARAM_RUNS_IF_VALID]);
@@ -370,6 +393,33 @@ class WFEvent extends WFObject
     public function action()
     {
         return $this->action;
+    }
+    public static function factory($event, $action)
+    {
+        switch (strtolower($event)) {
+            case 'click':
+                return new WFClickEvent($action);
+            case 'mousedown':
+                return new WFMousedownEvent($action);
+            case 'mouseup':
+                return new WFMouseupEvent($action);
+            case 'mouseover':
+                return new WFMouseoverEvent($action);
+            case 'mouseout':
+                return new WFMouseoutEvent($action);
+            case 'mousedown':
+                return new WFMousedownEvent($action);
+            case 'mouseup':
+                return new WFMouseupEvent($action);
+            case 'change':
+                return new WFChangeEvent($action);
+            case 'focus':
+                return new WFFocusEvent($action);
+            case 'blur':
+                return new WFBlurEvent($action);
+            default:
+                throw( new WFException("Unknown event: " . $event) );
+        }
     }
 }
 
@@ -507,10 +557,13 @@ class WFAction extends WFObject
      */
     protected $event;
 
+    protected $jsEventHandler;
+
     public function __construct()
     {
         $this->rpc = NULL;
         $this->event = NULL;
+        $this->jsEventHandler = NULL;
     }
 
     /**
@@ -559,6 +612,11 @@ class WFAction extends WFObject
         return $this;
     }
 
+    public function setJsEventHandler($js)
+    {
+        $this->jsEventHandler = $js;
+    }
+
     /**
      * Add an internal RPC object for ServerAction and AjaxAction.
      *
@@ -597,6 +655,7 @@ class WFAction extends WFObject
         $script = "function() {
                 PHOCOA.namespace('widgets." . $this->event()->widget()->id() . ".events." . $this->event()->name() . "');
                 var action = new PHOCOA.WFAction('" . $this->event()->widget()->id() . "', '" . $this->event()->name() . "');
+                action.callback = " . $this->jsEventHandler() . ";
             ";
         if ($this->rpc)
         {
@@ -633,6 +692,11 @@ class WFAction extends WFObject
                 ";
             }
 
+            // set up form, if not set already
+            if ($this->rpc() && !$this->rpc()->form())
+            {
+                $this->rpc()->setForm($this->event()->widget()->getForm());
+            }
             $script .= "
                 action.rpc.form = " .  ( $this->rpc->form() ? "'" . $this->rpc->form() . "'" : 'null' ) . ";
                 action.rpc.isAjax = " . ( $this->rpc->isAjax() ? 'true' : 'false') . ";
@@ -655,7 +719,14 @@ class WFAction extends WFObject
      */
     public function jsEventHandler()
     {
-        return "PHOCOA.widgets." . $this->event()->widget()->id() . ".events." . $this->event()->name() . ".handleEvent";
+        if ($this->jsEventHandler !== NULL)
+        {
+            return $this->jsEventHandler;
+        }
+        else
+        {
+            return "PHOCOA.widgets." . $this->event()->widget()->id() . ".events." . $this->event()->name() . ".handleEvent";
+        }
     }
 
     /**
@@ -717,7 +788,7 @@ class WFAction extends WFObject
     public static function ServerAction()
     {
         $a = new WFAction();
-        $a->addRPC();
+        $a->addRPC(false);
         return $a;
     }
     /**
