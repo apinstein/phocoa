@@ -34,12 +34,12 @@ abstract class WFSkinManifestDelegate extends WFObject
     abstract function defaultTheme();
 
     /**
-      * Get a list of themes for the skin.
-      *
-      * This is an optional method.
-      *
-      * @return array A list of all themes supported for this skin.
-      */
+     * Get a list of themes for the skin.
+     *
+     * This is an optional method.
+     *
+     * @return array A list of all themes supported for this skin.
+     */
     function themes() { return array(); }
 
     /**
@@ -72,38 +72,38 @@ abstract class WFSkinManifestDelegate extends WFObject
 class WFSkinDelegate
 {
     /**
-      * Retreive the "named" content from the skin delegate.
-      *
-      * The "named content" mechanism is the way by which individual applications using this framework can add additional content sections
-      * for use in their skins. By default, only a HEAD and BODY section exist within the skin.
-      * Individual applications can use the named content mechanism to supply skin-specific information such as NAVIGATION LINKS, COPYRIGHT DISCLAIMERS, etc.
-      *
-      * @param string Name of the content to retrieve.
-      * @param assoc_array Optional parameter list. Name/value pairs to pass on to content generator.
-      * @return mixed The named content as provided byt he skin delegate.
-      */
+     * Retreive the "named" content from the skin delegate.
+     *
+     * The "named content" mechanism is the way by which individual applications using this framework can add additional content sections
+     * for use in their skins. By default, only a HEAD and BODY section exist within the skin.
+     * Individual applications can use the named content mechanism to supply skin-specific information such as NAVIGATION LINKS, COPYRIGHT DISCLAIMERS, etc.
+     *
+     * @param string Name of the content to retrieve.
+     * @param assoc_array Optional parameter list. Name/value pairs to pass on to content generator.
+     * @return mixed The named content as provided byt he skin delegate.
+     */
     function namedContent($name, $params = NULL) {}
 
     /**
-      * Get a list of all named content for the skin delegate.
-      *
-      * @return array A list of all named content items in the catalog for this skin delegate.
-      */
+     * Get a list of all named content for the skin delegate.
+     *
+     * @return array A list of all named content items in the catalog for this skin delegate.
+     */
     function namedContentList() {}
 
     /**
-      * A delegate method to allow the delegate object to load default values for certain skin properties such as:
-      * skin, skinTheme, metaDescription, metaKeywords, title etc.
-      * Example:
-      *
-      * $skin->setSkin('exampleskin2');
-      * $skin->setTheme('red');
-      * $skin->setMetaDescription('This is the default description.');
-      * $skin->addMetaKeywords(array('more', 'keywords'));
-      * $skin->setTitle('Page Title');
-      *
-      * @param object WFSkin The skin object to load defaults for.
-      */
+     * A delegate method to allow the delegate object to load default values for certain skin properties such as:
+     * skin, skinTheme, metaDescription, metaKeywords, title etc.
+     * Example:
+     *
+     * $skin->setSkin('exampleskin2');
+     * $skin->setTheme('red');
+     * $skin->setMetaDescription('This is the default description.');
+     * $skin->addMetaKeywords(array('more', 'keywords'));
+     * $skin->setTitle('Page Title');
+     *
+     * @param object WFSkin The skin object to load defaults for.
+     */
     function loadDefaults($skin) {}
 
     /**
@@ -116,54 +116,54 @@ class WFSkinDelegate
 }
 
 /**
-  * Main skin class for managing skin wrappers around the content.
-  *
-  * The Web Application's WFRequestController object always uses exactly one skin instance to render the page.
-  * However, your application may choose to create other skin instances to use the infrastructure for things like HTML email, etc.
-  *
-  * The Skin mechanism is broken down into three layers. Each layer provides the ability to swap behaviors/looks at runtime.
-  * For each request, one of each layer must be specified.
-  *
-  * 1. Skin Type -- i.e., which SkinDelegate is used. The Skin Delegate provides the skin with its catalog of behaviors, i.e., menus, footers, etc.
-  *                 Each skin type is unique, and skins must be written specifically for each Skin Type.
-  *                 Most web sites have just one skin type, that handles the elements appropriate for the skins of that application.
-  *                 However, sometimes there is a need for a single site to have multiple skins. For instance, the public site may have different
-  *                 navigational needs than the back-end admin interface.
-  *                 A {@link WFSkinDelegate} is implemented for each skin type an tells the system what data is available for the skin type. 
-  *                 Skin Types, however, do NOT provide any layout or style.
-  *                 By default, each Skin Type implements only the "normal" template type. Your Skin Type may need additional layouts. For instance, printer-friendly
-  *                 or minimal layouts used for popups. Your skin can support additiona template types via {@link WFSkinDelegate::templateTypes() templateTypes()}.
-  *                 Every Skin for a Skin Type must have a template file for all template types to ensure proper operation.
-  * 2. Skin -- A skin provides basic layout for a given Skin Type. Skins are specific for Skin Types, since they necessarily know about the 
-  *            data types offered by a particular skin type, via its Skin Delegate.
-  *            Each Skin resides in its own directory inside the Skin Type directory that it belongs to.
-  *            Each Skin thus provides a template file that implements a layout. Skins may also have multiple Skin Themes.
-  *            Each Skin has a {@link WFSkinManifestDelegate SkinManifestDelegate} which tells the system which themes are available, and which theme to use by default.
-  * 3. Skin Themes -- It may be desirable for a skin to have multiple colorschemes or other minor "thematic" differences. Each skin must have at least one theme.
-  *                   Infrastructure is provided so that the SkinManifestDelegate can easily supply different data to the skin based on the theme. This allows easy creation
-  *                   of colorschemes or other thematic differences.
-  *
-  * <pre>
-  * Skin Directory Structure:
-  *
-  * The skins have a specified, hierarchical directory structure, based in the "skins" directory.
-  * skins/ - Contains only directories; each directory represents a Skin Type.
-  * skins/&lt;skinType&gt;/ - For each skin type, pick a unique name and create a directory.
-  * skins/&lt;skinType&gt;/&lt;skinType&gt;_SkinDelegate.php - A php file containing exactly one class, named &lt;skinType&gt;_SkinDelegate, that is the {@link WFSkinDelegate} for the Skin Type.
-  * skins/&lt;skinType&gt;/&lt;skinName&gt;/ - Also in the skinType directory are other directories, one for each skin that can be used for the Skin Type.
-  * skins/&lt;skinType&gt;/&lt;skinName&gt;/&lt;skinName&gt;_SkinManifestDelegate.php - The {@link WFSkinManifestDelegate} for the skin &lt;skinName&gt;.
-  * skins/&lt;skinType&gt;/&lt;skinName&gt;/* - Other files in here are the various tpl and css files used for this skin.
-  * skins/&lt;skinType&gt;/&lt;skinName&gt;/www/ - Web root of the skin. Nothing actually goes in this folder but other folders.
-  * skins/&lt;skinType&gt;/&lt;skinName&gt;/www/shared/* - Files that need to be accesible to the WWW and are shared by multiple themes of this skin go here.
-  * skins/&lt;skinType&gt;/&lt;skinName&gt;/www/&lt;themeName&gt;/* - Files that need to be accessible to the WWW and are specific to a theme go here.  Each theme has its own folder to contain "themed" versions of resources. Typically every theme has the same set of resources, but of course customized for that theme.
-  *
-  * To use WWW visible items in your pages, simply use {$skinDir}/myImage.jpg and {$skinDirShared}/mySharedImage.jpg in your templates. The skin system automatically assigns these vars.
-  * skinDir maps to skins/&lt;skinType&gt;/&lt;skinName&gt;/www/&lt;themeName&gt;/
-  * skinDirShared maps to skins/&lt;skinType&gt;/&lt;skinName&gt;/www/shared/
-  * </pre>
-  *
-  * @see WFSkinDelegate, WFSkinManifestDelegate
-  */
+ * Main skin class for managing skin wrappers around the content.
+ *
+ * The Web Application's WFRequestController object always uses exactly one skin instance to render the page.
+ * However, your application may choose to create other skin instances to use the infrastructure for things like HTML email, etc.
+ *
+ * The Skin mechanism is broken down into three layers. Each layer provides the ability to swap behaviors/looks at runtime.
+ * For each request, one of each layer must be specified.
+ *
+ * 1. Skin Type -- i.e., which SkinDelegate is used. The Skin Delegate provides the skin with its catalog of behaviors, i.e., menus, footers, etc.
+ *                 Each skin type is unique, and skins must be written specifically for each Skin Type.
+ *                 Most web sites have just one skin type, that handles the elements appropriate for the skins of that application.
+ *                 However, sometimes there is a need for a single site to have multiple skins. For instance, the public site may have different
+ *                 navigational needs than the back-end admin interface.
+ *                 A {@link WFSkinDelegate} is implemented for each skin type an tells the system what data is available for the skin type. 
+ *                 Skin Types, however, do NOT provide any layout or style.
+ *                 By default, each Skin Type implements only the "normal" template type. Your Skin Type may need additional layouts. For instance, printer-friendly
+ *                 or minimal layouts used for popups. Your skin can support additiona template types via {@link WFSkinDelegate::templateTypes() templateTypes()}.
+ *                 Every Skin for a Skin Type must have a template file for all template types to ensure proper operation.
+ * 2. Skin -- A skin provides basic layout for a given Skin Type. Skins are specific for Skin Types, since they necessarily know about the 
+ *            data types offered by a particular skin type, via its Skin Delegate.
+ *            Each Skin resides in its own directory inside the Skin Type directory that it belongs to.
+ *            Each Skin thus provides a template file that implements a layout. Skins may also have multiple Skin Themes.
+ *            Each Skin has a {@link WFSkinManifestDelegate SkinManifestDelegate} which tells the system which themes are available, and which theme to use by default.
+ * 3. Skin Themes -- It may be desirable for a skin to have multiple colorschemes or other minor "thematic" differences. Each skin must have at least one theme.
+ *                   Infrastructure is provided so that the SkinManifestDelegate can easily supply different data to the skin based on the theme. This allows easy creation
+ *                   of colorschemes or other thematic differences.
+ *
+ * <pre>
+ * Skin Directory Structure:
+ *
+ * The skins have a specified, hierarchical directory structure, based in the "skins" directory.
+ * skins/ - Contains only directories; each directory represents a Skin Type.
+ * skins/&lt;skinType&gt;/ - For each skin type, pick a unique name and create a directory.
+ * skins/&lt;skinType&gt;/&lt;skinType&gt;_SkinDelegate.php - A php file containing exactly one class, named &lt;skinType&gt;_SkinDelegate, that is the {@link WFSkinDelegate} for the Skin Type.
+ * skins/&lt;skinType&gt;/&lt;skinName&gt;/ - Also in the skinType directory are other directories, one for each skin that can be used for the Skin Type.
+ * skins/&lt;skinType&gt;/&lt;skinName&gt;/&lt;skinName&gt;_SkinManifestDelegate.php - The {@link WFSkinManifestDelegate} for the skin &lt;skinName&gt;.
+ * skins/&lt;skinType&gt;/&lt;skinName&gt;/* - Other files in here are the various tpl and css files used for this skin.
+ * skins/&lt;skinType&gt;/&lt;skinName&gt;/www/ - Web root of the skin. Nothing actually goes in this folder but other folders.
+ * skins/&lt;skinType&gt;/&lt;skinName&gt;/www/shared/* - Files that need to be accesible to the WWW and are shared by multiple themes of this skin go here.
+ * skins/&lt;skinType&gt;/&lt;skinName&gt;/www/&lt;themeName&gt;/* - Files that need to be accessible to the WWW and are specific to a theme go here.  Each theme has its own folder to contain "themed" versions of resources. Typically every theme has the same set of resources, but of course customized for that theme.
+ *
+ * To use WWW visible items in your pages, simply use {$skinDir}/myImage.jpg and {$skinDirShared}/mySharedImage.jpg in your templates. The skin system automatically assigns these vars.
+ * skinDir maps to skins/&lt;skinType&gt;/&lt;skinName&gt;/www/&lt;themeName&gt;/
+ * skinDirShared maps to skins/&lt;skinType&gt;/&lt;skinName&gt;/www/shared/
+ * </pre>
+ *
+ * @see WFSkinDelegate, WFSkinManifestDelegate
+ */
 class WFSkin extends WFObject
 {
     /**
@@ -184,36 +184,36 @@ class WFSkin extends WFObject
      */
     protected $skinName;
     /**
-      * @var string The theme of the skin to use.
-      */
+     * @var string The theme of the skin to use.
+     */
     protected $skinThemeName;
     /**
-      * @var object The {@link WFSkinDelegate delegate object} for this skin.
-      */
+     * @var object The {@link WFSkinDelegate delegate object} for this skin.
+     */
     protected $delegate;
     /**
-      * @var object The SkinManifestDelegate for the current skin.
-      */
+     * @var object The SkinManifestDelegate for the current skin.
+     */
     protected $skinManifestDelegate;
     /**
-      * @var string The body content for the skin. This is the only "predefined" content element of the skin infrastructure.
-      */
+     * @var string The body content for the skin. This is the only "predefined" content element of the skin infrastructure.
+     */
     protected $body;
     /**
-      * @var string The TITLE of the skin. This will be used automatically as the HTML title.
-      */
+     * @var string The TITLE of the skin. This will be used automatically as the HTML title.
+     */
     protected $title;
     /**
-      * @var array A list of META KEYWORDS for HTML skins.
-      */
+     * @var array A list of META KEYWORDS for HTML skins.
+     */
     protected $metaKeywords;
     /**
-      * @var string The META DESCRIPTION for HTML skins.
-      */
+     * @var string The META DESCRIPTION for HTML skins.
+     */
     protected $metaDescription;
     /**
-      * @var integer Skin wrapper type. One of {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, or a custom type.
-      */
+     * @var integer Skin wrapper type. One of {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, or a custom type.
+     */
     protected $templateType;
     /**
      * @var string The absolute filesystem path to a tpl file that is automatically added to the "head" element of all skins of this skin type.
@@ -243,23 +243,23 @@ class WFSkin extends WFObject
     }
 
     /**
-      * Set the which template file of the current skin will be used to render the skin.
-      *
-      * - (default) {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, which maps to "template.tpl".
-      * - {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, which will output the body contents only. This is logically equivalent to using no skin.
-      * - Any other string you pass will use the file "template_<template_type>.tpl in the skin directory.
-      *
-      * Potential uses for this include:
-      *
-      * - Using {@link WFSkin::SKIN_WRAPPER_TYPE_RAW} to return HTML snippets that will be used in AJAX callback
-      * - Using a custom "minimal" file that is used for popup windows where there is not enough real estate for the full skin.
-      * - Using a custom "mobile" file that would be used for mobile devices.
-      *
-      * Any custom templates must be manifested by the skin delegate {@link WFSkinDelegate::tempateTypes() templateTypes()} method.
-      *
-      * @param string The name of the template to use. One of {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, or a custom string.
-      * @throws object WFException if the template of the given name does not exist for this skin
-      */
+     * Set the which template file of the current skin will be used to render the skin.
+     *
+     * - (default) {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, which maps to "template.tpl".
+     * - {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, which will output the body contents only. This is logically equivalent to using no skin.
+     * - Any other string you pass will use the file "template_<template_type>.tpl in the skin directory.
+     *
+     * Potential uses for this include:
+     *
+     * - Using {@link WFSkin::SKIN_WRAPPER_TYPE_RAW} to return HTML snippets that will be used in AJAX callback
+     * - Using a custom "minimal" file that is used for popup windows where there is not enough real estate for the full skin.
+     * - Using a custom "mobile" file that would be used for mobile devices.
+     *
+     * Any custom templates must be manifested by the skin delegate {@link WFSkinDelegate::tempateTypes() templateTypes()} method.
+     *
+     * @param string The name of the template to use. One of {@link WFSkin::SKIN_WRAPPER_TYPE_NORMAL}, {@link WFSkin::SKIN_WRAPPER_TYPE_RAW}, or a custom string.
+     * @throws object WFException if the template of the given name does not exist for this skin
+     */
     function setTemplateType($templateType)
     {
         $allowedTemplates = $this->templateTypes();
@@ -330,9 +330,9 @@ class WFSkin extends WFObject
     }
 
     /**
-      * Assign a skin delegate for this instance.
-      * @param object The skin delegate.
-      */
+     * Assign a skin delegate for this instance.
+     * @param object The skin delegate.
+     */
     function setDelegate($skinDelegate)
     {
         $this->delegate = $skinDelegate;
@@ -340,9 +340,9 @@ class WFSkin extends WFObject
     }
 
     /**
-      * Set the skin to the given name. Will automatically load the skin and its default theme.
-      * @param string The name of the skin to use.
-      */
+     * Set the skin to the given name. Will automatically load the skin and its default theme.
+     * @param string The name of the skin to use.
+     */
     function setSkin($skinName)
     {
         $this->skinName = $skinName;
@@ -370,9 +370,9 @@ class WFSkin extends WFObject
     }
 
     /**
-      * Load the current skin.
-      * @internal
-      */
+     * Load the current skin.
+     * @internal
+     */
     function loadSkin()
     {
         // load the current skin
@@ -407,68 +407,68 @@ class WFSkin extends WFObject
     }
 
     /**
-      * Set the content for the skin to wrap. Typically this is HTML but could be anything.
-      * @param string The content of the skin.
-      */
+     * Set the content for the skin to wrap. Typically this is HTML but could be anything.
+     * @param string The content of the skin.
+     */
     function setBody($html)
     {
         $this->body = $html;
     }
 
     /**
-      * Set the title of the page. This is the HTML title if you are building an HTML skin.
-      * @param string The title of the page.
-      */
+     * Set the title of the page. This is the HTML title if you are building an HTML skin.
+     * @param string The title of the page.
+     */
     function setTitle($title)
     {
         $this->title = htmlentities($title);
     }
 
     /**
-      * Set the template file to be added to the "head" element of every page. Defaults to the built-in template file that sets up various PHOCOA things.
-      *
-      * If you want to include the default head content, use {$skinPhocoaHeadTpl} in your custom head template file.
-      *
-      * Typically this function would be called from your SkinDelegate's loadDefaults() function.
-      *
-      * @param string Absolute path to new head template file.
-      */
+     * Set the template file to be added to the "head" element of every page. Defaults to the built-in template file that sets up various PHOCOA things.
+     *
+     * If you want to include the default head content, use {$skinPhocoaHeadTpl} in your custom head template file.
+     *
+     * Typically this function would be called from your SkinDelegate's loadDefaults() function.
+     *
+     * @param string Absolute path to new head template file.
+     */
     function setHeadTemplate($path)
     {
         $this->headTemplate = $path;
     }
 
     /**
-      * Add meta keywords to the skin.
-      * @param array A list of keywords to add.
-      */
+     * Add meta keywords to the skin.
+     * @param array A list of keywords to add.
+     */
     function addMetaKeywords($keywords)
     {
         $this->metaKeywords = array_merge($this->metaKeywords, $keywords);
     }
 
     /**
-      * Set the META DESCRIPTION of the page.
-      * @param string The description of the page.
-      */
+     * Set the META DESCRIPTION of the page.
+     * @param string The description of the page.
+     */
     function setMetaDescription($description)
     {
         $this->metaDescription = $description;
     }
 
 	/**
-	* return a path to the skin image dir
-	* @todo Convert this to use the www root in the skins/ dir rather than the wwwroot/skins/ dir to consolidate skins into a single subdirectory
-	*/
+	 * return a path to the skin image dir
+	 * @todo Convert this to use the www root in the skins/ dir rather than the wwwroot/skins/ dir to consolidate skins into a single subdirectory
+	 */
 	function getSkinDir()
 	{
 		return WWW_ROOT . '/skins/' . $this->delegateName . '/' . $this->skinName . '/' . $this->skinThemeName;
 	}
 
 	/**
-	* return a path to the skin shared image dir
-	* @todo Convert this to use the www root in the skins/ dir rather than the wwwroot/skins/ dir to consolidate skins into a single subdirectory
-	*/
+	 * return a path to the skin shared image dir
+	 * @todo Convert this to use the www root in the skins/ dir rather than the wwwroot/skins/ dir to consolidate skins into a single subdirectory
+	 */
 	function getSkinDirShared()
 	{
 		return WWW_ROOT . '/skins/' . $this->delegateName . '/' . $this->skinName . '/shared';
@@ -476,11 +476,11 @@ class WFSkin extends WFObject
 
 
     /**
-      * Render the skin.
-      * @param boolean TRUE to display the results to the output buffer, FALSE to return them in a variable. DEFAULT: TRUE.
-      * @return string The rendered view. NULL if displaying.
-      * @todo convert the DIR_SMARTY calls to use a new WFWebApplication::getResource($path) infrastructure that will allow for userland overloads of these templates
-      */
+     * Render the skin.
+     * @param boolean TRUE to display the results to the output buffer, FALSE to return them in a variable. DEFAULT: TRUE.
+     * @return string The rendered view. NULL if displaying.
+     * @todo convert the DIR_SMARTY calls to use a new WFWebApplication::getResource($path) infrastructure that will allow for userland overloads of these templates
+     */
     function render($display = true)
     {
         $this->loadSkin();
@@ -529,10 +529,10 @@ class WFSkin extends WFObject
     }
 
     /**
-      * Get a list of all installed skin types.
-      * @static
-      * @return array Skin Types are installed.
-      */
+     * Get a list of all installed skin types.
+     * @static
+     * @return array Skin Types are installed.
+     */
     function installedSkinTypes()
     {
         $skinTypes = array();
@@ -552,10 +552,10 @@ class WFSkin extends WFObject
     }
 
     /**
-      * Get a list of all installed skins for the current Skin Type.
-      *
-      * @return array Skins that are installed.
-      */
+     * Get a list of all installed skins for the current Skin Type.
+     *
+     * @return array Skins that are installed.
+     */
     function installedSkins()
     {
         $skins = array();

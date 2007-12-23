@@ -148,7 +148,7 @@ class WFRadio extends WFWidget
                     ($this->selected() ? ' checked="checked" ' : '') .
                     ' />' . 
                     ($this->label() !== '' ? " <label for=\"{$this->id}\">{$this->label}</label>" : '')
-                    ;
+                    . $this->getListenerJSInScriptTag();
      
     }
 

@@ -18,6 +18,14 @@ class module_general_general
     function parametersDidLoad($page, $params)
     {
         $page->outlet('localAction')->setListener( new WFClickEvent() );
+        $page->outlet('eventClick')->setListener( new WFClickEvent() );
+        $page->outlet('eventMouseover')->setListener( new WFMouseoverEvent() );
+        $page->outlet('eventMouseout')->setListener( new WFMouseoutEvent() );
+        $page->outlet('eventMousedown')->setListener( new WFMousedownEvent() );
+        $page->outlet('eventMouseup')->setListener( new WFMouseupEvent() );
+        $page->outlet('eventChange')->setListener( new WFChangeEvent() );
+        $page->outlet('eventBlur')->setListener( new WFBlurEvent() );
+        $page->outlet('eventFocus')->setListener( new WFFocusEvent() );
 
         $page->outlet('rpcPageDelegate')->setListener( new WFClickEvent( WFAction::ServerAction() ) );
 

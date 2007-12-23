@@ -43,7 +43,7 @@ class WFTextArea extends WFWidget
             ($this->cols ? ' cols="' . $this->cols . '" ' : '') .
             ($this->rows ? ' rows="' . $this->rows . '" ' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
-            '>' . $this->value . '</textarea>';
+            '>' . $this->value . '</textarea>' . $this->getListenerJSInScriptTag();
     }
 
     public static function exposedProperties()

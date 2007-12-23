@@ -112,6 +112,10 @@ abstract class WFView extends WFObject
         $this->jsEvents[$eventName] = $event;
     }
 
+    /**
+     * Get the JS code to set up the PHOCOA-AJAX integrations. This is just the javascript, so that it can be include easily from <script> blocks that you already have.
+     * @return string The JS code that sets up all PHOCOA-AJAX integrations for this element.
+     */
     public function getListenerJS()
     {
         $script = NULL;
@@ -119,6 +123,20 @@ abstract class WFView extends WFObject
             $script .= $event->action()->jsSetup();
         }
         return $script;
+    }
+
+    /**
+     * Get the JS code to set up the PHOCOA-AJAX integrations. This includes the SCRIPT tags, and will be EMPTY if there are no listeners.
+     * @return string The <script>CODE</script> for setting up the PHOCOA-AJAX integrations for this element.
+     */
+    public function getListenerJSInScriptTag()
+    {
+        $js = $this->getListenerJS();
+        if ($js)
+        {
+            $js = $this->jsStartHTML() . $js . $this->jsEndHTML();
+        }
+        return $js;
     }
 
     public static function yuiPath()

@@ -48,7 +48,7 @@ class WFTextField extends WFWidget
             ($this->class ? ' class="' . $this->class . '"' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
             $this->getJSActions() . 
-            '/>';
+            '/>' . $this->getListenerJSInScriptTag();
     }
 
     public static function exposedProperties()

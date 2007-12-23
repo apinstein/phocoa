@@ -78,21 +78,11 @@ class WFLabel extends WFWidget
             {
                 $text = $this->value;
             }
-        	if ( $this->ellipsisAfterChars == NULL )
+        	if ( $this->ellipsisAfterChars !== NULL && strlen( $text ) >= $this->ellipsisAfterChars)
         	{
-	            return $text;
+                $text = substr($text, 0, $this->ellipsisAfterChars) . '...';
 			}
-			else
-			{
-				if ( strlen( $text ) >= $this->ellipsisAfterChars )
-				{
-					return substr($text, 0, $this->ellipsisAfterChars) . '...';
-				}
-				else
-				{
-					return $text;
-				}
-			}
+            return '<span id="' . $this->id . '">' . $text . '</span>' . $this->getListenerJSInScriptTag();
         }
     }
 

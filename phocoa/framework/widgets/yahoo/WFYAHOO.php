@@ -32,21 +32,21 @@ class WFYAHOO_yuiloader
         $this->base = WFYAHOO::yuiPath() . '/';
     }
 
-    public function yuiRequire($requires)
-    {
-        $modules = explode(',', $requires);
-        foreach ($modules as $module) {
-            $this->required[$module] = true;
-        }
-    }
-
-    public function sharedYuiLoader()
+    public static function sharedYuiLoader()
     {
         if (!self::$_instance)
         {
             self::$_instance = new WFYAHOO_yuiloader;
         }
         return self::$_instance;
+    }
+
+    public function yuiRequire($requires)
+    {
+        $modules = explode(',', $requires);
+        foreach ($modules as $module) {
+            $this->required[$module] = true;
+        }
     }
 
     public function quotedRequired()
@@ -98,6 +98,10 @@ class WFYAHOO_yuiloader
         return $this->loadOptional;
     }
 
+    /**
+     * 
+     * @param string The callback is an anonymous javascript function (including the function definition syntax)
+     */
     public function jsLoaderCode($callback = NULL)
     {
         if (count($this->required) == 0) return NULL;

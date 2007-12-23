@@ -412,7 +412,7 @@ class WFSelect extends WFWidget
                 $output .= "<input type=\"hidden\" name=\"{$this->id}\" value=\"{$this->value}\" />\n";
             }
         }
-
+        $output .= $this->getListenerJSInScriptTag();
         return $output;
     }
 

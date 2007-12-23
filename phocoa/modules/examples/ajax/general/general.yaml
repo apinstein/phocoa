@@ -32,3 +32,32 @@ rpcPageDelegate:
   class     : WFLink
   properties: 
     label: AjaxAction
+eventMousedown: 
+  class     : WFLink
+  properties: 
+    label: Mousedown
+eventMouseup: 
+  class     : WFLink
+  properties: 
+    label: Mouseup
+eventMouseover: 
+  class     : WFCheckbox
+  properties: 
+    label: Mouseover
+eventClick: 
+  class     : WFLabel
+  properties: 
+    value: Click
+eventMouseout: 
+  class     : WFLink
+  properties: 
+    label: Mouseout
+eventForm:
+  class: WFForm
+  children:
+    eventChange:
+      class: WFTextField
+    eventBlur:
+      class: WFTextArea
+    eventFocus:
+      class: WFSelect

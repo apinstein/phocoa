@@ -216,7 +216,7 @@ class WFCheckbox extends WFWidget
                     ($this->enabled() ? '' : ' disabled readonly ') .
                     ' />' . 
                     ($this->label() !== '' ? " <label for=\"{$this->id}\">{$this->label}</label>" : '')
-                    ;
+                    . $this->getListenerJSInScriptTag();
      
     }
 

@@ -7,7 +7,7 @@
  */
 window.PHOCOA = window.PHOCOA || {};
 
-// Namespace functionality similar to YAHOO.namespace().
+// Namespace functionality modeled on YAHOO.namespace().
 // Conventions:
 // phocoa.widgets.X where X is the unique ID of a page instance. For accessing JS version of widgets from anywhere.
 PHOCOA.namespace = function() {
@@ -294,7 +294,17 @@ PHOCOA.WFAction.prototype = {
             // the event callback for JS is of the prototype: JsFunc(event, [$arg1, $arg2, ..])
             // the Event object in JS contains the "sender" so no need to send it separately
             // the callback is just a JS function
-            this.callback.apply(this, jsCallbackArgs);
+            if (this.callback)
+            {
+                this.callback.apply(this, jsCallbackArgs);
+            }
+            else
+            {
+                if (console && console.warn)
+                {
+                    console.warn("Callback doesn't exist: PHOCOA.widgets." + event.target.identify() + "." + event.type);
+                }
+            }
         }
     },
 

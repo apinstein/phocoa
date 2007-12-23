@@ -59,8 +59,7 @@ PHOCOA.widgets.localAction.events.click.handleEvent = function(e, myArg1, myArg2
 </p>
 
 <h3>AjaxAction - make an AJAX call when an event fires</h3>
-<p>{WFView id="rpcPageDelegate"}</p>
-<div id="ajaxTarget">The server will stick a random number in this space when you click the link above.</div>
+<p>{WFView id="rpcPageDelegate"} <span id="ajaxTarget">The server will stick a random number in this space when you click the link above.</span></p>
 <p>The code for this is also trivially simple. In PHP, you simply attach the event/action to the WFLink object:
 <blockquote><pre>$page->outlet('rpcPageDelegate')->setListener( new WFClickEvent( WFAction::ServerAction() ) );</pre></blockquote>
 Then, you define the PHP callback function for the event. For simplicity, the default callback name (the rpc action) is &lt;widgetId&gt;Handle&lt;EventName&gt;:
@@ -76,6 +75,52 @@ function rpcPageDelegateHandleClick($page, $params, $senderId, $eventName)
 </p>
 <p>In this case, the function name is rpcPageDelegateHandleClick. Notice the arguments passed to the PHP callback. All AjaxAction callbacks use this prototype. You can also pass back additional arguments, which will be appended to the parameters following $eventName.</p>
 <p>To effect the UI updates on the server, this callback returns a WFActionResponsePhocoaUIUpdater object. This object has addUpdateHTML(), addReplaceHTML(), and addRunScript() methods that make it easy for you to update the innerHTML of any element, replace any element, and run Javascript code in response to an AjaxAction.</p>
+
+<h3>AJAX Events</h3>
+<p>The blocks below demonstrate using PHOCOA-AJAX integrations on various UI widgets and all supported DOM events:
+
+<script>
+{literal}
+PHOCOA.namespace('widgets.eventClick.events.click');
+PHOCOA.widgets.eventClick.events.click.handleEvent = function() { alert('Click triggered'); };
+
+PHOCOA.namespace('widgets.eventMouseover.events.mouseover');
+PHOCOA.widgets.eventMouseover.events.mouseover.handleEvent = function() { alert('Mouseover triggered'); };
+
+PHOCOA.namespace('widgets.eventMouseout.events.mouseout');
+PHOCOA.widgets.eventMouseout.events.mouseout.handleEvent = function() { alert('Mouseout triggered'); };
+
+PHOCOA.namespace('widgets.eventMousedown.events.mousedown');
+PHOCOA.widgets.eventMousedown.events.mousedown.handleEvent = function() { alert('Mousedown triggered'); };
+
+PHOCOA.namespace('widgets.eventMouseup.events.mouseup');
+PHOCOA.widgets.eventMouseup.events.mouseup.handleEvent = function() { alert('Mouseup triggered'); };
+
+PHOCOA.namespace('widgets.eventChange.events.change');
+PHOCOA.widgets.eventChange.events.change.handleEvent = function() { alert('Change triggered'); };
+
+PHOCOA.namespace('widgets.eventFocus.events.focus');
+PHOCOA.widgets.eventFocus.events.focus.handleEvent = function() { alert('Focus triggered'); };
+
+PHOCOA.namespace('widgets.eventBlur.events.blur');
+PHOCOA.widgets.eventBlur.events.blur.handleEvent = function() { alert('Blur triggered'); };
+
+{/literal}
+</script>
+
+{WFForm id="eventForm"}
+<ul>
+    <li>{WFView id="eventClick"}</li>
+    <li>{WFView id="eventMouseover"}</li>
+    <li>{WFView id="eventMouseout"}</li>
+    <li>{WFView id="eventMousedown"}</li>
+    <li>{WFView id="eventMouseup"}</li>
+    <li>Change: {WFView id="eventChange"}</li>
+    <li>Focus: {WFView id="eventFocus"}</li>
+    <li>Blur: {WFView id="eventBlur"}</li>
+</ul>
+{/WFForm}
+</p>
 
 <h3>Form Integration</h3>
 
