@@ -164,6 +164,7 @@ PHOCOA.WFRPC.prototype = {
         append = append || false;
         var url = (append ? '&' : '');
         url += '__phocoa_rpc_enable=1';
+        url += '&__phocoa_rpc_invocationPath=' + escape(this.invocationPath);
         url += '&__phocoa_rpc_target=' + escape(this.target);
         url += '&__phocoa_rpc_action=' + this.action;
         url += '&__phocoa_rpc_runsIfInvalid=' + this.runsIfInvalid;
@@ -187,6 +188,7 @@ PHOCOA.WFRPC.prototype = {
         args = args || [];
         var params = {};
         params.__phocoa_rpc_enable = 1;
+        params.__phocoa_rpc_invocationPath = this.invocationPath;
         params.__phocoa_rpc_target = this.target;
         params.__phocoa_rpc_action = this.action;
         params.__phocoa_rpc_runsIfInvalid = this.runsIfInvalid;
@@ -233,9 +235,16 @@ PHOCOA.WFRPC.prototype = {
         }
         else
         {
-            // set up XHR request & callback
             var url = this.actionAsURL(this.execute.arguments);
-            this.transaction = YAHOO.util.Connect.asyncRequest('GET', url, this.callback);
+            if (this.isAjax)
+            {
+                // set up XHR request & callback
+                this.transaction = YAHOO.util.Connect.asyncRequest('GET', url, this.callback);
+            }
+            else
+            {
+                document.location = url;
+            }
         }
     }
 };
@@ -302,7 +311,7 @@ PHOCOA.WFAction.prototype = {
             {
                 if (console && console.warn)
                 {
-                    console.warn("Callback doesn't exist: PHOCOA.widgets." + event.target.identify() + "." + event.type);
+                    console.warn("Callback doesn't exist: PHOCOA.widgets." + event.target.identify() + ".events." + event.type);
                 }
             }
         }
