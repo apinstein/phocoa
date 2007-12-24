@@ -18,7 +18,6 @@ class module_widgets extends WFModule
         if ($skin)
         {
             $skin->setTitle('PHOCOA Examples');
-            $skin->addMetaKeywords(array('example', 'widgets', 'phocoa'));
         }
     }
 
@@ -125,6 +124,7 @@ class module_widgets_toc
     function setupSkin($page, $params, $skin)
     {
         $skin->setMetaDescription('PHOCOA Examples: Widget Toolkit, forms, bindings, pagination, AJAX integration, and more.');
+        $skin->addMetaKeywords(array('php ajax examples', 'yui examples', 'yui example', 'phocoa examples', 'php ajax'));
     }
 }
 ?>
