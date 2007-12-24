@@ -23,26 +23,30 @@ class skininfo extends WFModule
     function previewSkin_PageDidLoad($page, $parameters)
     {
         $skin = $this->invocation->rootSkin();
-        $skin->setDelegateName($parameters['skinTypeName']);
-        $skin->setSkin($parameters['skinName'], 'skinName');
+        try {
+            $skin->setDelegateName($parameters['skinTypeName']);
+            $skin->setSkin($parameters['skinName'], 'skinName');
 
-        $this->skinName = $parameters['skinName'];
+            $this->skinName = $parameters['skinName'];
 
-        if (empty($parameters['skinThemeName']))
-        {
-            $this->skinThemeName = $skin->valueForKey('skinManifestDelegate')->defaultTheme();
-        }
-        else
-        {
-            $this->skinThemeName = $parameters['skinThemeName'];
-        }
+            if (empty($parameters['skinThemeName']))
+            {
+                $this->skinThemeName = $skin->valueForKey('skinManifestDelegate')->defaultTheme();
+            }
+            else
+            {
+                $this->skinThemeName = $parameters['skinThemeName'];
+            }
 
-        if (!empty($parameters['skinTemplateType']))
-        {
-            $skin->setTemplateType($parameters['skinTemplateType']);
+            if (!empty($parameters['skinTemplateType']))
+            {
+                $skin->setTemplateType($parameters['skinTemplateType']);
+            }
+            
+            $skin->setTheme($this->skinThemeName, 'skinThemeName');
+        } catch (Exception $e) {
+            throw new WFRequestController_NotFoundException($e->getMessage());
         }
-        
-        $skin->setTheme($this->skinThemeName, 'skinThemeName');
 
         $page->assign('skinTypeName', $parameters['skinTypeName']);
         $page->assign('skinName', $parameters['skinName']);
