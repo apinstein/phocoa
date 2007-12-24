@@ -69,9 +69,13 @@ class skininfo extends WFModule
         $skinTypes = WFSkin::installedSkinTypes();
         $page->assign('skinTypes', $skinTypes);
         $skin = $this->invocation->rootSkin();
-        if (!empty($parameters['skinTypeName']))
-        {
-            $skin->setDelegateName($parameters['skinTypeName']);
+        try {
+            if (!empty($parameters['skinTypeName']))
+            {
+                $skin->setDelegateName($parameters['skinTypeName']);
+            }
+        } catch (Exception $e) {
+            throw new WFRequestController_NotFoundException($e->getMessage());
         }
         $page->assign('currentSkinType', $skin->delegateName());
 
