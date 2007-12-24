@@ -1,0 +1,33 @@
+regexForm:
+  class: WFForm
+  properties:
+    isAjax: true
+  children:
+    regexRun:
+      class: WFSubmit
+      properties:
+        label: Run
+    regexExpression:
+      class: WFTextField
+      properties:
+        size: 50
+    regexTarget:
+      class: WFTextArea
+    regexMatchType:
+      class: WFRadioGroup
+      properties:
+        value: preg_match
+      children:
+        regexMatchTypeMatchAll:
+          class: WFRadio
+          properties:
+            selectedValue: preg_match_all
+            label: preg_match_all
+        regexMatchTypeMatch:
+          class: WFRadio
+          properties:
+            selectedValue: preg_match
+            label: preg_match
+regexResult:
+  class: WFLabel
+        

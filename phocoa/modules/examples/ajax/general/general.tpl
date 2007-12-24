@@ -139,6 +139,7 @@ function rpcPageDelegateServerHandleClick($page, $params, $senderId, $eventName)
     <li>Change: {WFView id="eventChange"}</li>
     <li>Focus: {WFView id="eventFocus"}</li>
     <li>Blur: {WFView id="eventBlur"}</li>
+    <li>{WFView id="eventMultiple"} <span id="eventMultipleStatus" style="font-weight: bold"></span></li>
 </ul>
 {/WFForm}
 

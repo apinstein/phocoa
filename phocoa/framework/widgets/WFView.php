@@ -128,49 +128,53 @@ abstract class WFView extends WFObject
     public function setOnEvent($str)
     {
         $matches = array();
-        // syntax: <event> do <l|r>:[action]
-        if (preg_match('/^\W*([A-z]*)\W*do\W*([jsa]):?((#(page|module)#[^:]*):)?(.*)$/', $str, $matches))
-        {
-            list(, $eventName, $lr, , $target, , $actionArgument) = $matches;
-            if (empty($actionArgument)) $actionArgument = NULL; // normalize to null
-            if (empty($target)) $target = NULL; // normalize to null
-            if ($lr === 'j')
+        // statement syntax: <event> do <l|r>:[action]
+        // repeat by adding "onEvent:" and another statement
+        $pieces = preg_split('/\W\bonEvent\b:\W/', $str);
+        foreach ($pieces as $statement) {
+            if (preg_match('/^\W*([A-z]*)\W*do\W*([jsa]):?((#(page|module)#[^:]*):)?(.*)$/', $statement, $matches))
             {
-                $action = WFAction::JSAction();
-                if ($actionArgument !== NULL)
+                list(, $eventName, $lr, , $target, , $actionArgument) = $matches;
+                if (empty($actionArgument)) $actionArgument = NULL; // normalize to null
+                if (empty($target)) $target = NULL; // normalize to null
+                if ($lr === 'j')
                 {
-                    $action->setJsEventHandler( "function() { " . $actionArgument . " };" );
-                }
-            }
-            else if ($lr === 's')
-            {
-                $action = WFAction::ServerAction();
-                if ($actionArgument !== NULL)
-                {
-                    if ($target !== NULL)
+                    $action = WFAction::JSAction();
+                    if ($actionArgument !== NULL)
                     {
-                        $action->setTarget($target);
+                        $action->setJsEventHandler( "function() { " . $actionArgument . " };" );
                     }
-                    $action->setAction($actionArgument);
                 }
-            }
-            else if ($lr === 'a')
-            {
-                $action = WFAction::AjaxAction();
-                if ($actionArgument !== NULL)
+                else if ($lr === 's')
                 {
-                    if ($target !== NULL)
+                    $action = WFAction::ServerAction();
+                    if ($actionArgument !== NULL)
                     {
-                        $action->setTarget($target);
+                        if ($target !== NULL)
+                        {
+                            $action->setTarget($target);
+                        }
+                        $action->setAction($actionArgument);
                     }
-                    $action->setAction($actionArgument);
                 }
+                else if ($lr === 'a')
+                {
+                    $action = WFAction::AjaxAction();
+                    if ($actionArgument !== NULL)
+                    {
+                        if ($target !== NULL)
+                        {
+                            $action->setTarget($target);
+                        }
+                        $action->setAction($actionArgument);
+                    }
+                }
+                $this->setListener( WFEvent::factory($eventName, $action) );
             }
-            $this->setListener( WFEvent::factory($eventName, $action) );
-        }
-        else
-        {
-            throw( new WFException("Couldn't parse onEvent statement: " . $str) );
+            else
+            {
+                throw( new WFException("Couldn't parse onEvent statement: " . $statement) );
+            }
         }
     }
 

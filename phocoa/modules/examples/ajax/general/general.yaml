@@ -58,6 +58,16 @@ eventMouseover:
   properties: 
     label: Mouseover
     onEvent: mouseover do j:alert("mouseover handler");
+eventMultiple: 
+  class     : WFLabel
+  properties: 
+    value: Multiple Events (try mousing over me and clicking me)
+    onEvent: >
+        click do j:$('eventMultipleStatus').innerHTML = 'click';
+        onEvent: mouseover do j:$('eventMultipleStatus').innerHTML = 'mouseover';
+        onEvent: mouseout do j:$('eventMultipleStatus').innerHTML = 'mouseout';
+        onEvent: mouseup do j:$('eventMultipleStatus').innerHTML = 'mouseup';
+        onEvent: mousedown do j:$('eventMultipleStatus').innerHTML = 'mousedown';
 eventClick: 
   class     : WFLabel
   properties: 
