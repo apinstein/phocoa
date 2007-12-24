@@ -1,8 +1,8 @@
 {* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
 
-<h1>PHOCOA AJAX Infrastructure Demo</h1>
-<h2>AJAX Capabilities</h2>
-<p>PHOCOA's integrated AJAX capabilities allow you to seamlessly tap into the DOM event model using standard PHOCOA programming models.</p>
+<h1>PHOCOA AJAX Integration</h1>
+<h2>Core Capabilities</h2>
+<p>PHOCOA's integrated AJAX infrastructure makes adding dynamic Javascript and AJAX features to your application easy.</p>
 <p>For any DOM event, you can configure a PHOCOA widget to:
 <ul>
     <li>Call a javascript function (a JSAction)</li>
@@ -11,21 +11,57 @@
 </ul>
 </p>
 
-<p>All of this functionality uses the same PHOCOA programming model as standard form/action programming, and requires very little effort to set up, making adding AJAX functionality to your app very easy.</p>
-<p>PHOCOA also includes many YUI widgets that have AJAX capabilities, such as AutoComplete and TreeView, that have been plugged in nicely to PHOCOA for easy use and require even less setup.</p>
+<p>All of this functionality uses the same PHOCOA programming model as standard form/action programming, and requires very little effort to set up.</p>
+<p>PHOCOA also includes many YUI widgets that have AJAX capabilities, such as AutoComplete, TreeView, and PhocoaDialog (an AJAX-loading YUI Dialog) that have been plugged in nicely to PHOCOA for easy use and require even less setup. All you have to do is supply a PHP callback to provide dynamically loaded data. No Javascript code is required at all.</p>
 
-<h2>PHOCOA/Javascript Programming Model</h2>
-<p>PHOCOA's Javascript integration follows a few basic principles.
+<h2>AJAX Integration Basics</h2>
+<p>At the highest level, PHOCOA provides an "onEvent" property for all classes in the WFView hierarchy that is used to attach Javascript behaviors to your application. Since the onEvent interface takes in a string as a parameter, you can configure AJAX behaviors via YAML with no PHP coding. If you need more complex behavior, you can always use the PHP API, but 95% of the time you'll find that onEvent works perfectly.</p>
+<p>The basic syntax is:</p>
+<blockquote>onEvent: &lt;eventName&gt; do &lt;typeOfAction&gt;[:&lt;target&gt;][:&lt;action&gt;]</blockquote>
 <ul>
-    <li>Anyting worth responding to in the DOM will have a DOM id.</li>
-    <li>PHOCOA uses a delegation paradigm to let you easily attach functions to the DOM event model.
-        <ul>
-            <li>PHOCOA.widgets.domID.events.eventName.collectArguments() is called when the event you're listening to fires, to give you a chance to tell the infrastructure what arguments to pass to your Javascript handler.</li>
-            <li>PHOCOA.widgets.domID.events.eventName.handleEvent(args) is called when the event you're listening to fires, with the arguments from collectArguments().</li>
-            <li>PHOCOA.widgets.domID.events.eventName.ajaxSuccess() is called if an AJAX RPC occurred, and succeeded.</li>
-            <li>PHOCOA.widgets.domID.events.eventName.ajaxError() is called if an AJAX RPC occurred, and failed.</li>
-        </ul>
+    <li><strong>eventName</strong> - The event name to listen for, i.e., <em>click</em>, <em>change</em>, <em>blur</em>, etc.</li>
+    <li><strong>typeOfAction</strong> - <em>j</em> for JSAction, <em>s</em> for ServerAction, or <em>a</em> for AjaxAction.</li>
+    <li><strong>target</strong> - The <em>target</em> setting used for ServerAction or AjaxAction. The default is <em>#page#</em> (the page delegate). You can use this optional setting to target the object of the action to <em>#page#outlet.keyPath</em> or <em>#module#keyPath</em>.</li>
+    <li><strong>action</strong> - The <em>action</em> to be called on the target object.<br />
+        <blockquote>
+        <strong>JSAction</strong><br />
+        The default is the Javascript function PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.handleEvent.<br />
+        If you put in your own action, it will be executed as an anonymous Javascript function.<br />
+        <br />
+        <strong>ServerAction and AjaxAction</strong><br />
+        The default is the php method &lt;widgetId&gt;Handle&lt;eventName&gt;.<br />
+        If you put in your own action, it will be interpreted as the php method call of that name on the target object.
+        </blockquote>
     </li>
+</ul>
+<p><strong>A few examples (all added to the widget of id myWidget):</strong></p>
+<ul>
+    <li><em>onEvent: click do j</em>
+        <blockquote>Will call the Javascript function PHOCOA.widgets.myWidget.events.click.handleEvent.</blockquote>
+    </li>
+    <li><em>onEvent: click do j: myFunc()</em>
+        <blockquote>Will call the Javascript function myFunc.</blockquote>
+    </li>
+    <li><em>onEvent: click do j: alert("HI");</em>
+        <blockquote>Will execute alert("HI").</blockquote>
+    </li>
+    <li><em>onEvent: click do s</em>
+        <blockquote>Will refresh the page and execute the server action #page#myWidgetHandleClick (which simply calls the myWidgetHandleClick method of the page delegate).</blockquote>
+    </li>
+    <li><em>onEvent: click do s:myPhpFunc</em>
+        <blockquote>Will refresh the page and execute the server action #page#myPhpFunc (which simply calls the myPhpFunc method of the page delegate).</blockquote>
+    </li>
+    <li><em>onEvent: click do a:#module#:myPhpFunc</em>
+        <blockquote>Will make an AJAX request, executing the server action #module#myPhpFunc (which simply calls the myPhpFunc method of the module).</blockquote>
+    </li>
+</ul>
+
+<h2>Advanced AJAX Integration</h2>
+<p>PHOCOA uses a delegation paradigm to implement the AJAX integration. We have already looked at the default handleEvent delegate method above. There are a few additional delegate methods that you can implement if you want to pass arguments to your handleEvent function, or have specialized success or error handlers.</p>
+<ul>
+    <li>PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.collectArguments() is called when the event you're listening to fires, to give you a chance to tell the infrastructure what arguments to pass to your Javascript handler.</li>
+    <li>PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.ajaxSuccess() is called if an AJAX RPC occurred, and succeeded.</li>
+    <li>PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.ajaxError() is called if an AJAX RPC occurred, and failed.</li>
 </ul>
 </p>
 
@@ -41,8 +77,8 @@ PHOCOA.widgets.localAction.events.click.handleEvent = function(e, myArg1, myArg2
 </script>
 {/literal}
 <p>{WFView id="localAction"}</p>
-<p>The code to set this up is simple. In PHP, you simply attach an event/action to the WFLink object:
-<blockquote><pre>$page->outlet('localAction')->setListener( new WFClickEvent() );</pre></blockquote>
+<p>The setup for this is done in the YAML file by specifying the <em>onEvent</em> property:</p>
+<blockquote><pre>onEvent: click do j</pre></blockquote>
 And, in Javascript, set up the delegate functions:
 <blockquote>
 {literal}
@@ -58,55 +94,40 @@ PHOCOA.widgets.localAction.events.click.handleEvent = function(e, myArg1, myArg2
 </blockquote>
 </p>
 
-<h3>AjaxAction - make an AJAX call when an event fires</h3>
-<p>{WFView id="rpcPageDelegate"} <span id="ajaxTarget">The server will stick a random number in this space when you click the link above.</span></p>
-<p>The code for this is also trivially simple. In PHP, you simply attach the event/action to the WFLink object:
-<blockquote><pre>$page->outlet('rpcPageDelegate')->setListener( new WFClickEvent( WFAction::ServerAction() ) );</pre></blockquote>
-Then, you define the PHP callback function for the event. For simplicity, the default callback name (the rpc action) is &lt;widgetId&gt;Handle&lt;EventName&gt;:
+<h3>ServerAction - refresh the page to execute an action on the server when an event fires</h3>
+<p>{WFView id="rpcPageDelegateServer"} {WFView id="ajaxTarget"}</p>
+<p>The setup for this is also trivially simple. In the YAML file:
+<blockquote><pre>onEvent: click do s</pre></blockquote>
+In PHP, we implement the default callback method &lt;widgetId&gt;Handle&lt;EventName&gt;:
 {literal}
 <blockquote><pre>
-function rpcPageDelegateHandleClick($page, $params, $senderId, $eventName)
+function rpcPageDelegateServerHandleClick($page, $params, $senderId, $eventName)
 {
-    return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()
-        ->addUpdateHTML('ajaxTarget', 'I am the server and this is my random number: ' . rand());
+    if (WFRequestController::sharedRequestController()->isAjax())
+    {
+        return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()
+            ->addUpdateHTML('ajaxTarget', 'I am the server and this is my random number: ' . rand());
+    }
+    else
+    {
+        $page->outlet('ajaxTarget')->setValue('I am the server and this is my random number: ' . rand());
+    }
 }
 </pre></blockquote>
 {/literal}
 </p>
-<p>In this case, the function name is rpcPageDelegateHandleClick. Notice the arguments passed to the PHP callback. All AjaxAction callbacks use this prototype. You can also pass back additional arguments, which will be appended to the parameters following $eventName.</p>
-<p>To effect the UI updates on the server, this callback returns a WFActionResponsePhocoaUIUpdater object. This object has addUpdateHTML(), addReplaceHTML(), and addRunScript() methods that make it easy for you to update the innerHTML of any element, replace any element, and run Javascript code in response to an AjaxAction.</p>
+<p>You will notice that we handle the event different based on whether the call is an AJAX call or not...</p>
+<p>For the ServerAction, we need only update the widget's value. This will be reflected in the HTML response that is sent to the client, just as done in normal PHOCOA action handlers.</p>
+<p>For the AjaxAction, to effect the UI updates on the client, we return a WFActionResponsePhocoaUIUpdater object. This object has addUpdateHTML(), addReplaceHTML(), and addRunScript() methods that make it easy for you to update the innerHTML of any element, replace any element, and run Javascript code in response to an AjaxAction.</p>
 
-<h3>AJAX Events</h3>
-<p>The blocks below demonstrate using PHOCOA-AJAX integrations on various UI widgets and all supported DOM events:
+<h3>AjaxAction - make an AJAX call when an event fires</h3>
+<p>We are using the same example as above, but turning it into an AJAX action.</p>
+<p>{WFView id="rpcPageDelegate"} Click the link and look to the right of the "ServerAction" link above... </p> 
+<p>For this example, we want to call a PHP method other than the default, since we've already set up the method we need for the above example:</p>
+<blockquote><pre>onEvent: click do a:rpcPageDelegateServerHandleClick</pre></blockquote>
 
-<script>
-{literal}
-PHOCOA.namespace('widgets.eventClick.events.click');
-PHOCOA.widgets.eventClick.events.click.handleEvent = function() { alert('Click triggered'); };
-
-PHOCOA.namespace('widgets.eventMouseover.events.mouseover');
-PHOCOA.widgets.eventMouseover.events.mouseover.handleEvent = function() { alert('Mouseover triggered'); };
-
-PHOCOA.namespace('widgets.eventMouseout.events.mouseout');
-PHOCOA.widgets.eventMouseout.events.mouseout.handleEvent = function() { alert('Mouseout triggered'); };
-
-PHOCOA.namespace('widgets.eventMousedown.events.mousedown');
-PHOCOA.widgets.eventMousedown.events.mousedown.handleEvent = function() { alert('Mousedown triggered'); };
-
-PHOCOA.namespace('widgets.eventMouseup.events.mouseup');
-PHOCOA.widgets.eventMouseup.events.mouseup.handleEvent = function() { alert('Mouseup triggered'); };
-
-PHOCOA.namespace('widgets.eventChange.events.change');
-PHOCOA.widgets.eventChange.events.change.handleEvent = function() { alert('Change triggered'); };
-
-PHOCOA.namespace('widgets.eventFocus.events.focus');
-PHOCOA.widgets.eventFocus.events.focus.handleEvent = function() { alert('Focus triggered'); };
-
-PHOCOA.namespace('widgets.eventBlur.events.blur');
-PHOCOA.widgets.eventBlur.events.blur.handleEvent = function() { alert('Blur triggered'); };
-
-{/literal}
-</script>
+<h3>Event and Widget Support</h3>
+<p>The PHOCOA Ajax integration supports several DOM events, which are allowed on most of the WFView subclasses. The blocks below demonstrate various UI widgets and DOM events:</p>
 
 {WFForm id="eventForm"}
 <ul>
@@ -120,11 +141,10 @@ PHOCOA.widgets.eventBlur.events.blur.handleEvent = function() { alert('Blur trig
     <li>Blur: {WFView id="eventBlur"}</li>
 </ul>
 {/WFForm}
-</p>
 
 <h3>Form Integration</h3>
 
-<p>The PHOCOA programming model for form submission is extended with our Ajax integration. Everything works the same way, except that you can return WFActionResponse objects to effect changes on the server. Even PHOCOA's validation infrastructure works with Ajax.</p>
+<p>The PHOCOA programming model for form submission is extended with our Ajax integration. Everything works the same way, except that you can return WFActionResponse objects to effect UI changes from the server. Even PHOCOA's validation infrastructure works with Ajax.</p>
 <p>Below is an example form with two fields. The first field requires any string but "bad" and the second field requires any string but "worse". If there are no errors, the two strings will be interpolated into a single response and updated in the UI.</p>
 <p>The submit button is a normal form submit. The link will submit the form via Ajax.</p>
 
@@ -149,21 +169,14 @@ PHOCOA.widgets.ajaxFormSubmitAjax.events.click.handleEvent = function(e) {
     {WFView id="ajaxFormSubmitNormal"} {WFView id="ajaxFormSubmitAjax"}
     <br />
 {/WFForm}
-<div id="ajaxFormResult">{$formResult}</div>
+<div id="ajaxFormResult" style="color: blue; margin: 10px;">{$formResult}</div>
 
-{literal}
 <p>Once again, the code to build this Ajax functionality is quite simple.</p>
-<p>In PHP, we set up our link to trigger the form submission:
-<blockquote><pre>
-$page->outlet('ajaxFormSubmitAjax')
-     ->setListener( new WFClickEvent( WFAction::AjaxAction()
-                                        ->setForm('ajaxForm')
-                                        ->setAction('ajaxFormSubmitNormal') 
-                                     )
-                   );
-</pre></blockquote>
+<p>In YAML, we set up our link to trigger the form submission:
+<blockquote><pre>onEvent: click do a:ajaxFormSubmitNormal</pre></blockquote>
 We also implement our ajaxFormSubmitNormal action handler, which in this example, we use for both normal and ajax form submission:
 <blockquote><pre>
+{literal}
 function ajaxFormSubmitNormal($page, $params, $senderId, $eventName)
 {
     $result = 'You said: "' . $page->outlet('textField')->value() . '" and "' . $page->outlet('textField2')->value() . '".';

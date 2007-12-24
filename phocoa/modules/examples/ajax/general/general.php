@@ -3,43 +3,41 @@
 
 class module_general extends WFModule
 {
-    function sharedInstancesDidLoad()
-    {
-    }
-
     function defaultPage()
     {
         return 'general';
+    }
+
+    function sayHi($page, $params, $senderId, $eventName)
+    {
+        return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()
+            ->addRunScript('alert("Hi from a module function!");');
     }
 }
 
 class module_general_general
 {
-    function parametersDidLoad($page, $params)
+    function sayHi($page, $params, $senderId, $eventName)
     {
-        $page->outlet('localAction')->setListener( new WFClickEvent() );
-        $page->outlet('eventClick')->setListener( new WFClickEvent() );
-        $page->outlet('eventMouseover')->setListener( new WFMouseoverEvent() );
-        $page->outlet('eventMouseout')->setListener( new WFMouseoutEvent() );
-        $page->outlet('eventMousedown')->setListener( new WFMousedownEvent() );
-        $page->outlet('eventMouseup')->setListener( new WFMouseupEvent() );
-        $page->outlet('eventChange')->setListener( new WFChangeEvent() );
-        $page->outlet('eventBlur')->setListener( new WFBlurEvent() );
-        $page->outlet('eventFocus')->setListener( new WFFocusEvent() );
-
-        $page->outlet('rpcPageDelegate')->setListener( new WFClickEvent( WFAction::ServerAction() ) );
-
-        $page->outlet('ajaxFormSubmitAjax')->setListener( new WFClickEvent( WFAction::AjaxAction()
-                                                                                ->setForm('ajaxForm')
-                                                                                ->setAction('ajaxFormSubmitNormal') 
-                                                                          )
-                                                        );
+        return $this->eventClickHandleClick($page, $params, $senderId, $eventName);
     }
-
-    function rpcPageDelegateHandleClick($page, $params, $senderId, $eventName)
+    function eventClickHandleClick($page, $params, $senderId, $eventName)
     {
         return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()
-            ->addUpdateHTML('ajaxTarget', 'I am the server and this is my random number: ' . rand());
+            ->addRunScript('alert("HI FROM SERVER!");');
+    }
+
+    function rpcPageDelegateServerHandleClick($page, $params, $senderId, $eventName)
+    {
+        if (WFRequestController::sharedRequestController()->isAjax())
+        {
+            return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()
+                ->addUpdateHTML('ajaxTarget', 'I am the server and this is my random number: ' . rand());
+        }
+        else
+        {
+            $page->outlet('ajaxTarget')->setValue('I am the server and this is my random number: ' . rand());
+        }
     }
 
     function ajaxFormSubmitNormal($page, $params, $senderId, $eventName)

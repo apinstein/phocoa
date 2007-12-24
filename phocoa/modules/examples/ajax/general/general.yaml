@@ -1,4 +1,7 @@
-
+ajaxTarget:
+  class: WFLabel
+  properties:
+    value: The server will stick a random number in this space when you click the link above.
 ajaxForm       : 
   children: 
     ajaxFormSubmitNormal: 
@@ -9,6 +12,7 @@ ajaxForm       :
       class: WFSubmit
       properties:
         label: Ajax Submit
+        onEvent: click do a:ajaxFormSubmitNormal
     textField     : 
       bindings: 
         value: 
@@ -28,36 +32,54 @@ localAction    :
   class     : WFLink
   properties: 
     label: Local JS Action
+    onEvent: click do j
 rpcPageDelegate: 
   class     : WFLink
   properties: 
     label: AjaxAction
+    onEvent: click do a:rpcPageDelegateServerHandleClick
+rpcPageDelegateServer: 
+  class     : WFLink
+  properties: 
+    label: ServerAction
+    onEvent: click do s
 eventMousedown: 
   class     : WFLink
   properties: 
     label: Mousedown
+    onEvent: mousedown do j:alert("mousedown handler");
 eventMouseup: 
   class     : WFLink
   properties: 
     label: Mouseup
+    onEvent: mouseup do j:alert("mouseup handler");
 eventMouseover: 
   class     : WFCheckbox
   properties: 
     label: Mouseover
+    onEvent: mouseover do j:alert("mouseover handler");
 eventClick: 
   class     : WFLabel
   properties: 
+    onEvent: click do a:#module#:sayHi
     value: Click
 eventMouseout: 
   class     : WFLink
   properties: 
     label: Mouseout
+    onEvent: mouseout do j:alert("mouseout handler");
 eventForm:
   class: WFForm
   children:
     eventChange:
       class: WFTextField
+      properties:
+        onEvent: change do j:alert("change handler");
     eventBlur:
       class: WFTextArea
+      properties:
+        onEvent: blur do j:alert("blur handler");
     eventFocus:
       class: WFSelect
+      properties:
+        onEvent: focus do j:alert("focus handler");
