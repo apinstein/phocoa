@@ -9,7 +9,7 @@
  */
 
 /**
- * A YAHOO AutoComplete widget for our framework. This widget acts like a ComboBox: it is a text field with a pick-list and OPTIONAL custom entry.
+ * A YAHOO Menu widget for our framework. This widget allows you to easily create vertical or horizontal multi-level menus.
  * 
  * <b>PHOCOA Builder Setup:</b>
  *
@@ -140,7 +140,7 @@ class WFYAHOO_widget_Menu extends WFYAHOO
         return $html;
     }
 
-    function canPushValueBinding() { return true; }
+    function canPushValueBinding() { return false; }
 }
 
 ?>

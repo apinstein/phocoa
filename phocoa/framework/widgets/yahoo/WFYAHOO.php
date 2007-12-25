@@ -172,6 +172,32 @@ abstract class WFYAHOO extends WFWidget
 
     function canPushValueBinding() { return false; }
 
+    function jsValueForValue($value)
+    {
+        if ($value === NULL)
+        {
+            return 'null';
+        }
+        if (is_numeric($value))
+        {
+            return $value;
+        }
+        else if (is_bool($value) or $value == 'true' or $value == 'false')
+        {
+            if (is_bool($value))
+            {
+                return ($value ? 'true' : 'false');
+            }
+            else
+            {
+                return $value;
+            }
+        }
+        else // string
+        {
+            return "'" . str_replace("'", "\\'", $value) . "'";
+        }
+    }
     function jsForSimplePropertyConfig($widgetVarName, $propertyName, $value)
     {
         $simpleJS = NULL;
@@ -214,11 +240,14 @@ abstract class WFYAHOO extends WFWidget
         {
             // set up basic HTML
             $html = parent::render($blockContent);
-            $html .= $this->jsStartHTML() . $this->yuiloader()->jsLoaderCode(
+            $initJSCode = $this->initJS($blockContent);
+            if ($initJSCode)
+            {
+                $html .= $this->jsStartHTML() . $this->yuiloader()->jsLoaderCode(
                                                                             "function() {
     PHOCOA.namespace('widgets.{$this->id}.yuiDelegate');
     // let widget inject JS that depends on YUI libs, and define the init function
-    " . $this->initJS($blockContent) . "
+    {$initJSCode}
 
     YAHOO.util.Event.onContentReady('{$this->initializeWaitsForID}', function() {
         if (PHOCOA.widgets.{$this->id}.yuiDelegate.widgetWillLoad)
@@ -234,6 +263,7 @@ abstract class WFYAHOO extends WFWidget
 }
 "
                                                                             ) . $this->jsEndHTML();
+            }
         }
         return $html;
     }

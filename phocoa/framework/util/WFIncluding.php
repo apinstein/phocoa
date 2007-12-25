@@ -133,6 +133,8 @@ class WFIncluding
                 'WFYAHOO_widget_Logger' => 'framework/widgets/yahoo/WFYAHOO_widget_Logger.php',
                 'WFYAHOO_widget_Menu' => 'framework/widgets/yahoo/WFYAHOO_widget_Menu.php',
                 'WFYAHOO_widget_AutoComplete' => 'framework/widgets/yahoo/WFYAHOO_widget_AutoComplete.php',
+                'WFYAHOO_widget_Tab' => 'framework/widgets/yahoo/WFYAHOO_widget_TabView.php',
+                'WFYAHOO_widget_TabView' => 'framework/widgets/yahoo/WFYAHOO_widget_TabView.php',
                 'WFPaginatorPageInfo' => 'framework/widgets/WFPaginatorPageInfo.php',
                 'WFValueTransformer' => 'framework/ValueTransformers/WFValueTransformer.php',
                 'WFNegateBooleanTransformer' => 'framework/ValueTransformers/WFNegateBooleanTransformer.php',

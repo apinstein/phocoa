@@ -1,0 +1,24 @@
+tabView:
+  class: WFYAHOO_widget_TabView
+  properties:
+    selectedTabId: tab1
+    orientation: left
+  children:
+    tab1:
+      class: WFYAHOO_widget_Tab
+      properties:
+        label: Tab 1
+    tab2:
+      class: WFYAHOO_widget_Tab
+      properties:
+        label: Tab 2 (disabled)
+        disabled: true
+    tab3:
+      class: WFYAHOO_widget_Tab
+      properties:
+        label: Tab 3
+    tab4:
+      class: WFYAHOO_widget_Tab
+      properties:
+        label: Tab 4 (dynamic)
+        dataSrc: /webapp/examples/widgets/toc
