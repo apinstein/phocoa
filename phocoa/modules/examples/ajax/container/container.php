@@ -33,7 +33,9 @@ class module_container_container
     }
     function setupSkin($page, $params, $skin)
     {
+        $skin->setTitle('YUI Container Examples: Module, Overlay, Panel, and PHOCOA Dialog');
         $skin->setMetaDescription('YUI Container Examples: Module, Overlay, Panel, and PHOCOA Dialog.');
+        $skin->addMetaKeywords( array('yui container', 'yui module', 'yui panel', 'yui overlay', 'yui dialog', 'yui panel example') );
     }
 }
 ?>

@@ -9,4 +9,14 @@ class module_tabs extends WFModule
     }
 
 }
+
+class module_tabs_example
+{
+    function setupSkin($page, $params, $skin)
+    {
+        $skin->setTitle('YUI TabView and Tab Widget Example - PHOCOA AJAX Integration');
+        $skin->setMetaDescription('YUI TabView and Tab Widget Example - PHOCOA AJAX Integration');
+        $skin->addMetaKeywords( array('yui tabs', 'yui tab view', 'yui tabview', 'yui tab', 'yui tab example') );
+    }
+}
 ?>
