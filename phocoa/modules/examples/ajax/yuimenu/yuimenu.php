@@ -16,6 +16,16 @@ class module_yuimenu extends WFModule
     }
 }
 
+class module_yuimenu_example
+{
+    function setupSkin($page, $params, $skin)
+    {
+        $skin->setTitle('YUI Menu Example - PHOCOA AJAX Integration');
+        $skin->setMetaDescription('YUI Menu Example - see YUI Menu and MenuBar examples.');
+        $skin->addMetaKeywords(array('yui menu', 'yahoo menu', 'yui menubar', 'yahoo menubar', 'yui menu example', 'yui menubar example'));
+    }
+}
+
 class YUIMenuExampleMenus extends WFObject
 {
     protected $menuItemsNestedArray = array('Search Engines' => array('YAHOO' => 'http://yahoo.com',
