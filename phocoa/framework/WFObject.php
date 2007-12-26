@@ -68,10 +68,23 @@ class WFObject implements WFKeyValueCoding
 
         if (!$performed)
         {
-            WFException::raise(WFUndefinedKeyException, "Unknown key '$key' requested for object '" . get_class($this) . "'.");
+            $result = $this->valueForUndefinedKey($key);
         }
 
         return $result;
+    }
+
+    /**
+     * Called by valueForKey() if the key cannot be located through normal methods.
+     *
+     * The default implementation raises as WFUndefinedKeyException. Subclasses can override this function to return an alternate value for the undefined key.
+     * @param string The key.
+     * @return mixed The value of the key.
+     * @throws object WFUndefinedKeyException
+     */
+    function valueForUndefinedKey($key)
+    {
+        WFException::raise(WFUndefinedKeyException, "Unknown key '$key' requested for object '" . get_class($this) . "'.");
     }
 
     function valueForKeyPath($keyPath)

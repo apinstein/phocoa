@@ -29,15 +29,12 @@ interface WFMenuItem
 }
 
 /**
- *  Interface for objects to adhere to to be able to use the {@link WFMenuTree:menuTree()} functions.
+ *  Interface for objects to adhere to to be able to use the {@link WFMenuTree:menuTreeBuildingToMenuTree()} functions.
  */
 interface WFMenuTreeBuilding
 {
-
     function menuPath();
-    function addChild($child);
 }
-
 
 /**
  * Generic menu item class for dynamically building menu trees.
@@ -45,7 +42,7 @@ interface WFMenuTreeBuilding
  * @see WFMenuTree::nestedArrayToMenuTree()
  * @todo Add support for tooltop, linkTarget, and icon
  */
-class WFMenuItemBasic implements WFMenuItem
+class WFMenuItemBasic implements WFMenuItem, WFMenuTreeBuilding
 {
     /**
      * @var string The label to display for the menu.
@@ -60,11 +57,19 @@ class WFMenuItemBasic implements WFMenuItem
      */
     protected $children;
 
+    protected $menuPath;
+
     function __construct()
     {
         $this->label = NULL;
         $this->link = NULL;
+        $this->menuPath = NULL;
         $this->children = array();
+    }
+
+    public static function WFMenuItemBasic()
+    {
+        return new WFMenuItemBasic;
     }
 
     /**
@@ -85,6 +90,17 @@ class WFMenuItemBasic implements WFMenuItem
     function setLabel($label)
     {
         $this->label = $label;
+        return $this;
+    }
+
+    function menuPath()
+    {
+        return $this->menuPath;
+    }
+    function setMenuPath($p)
+    {
+        $this->menuPath = $p;
+        return $this;
     }
     
     /**
@@ -105,6 +121,7 @@ class WFMenuItemBasic implements WFMenuItem
     function setLink($link)
     {
         $this->link = $link;
+        return $this;
     }
 
     /**
@@ -125,12 +142,41 @@ class WFMenuItemBasic implements WFMenuItem
     function addChild($child)
     {
         $this->children[] = $child;
+        return $this;
     }
 
     function toolTip() { return NULL; }
     function linkTarget() { return NULL; }
     function icon() { return NULL; }
 }
+
+/**
+ * This is a helper class that is used by WFMenuTree when it builds WFMenuItem-compatible models from other data sources.
+ */
+class WFMenuItemProxy extends WFMenuItemBasic
+{
+    protected $object = NULL;
+
+    function __construct($o)
+    {
+        parent::__construct($o);
+        $this->setObject($o);
+    }
+
+    function setObject($o)
+    {
+        if (!($o instanceof WFMenuItem)) throw( new WFException("Objects used in menus must implement WFMenuItem.") );
+        $this->object = $o;
+    }
+    function children() { return $this->object->children(); }
+    function label() { return $this->object->label(); }
+    function toolTip() { return $this->object->toolTip(); }
+    function link() { return $this->object->link(); }
+    function linkTarget() { return $this->object->linkTarget(); }
+    function icon() { return $this->object->icon(); }
+}
+
+
 
 /**
  * Class with helper methods for adapting data sources into a tree of {@link WFMenuItem} objects.
@@ -196,25 +242,59 @@ class WFMenuTree
      *
      *  This algorithm takes an array of objects, each having a menuPath in the form of "a/b/c/d", and returns them in tree form. The tree form is suitable for WFDynarchMenu, WFYAHOO_widget_Menu, or other menu subsytems.
      *
-     *  Items can be both a menu item and have children.
+     *  Items can be both a menu item and have children. Any nodes along the way that aren't explicitly specified will be created for you with a label but no link.
      *
-     *  The items should be sorted lexographically by their menuPath.
-     * 
+     *  IMPORTANT: The order of the items passed in is important. They should be sorted such that the nodes appear in order of appearance, if you were walking through them recursively.
+     *
+     *  EXAMPLE:
+     *  a/b/
+     *  a/b/c
+     *  a/b/d
+     *  a/c/a
+     *  a/c/b
+     *
      *  @param array A one-dimensional array of objects implementing WFMenuTreeBuilding.
      *  @return array An arry of these same objects, but converted to tree form.
-     *  @throws
      */
-    static function menuTree($allItems)
+    static function menuTreeBuildingToMenuTree($allItems)
     {
         // loop through items building the tree
         $menuTree = array();
         $pathStack = array();
         $topMenuItem = NULL;
+        $allPaths = array();
+        // preflight run to make sure that all path parts are represented
+        $newAllItems = array();
         foreach ($allItems as $item) {
+            $allPaths[$item->menuPath()] = true;
+
+            // if the container(s) of the current path don't yet have an item, we need to create fake WFMenuItemBasic items to represent them.
+            $allPathsPartCheck = NULL;
+            foreach (explode('/', $item->menuPath()) as $part) {
+                if ($allPathsPartCheck !== NULL)
+                {
+                    $allPathsPartCheck .= '/';
+                }
+                $allPathsPartCheck .= $part;
+                if (!isset($allPaths[$allPathsPartCheck]))
+                {
+                    $fakePathItem = new WFMenuItemBasic;
+                    $fakePathItem->setLabel($part);
+                    $fakePathItem->setMenuPath($allPathsPartCheck);
+
+                    // add the fake item
+                    $newAllItems[] = $fakePathItem;
+                    $allPaths[$allPathsPartCheck] = true;
+                }
+            }
+            $newAllItems[] = $item;
+        }
+        foreach ($newAllItems as $item) {
+            $proxyMenuItem = new WFMenuItemProxy($item);
             // is this menu item a sub-item of the previous one? if so, add it to the current place in the tree
             if ($topMenuItem and strstr($item->menuPath(), $topMenuItem->menuPath() . '/'))
             {
-                $topMenuItem->addChild($item);
+                $topMenuItem->addChild($proxyMenuItem);
             }
             // else the item is not a sub-menu; thus we need to pop our stack until we match the current item
             else
@@ -230,11 +310,11 @@ class WFMenuTree
                 // should the item be added to the ROOT or to the current menu item?
                 if ($topMenuItem === NULL)
                 {
-                    $menuTree[] = $item;
+                    $menuTree[] = $proxyMenuItem;
                 }
                 else
                 {
-                    $topMenuItem->addChild($item);
+                    $topMenuItem->addChild($proxyMenuItem);
                 }
             }
             array_push($pathStack, $item);

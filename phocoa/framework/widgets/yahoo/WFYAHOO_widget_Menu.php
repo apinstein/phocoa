@@ -43,6 +43,14 @@ class WFYAHOO_widget_Menu extends WFYAHOO
     {
         $this->menuItems = $items;
     }
+    function setMenuItemsNestedArray($items)
+    {
+        $this->setMenuItems( WFMenuTree::nestedArrayToMenuTree($items) );
+    }
+    function setMenuItemsMenuPath($items)
+    {
+        $this->setMenuItems( WFMenuTree::menuTreeBuildingToMenuTree($items) );
+    }
 
     function setHorizontal($h)
     {
@@ -53,6 +61,12 @@ class WFYAHOO_widget_Menu extends WFYAHOO
     {
         $myBindings = parent::setupExposedBindings();
         $newValBinding = new WFBindingSetup('menuItems', 'The menu items for the menu.');
+        $newValBinding->setReadOnly(true);
+        $myBindings[] = $newValBinding;
+        $newValBinding = new WFBindingSetup('menuItemsNestedArray', 'The menu items, in nested associative array format. Will be converted through WFMenuTree::nestedArrayToMenuTree().');
+        $newValBinding->setReadOnly(true);
+        $myBindings[] = $newValBinding;
+        $newValBinding = new WFBindingSetup('menuItemsMenuPath', 'The menu items, as an array of objects imlpementing WFMenuTreeBuilding. Will be converted through WFMenuTree::menuTreeBuildingToMenuTree().');
         $newValBinding->setReadOnly(true);
         $myBindings[] = $newValBinding;
         return $myBindings;
@@ -141,6 +155,17 @@ class WFYAHOO_widget_Menu extends WFYAHOO
     }
 
     function canPushValueBinding() { return false; }
+
+    function valueForUndefinedKey($key)
+    {
+        switch ($key) {
+            case 'menuItemsMenuPath':
+            case 'menuItemsNestedArray':
+                return NULL;    // we never return a value here, but we need to make it seem that we're a legitimate property so that bindings will work.
+                break;
+        }
+        return parent::valueForUndefinedKey($key);
+    }
 }
 
 ?>

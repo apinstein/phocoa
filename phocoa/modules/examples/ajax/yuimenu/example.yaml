@@ -1,0 +1,21 @@
+menuItems:
+  class: WFYAHOO_widget_Menu
+  bindings:
+    menuItems:
+      instanceID: menuItems
+      controllerKey:
+      modelKeyPath: menuItems
+arrayMenuPath:
+  class: WFYAHOO_widget_Menu
+  bindings:
+    menuItemsMenuPath:
+      instanceID: menuItems
+      controllerKey:
+      modelKeyPath: menuItemsWithMenuPath
+nestedArrayMenu:
+  class: WFYAHOO_widget_Menu
+  bindings:
+    menuItemsNestedArray:
+      instanceID: menuItems
+      controllerKey:
+      modelKeyPath: menuItemsNestedArray
