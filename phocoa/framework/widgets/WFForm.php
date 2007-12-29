@@ -24,6 +24,8 @@
   * has exactly one submit button, the default button will be automatically selected. Otherwise, you'll need to specify it by configuring a defaultSubmitID for your
   * form. What this means in practice is that if you have a form with 2+ buttons, you really should set a {@link WFForm::$defaultSubmitID defaultSubmitID} to avoid
   * bugs in some browsers.
+  *
+  * WFForm features built-in CSRF protection for form submissions, ajax form submissions, and WFAppcelerator service requests.
   */
 class WFForm extends WFWidget
 {
