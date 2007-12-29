@@ -120,6 +120,10 @@ class WFRequestController extends WFObject
 
             // get HTML result of the module, and output it
             print $this->rootModuleInvocation->execute();
+        } catch (WFRequestController_BadRequestException $e) {
+            header("HTTP/1.0 400 Bad Request");
+            print "Bad Request: " . $e->getMessage();
+            exit;
         } catch (WFRequestController_NotFoundException $e) {
             header("HTTP/1.0 404 Not Found");
             print $e->getMessage();
@@ -241,4 +245,5 @@ class WFRedirectRequestException extends WFException
 class WFRequestController_RedirectException extends WFRedirectRequestException {}
 class WFRequestController_InternalRedirectException extends WFRedirectRequestException {}
 class WFRequestController_NotFoundException extends WFException {}
+class WFRequestController_BadRequestException extends WFException {}
 ?>

@@ -183,11 +183,16 @@ class WFForm extends WFWidget
             if (!isset($this->children[$this->defaultSubmitID])) throw( new WFException("The default button specified: '" . $this->defaultSubmitID . '" does not exist.') );
             $defaultFormButtonHTML = "\n" . $this->children[$this->defaultSubmitID]->renderDefaultButton();
         }
+        // CSRF Protetion
+        $instanceid = rand();
+        $auth = md5(session_id() . $instanceid);
         $html =  "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $encType . '>' .
                "\n" . '<input type="hidden" name="__modulePath" value="' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '" />' .
                //"\n" . '<input type="hidden" name="__currentModule" value="' . $this->page->module()->invocation()->modulePath() . '" />' .
                //"\n" . '<input type="hidden" name="__currentPage" value="' . $this->page->pageName() . '" />' .
                "\n" . '<input type="hidden" name="__formName" value="' . $this->id . '" />' .
+               "\n" . '<input type="hidden" name="instanceid" value="' . $instanceid . '" />' .
+               "\n" . '<input type="hidden" name="auth" value="' . $auth . '" />' .
                $defaultFormButtonHTML .
                "\n" . $blockContent .
                "\n</form>\n" .

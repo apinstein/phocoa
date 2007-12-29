@@ -3,4 +3,5 @@
 <p>Stack Trace:</p>
 <pre>
 {$exception->getTraceAsString()}
+{php} var_dump($_REQUEST); {/php}
 </pre>

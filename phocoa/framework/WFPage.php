@@ -267,6 +267,11 @@ class WFPage extends WFObject
             and $_REQUEST['__modulePath'] == ($this->module->invocation()->modulePath() . '/' . $this->pageName())
             and $this->module->invocation()->pageName() == $this->pageName())
         {
+            // CSRF Protection
+            if (!(isset($_REQUEST['auth']) and isset($_REQUEST['instanceid']))) throw( new WFRequestController_BadRequestException );
+            $check = md5(session_id() . $_REQUEST['instanceid']);
+            if ($check !== $_REQUEST['auth']) throw( new WFRequestController_BadRequestException );
+
             $formName = $_REQUEST['__formName'];
         }
         return $formName;

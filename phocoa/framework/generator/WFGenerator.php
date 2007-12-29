@@ -481,18 +481,14 @@ class WFModelCodeGenPropel extends WFObject
         $editFormId = 'edit' . $entity->valueForKey('name') . 'Form';
         $editYaml[$editFormId] = array('class' => 'WFForm', 'children' => array());
 
-        $displayInLayout = array();
         $widgets = array();
-        
         foreach ($entity->getAttributes() as $attr) {
             $widgetID = $attr->valueForKey('name');
             $widgets[$widgetID] = $attr;
 
-            $displayInLayout[$widgetID] = true;
             if ($attr->valueForKey('name') === $entity->valueForKey('primaryKeyAttribute'))
             {
                 $class = 'WFHidden';
-                $displayInLayout[$widgetID] = false;
             }
             else
             {
@@ -638,6 +634,29 @@ class WFModelCodeGenPropel extends WFObject
                 );
         file_put_contents($moduleDir . '/deleteSuccess.yaml', WFYaml::dump($deleteSuccessYaml));
         file_put_contents($moduleDir . '/deleteSuccess.tpl', $this->smarty->fetch(FRAMEWORK_DIR . '/framework/generator/deleteSuccess.tpl'));
+
+        // detail page
+        $detailYaml = array();
+        $widgets = array();
+        foreach ($entity->getAttributes() as $attr) {
+            $widgetID = $attr->valueForKey('name');
+            $widgets[$widgetID] = $attr;
+            $detailYaml[$widgetID] = array(
+                    'class' => 'WFLabel',
+                    'bindings' => array(
+                        'value' => array(
+                            'instanceID' => $sharedEntityId,
+                            'controllerKey' => 'selection',
+                            'modelKeyPath' => $widgetID
+                            )
+                        )
+                    );
+        }
+        file_put_contents($moduleDir . '/detail.yaml', WFYaml::dump($detailYaml));
+       
+        // build detail.tpl
+        $this->smarty->assign('widgets', $widgets);
+        file_put_contents($moduleDir . '/detail.tpl', $this->smarty->fetch(FRAMEWORK_DIR . '/framework/generator/detail.tpl'));
     }
 }
 
