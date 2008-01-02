@@ -104,6 +104,12 @@ PHOCOA.runtime.addObject = function(o, id)
     PHOCOA.runtime.objectList[oid] = o;
 };
 
+PHOCOA.runtime.removeObject = function(id)
+{
+    PHOCOA.runtime.setupObjectCache();
+    delete PHOCOA.runtime.objectList[id];
+};
+
 PHOCOA.runtime.setupObjectCache = function()
 {
     // object list
