@@ -11,18 +11,21 @@ interface WFModelBuilder
 // PROPEL 1.2/1.3 (check both versions!) model builder
 class WFModelBuilderPropel extends WFObject implements WFModelBuilder
 {
+    protected $builtEntities = array(); // prevent infinite loops!
+
     function setup()
     {
         Propel::init(PROPEL_CONF);
+        require_once('propel/engine/database/model/NameFactory.php');
     }
 
     /**
-     * Load the propel metadata for the given entity.
+     * Get the propel metadata for the given entity.
      *
      * @param string The name of the entity, as it's PHP class name.
      * @return object TableMap The Propel TableMap for this entity.
      */
-    function loadEntityMetadata($name)
+    function getEntityMetadata($name)
     {
         // in Propel, the MapBuilder class is only set up for an entity when the Peer file is loaded...
         $peerClassName = $name . 'Peer';
@@ -34,77 +37,88 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
     }
     function buildEntityModel($name)
     {
+        if (isset($this->builtEntities[$name])) return $this->builtEntities[$name];
+
         // build a WFModelEntity structure from the Propel metadata....
-        $tableMap = $this->loadEntityMetadata($name); 
+        $tableMap = $this->getEntityMetadata($name); 
 
         // set up entity
         $entity = new WFModelEntity;
         $entity->setValueForKey($tableMap->getPhpName(), 'name');
 
-        // set up attributes
+        // set up properties
         foreach ($tableMap->getColumns() as $column) {
-            $attribute = new WFModelEntityAttribute;
-            $attribute->setValueForKey($column->getPhpName(), 'name');
+            $property = new WFModelEntityProperty;
+            $property->setValueForKey($column->getPhpName(), 'name');
+            $property->setValueForKey($column->getDefaultValue(), 'defaultValue');
             switch ($column->getType()) {
                 case 'INTEGER':
                 case 'int':
-                    $type = WFModelEntityAttribute::TYPE_NUMBER;
+                    $type = WFModelEntityProperty::TYPE_NUMBER;
                     break;
                 case 'TIMESTAMP':
                 case 'datetime':
-                    $type = WFModelEntityAttribute::TYPE_DATETIME;
+                    $type = WFModelEntityProperty::TYPE_DATETIME;
                     break;
                 case 'text':
-                    $type = WFModelEntityAttribute::TYPE_TEXT;
+                    $type = WFModelEntityProperty::TYPE_TEXT;
                     break;
                 case 'boolean':
-                    $type = WFModelEntityAttribute::TYPE_BOOLEAN;
+                    $type = WFModelEntityProperty::TYPE_BOOLEAN;
                     break;
                 case 'VARCHAR':
                 case 'string':
-                    $type = WFModelEntityAttribute::TYPE_STRING;
+                    $type = WFModelEntityProperty::TYPE_STRING;
                     break;
                 default: 
-                    print "WARNING: Unknown attribute type for column: " . $attribute->valueForKey('name') . ":" . $column->getType() . "\n";
-                    $type = WFModelEntityAttribute::TYPE_STRING;
+                    print "WARNING: Unknown property type for column: " . $property->valueForKey('name') . ":" . $column->getType() . "\n";
+                    $type = WFModelEntityProperty::TYPE_STRING;
                     break;
             }
-            if (!$entity->valueForKey('descriptiveColumnName') && $type === WFModelEntityAttribute::TYPE_STRING)
+            if (!$entity->valueForKey('descriptiveColumnName') && $type === WFModelEntityProperty::TYPE_STRING)
             {
-                $entity->setValueForKey($attribute->valueForKey('name'), 'descriptiveColumnName');
+                $entity->setValueForKey($property->valueForKey('name'), 'descriptiveColumnName');
             }
-            if (!$entity->valueForKey('primaryKeyAttribute') && $column->isPrimaryKey())
+            if (!$entity->valueForKey('primaryKeyProperty') && $column->isPrimaryKey())
             {
-                $entity->setValueForKey($attribute->valueForKey('name'), 'primaryKeyAttribute');
+                $entity->setValueForKey($property->valueForKey('name'), 'primaryKeyProperty');
             }
-            $attribute->setValueForKey($type, 'type');
-            $entity->addAttribute($attribute);
+            $property->setValueForKey($type, 'type');
+            $entity->addProperty($property);
         }
 
         // set up relationships
         foreach ($tableMap->getColumns() as $column) {
             if (!$column->isForeignKey()) continue;
+
+            // create relationship from this table to the other one
             $rel = new WFModelEntityRelationship;
             // get related entity
-            $relatedEntityTableMap = $this->loadEntityMetadata( ucfirst($column->getRelatedTableName()) );
-            $rel->setValueForKey($relatedEntityTableMap->getPhpName(), 'name');
-            if ($column->isNotNull())
-            {
-                $rel->setValueForKey(WFModelEntityRelationship::CARDINALITY_ONE_TO_ONE_OR_MORE, 'cardinality');
-            }
-            else
-            {
-                $rel->setValueForKey(WFModelEntityRelationship::CARDINALITY_ONE_TO_ZERO_OR_MORE, 'cardinality');
-            }
-            // is this an "extension" table?
-
-            // add relationship
+            $relatedEntityName = NameFactory::generateName(NameFactory::PHP_GENERATOR, array($column->getRelatedTableName(), NameGenerator::CONV_METHOD_PHPNAME));
+            $relatedEntityTableMap = $this->getEntityMetadata($relatedEntityName);
+            $relatedEntity = WFModel::sharedModel()->buildEntity($relatedEntityTableMap->getPhpName());
+            // configure relationship
+            $rel->setToOne(true);   // if we are the fk column, it must be to-one (unless it's many-to-many)
+            $rel->setValueForKey($relatedEntity->valueForKey('name'), 'name'); // singular
+            $rel->setValueForKey($column->isNotNull(), 'required');
             $entity->addRelationship($rel);
 
-            // add to builder list
-            WFModel::sharedModel()->addEntityToBuild($relatedEntityTableMap->getPhpName());
+            // create relationship in the other direction
+            $invRel = new WFModelEntityRelationship;
+            // configure relationship
+            $inverseRelationshipIsToOne = false;
+            // is this an "extension" table? TRUE if the relationship is on our PK; this makes the INVERSE relationship have an EXT relationship to this table
+            if ($column->isPrimaryKey())
+            {
+                $inverseRelationshipIsToOne = true;
+                $invRel->setValueForKey(true, 'isExtension');
+            }
+            $invRel->setToOne($inverseRelationshipIsToOne);
+            $invRel->setValueForKey($tableMap->getPhpName() . ($inverseRelationshipIsToOne ? NULL : 's'), 'name');    // make plural as needed
+            $relatedEntity->addRelationship($invRel);
         }
-
+    
+        $this->builtEntities[$entity->valueForKey('name')] = $entity;
         return $entity;
     }
 }
@@ -112,7 +126,8 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
 // PHOCOA WFModel Class Structure -- internal representation of the object model. Decoupled from the implementations.
 class WFModel extends WFObject
 {
-    protected $entitiesToBuild = array();
+    protected $builder = NULL;
+
     protected $entities = array();
     static private $_instance = NULL;
 
@@ -123,6 +138,22 @@ class WFModel extends WFObject
             self::$_instance = new WFModel;
         }
         return self::$_instance;
+    }
+
+    function toString()
+    {
+        $str = NULL;
+        foreach ($this->entities as $entity) {
+            $str .= "\n" . $entity->valueForKey('name');
+            foreach ($entity->getProperties() as $property) {
+                $str .= "\n - " . $property->valueForKey('name') . " (" . $property->valueForKey('type') . ")";
+            }
+            foreach ($entity->getRelationships() as $rel) {
+                $str .= "\n > " . $rel->valueForKey('name') . " (" . ($rel->valueForKey('toOne') ? 'to-one' : 'to-many') . ($rel->valueForKey('isExtension') ? ' [EXT]' : NULL) . ", " . ($rel->valueForKey('required') ? 'required' : 'optional') . ")";
+            }
+        }
+        $str .= "\n\n";
+        return $str;
     }
 
     public function addEntity($entity)
@@ -141,26 +172,26 @@ class WFModel extends WFObject
         return $this->entities[$name];
     }
 
-    public function addEntityToBuild($entityName)
+    public function buildEntity($entityName)
     {
-        array_push($this->entitiesToBuild, $entityName);
+        if (isset($this->entities[$entityName]))
+        {
+            return $this->getEntity($entityName);
+        }
+        $entity = $this->builder->buildEntityModel($entityName);
+        $this->addEntity($entity);
+        return $entity;
     }
 
     public function buildModel($adapter, $configFile, $buildEntities)
     {
         // bootstrap
         $builderClass = 'WFModelBuilder' . $adapter;
-        $builder = new $builderClass;
-        $builder->setup();
+        $this->builder = new $builderClass;
+        $this->builder->setup();
         foreach ($buildEntities as $entity) {
-            $this->addEntityToBuild($entity);
+            $this->buildEntity($entity);
         }
-
-        // run builder
-        while ( ($entity = array_pop($this->entitiesToBuild)) !== NULL) {
-            $this->addEntity($builder->buildEntityModel($entity));
-        }
-
 
         if (file_exists($configFile))
         {
@@ -170,7 +201,8 @@ class WFModel extends WFObject
             //   descriptiveColumnName: name
             //   relationships:
             //     BlogPreferences:
-            //       cardinality: WFModelEntityRelationship::CARDINALITY_ONE_TO_EXACLTY_ONE
+            //       minCount: 0
+            //       maxCount: NULL
             //       isExtension: true
 
             // apply config
@@ -192,30 +224,38 @@ class WFModel extends WFObject
                                     continue;
                                 }
                                 foreach ($relationshipConfig as $key => $value) {
-                                    switch ($key) {
-                                        case 'cardinality':
-                                            $value = eval("return {$value};");
-                                            break;
+                                    if ($key === 'inverseRelationship')
+                                    {
+                                        list($entityName, $relName) = explode('.', $value);
+                                        if (!$entityName or !$relName) throw( new WFException("inverseRelationship format must be <entityName>.<relationshipName>") );
+                                        if (!$this->getEntity($entityName))
+                                        {
+                                            $this->addEntity($this->builder->buildEntityModel($entityName));
+                                        }
+                                        $rel->setInverseRelationship($this->getEntity($entityName)->getRelationship('relName'));
                                     }
-                                    $rel->setValueForKey($value, $key);
+                                    else
+                                    {
+                                        $rel->setValueForKey($value, $key);
+                                    }
                                 }
                             }
                             break;
-                        case 'attributes':
-                            foreach ($config as $attributeName => $attributeConfig) {
-                                $attr = $entity->getAttribute($attributeName);
-                                if (!$attr)
+                        case 'properties':
+                            foreach ($config as $propertyName => $propertyConfig) {
+                                $property = $entity->getProperty($propertyName);
+                                if (!$property)
                                 {
-                                    print "WARNING: Attribute: {$attributeName} of Entity {$entityName} not loaded...\n";
+                                    print "WARNING: Property: {$propertyName} of Entity {$entityName} not loaded...\n";
                                     continue;
                                 }
-                                foreach ($attributeConfig as $key => $value) {
+                                foreach ($propertyConfig as $key => $value) {
                                     switch ($key) {
                                         case 'type':
                                             $value = eval("return {$value};");
                                             break;
                                     }
-                                    $attr->setValueForKey($value, $key);
+                                    $property->setValueForKey($value, $key);
                                 }
                             }
                             break;
@@ -232,30 +272,32 @@ class WFModel extends WFObject
 class WFModelEntity extends WFObject
 {
     protected $name = NULL;
-    protected $primaryKeyAttribute = NULL;
+    protected $primaryKeyProperty = NULL;
     protected $descriptiveColumnName = NULL;
-    protected $attributes = array();
+    protected $properties = array();
     protected $relationships = array();
 
-    public function addAttribute($attr)
+    public function addProperty($property)
     {
-        if (!($attr instanceof WFModelEntityAttribute)) throw( new WFException("addAttribute parameter must be a WFModelEntityAttribute.") );
-        $this->attributes[] = $attr;
+        if (!($property instanceof WFModelEntityProperty)) throw( new WFException("addProperty parameter must be a WFModelEntityProperty.") );
+        $this->properties[] = $property;
         return $this;
     }
-    public function getAttribute($name)
+    public function getProperty($name)
     {
-        if (isset($this->attributes[$name])) return $this->attributes[$name];
+        if (isset($this->properties[$name])) return $this->properties[$name];
         return NULL;
     }
-    public function getAttributes()
+    public function getProperties()
     {
-        return $this->attributes;
+        return $this->properties;
     }
 
     public function addRelationship($rel)
     {
+        if (!$rel->valueForKey('name')) throw( new WFException("Relationships must have a name before being added.") );
         if (!($rel instanceof WFModelEntityRelationship)) throw( new WFException("addRelationship parameter must be a WFModelEntityRelationship.") );
+        if (isset($this->relationships[$rel->valueForKey('name')])) throw( new WFException("Relationship " . $rel->valueForKey('name') . " already exists.") );
         $this->relationships[$rel->valueForKey('name')] = $rel;
         return $this;
     }
@@ -264,11 +306,16 @@ class WFModelEntity extends WFObject
         if (isset($this->relationships[$name])) return $this->relationships[$name];
         return NULL;
     }
+    public function getRelationships()
+    {
+        return $this->relationships;
+    }
 }
-class WFModelEntityAttribute extends WFObject
+class WFModelEntityProperty extends WFObject
 {
     protected $name = NULL;
-    protected $type = WFModelEntityAttribute::TYPE_STRING;
+    protected $type = WFModelEntityProperty::TYPE_STRING;
+    protected $defaultValue = NULL;
 
     const TYPE_STRING = 'string';
     const TYPE_TEXT = 'text';
@@ -280,16 +327,35 @@ class WFModelEntityAttribute extends WFObject
 }
 class WFModelEntityRelationship extends WFObject
 {
-    protected $name = NULL;
-    protected $isExtension = false;
-    protected $cardinality = WFModelEntityRelationship::CARDINALITY_ONE_TO_ZERO_OR_MORE;
+    protected $name = NULL;     // a call to get$name on the entity should fetch the related object(s)
+    protected $isExtension = false; // extensions are to-one relationships that use the same id field in both tables and the related table stores "extended" properties. The extended table is basically a "grouping" of properties for the primary entity.
+    protected $toOne = true;    // TRUE = to-one, FALSE = to-many
+    protected $required = false;    // orthogonal to minCount; minCount is only enforced if there is a relationship. Required disallows lack of related object(s).
+    protected $minCount = 1;
+    protected $maxCount = 1;
+    protected $inverseRelationship = NULL;
 
-    const CARDINALITY_ONE_TO_EXACLTY_ONE    = '1-1,1';
-    const CARDINALITY_ONE_TO_ONE_OR_MORE    = '1-1,*';
-    const CARDINALITY_ONE_TO_ZERO_OR_ONE    = '1-0,1';
-    const CARDINALITY_ONE_TO_ZERO_OR_MORE   = '1-0,*';
-    const CARDINALITY_MANY_TO_ZERO_OR_MORE  = '*-0,*';
-    const CARDINALITY_MANY_TO_ONE_OR_MORE   = '*-1,*';
+    function setToOne($isToOne)
+    {
+        if (!is_bool($isToOne)) throw( new WFException("boolean expected.") );
+        $this->toOne = $isToOne;
+        $this->minCount = $this->maxCount = ($this->toOne ? 1 : NULL);
+    }
+    function setMinCount($num)
+    {
+        if ($this->toOne) throw( new WFException("Can't set minCount on to-one relationships.") );
+        $this->minCount = $num;
+    }
+    function setMaxCount($num)
+    {
+        if ($this->toOne) throw( new WFException("Can't set maxCount on to-one relationships.") );
+        $this->maxCount = $num;
+    }
+    function setInverseRelationship($r)
+    {
+        if (!($r instanceof WFModelEntityRelationship)) throw( new WFException("Relationship must be a WFModelEntityRelationship.") );
+        $this->inverseRelationship = $r;
+    }
 }
 
 // PHOCOA Code-Gen Classes
@@ -347,7 +413,7 @@ class WFModelCodeGenPropel extends WFObject
                 'class' => 'WFArrayController',
                 'properties' => array(
                     'class' => $entity->valueForKey('name'),
-                    'classIdentifiers' => $entity->valueForKey('primaryKeyAttribute'),
+                    'classIdentifiers' => $entity->valueForKey('primaryKeyProperty'),
                     'selectOnInsert' => true,
                     'automaticallyPreparesContent' => false
                     )
@@ -370,7 +436,7 @@ class WFModelCodeGenPropel extends WFObject
         $this->smarty->assign('entity', $entity);
         $this->smarty->assign('entityName', $entity->valueForKey('name'));
         $this->smarty->assign('sharedEntityId', $sharedEntityId);
-        $this->smarty->assign('sharedEntityPrimaryKeyAttribute', $entity->valueForKey('primaryKeyAttribute'));
+        $this->smarty->assign('sharedEntityPrimaryKeyProperty', $entity->valueForKey('primaryKeyProperty'));
         $this->smarty->assign('descriptiveColumnName', $entity->valueForKey('descriptiveColumnName'));
         $this->smarty->assign('descriptiveColumnConstantName', strtoupper($entity->valueForKey('descriptiveColumnName')));
         $moduleCode = $this->smarty->fetch(FRAMEWORK_DIR . '/framework/generator/module.tpl');
@@ -417,7 +483,7 @@ class WFModelCodeGenPropel extends WFObject
                             'value' => array(
                                 'instanceID' => $sharedEntityId,
                                 'controllerKey' => '#current#',
-                                'modelKeyPath' => $entity->valueForKey('primaryKeyAttribute'),
+                                'modelKeyPath' => $entity->valueForKey('primaryKeyProperty'),
                                 'options' => array('ValuePattern' => $this->modulePath . '/detail/%1%')
                                 ),
                             'label' => array(
@@ -442,7 +508,7 @@ class WFModelCodeGenPropel extends WFObject
                             'value' => array(
                                 'instanceID' => $sharedEntityId,
                                 'controllerKey' => '#current#',
-                                'modelKeyPath' => $entity->valueForKey('primaryKeyAttribute'),
+                                'modelKeyPath' => $entity->valueForKey('primaryKeyProperty'),
                                 'options' => array('ValuePattern' => $this->modulePath . '/edit/%1%')
                                 )
                             )
@@ -462,7 +528,7 @@ class WFModelCodeGenPropel extends WFObject
                             'value' => array(
                                 'instanceID' => $sharedEntityId,
                                 'controllerKey' => '#current#',
-                                'modelKeyPath' => $entity->valueForKey('primaryKeyAttribute'),
+                                'modelKeyPath' => $entity->valueForKey('primaryKeyProperty'),
                                 'options' => array('ValuePattern' => $this->modulePath . '/confirmDelete/%1%')
                                 )
                             )
@@ -482,28 +548,28 @@ class WFModelCodeGenPropel extends WFObject
         $editYaml[$editFormId] = array('class' => 'WFForm', 'children' => array());
 
         $widgets = array();
-        foreach ($entity->getAttributes() as $attr) {
-            $widgetID = $attr->valueForKey('name');
-            $widgets[$widgetID] = $attr;
+        foreach ($entity->getProperties() as $property) {
+            $widgetID = $property->valueForKey('name');
+            $widgets[$widgetID] = $property;
 
-            if ($attr->valueForKey('name') === $entity->valueForKey('primaryKeyAttribute'))
+            if ($property->valueForKey('name') === $entity->valueForKey('primaryKeyProperty'))
             {
                 $class = 'WFHidden';
             }
             else
             {
-                switch ($attr->valueForKey('type')) {
-                    case WFModelEntityAttribute::TYPE_TEXT;
+                switch ($property->valueForKey('type')) {
+                    case WFModelEntityProperty::TYPE_TEXT;
                         $class = 'WFTextArea';
                         break;
-                    case WFModelEntityAttribute::TYPE_NUMBER;
-                    case WFModelEntityAttribute::TYPE_STRING;
-                    case WFModelEntityAttribute::TYPE_DATETIME;
-                    case WFModelEntityAttribute::TYPE_TIME;
-                    case WFModelEntityAttribute::TYPE_DATE;
+                    case WFModelEntityProperty::TYPE_NUMBER;
+                    case WFModelEntityProperty::TYPE_STRING;
+                    case WFModelEntityProperty::TYPE_DATETIME;
+                    case WFModelEntityProperty::TYPE_TIME;
+                    case WFModelEntityProperty::TYPE_DATE;
                         $class = 'WFTextField';
                         break;
-                    case WFModelEntityAttribute::TYPE_BOOLEAN;
+                    case WFModelEntityProperty::TYPE_BOOLEAN;
                         $class = 'WFCheckbox';
                         break;
                     default:
@@ -577,7 +643,7 @@ class WFModelCodeGenPropel extends WFObject
         // build confirmDelete page
         $confirmDeleteYaml = array();
         $confirmDeleteFormId = 'confirmDelete' . $entity->valueForKey('name')  . 'Form';
-        $pkId = $entity->valueForKey('primaryKeyAttribute');
+        $pkId = $entity->valueForKey('primaryKeyProperty');
         $confirmDeleteYaml[$confirmDeleteFormId] = array(
                 'class' => 'WFForm',
                 'children' => array(
@@ -587,7 +653,7 @@ class WFModelCodeGenPropel extends WFObject
                             'value' => array(
                                 'instanceID' => $sharedEntityId,
                                 'controllerKey' => 'selection',
-                                'modelKeyPath' => $entity->valueForKey('primaryKeyAttribute'),
+                                'modelKeyPath' => $entity->valueForKey('primaryKeyProperty'),
                                 )
                             )
                         ),
@@ -638,9 +704,9 @@ class WFModelCodeGenPropel extends WFObject
         // detail page
         $detailYaml = array();
         $widgets = array();
-        foreach ($entity->getAttributes() as $attr) {
-            $widgetID = $attr->valueForKey('name');
-            $widgets[$widgetID] = $attr;
+        foreach ($entity->getProperties() as $property) {
+            $widgetID = $property->valueForKey('name');
+            $widgets[$widgetID] = $property;
             $detailYaml[$widgetID] = array(
                     'class' => 'WFLabel',
                     'bindings' => array(
@@ -658,24 +724,4 @@ class WFModelCodeGenPropel extends WFObject
         $this->smarty->assign('widgets', $widgets);
         file_put_contents($moduleDir . '/detail.tpl', $this->smarty->fetch(FRAMEWORK_DIR . '/framework/generator/detail.tpl'));
     }
-}
-
-// FAKE command-line call for right now
-$configFile = NULL;
-$adapter = 'Propel';
-$builder = 'WFModelCodeGenPropel';
-if (1)
-{
-    $entities = array('Blog');
-}
-else
-{
-    $entities = array('Client');
-}
-
-$model = WFModel::sharedModel();
-$model->buildModel($adapter, $configFile, $entities);
-foreach ($model->entities() as $entity) {
-    $codeGen = new $builder;
-    $codeGen->generateModuleForEntity($entity);
 }

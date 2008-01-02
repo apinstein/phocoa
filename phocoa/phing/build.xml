@@ -35,12 +35,12 @@
     <target name="createModule" description="Create a new phocoa module in the project." depends="prepareProject">
         <input propertyname="module.name">Module name:</input>
         <input propertyname="module.defaultPage">Default page [blank for none]:</input>
-        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createModule.php ${module.name} ${module.defaultPage}" passthru="true" />
+        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/script/createModule.php ${module.name} ${module.defaultPage}" passthru="true" />
     </target>
 
     <target name="createPage" description="Create a new phocoa page in the current module." depends="prepareProject">
         <input propertyname="page.name">Page Name:</input>
-        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createPage.php ${page.name}" passthru="true" />
+        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/script/createPage.php ${page.name}" passthru="true" />
     </target>
 
     <target name="setConfFile" unless="phocoa.project.confFile">
@@ -49,21 +49,8 @@
     </target>
 
     <target name="createSkeletonFromPropel" description="Create a skeleton module for editing a table from Propel." depends="prepareProject,setConfFile">
-        <input propertyname="db.name" defaultValue="${phocoa.project.name}">Database Name:</input>
-        <input propertyname="db.table">Table Name:</input>
-        <input propertyname="db.column">Column name of single column that best describes the table:</input>
-        <input propertyname="db.module" defaultValue="${db.table}">Module Name:</input>
-        <php expression="require('${phocoa.project.dir}/conf/${phocoa.project.confFile}')" />
-        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/createModule.php ${db.module}" passthru="true" />
-        <exec dir="${phocoa.pwd}/${db.module}" command="${phocoa.project.php} ${phocoa.dir}/framework/createSkeletonFromPropel.php --phocoaConfFile=${phocoa.project.dir}/conf/${phocoa.project.confFile} --propelOutputDir=${phocoa.project.dir}/classes --propelConfFile=${phocoa.project.dir}/conf/${db.name}-conf.php --databaseName=${db.name} --tableName=${db.table} --columnName=${db.column} --pageType=search,edit,detail" passthru="true" />
-        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/util/convertModuleToYAML.php ${db.module}" passthru="true" />
-        <delete>
-          <fileset dir="${phocoa.pwd}/${db.module}">
-            <include name="*.instances" />
-            <include name="*.config" />
-          </fileset>
-        </delete>
-        <exec dir="${phocoa.pwd}/${db.module}" command="mv suggested_code.php ${db.module}.php" />
+        <input propertyname="entity.list">Which entities do you want to create scaffolds for?</input>
+        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/script/scaffold.php '${entity.list}'" passthru="true" />
     </target>
 
     <target name="shell" description="Start an interactive PHP shell bootstrapped to the current PHOCOA project." depends="prepareProject">
@@ -82,7 +69,7 @@
         <input propertyname="db.pass">Enter the database password:</input>
         <input propertyname="db.host" defaultValue="localhost">Enter the database host:</input>
         <property userProperty="true" name="propel.project" value="${phocoa.project.name}" />
-        <property userProperty="true" name="propel.database.url" value="${propel.database}://${db.user}:${db.pass}+${db.host}/${db.name}" />
+        <property userProperty="true" name="propel.database.url" value="${propel.database}:user=${db.user};password=${db.pass};hostname=${db.host};dbname=${db.name}" />
         <property userProperty="true" name="propel.database.creole.url" value="${propel.database}://${db.user}:${db.pass}@${db.host}/${db.name}" />
         <property userProperty="true" name="propel.targetPackage" value="${db.name}" />
         <property userProperty="true" name="propel.output.dir" value="${phocoa.propel.dir}" />

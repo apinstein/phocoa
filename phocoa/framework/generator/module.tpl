@@ -58,15 +58,15 @@ class module_{{$moduleName}}_edit
 {
     function parameterList()
     {
-        return array('{{$sharedEntityPrimaryKeyAttribute}}');
+        return array('{{$sharedEntityPrimaryKeyProperty}}');
     }
     function parametersDidLoad($page, $params)
     {
         if ($page->sharedOutlet('{{$sharedEntityId}}')->selection() === NULL)
         {
-            if ($params['{{$sharedEntityPrimaryKeyAttribute}}'])
+            if ($params['{{$sharedEntityPrimaryKeyProperty}}'])
             {
-                $page->sharedOutlet('{{$sharedEntityId}}')->setContent(array({{$entityName}}Peer::retrieveByPK($params['{{$sharedEntityPrimaryKeyAttribute}}'])));
+                $page->sharedOutlet('{{$sharedEntityId}}')->setContent(array({{$entityName}}Peer::retrieveByPK($params['{{$sharedEntityPrimaryKeyProperty}}'])));
                 $page->module()->verifyEditingPermission($page);
             }
             else
@@ -110,14 +110,14 @@ class module_{{$moduleName}}_confirmDelete
 {
     function parameterList()
     {
-        return array('{{$sharedEntityPrimaryKeyAttribute}}');
+        return array('{{$sharedEntityPrimaryKeyProperty}}');
     }
     function parametersDidLoad($page, $params)
     {
         // if we're a redirected action, then the {{$entityName}} object is already loaded. If there is no object loaded, try to load it from the object ID passed in the params.
         if ($page->sharedOutlet('{{$sharedEntityId}}')->selection() === NULL)
         {
-            $objectToDelete = {{$entityName}}Peer::retrieveByPK($params['{{$sharedEntityPrimaryKeyAttribute}}']);
+            $objectToDelete = {{$entityName}}Peer::retrieveByPK($params['{{$sharedEntityPrimaryKeyProperty}}']);
             if (!$objectToDelete) throw( new Exception("Could not load {{$entityName}} object to delete.") );
             $page->sharedOutlet('{{$sharedEntityId}}')->setContent(array($objectToDelete));
         }
@@ -140,10 +140,10 @@ class module_{{$moduleName}}_detail
 {
     function parameterList()
     {
-        return array('{{$sharedEntityPrimaryKeyAttribute}}');
+        return array('{{$sharedEntityPrimaryKeyProperty}}');
     }
     function parametersDidLoad($page, $params)
     {
-        $page->sharedOutlet('{{$sharedEntityId}}')->setContent(array({{$entityName}}Peer::retrieveByPK($params['{{$sharedEntityPrimaryKeyAttribute}}'])));
+        $page->sharedOutlet('{{$sharedEntityId}}')->setContent(array({{$entityName}}Peer::retrieveByPK($params['{{$sharedEntityPrimaryKeyProperty}}'])));
     }
 }

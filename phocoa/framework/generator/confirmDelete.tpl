@@ -2,7 +2,7 @@
 
 <div class="form-container">
 {WFViewBlock id="{{$confirmDeleteFormId}}"}
-    {WFView id="{{$entity->valueForKey('primaryKeyAttribute')}}"}
+    {WFView id="{{$entity->valueForKey('primaryKeyProperty')}}"}
     {WFView id="confirmMessage"}
 
     <div class="buttonrow">

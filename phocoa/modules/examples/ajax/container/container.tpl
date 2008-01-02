@@ -49,24 +49,6 @@ This is a panel. By default, panels pop up over the existing content and have a 
 
 <br />
 
-{* dialog is broken for now...
-<a href="#" onClick="PHOCOA.runtime.getObject('dialog').show();">Show Dialog</a>
-{WFViewBlock id="dialog"}
-    {WFForm id="dialogForm"}
-        Pick a city (hint: "Atlanta" is the correct answer")<br />
-        {WFView id="pickACity"}
-        {WFView id="dialogFormSubmit"}
-    {/WFForm}
-    <div style="overflow: scroll; width: 200px; height: 100px; margin-top: 20px;">
-    Sample content to create a scroll bar.<br />
-    Sample content to create a scroll bar.<br />
-    Sample content to create a scroll bar.<br />
-    Sample content to create a scroll bar.<br />
-    </div>
-{/WFViewBlock} 
-
-<br />
-*}
 <a href="#" onClick="PHOCOA.runtime.getObject('phocoaDialog').show();">Show PhocoaDialog</a> - A PhocoaDialog is a custom YUI subclass that allows you to drop in any PHOCOA module as an AJAX-based workflow. This one includes the <a href="{WFURL module="examples/ajax/autocomplete/example"}">autocomplete example</a>.
 {WFView id="phocoaDialog"}
 

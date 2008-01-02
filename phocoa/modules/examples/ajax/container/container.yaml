@@ -1,15 +1,3 @@
-
-dialog    : 
-  class     : WFYAHOO_widget_Dialog
-  properties: 
-    header: Dialog
-dialogForm: 
-  children: 
-    pickACity: 
-      class: WFTextField
-    dialogFormSubmit   : 
-      class: WFSubmit
-  class   : WFForm
 module    : 
   class: WFYAHOO_widget_Module
 overlay   : 

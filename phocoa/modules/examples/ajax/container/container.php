@@ -18,18 +18,7 @@ class module_container_container
         $page->outlet('panel')->addEffect('YAHOO.widget.ContainerEffect.SLIDE', 1);
         $page->outlet('panel')->addEffect('YAHOO.widget.ContainerEffect.FADE', 1);
 
-        // something doesn't work with dialog.. not sure what yet
-        $page->outlet('dialog')->addButton('YUI Submit Button', 'clickMeHandler', false);
-        $page->outlet('dialog')->setCallbackSuccess('dialogSuccessHandler');
-        $page->outlet('dialog')->setCallbackFailure('dialogFailureHandler');
-
         new WFYAHOO_widget_Logger('logger', $page);
-    }
-    function dialogFormSubmit($page)
-    {
-        if (strtolower($page->outlet('pickACity')->value()) == "atlanta") echo("You're right!");
-        echo("you're wrong!");
-        exit;
     }
     function setupSkin($page, $params, $skin)
     {

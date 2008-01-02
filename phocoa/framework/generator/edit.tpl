@@ -8,12 +8,12 @@
     <fieldset>
     <legend>{{$entityName}} Detail</legend>
 
-    {{foreach name=widgets from=$widgets key="widgetId" item="attribute"}}
-        {{if $attribute->valueForKey('name') == $entity->valueForKey('primaryKeyAttribute')}}
+    {{foreach name=widgets from=$widgets key="widgetId" item="property"}}
+        {{if $property->valueForKey('name') == $entity->valueForKey('primaryKeyProperty')}}
             {WFView id="{{$widgetId}}"}
         {{else}}
             <div>
-                <label for="{{$widgetId}}">{{$attribute->valueForKey('name')}}:</label>
+                <label for="{{$widgetId}}">{{$property->valueForKey('name')}}:</label>
                 {WFView id="{{$widgetId}}"}{WFShowErrors id="{{$widgetId}}"}
             </div>
         {{/if}}
