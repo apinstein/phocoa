@@ -89,6 +89,7 @@ class WFIncluding
                 'WFDieselSearchHelper' => 'framework/WFDieselpoint.php',
                 'WFDieselKeyword' => 'framework/widgets/WFDieselKeyword.php',
                 'WFDieselNav' => 'framework/widgets/WFDieselNav.php',
+                'WFDieselSearchHelperStateTracking' => 'framework/WFDieselpoint.php',
                 'WFDieselFacet' => 'framework/widgets/WFDieselFacet.php',
                 'WFWidget' => 'framework/widgets/WFWidget.php',
                 'WFDynarchMenu' => 'framework/widgets/WFDynarchMenu.php',
