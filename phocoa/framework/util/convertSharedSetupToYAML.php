@@ -1,6 +1,6 @@
 <?php
 
-require_once($_ENV['PHOCOA_PROJECT_CONF']);
+require_once(getenv('PHOCOA_PROJECT_CONF'));
 
 $modulePath = rtrim($argv[1], '/');
 $dir = $modulePath;

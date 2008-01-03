@@ -1,7 +1,5 @@
 <?php
 
-require_once($_ENV['PHOCOA_PROJECT_CONF']);
-
 interface WFModelBuilder
 {
     // get a WFModelEntity for the given entity name

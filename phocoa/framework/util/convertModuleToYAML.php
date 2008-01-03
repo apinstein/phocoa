@@ -1,12 +1,12 @@
 <?php
 
-require_once($_ENV['PHOCOA_PROJECT_CONF']);
+require_once(getenv('PHOCOA_PROJECT_CONF'));
 
 $modulePath = rtrim($argv[1], '/');
 
 print "Converting shared setup to YAML for module at: '{$modulePath}'\n";
-$phpCommand = 'php';//$_ENV['_'];
-if (isset($_ENV['PHP_COMMAND'])) $phpCommand = $_ENV['PHP_COMMAND'];
+$phpCommand = 'php';
+if (getenv('PHP_COMMAND')) $phpCommand = getenv('PHP_COMMAND');
 
 // loop through module directory, and convert shared.* as well as all .tpl files
 // SHARED setup

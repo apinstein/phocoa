@@ -1,6 +1,6 @@
 <?php
 
-require_once($_ENV['PHOCOA_PROJECT_CONF']);
+require_once(getenv('PHOCOA_PROJECT_CONF'));
 
 if ($argc != 2) die("Usage: scaffold.php 'entity1 entity2 ...'\n");
 

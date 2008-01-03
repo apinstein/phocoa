@@ -25,6 +25,7 @@ class WFYaml
         else
         {
             // php version
+            throw( new WFException("YAML Parsing Error: spyc doesn't work well enough to be supported yet... for now please install syck as a php extentsion. See http://trac.symfony-project.com/wiki/InstallingSyck.") );
             return Spyc::YAMLLoad($file);
         }
     }

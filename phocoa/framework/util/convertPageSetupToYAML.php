@@ -1,6 +1,6 @@
 <?php
 
-require_once($_ENV['PHOCOA_PROJECT_CONF']);
+require_once(getenv('PHOCOA_PROJECT_CONF'));
 
 $pagePath = $argv[1];
 $pageName = basename($argv[1], '.tpl');

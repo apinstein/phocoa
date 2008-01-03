@@ -4,7 +4,7 @@ README for the Cocoa-Style PHP Framework (PHOCOA)
 
 Both CLI and HTTP access to functionality is available. In the HTTP environment, everything is bootstrapped automatically, you need only write WFModule subclasses to add request handlers. On the CLI side, there is now an autoload mechanism in place. To bootstrap the PHOCOA environment, you need only include the webapp.conf file at the top of the CLI script. We recommend setting up and ENV PHOCOA_PROJECT_CONF with the absolute path to the webapp.conf file and then using this at the top of all CLI scripts:
 
-require $_ENV['PHOCOA_PROJECT_CONF'];
+require_once getenv('PHOCOA_PROJECT_CONF');
 
 This will bootstrap the web application, load the application delegate, etc. PHOCOA's autoload mechanism will then call into your app to allow you to provide autoloading for your systems.
 
@@ -15,12 +15,16 @@ This will bootstrap the web application, load the application delegate, etc. PHO
 Dependencies
 1) PHP5
 2) Propel is nice (http://propel.phpdb.org)
+- works with Propel 1.2 or Propel 1.3
+- Propel 1.3 is preferred
+    - need to use SVN creole
 3) Pear Packages
 - Mail
 - Mail_Mime
 - Log
-4) Phing
-5) YUI: http://developer.yahoo.com/yui
+4) Phing - 2.3.0
+5) Smarty
+6) YUI: http://developer.yahoo.com/yui
 --> To upgrade the YUI, download it from YAHOO, then:
 rsync --dry-run -vvrC --del ~/Desktop/yui/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
 ** when happy, remove --dry-run
@@ -230,7 +234,7 @@ require '../relative-path-to/conf/webapp.conf';
 
 Alternatively, you can use:
 
-require $_ENV['PHOCOA_PROJECT_CONF'];
+require_once getenv('PHOCOA_PROJECT_CONF');
 
 And just define that in the ENV before running your script.
 

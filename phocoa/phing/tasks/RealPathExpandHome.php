@@ -80,9 +80,9 @@ class RealPathExpandHome extends Task {
             mkdir($path, 0755);
         }
 
-        if (isset($_ENV['HOME']))
+        if (getenv('HOME'))
         {
-            $path = str_replace('~', $_ENV['HOME'], $path);
+            $path = str_replace('~', getenv('HOME'), $path);
         }
         $path = realpath($path);
         $this->log("Resolved " . $this->file . " to " . $path, PROJECT_MSG_INFO);

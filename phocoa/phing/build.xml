@@ -23,7 +23,8 @@
                 <fail message="Project must already exist to run this task. No project found at ${phocoa.project.dir}." />
             </then>
         </if>
-        <php expression="$_ENV['_']" returnProperty="phocoa.project.php" />
+        <php expression="getenv('_')" returnProperty="phocoa.project.php" />
+        <echo message="Using PHP: ${phocoa.project.php}" />
         <echo message="PHOCOA project dir at: ${phocoa.project.dir}" />
         <realpathexpandhome propertyName="phocoa.project.container" file="${phocoa.project.dir}/.."/>
         <echo message="PHOCOA project container dir at: ${phocoa.project.container}" />
