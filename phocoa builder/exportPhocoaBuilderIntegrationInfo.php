@@ -39,6 +39,7 @@ $classesToExport = array(
     'WFYAHOO_widget_Panel',
     'WFYAHOO_widget_TreeView',
     'WFYAHOO_widget_TreeViewNode',
+    'WFYAHOO_widget_AutoComplete',
 );
 
 $plist = '<?xml version="1.0" encoding="UTF-8"?>

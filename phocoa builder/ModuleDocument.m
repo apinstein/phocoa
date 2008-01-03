@@ -57,18 +57,12 @@
 	mainWindow = [[ModuleMainWindowController alloc] init];
 	[mainWindow autorelease];
 	[self addWindowController: mainWindow];
-}
-
-- (NSString *)windowNibName 
-{
-    return @"MyDocument";
-}
-
-- (void)windowControllerDidLoadNib:(NSWindowController *)windowController 
-{
-    // THIS NEVER GETS CALLED....???
-    [super windowControllerDidLoadNib:windowController];
-    // user interface preparation code    
+    
+    // make inspectors - I tried doing this, but then you can't close and re-open a given document. It won't re-appear. I think it has to do with retain counts on the windowcontrollers;
+    // the document never leaves the list of documents from NSDocumentController. Commenting out fixes it; adding another release causes a different error (NSZombie)
+//    sharedInstancesPanel = [[SharedInstancesInspector alloc] init];
+//    [sharedInstancesPanel autorelease];
+//    [self addWindowController: sharedInstancesPanel];
 }
 
 - (void)dealloc {

@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "ModuleMainWindowController.h"
 
 
 @implementation AppDelegate
@@ -34,4 +35,23 @@
 {
     return NO;
 }
+
+- (IBAction) showSharedInstancesInspector: (id) sender
+{
+    NSWindow*   win = [[NSApplication sharedApplication] mainWindow];
+    if (win)
+    {
+        [(ModuleMainWindowController*) [win windowController] showSharedInstancesInspector];
+    }
+}
+
+- (IBAction) showPageInstancesInspector: (id) sender
+{
+    NSWindow*   win = [[NSApplication sharedApplication] mainWindow];
+    if (win)
+    {
+        [(ModuleMainWindowController*) [win windowController] showPageInstancesInspector];
+    }
+}
+
 @end

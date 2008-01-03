@@ -11,10 +11,12 @@
 #import "Page.h"
 #import "PageInstance.h"
 #import "ModuleMainWindowController.h"
+#import "SharedInstancesInspector.h"
 
 @interface ModuleDocument : NSPersistentDocument {
     Module                      *module;
     ModuleMainWindowController  *mainWindow;
+    SharedInstancesInspector    *sharedInstancesPanel;
 }
 
 @end

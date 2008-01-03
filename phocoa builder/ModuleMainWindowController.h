@@ -16,11 +16,17 @@
     IBOutlet    id pageInstanceBindingController;
     IBOutlet    id pageController;
     IBOutlet    id pageInstanceTablePropertyColumn;
+    
+    IBOutlet    id sharedInstancesInspectorWindow;
+    IBOutlet    id pageInstancesInspectorWindow;
 }
 
 - (void) startSaveProgress;
 - (void) stopSaveProgress;
 
 - (IBAction) insertBinding: (id) sender;
+
+- (void) showSharedInstancesInspector;
+- (void) showPageInstancesInspector;
 
 @end

@@ -16,8 +16,10 @@
                 pageInstanceBindingController = id; 
                 pageInstanceTablePropertyColumn = id; 
                 pageInstancesController = id; 
+                pageInstancesInspectorWindow = id; 
                 saveProgress = id; 
                 sharedInstancesController = id; 
+                sharedInstancesInspectorWindow = id; 
             }; 
             SUPERCLASS = NSWindowController; 
         }, 
@@ -27,7 +29,8 @@
             LANGUAGE = ObjC; 
             OUTLETS = {pagesController = id; webView = id; }; 
             SUPERCLASS = NSObject; 
-        }
+        }, 
+        {CLASS = SharedInstancesInspector; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
     ); 
     IBVersion = 1; 
 }

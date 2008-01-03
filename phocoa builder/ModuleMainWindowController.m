@@ -17,11 +17,6 @@
 
 @implementation ModuleMainWindowController
 
-- (NSManagedObjectContext*) managedObjectContext
-{
-	return [[self document] managedObjectContext];
-}
-
 - (id) init
 {
 	if (self = [self initWithWindowNibName: @"ModuleDocument"])
@@ -29,6 +24,11 @@
 		// extra initialization
 	}
 	return self;
+}
+
+- (NSManagedObjectContext*) managedObjectContext
+{
+	return [[self document] managedObjectContext];
 }
 
 - (void) startSaveProgress
@@ -124,7 +124,7 @@
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([keyPath isEqual:@"selection.instanceClass"]) {
-        // send fake selection changed event for the page instances hierarchy controller so that the proeprty list updates
+        // send fake selection changed event for the page instances hierarchy controller so that the property list updates
         [[pageInstanceTablePropertyColumn dataCell] removeAllItems];
         if ([pageInstancesController selectionIndexPath])
         {
@@ -133,5 +133,16 @@
     }
 }
 
+#pragma mark -- Menu Handling -- 
+
+- (void) showSharedInstancesInspector
+{
+    [sharedInstancesInspectorWindow makeKeyAndOrderFront: nil];
+}
+
+- (void) showPageInstancesInspector
+{
+    [pageInstancesInspectorWindow makeKeyAndOrderFront: nil];
+}
 
 @end

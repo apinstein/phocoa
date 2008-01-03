@@ -17,11 +17,12 @@
 {
 	if(![content isEqual:[self content]])
 	{
-		NSArray *paths = [[self selectionIndexPaths] retain];
+        // changes - don't keep track of selected indexes or it has issues when you have item #2 selected and switch to a content set that has < 2 items...
+//		NSArray *paths = [[self selectionIndexPaths] retain];
 		[super setContent:nil];
 		[super setContent:content];
-		[self setSelectionIndexPaths:paths];
-		[paths release];
+//		[self setSelectionIndexPaths:paths];
+//		[paths release];
 	}
 }
 

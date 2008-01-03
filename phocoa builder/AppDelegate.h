@@ -13,4 +13,6 @@
 
 }
 
+- (IBAction) showSharedInstancesInspector: (id) sender;
+- (IBAction) showPageInstancesInspector: (id) sender;
 @end

@@ -19,6 +19,8 @@
 		E102D76A0917202F003C92AB /* PageInstanceConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D7690917202F003C92AB /* PageInstanceConfig.m */; };
 		E102D77F091720F4003C92AB /* PageInstanceBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D77E091720F4003C92AB /* PageInstanceBinding.m */; };
 		E102D7A2091721C3003C92AB /* PageInstanceBindingOption.m in Sources */ = {isa = PBXBuildFile; fileRef = E102D7A1091721C3003C92AB /* PageInstanceBindingOption.m */; };
+		E1047C260D2C80FA00505446 /* SharedInstancesInspector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = E1047C240D2C80FA00505446 /* SharedInstancesInspector.h */; };
+		E1047C270D2C80FA00505446 /* SharedInstancesInspector.m in Sources */ = {isa = PBXBuildFile; fileRef = E1047C250D2C80FA00505446 /* SharedInstancesInspector.m */; };
 		E10C52F6091071430014B582 /* SharedInstance.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C52F5091071430014B582 /* SharedInstance.m */; };
 		E10C5349091076D40014B582 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C5348091076D40014B582 /* AppDelegate.m */; };
 		E10C536F091079370014B582 /* SharedInstanceConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = E10C536E091079370014B582 /* SharedInstanceConfig.m */; };
@@ -47,6 +49,7 @@
 				E1AA53290B2A2C0300DA6FB1 /* YAML.framework in CopyFiles */,
 				E1AA563B0B2B398000DA6FB1 /* Module.h in CopyFiles */,
 				E1AA5A430B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.h in CopyFiles */,
+				E1047C260D2C80FA00505446 /* SharedInstancesInspector.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,6 +79,8 @@
 		E102D77E091720F4003C92AB /* PageInstanceBinding.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageInstanceBinding.m; sourceTree = "<group>"; };
 		E102D7A0091721C3003C92AB /* PageInstanceBindingOption.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PageInstanceBindingOption.h; sourceTree = "<group>"; };
 		E102D7A1091721C3003C92AB /* PageInstanceBindingOption.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PageInstanceBindingOption.m; sourceTree = "<group>"; };
+		E1047C240D2C80FA00505446 /* SharedInstancesInspector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedInstancesInspector.h; sourceTree = "<group>"; };
+		E1047C250D2C80FA00505446 /* SharedInstancesInspector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SharedInstancesInspector.m; sourceTree = "<group>"; };
 		E10C52F4091071430014B582 /* SharedInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SharedInstance.h; sourceTree = "<group>"; };
 		E10C52F5091071430014B582 /* SharedInstance.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SharedInstance.m; sourceTree = "<group>"; };
 		E10C5347091076D40014B582 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -207,6 +212,8 @@
 			children = (
 				E10C53C6091484750014B582 /* ModuleMainWindowController.h */,
 				E10C53C7091484750014B582 /* ModuleMainWindowController.m */,
+				E1047C240D2C80FA00505446 /* SharedInstancesInspector.h */,
+				E1047C250D2C80FA00505446 /* SharedInstancesInspector.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -315,6 +322,7 @@
 				E126547209297009004EF40F /* FixedNSTreeController.m in Sources */,
 				E1AA563C0B2B398000DA6FB1 /* Module.m in Sources */,
 				E1AA5A440B2BD2AD00DA6FB1 /* WFViewPhocoaBuilderIntegration.m in Sources */,
+				E1047C270D2C80FA00505446 /* SharedInstancesInspector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
