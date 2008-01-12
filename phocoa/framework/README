@@ -35,6 +35,8 @@ rsync --dry-run -vvrC --del ~/Desktop/yui/build/ ~/dev/sandbox/phocoa/phocoa/www
 TODO
 
 1.0 Milestone:
+- Get WFDateTimeFormatter working... object issues with bindings
+- Need to track whether or not a widget was "restored" so we can skip pushbindings if the data wasn't in the request stream. This is important for things like dynamically hidden fields... creationDts, fkId, etc.
 - The "default" class for the WFControllers is WFDictionary... I think maybe we can use ArrayObject, which is an PHP5 SPL class (or at least subclass it). Need more testing...
 - Can we add "default values" to parameters for parameterList('name' => 'defaultValue') the way we did for: phocoa builder/exportPhocoaBuilderIntegrationInfo.php
   - would simplify default value setup

@@ -142,13 +142,14 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
      *
      *  The callback function prototype is:
      *
-     *  (array) loadMatchesForQuery($query)
+     *  (array) loadMatchesForQuery($page, $params, $query)
+     *
+     *  return: array An array of assoc_arrays in structure ["QueryKey","AdditionalData1",..."AdditionalDataN"]
      *
      *  @param mixed Callback.
      *         string A method on the page delegate object to call to get the child nodes.
      *         array  A php callback structure.
      *  @param array An array strings with the schema of the data returned from the callback.
-     *  @return array An array of assoc_arrays in structure ["QueryKey","AdditionalData1",..."AdditionalDataN"]
      *  @throws object WFException If the callback is invalid.
      */
     function setDynamicDataLoader($callback, $schema = array('k'))

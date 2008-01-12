@@ -662,6 +662,12 @@ abstract class WFModule extends WFObject
         $this->responsePage = NULL;
     }
 
+    function addInstance($id, $obj)
+    {
+        if (isset($this->__sharedInstances[$id])) throw( new WFException("Shared instance '{$id}' already exists.") );
+        $this->__sharedInstances[$id] = $obj;
+    }
+
     function outlet($id)
     {
         if (!isset($this->__sharedInstances[$id])) throw( new WFException("No shared object exists with id '{$id}'.") );
