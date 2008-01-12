@@ -2398,6 +2398,7 @@ Total time: 2.8443 seconds
 
             <listitem>
               <para>PEAR::Log - Required.</para>
+              <para>PEAR Horde/Yaml, or syck (install with pecl) - Required.</para>
             </listitem>
 
             <listitem>
