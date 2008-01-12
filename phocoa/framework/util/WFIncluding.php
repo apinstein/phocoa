@@ -32,7 +32,7 @@ class WFIncluding
         {
              $autoloadClassmapCache = array(
                 'Smarty' => 'smarty/Smarty.class.php',
-                'Spyc' => 'libs/spyc.php5',
+                'Horde_Yaml' => 'Horde/Yaml.php',
                 'Services_JSON' => 'libs/JSON.php',
 
                 'Mail_Mailer' => 'framework/Mailer.php',
