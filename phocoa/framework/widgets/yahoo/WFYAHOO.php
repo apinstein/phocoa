@@ -113,13 +113,12 @@ class WFYAHOO_yuiloader
                      (function() {
                          PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-" . ($this->debug ? 'debug' : 'min') . ".js', 'YAHOO');
                          var yl = new YAHOO.util.YUILoader();
-                         " . ($this->debug() ? 'yl.filter = "DEBUG";' : NULL) . "
                          " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
                          yl.require(" . join(',', $this->quotedRequired()) . ");
                          yl.allowRollup = " . ($this->allowRollup() ? 'true' : 'false') . ";
                          yl.loadOptional = " . ($this->loadOptional() ? 'true' : 'false') . ";
                          yl.onSuccess = {$callback};
-                         yl.insert();
+                         yl.insert( { " . ($this->debug() ? 'filter: "DEBUG"' : NULL) . " } );
                      })();
          ";
     }
