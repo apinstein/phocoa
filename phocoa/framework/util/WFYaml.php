@@ -4,7 +4,7 @@ class WFYaml
 {
     public static function load($file)
     {
-        if (0 and function_exists('syck_load'))
+        if (function_exists('syck_load'))
         {
             // php-lib-c version, much faster!
             // ******* NOTE: if using libsyck with PHP, you should install from pear/pecl (http://trac.symfony-project.com/wiki/InstallingSyck)

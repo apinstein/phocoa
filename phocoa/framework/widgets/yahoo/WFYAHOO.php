@@ -229,6 +229,10 @@ abstract class WFYAHOO extends WFWidget
         return $simpleJS;
     }
 
+    /**
+     * IMPORTANT: The subclasses should get the base class's html, then add the needed code.
+     * All subclasses need a DOM element of the ID of the widget so that the loading bootstrapping works correctly.
+     */
     function render($blockContent = NULL)
     {
         if ($this->hidden)
