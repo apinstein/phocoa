@@ -719,6 +719,10 @@ abstract class WFModule extends WFObject
                 }
             }
         } catch (WFAuthorizationException $e) {
+            if (php_sapi_name() === 'cli')
+            {
+                throw( new WFException($e->getMessage()) );
+            }
             switch ($e->getCode()) {
                 case WFAuthorizationException::TRY_LOGIN:
                     // NOTE: we pass the redir-url base64 encoded b/c otherwise Apache picks out the slashes!!!
