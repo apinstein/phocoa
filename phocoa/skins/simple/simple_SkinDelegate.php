@@ -3,7 +3,7 @@
 // custom skin delegates
 class simple_SkinDelegate
 {
-    function loadDefaults(&$skin)
+    function loadDefaults($skin)
     {
         // look at URL and determine skin.
         $skin->setSkin('sidenav');
