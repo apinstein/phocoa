@@ -52,6 +52,10 @@ class WFSubmit extends WFWidget
       */
     function __construct($id, $page)
     {
+        if (strtolower($id) === 'submit')
+        {
+            throw( new WFException("WFSubmit cannot have an ID of submit. It causes problems with javascript.") );
+        }
         parent::__construct($id, $page);
         $this->submitEvent = new WFClickEvent( WFAction::ServerAction() );
         $this->setListener( $this->submitEvent );
