@@ -130,7 +130,7 @@ abstract class WFView extends WFObject
         $matches = array();
         // statement syntax: <event> do <l|r>:[action]
         // repeat by adding "onEvent:" and another statement
-        $pieces = preg_split('/\W\bonEvent\b:\W/', $str);
+        $pieces = preg_split('/\W\bonEvent\b:\W*/', $str);
         foreach ($pieces as $statement) {
             if (preg_match('/^\W*([A-z]*)\W*do\W*([jsa]):?((#(page|module)#[^:]*):)?(.*)$/', $statement, $matches))
             {
