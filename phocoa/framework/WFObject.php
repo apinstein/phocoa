@@ -319,7 +319,7 @@ class WFObject implements WFKeyValueCoding
         $errCount = count($errors);
         $valid = $target->validateValueForKey($value, $targetKey, $edited, $errors);
         $errCount = count($errors) - $errCount;
-        if ($valid && $errCount) throw( new WFException("You damn fool! You said that '{$keyPath}' is valid, but there you added an error!") );
+        if ($valid && $errCount) throw( new WFException("You damn fool! You said that '{$keyPath}' is valid, but you added an error!") );
         else if (!$valid && $errCount === 0) throw( new WFException("You damn fool! You said that '{$keyPath}' is invalid, but there are no errors!") );
         return $valid;
     }
