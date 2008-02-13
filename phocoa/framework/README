@@ -75,8 +75,12 @@ TODO
     - SEE WFPageDelegate Documentation
     - ?? preAction, or maybe validate (so that you can combine field-level KVC with validation done in the "action" callback
 - Validator Issues
+  - DEVELOP TEST CASES!
   - Validators aren't run automatically; only by bindings infrastructure, is that a bad thing?
   - No way to automatically run validators for an entire object (ie to catch non-single-field validation issues)
+    - validateObject() callback for validating JUST the object as a whole; things that can't be done per-property
+    - validate() calls all KVC validators AND validateObject
+    - pushBindings should call validateObject() once all individual ones are called
   - No way to create validation errors from save() and have the FW catch them automatically
     - Maybe this isn't a problem? Pages should try/catch around things that can throw and wrap errors into a WFError... 
       OR should we do this try/catch and WFError wrapping automatically, and just let the action method OVERRIDE that if it is desirable to NOT catch that error?
