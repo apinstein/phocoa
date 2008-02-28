@@ -45,7 +45,7 @@ class WFYaml
         else
         {
             // php version
-            return Spyc::YAMLDump($phpData);
+            return Horde_Yaml::dump($phpData);
         }
     }
 }

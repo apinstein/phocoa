@@ -34,6 +34,7 @@ class css extends WFModule
         $cssFilePath = WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS) . '/' . $skinTypeName . '/'. $skinName . '/' . $cssTemplate;
         if (!file_exists($cssFilePath)) {
             header("HTTP/1.0 404 Not Found");
+            print "No css file at: {$cssFilePath}";
             exit;
         }
 

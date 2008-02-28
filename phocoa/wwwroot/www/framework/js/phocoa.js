@@ -72,7 +72,7 @@ PHOCOA.sandbox = function(jsCode, globalNamespace, localNamespace) {
     if (globalNamespace)
     {
         if (!localNamespace) localNamespace = globalNamespace;
-        eval( jsCode + "\n\nwindow. " + globalNamespace + " = " + localNamespace + ";" );
+        eval( jsCode + "\n\nwindow." + globalNamespace + " = " + localNamespace + ";" );
     }
     else
     {

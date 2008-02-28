@@ -15,15 +15,27 @@
 
     <!-- this target should be called by all targets that expect the project to already exist. if it doesn't already exist, this target will bail. -->
     <target name="prepareProject" description="Pre-flight for working on a PHOCOA project. Loads build.properties file." depends="prepareGeneral">
-        <available file="${phocoa.project.dir}" property="projectDirExists" type="dir" value="1" />
+        <available file="${phocoa.project.dir}" property="projectDirExists" type="dir"/>
         <echo message="${projectDirExists}" />
         <if>
-            <isfalse value="projectDirExists" />
+            <equals arg1="${phocoa.project.dir}" arg2="" />
             <then>
-                <fail message="Project must already exist to run this task. No project found at ${phocoa.project.dir}." />
+                <fail message="phocoa.project.dir is not defined." />
+            </then>
+            <elseif>
+                <isfalse value="projectDirExists" />
+                <then>
+                    <fail message="Project must already exist to run this task. No project found at ${phocoa.project.dir}." />
+                </then>
+            </elseif>
+        </if>
+        <php expression="getenv('_') ? getenv('_') : getenv('PHP_COMMAND')" returnProperty="phocoa.project.php" />
+        <if>
+            <equals arg1="${phocoa.project.php}" arg2="" />
+            <then>
+                <fail message="phocoa.project.php could not be determined. Please set the environment variable PHP_COMMAND to the path to your php executable." />
             </then>
         </if>
-        <php expression="getenv('_')" returnProperty="phocoa.project.php" />
         <echo message="Using PHP: ${phocoa.project.php}" />
         <echo message="PHOCOA project dir at: ${phocoa.project.dir}" />
         <realpathexpandhome propertyName="phocoa.project.container" file="${phocoa.project.dir}/.."/>
@@ -136,7 +148,7 @@
         </if>
     </target>
 
-    <target name="setupProjectContainer" description="Set up the container dir for the project.">
+    <target name="setupProjectContainer" description="Set up the container dir for the project." depends="prepareProject">
         <fail unless="phocoa.project.container" message="phocoa.project.container must be defined." />
         <!-- Create a reasonable directory structure -->
         <echo msg="Creating project container directories and setting up permissions" /> 

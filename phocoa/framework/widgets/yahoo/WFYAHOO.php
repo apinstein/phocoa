@@ -117,7 +117,7 @@ class WFYAHOO_yuiloader
                          yl.require(" . join(',', $this->quotedRequired()) . ");
                          yl.allowRollup = " . ($this->allowRollup() ? 'true' : 'false') . ";
                          yl.loadOptional = " . ($this->loadOptional() ? 'true' : 'false') . ";
-                         yl.onSuccess = {$callback};
+                         " . ($callback ? "yl.onSuccess = {$callback};" : "") . "
                          yl.insert( { " . ($this->debug() ? 'filter: "DEBUG"' : NULL) . " } );
                      })();
          ";
