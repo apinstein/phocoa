@@ -613,6 +613,7 @@ class WFModuleInvocation extends WFObject
   * void myPageName_myActionName_Action($page) - called on the page after pushBindings, BUT ONLY IF THERE WERE NO ERRORS.
   * void SetupSkin($skin) - Called just before rendering the template so you can set up title and other head tags.
   * 
+  * @todo Add a WFModule::willRender() callback called from WFPage::render() to easily allow module-level skin stuff
   */
 abstract class WFModule extends WFObject
 {

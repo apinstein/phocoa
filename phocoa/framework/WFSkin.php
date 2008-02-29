@@ -113,6 +113,15 @@ class WFSkinDelegate
      *                For each skin, there must be a template_<templateType>.tpl file for each manifested template type.
      */
     function templateTypes() { return array(); }
+
+    /**
+     * Callback method which is called just before the skin is rendered.
+     *
+     * This allows your skin delegate to calculate anything it might need to pass on to the skin for use in rendering.
+     *
+     * @param object WFSkin The skin object that will be rendered.
+     */
+    function willRender($skin) {}
 }
 
 /**
@@ -621,11 +630,12 @@ class WFSkin extends WFObject
      *
      *  Calls the skin delegate's willRender() method if it exists.
      *  This method is called just before the template for the skin is rendered.
+     *  @todo Do I need to pass in the WFSmarty instance here so that you can actually change the TPL file from this callback? If so, also update the willRender() delegate docs/prototype
      */
     function willRender()
     {
         if (is_object($this->delegate) && method_exists($this->delegate, 'willRender')) {
-            $this->delegate->willRender();
+            $this->delegate->willRender($this);
         }
     }
 }
