@@ -13,9 +13,7 @@ require_once('framework/WFError.php');
 
 require_once "TestObjects.php";
 
-require_once "PHPUnit2/Framework/TestCase.php";
-
-class KeyValueCodingTest extends PHPUnit2_Framework_TestCase
+class KeyValueCodingTest extends PHPUnit_Framework_TestCase
 {
     protected $parent;
     protected $child;
