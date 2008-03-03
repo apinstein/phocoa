@@ -37,7 +37,13 @@ while (true)
 function readline( $prompt = '' )
 {
     echo $prompt;
-    return rtrim( fgets( STDIN ), "\n" );
+    $command = rtrim( fgets( STDIN ), "\n" );
+    // catch ctl-d
+    if (strlen($command) == 0)
+    {
+        exit;
+    }
+    return $command;
 }
 
 ?>
