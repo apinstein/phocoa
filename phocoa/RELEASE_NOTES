@@ -9,6 +9,7 @@ Codes:
 Version 0.1.?
 - [new] Replace spyc integration with Horde/Yaml.
 - [new] WFYAHOO_widget_YahooScript for including YAHOO-dependent Javascript on your pages.
+- [new] Ability to have the "default page" of a module accept parameters without specifying the page name in the invocation path. Must implement module::allPages() to enable.
 
 Version 0.1.1
 - [BC-break] WFYAHOO is now an abstract class. Some applications may have previously instantiated WFYAHOO objects to bootstrap the YUI lib. This will now break.
