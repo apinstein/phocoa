@@ -82,7 +82,7 @@ class WFYAHOO_widget_Menu extends WFYAHOO
 
     function render($blockContent = NULL)
     {
-        if ($this->hidden)
+        if ($this->hidden or count($this->menuItems) == 0)
         {
             return NULL;
         }
