@@ -473,25 +473,6 @@ class WFModuleInvocation extends WFObject
             $this->modulePath = ltrim($modulePath, '/');
             $this->moduleName = $moduleName;
             $this->pageName = $pageName;
-            if ($this->pageName)
-            {
-               // parse out parameter data from URL
-               if (count($pathInfoParts) > 2)
-               {
-                   $params = array_slice($pathInfoParts, $partsUsedBeforeModule + 1);
-                   foreach ($params as $k => $v) {
-                       if ($v === WFModuleInvocation::PARAMETER_NULL_VALUE)
-                       {
-                           $params[$k] = NULL;
-                       }
-                       else
-                       {
-                           $params[$k] = urldecode($v);
-                       }
-                   }
-                   $this->invocationParameters = $params;
-               }
-            }
             $this->setModulesDir($modulesDirPath);
         }
         //print "MP: {$this->modulePath}<br>Mod:{$this->moduleName}<BR>Page: {$this->pageName}<BR>Params:" . print_r($this->invocationParameters,true) . "<BR>";
@@ -516,6 +497,46 @@ class WFModuleInvocation extends WFObject
         // if we get here, we're guaranteed that a modulePath is valid.
         // load module instance
         $this->module = WFModule::factory($this);
+
+        // Calculate Parameters for the page
+        // test to see if what we think is the page name IS a page in the module. If so, proceed as normal. If not, assume it's the first parameter of the default page.
+        if ($this->pageName)
+        {
+            $params = array();
+            $modulePages = $this->module->allPages();
+            if (count($modulePages) == 0 or in_array($this->pageName, $modulePages))
+            {
+                // a page was detected; skip one pathpart to get to params
+                if (count($pathInfoParts) > 2)
+                {
+                    $params = array_slice($pathInfoParts, $partsUsedBeforeModule + 1);
+                }
+            }
+            else
+            {
+                // no page detected; params start now; send to default page
+                $this->pageName = $this->module->defaultPage();
+                if (count($pathInfoParts) > 1)
+                {
+                    $params = array_slice($pathInfoParts, $partsUsedBeforeModule);
+                }
+            }
+            // parse out parameter data from URL
+            if (count($params))
+            {
+                foreach ($params as $k => $v) {
+                    if ($v === WFModuleInvocation::PARAMETER_NULL_VALUE)
+                    {
+                        $params[$k] = NULL;
+                    }
+                    else
+                    {
+                        $params[$k] = urldecode($v);
+                    }
+                }
+                $this->invocationParameters = $params;
+            }
+        }
 
         // determine default page
         if (empty($this->pageName))
@@ -1067,6 +1088,23 @@ abstract class WFModule extends WFObject
      * @return string The name of the default page.
      */
     abstract function defaultPage();
+
+    /**
+     *  Tell the phocoa infrastructure which "pages" your module implements.
+     *
+     *  OPTIONAL!
+     *
+     *  This method is optional. It is only needed if you want your default page to accept parameters even if the page name is not in the invocation path.
+     *
+     *  If you have only one page, this is done automatically. If you have more than one page, you'll need to implement this method to include all pages so
+     *  that you can access these pages via URL.
+     *
+     *  @return array An array of strings of the page names implemented by your module.
+     */
+    function allPages()
+    {
+        return array();
+    }
 
     /**
      *  Should APD profiling be enabled for this request? To enable profiling of your module, just add shouldProfile() to your WFModule and return TRUE.
