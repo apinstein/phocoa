@@ -9,8 +9,8 @@ class login extends WFModule
 
     function gotoURL($url)
     {
-        // for now, always use internal redirects; in future may want to pass this as param along with continueURL
-        if (WFRequestController::isAjax() or 1)
+        // use an internal redirect for ajax requests (otherwise might not work), but use 302 for normal logins. This ensures that the URL in the address bar is correct.
+        if (WFRequestController::isAjax())
         {
             throw( new WFRequestController_InternalRedirectException($url) );
         }
