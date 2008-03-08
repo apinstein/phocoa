@@ -902,7 +902,10 @@ class WFPagedPropelQuery implements WFPagedData
     {
         $criteria = clone $this->criteria;
         $criteria->setOffset($startIndex - 1);
-        $criteria->setLimit($numItems);
+        if ($numItems !== WFPaginator::PAGINATOR_PAGESIZE_ALL)
+        {
+            $criteria->setLimit($numItems);
+        }
         foreach ($sortKeys as $sortKey) {
             if (substr($sortKey, 0, 1) == '-')
             {
@@ -1011,7 +1014,11 @@ class WFPagedCreoleQuery implements WFPagedData
                 $first = false;
             }
         }
-        $pageSQL .= " limit " . $numItems . " offset " . ($startIndex - 1);
+        if ($numItems !== WFPaginator::PAGINATOR_PAGESIZE_ALL)
+        {
+            $pageSQL .= " limit " . $numItems;
+        }
+        $pageSQL .= " offset " . ($startIndex - 1);
 
         // run query
         $stmt = $this->connection->createStatement();
