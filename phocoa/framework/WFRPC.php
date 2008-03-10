@@ -28,6 +28,8 @@
  * Note that you can detect whether or not you're in an ajax callback via {@link WFRequestController::isAjax() WFRequestController::sharedRequestController()->isAjax()} call.
  *
  * Has fluent interface for configuration.
+ *
+ * @todo Why add WWW_ROOT to the invocationPath checks? is this from the form or something? seems like it's not an invocationPath if it starts with that... document/comment when you figure out why.
  */
 class WFRPC extends WFObject
 {
@@ -71,9 +73,9 @@ class WFRPC extends WFObject
      */
     protected $runsIfInvalid;
     /**
-     * @var string The ID of the WFForm object for the action. Actions with helpers are executed by submitting the form. Actions without helpers are submitted solely via URL and no form state is restored.
+     * @var object The WFForm object for the action. Actions with helpers are executed by submitting the form. Actions without helpers are submitted solely via URL and no form state is restored.
      */
-    protected $formId;
+    protected $form;
     /**
      * @var boolean Is this RPC an AJAX RPC or just a wrapper to submit the form?
      */
@@ -88,7 +90,7 @@ class WFRPC extends WFObject
 
         $this->runsIfInvalid = false;
         $this->isAjax = false;
-        $this->formId = NULL;
+        $this->form = NULL;
     }
 
     /**
@@ -104,6 +106,7 @@ class WFRPC extends WFObject
     public function setInvocationPath($mp)
     {
         $this->invocationPath = $mp;
+        return $this;
     }
     
     /**
@@ -146,24 +149,13 @@ class WFRPC extends WFObject
     /**
      * Set the form associated with the RPC. RPC's with forms will submit to the PHOCOA form-processing infrastructure.
      *
-     * @param mixed Either a string formId, or a WFForm object.
+     * @param object WFForm The form to submit with the RPC.
      * @return object WFRPC The current RPC instance, for fluent configuration.
      */
     function setForm($form)
     {
-        if (is_string($form))
-        {
-            $this->formId = $form;
-        }
-        else if ($form instanceof WFForm)
-        {
-            $this->formId = $form->id();
-        }
-        else if ($form === NULL)
-        {
-            $this->formId = NULL;
-        }
-        else throw( new WFException("Form must be either a formID or a WFForm instance.") );
+        if ($form !== NULL and !($form instanceof WFForm)) throw( new WFException("setForm requires a WFForm object.") );
+        $this->form = $form;
         return $this;
     }
 
@@ -196,6 +188,30 @@ class WFRPC extends WFObject
         }
         return $this;
     }
+
+    /**
+     *  Get an array of all form parameters that need to be submitted to effect the RPC on the server when submitted.
+     *
+     *  Will include the php session id in the url params since often this is used by 3rd party clients like flash,java that don't have access to cookies.
+     *
+     *  @return array An associative array of the phocoa RPC parameters. Will include form submission as well if the RPC has a form.
+     */
+    function rpcAsParameters()
+    {
+        $params = array();
+        $params[WFRPC::PARAM_ENABLE] = 1;
+        $params[WFRPC::PARAM_INVOCATION_PATH] = WWW_ROOT . '/' . $this->invocationPath; // need the WWW_ROOT because it's in rpcFromRequest(). Not sure why...
+        $params[WFRPC::PARAM_TARGET] = $this->target;
+        $params[WFRPC::PARAM_ACTION] = $this->action;
+        $params[WFRPC::PARAM_RUNS_IF_VALID] = ($this->runsIfInvalid ? 'true' : 'false');
+        $params[WFRPC::PARAM_ARGC] = 0;
+        $params[session_name()] = session_id();
+        if ($this->form)
+        {
+            $params = array_merge($params, $this->form->phocoaFormParameters());
+        }
+        return $params;
+    }
     
     /**
      * Are we in AJAX mode?
@@ -207,14 +223,9 @@ class WFRPC extends WFObject
         return $this->isAjax;
     }
 
-    /**
-     * Get the id of the form to use for RPC submission, or NULL if no form used.
-     *
-     * @return string The FORM ID or NULL.
-     */
     function form()
     {
-        return $this->formId;
+        return $this->form;
     }
 
     function target()
@@ -332,6 +343,7 @@ class WFRPC extends WFObject
         if (!isset($_REQUEST[self::PARAM_ACTION])) throw( new WFException('action method missing.') );
         if (!isset($_REQUEST[self::PARAM_ARGC])) throw( new WFException('action argc missing.') );
 
+        // not sure why this is with WWW_ROOT....
         $invocationPathWithWWW = WWW_ROOT . '/' . $invocationPath;
         if ($invocationPathWithWWW !== $_REQUEST[self::PARAM_INVOCATION_PATH]) return NULL;
 
@@ -698,7 +710,7 @@ class WFAction extends WFObject
                 $this->rpc()->setForm($this->event()->widget()->getForm());
             }
             $script .= "
-                action.rpc.form = " .  ( $this->rpc->form() ? "'" . $this->rpc->form() . "'" : 'null' ) . ";
+                action.rpc.form = " .  ( $this->rpc->form() ? "'" . $this->rpc->form()->id() . "'" : 'null' ) . ";
                 action.rpc.isAjax = " . ( $this->rpc->isAjax() ? 'true' : 'false') . ";
                      ";
         }

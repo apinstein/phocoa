@@ -57,6 +57,11 @@ class WFForm extends WFWidget
     private $numberOfSubmitButtons;
 
     /**
+     * @var array An array of form parameters that a phocoa form needs to be correctly processed. Subclasses may need access to these to ensure proper phocoa form compatibility.
+     */
+    protected $phocoaFormParameters;
+
+    /**
      * @var boolean Set to true to turn this into an ajax-enabled form.
      */
     protected $isAjax;
@@ -86,6 +91,27 @@ class WFForm extends WFWidget
         $this->numberOfSubmitButtons = 0;
 
         $this->isAjax = false;
+
+        // set up the extra form parameters we need to enable phocoa form detection and processing...
+        $this->phocoaFormParameters = array();
+        $this->phocoaFormParameters['__modulePath'] = $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName();
+        $this->phocoaFormParameters['__formName'] = $this->id;
+        // Calculate CSRF Protetion
+        $csrfParams = WFForm::calculateCSRFParams();
+        $this->phocoaFormParameters['instanceid'] = $csrfParams['instanceid'];
+        $this->phocoaFormParameters['auth'] = $csrfParams['auth'];
+    }
+
+    public static function calculateCSRFParams()
+    {
+        $instanceid = rand();
+        $auth = md5(session_id() . $instanceid);
+        return array('instanceid' => $instanceid, 'auth' => $auth);
+    }
+
+    public function phocoaFormParameters()
+    {
+        return $this->phocoaFormParameters;
     }
 
     public static function exposedProperties()
@@ -185,16 +211,11 @@ class WFForm extends WFWidget
             if (!isset($this->children[$this->defaultSubmitID])) throw( new WFException("The default button specified: '" . $this->defaultSubmitID . '" does not exist.') );
             $defaultFormButtonHTML = "\n" . $this->children[$this->defaultSubmitID]->renderDefaultButton();
         }
-        // CSRF Protetion
-        $instanceid = rand();
-        $auth = md5(session_id() . $instanceid);
-        $html =  "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $encType . '>' .
-               "\n" . '<input type="hidden" name="__modulePath" value="' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '" />' .
-               //"\n" . '<input type="hidden" name="__currentModule" value="' . $this->page->module()->invocation()->modulePath() . '" />' .
-               //"\n" . '<input type="hidden" name="__currentPage" value="' . $this->page->pageName() . '" />' .
-               "\n" . '<input type="hidden" name="__formName" value="' . $this->id . '" />' .
-               "\n" . '<input type="hidden" name="instanceid" value="' . $instanceid . '" />' .
-               "\n" . '<input type="hidden" name="auth" value="' . $auth . '" />' .
+        $html =  "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $encType . '>';
+        foreach ($this->phocoaFormParameters as $k => $v) {
+            $html .= "\n" . '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
+        }
+        $html .= 
                $defaultFormButtonHTML .
                "\n" . $blockContent .
                "\n</form>\n" .

@@ -68,7 +68,7 @@ class WFSubmit extends WFWidget
 
     function allConfigFinishedLoading()
     {
-        $this->submitEvent->action()->setForm($this->parent()->id());
+        $this->submitEvent->action()->setForm($this->parent());
     }
 
     public static function exposedProperties()
