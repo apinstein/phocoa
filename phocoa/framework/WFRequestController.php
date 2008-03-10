@@ -103,7 +103,8 @@ class WFRequestController extends WFObject
         // NEW WAY - calculate our own PATH_INFO. WHY? This way we can eliminate the urldecoding of the PATH_INFO which prevents passing through / and also 
         // destroys the ability to pass NULL URL params via //.
         // This way is much better, so long as it's compatible! So make sure that it doesn't break anything.
-        $modInvocationPath = ltrim(substr($_SERVER['REQUEST_URI'], strlen(WWW_ROOT)), '/');
+        $relativeURI = parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH); // need to run this to convert absolute URI's to relative ones (sent by SOME http clients)
+        $modInvocationPath = ltrim(substr($relativeURI, strlen(WWW_ROOT)), '/');
         $paramsPos = strpos($modInvocationPath, '?');
         if ($paramsPos !== false)
         {
