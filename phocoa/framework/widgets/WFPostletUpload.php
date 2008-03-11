@@ -226,7 +226,7 @@ END POSTLET REPLY";
         return '
 <applet name="postlet" code="Main.class" archive="' . $this->getWidgetWWWDir() . '/postlet.jar" width="305" height="200" mayscript="mayscript">
     <param name = "uploadparametername"      value = "' . $this->id . '" />
-    <param name = "additionalformparameters" value = "' . http_build_query($rpc->rpcAsParameters($this)) . '" />
+    <param name = "additionalformparameters" value = "' . http_build_query($rpc->rpcAsParameters($this), '', '&amp;') . '" />
 
     ' . ($this->dropimage ? '<param name = "dropimage"       value = "' . $this->baseurl . $this->dropimage . '"/>' : NULL ) . '
     ' . ($this->dropimageupload ? '<param name = "dropimageupload"       value = "' . $this->baseurl . $this->dropimageupload . '"/>' : NULL ) . '
@@ -247,6 +247,7 @@ END POSTLET REPLY";
     <param name = "fileextensions" value = "JPEG Image Files,jpg,jpeg" />
     ' . ($this->endpage ? '<param name = "endpage" value = "' . $this->baseurl . $this->endpage . '" />' : NULL) . '
 </applet>
+<script type="text/javascript" src="' . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/embeddedcontent_min.js" defer="defer"></script>
         ';
     }
 
