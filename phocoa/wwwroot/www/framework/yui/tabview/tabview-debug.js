@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.4.1
+version: 2.5.0
 */
 (function() {
 
@@ -525,6 +525,14 @@ version: 2.4.1
     proto.ACTIVE_CLASSNAME = 'selected';
     
     /**
+     * The title applied to active tabs.
+     * @property ACTIVE_TITLE
+     * @type String
+     * @default "active"
+     */
+    proto.ACTIVE_TITLE = 'active';
+
+    /**
      * The class name applied to disabled tabs.
      * @property DISABLED_CLASSNAME
      * @type String
@@ -727,7 +735,7 @@ version: 2.4.1
             method: function(value) {
                 if (value === true) {
                     this.addClass(this.ACTIVE_CLASSNAME);
-                    this.set('title', 'active');
+                    this.set('title', this.ACTIVE_TITLE);
                 } else {
                     this.removeClass(this.ACTIVE_CLASSNAME);
                     this.set('title', '');
@@ -886,4 +894,4 @@ version: 2.4.1
     YAHOO.widget.Tab = Tab;
 })();
 
-YAHOO.register("tabview", YAHOO.widget.TabView, {version: "2.4.1", build: "742"});
+YAHOO.register("tabview", YAHOO.widget.TabView, {version: "2.5.0", build: "895"});

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.4.1
+version: 2.5.0
 */
 /**
  * The Connection Manager provides a simplified interface to the XMLHttpRequest
@@ -235,7 +235,7 @@ YAHOO.util.Connect =
 				'click',
 				function(e){
 					var obj = YAHOO.util.Event.getTarget(e);
-					if(obj.type && obj.type.toLowerCase() == 'submit'){
+					if(obj.nodeName.toLowerCase() == 'input' && (obj.type && obj.type.toLowerCase() == 'submit')){
 						YAHOO.util.Connect._submitElementValue = encodeURIComponent(obj.name) + "=" + encodeURIComponent(obj.value);
 					}
 				});
@@ -547,7 +547,7 @@ YAHOO.util.Connect =
 			}
 
 			this.handleReadyState(o, callback);
-			o.conn.send(postData || null);
+			o.conn.send(postData || '');
 			YAHOO.log('Transaction ' + o.tId + ' sent.', 'info', 'Connection');
 
 
@@ -956,7 +956,7 @@ YAHOO.util.Connect =
 		if(isUpload){
 
 			// Create iframe in preparation for file upload.
-			var io = this.createFrame(secureUri?secureUri:null);
+			var io = this.createFrame((window.location.href.toLowerCase().indexOf("https") === 0 || secureUri)?true:false);
 			// Set form reference and file upload properties to true.
 			this._isFormSubmit = true;
 			this._isFileUpload = true;
@@ -1078,10 +1078,6 @@ YAHOO.util.Connect =
 			// iframe source is undefined.
 			if(typeof secureUri == 'boolean'){
 				io.src = 'javascript:false';
-			}
-			else if(typeof secureURI == 'string'){
-				// Deprecated
-				io.src = secureUri;
 			}
 		}
 		else{
@@ -1396,4 +1392,4 @@ YAHOO.util.Connect =
 	}
 };
 
-YAHOO.register("connection", YAHOO.util.Connect, {version: "2.4.1", build: "742"});
+YAHOO.register("connection", YAHOO.util.Connect, {version: "2.5.0", build: "895"});

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.4.1
+version: 2.5.0
 */
 /**
  * The dom module provides helper methods for manipulating Dom elements.
@@ -14,11 +14,12 @@ version: 2.4.1
     var Y = YAHOO.util,     // internal shorthand
         getStyle,           // for load time browser branching
         setStyle,           // ditto
-        id_counter = 0,     // for use with generateId
         propertyCache = {}, // for faster hyphen converts
         reClassNameCache = {},          // cache regexes for className
         document = window.document;     // cache for faster lookups
     
+    YAHOO.env._id_counter = YAHOO.env._id_counter || 0;     // for use with generateId (global to save state if Dom is overwritten)
+
     // brower detection
     var isOpera = YAHOO.env.ua.opera,
         isSafari = YAHOO.env.ua.webkit, 
@@ -148,11 +149,11 @@ version: 2.4.1
          * @return {HTMLElement | Array} A DOM reference to an HTML element or an array of HTMLElements.
          */
         get: function(el) {
-            if (el && (el.tagName || el.item)) { // HTMLElement, or HTMLCollection
+            if (el && (el.nodeType || el.item)) { // Node, or NodeList
                 return el;
             }
 
-            if (YAHOO.lang.isString(el) || !el) { // HTMLElement or null
+            if (YAHOO.lang.isString(el) || !el) { // id or null
                 return document.getElementById(el);
             }
             
@@ -447,7 +448,7 @@ version: 2.4.1
             var re = getClassRegEx(className);
             
             var f = function(el) {
-                if (!this.hasClass(el, className)) {
+                if (!className || !this.hasClass(el, className)) {
                     return false; // not present
                 }                 
 
@@ -516,7 +517,7 @@ version: 2.4.1
                     return el.id;
                 } 
 
-                var id = prefix + id_counter++;
+                var id = prefix + YAHOO.env._id_counter++;
 
                 if (el) {
                     el.id = id;
@@ -1221,4 +1222,4 @@ YAHOO.util.Point = function(x, y) {
 
 YAHOO.util.Point.prototype = new YAHOO.util.Region();
 
-YAHOO.register("dom", YAHOO.util.Dom, {version: "2.4.1", build: "742"});
+YAHOO.register("dom", YAHOO.util.Dom, {version: "2.5.0", build: "895"});

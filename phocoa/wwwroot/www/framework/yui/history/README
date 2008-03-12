@@ -1,8 +1,5 @@
 YUI Library - History - Release Notes
 
-2.4.1
-No change
-
 2.4.0
 
   * Added onReady method (similar to the Event utility's DOMReady method)

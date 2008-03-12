@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.4.1
+version: 2.5.0
 */
 
 /**
@@ -545,7 +545,7 @@ if (!YAHOO.util.Event) {
             /**
              * The number of times we should look for elements that are not
              * in the DOM at the time the event is requested after the document
-             * has been loaded.  The default is 4000@amp;10 ms, so it will poll
+             * has been loaded.  The default is 2000@amp;20 ms, so it will poll
              * for 40 seconds or until all outstanding handlers are bound
              * (whichever comes first).
              * @property POLL_RETRYS
@@ -553,7 +553,7 @@ if (!YAHOO.util.Event) {
              * @static
              * @final
              */
-            POLL_RETRYS: 4000,
+            POLL_RETRYS: 2000,
 
             /**
              * The poll interval in milliseconds
@@ -562,7 +562,7 @@ if (!YAHOO.util.Event) {
              * @static
              * @final
              */
-            POLL_INTERVAL: 10,
+            POLL_INTERVAL: 20,
 
             /**
              * Element to bind, int constant
@@ -1184,12 +1184,14 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
              * @return {HTMLElement} the normized node
              * @static
              */
-            resolveTextNode: function(node) {
-                if (node && 3 == node.nodeType) {
-                    return node.parentNode;
-                } else {
-                    return node;
-                }
+            resolveTextNode: function(n) {
+                try {
+                    if (n && 3 == n.nodeType) {
+                        return n.parentNode;
+                    }
+                } catch(e) { }
+
+                return n;
             },
 
             /**
@@ -1351,32 +1353,6 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
                     }
                 }
 
-                // IE events that target non-browser objects (e.g., VML
-                // canvas) will sometimes throw errors when you try to
-                // inspect the properties of the event target.  We try to
-                // detect this condition, and provide a dummy target (the bound
-                // element) to eliminate spurious errors.  
-
-                // the implementation caused unexpected results in some 
-                // implementations, so this has been rolled back for now
-                /* 
-                if (ev && this.isIE) {
-
-                    try {
-
-                        var el = ev.srcElement;
-
-                    } catch(ex) {
-
-                        YAHOO.log("Inspecting the target caused an error, " +
-                            "setting the target to the bound element.", "warn");
-                         
-                        ev.target = boundEl;
-                    }
-
-                }
-                */
-
                 return ev;
             },
 
@@ -1390,7 +1366,7 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
             getCharCode: function(ev) {
                 var code = ev.keyCode || ev.charCode || 0;
 
-                // webkit normalization
+                // webkit key normalization
                 if (YAHOO.env.ua.webkit && (code in webkitKeymap)) {
                     code = webkitKeymap[code];
                 }
@@ -1525,11 +1501,6 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
                     // before the window load notification
                     EU._tryPreloadAttach();
 
-                    // Remove the listener to assist with the IE memory issue, but not
-                    // for other browsers because FF 1.0x does not like it.
-                    //if (this.isIE) {
-                        //EU._simpleRemove(window, "load", EU._load);
-                    //}
                 }
             },
 
@@ -1571,7 +1542,6 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
                     // Hold off if DOMReady has not fired and check current
                     // readyState to protect against the IE operation aborted
                     // issue.
-                    //if (!this.DOMReady || "complete" !== document.readyState) {
                     if (!this.DOMReady) {
                         this.startInterval();
                         return false;
@@ -1675,9 +1645,7 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
                 if (elListeners) {
                     for (i=0,len=elListeners.length; i<len ; ++i) {
                         var l = elListeners[i];
-                        // can't use the index on the changing collection
                         this.removeListener(oEl, l.type, l.fn, l.index);
-                        //this.removeListener(oEl, l.type, l.fn);
                     }
                 }
 
@@ -1771,26 +1739,13 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
 
                 unloadListeners = null;
 
-                // call clearAttributes or remove listeners to handle IE memory leaks
-                if (YAHOO.env.ua.ie && listeners && listeners.length > 0) {
-                    j = listeners.length;
-                    while (j) {
-                        index = j-1;
-                        l = listeners[index];
-                        if (l) {
-                            //try {
-                                //l[EU.EL].clearAttributes(); // errors on window objects
-                            //} catch(ex) {
-                            EU.removeListener(l[EU.EL], l[EU.TYPE], l[EU.FN], index);
-                            //}
-                        } 
-                        j--;
-                    }
-                    l=null;
-                }
-
-                /*
-                // remove all listeners
+                // Remove listeners to handle IE memory leaks
+                //if (YAHOO.env.ua.ie && listeners && listeners.length > 0) {
+                
+                // 2.5.0 listeners are removed for all browsers again.  FireFox preserves
+                // at least some listeners between page refreshes, potentially causing
+                // errors during page load (mouseover listeners firing before they
+                // should if the user moves the mouse at the correct moment).
                 if (listeners && listeners.length > 0) {
                     j = listeners.length;
                     while (j) {
@@ -1799,25 +1754,10 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
                         if (l) {
                             EU.removeListener(l[EU.EL], l[EU.TYPE], l[EU.FN], index);
                         } 
-                        j = j - 1;
+                        j--;
                     }
                     l=null;
                 }
-                */
-
-                /*
-                // kill legacy events
-                for (i=0,len=legacyEvents.length; i<len; ++i) {
-                    // dereference the element
-                    //delete legacyEvents[i][0];
-                    legacyEvents[i][0] = null;
-
-                    // delete the array item
-                    //delete legacyEvents[i];
-                    legacyEvents[i] = null;
-                }
-
-                */
 
                 legacyEvents = null;
 
@@ -1874,22 +1814,6 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
             regCE: function() {
                 // does nothing
             },
-
-/*
-            testIEReady: function (){
-                var n = document.createElement('p'), ready = false;
-                try {
-                    // throws an error until the doc is ready
-                    n.doScroll('left'); 
-                    ready = true;
-                } catch(ex){ 
-                    // document is not ready
-                }
-
-                n = null;
-                return ready;
-            },
-*/
 
             /**
              * Adds a DOM event directly without the caching, cleanup, scope adj, etc
@@ -1955,9 +1879,7 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
          */
         EU.on = EU.addListener;
 
-        /////////////////////////////////////////////////////////////
-        // DOMReady
-        // based on work by: Dean Edwards/John Resig/Matthias Miller 
+/*! DOMReady: based on work by: Dean Edwards/John Resig/Matthias Miller */
 
         // Internet Explorer: use the readyState of a defered script.
         // This isolates what appears to be a safe moment to manipulate
@@ -1970,62 +1892,6 @@ YAHOO.log(sType + " addListener call failed, invalid callback", "error", "Event"
             YAHOO.util.Event.onDOMReady(
                     YAHOO.util.Event._tryPreloadAttach,
                     YAHOO.util.Event, true);
-
-            /*
-
-            //YAHOO.log("-" + document.readyState + "-");
-
-            var el, d=document, b=d.body;
-
-            // If the library is being injected after window.onload, it
-            // is not safe to document.write the script tag.  Detecting
-            // this state doesn't appear possible, so we expect a flag
-            // in YAHOO_config to be set if the library is being injected.
-            if (("undefined" !== typeof YAHOO_config) && YAHOO_config.injecting) {
-
-                el = document.createElement("script");
-                var p=d.getElementsByTagName("head")[0] || b;
-                p.insertBefore(el, p.firstChild);
-
-            } else {
-                //YAHOO.log("-dw-");
-    d.write('<scr'+'ipt id="_yui_eu_dr" defer="true" src="//:"><'+'/script>');
-                el=document.getElementById("_yui_eu_dr");
-            }
-            
-
-            if (el) {
-                el.onreadystatechange = function() {
-                    //YAHOO.log(";comp-" + this.readyState + ";");
-                    if ("complete" === this.readyState) {
-                        this.parentNode.removeChild(this);
-                        YAHOO.util.Event._ready();
-                    }
-                };
-            } else {
-                // The library was likely injected into the page
-                // rendering onDOMReady unreliable
-                // YAHOO.util.Event._ready();
-            }
-
-            el=null;
-
-            */
-
-/*
-            (function (){
-                var n = document.createElement('p');  
-                try {
-                    // throws an error if doc is not ready
-                    n.doScroll('left');
-                    n = null;
-                    YAHOO.util.Event._ready();
-                } catch (ex){
-                    n = null;
-setTimeout(arguments.callee, YAHOO.util.Event.POLL_INTERVAL);
-                }
-            })();
-*/
 
             EU._dri = setInterval(function() {
                 var n = document.createElement('p');  
@@ -2042,10 +1908,9 @@ setTimeout(arguments.callee, YAHOO.util.Event.POLL_INTERVAL);
             }, EU.POLL_INTERVAL); 
 
         
-        // Safari: The document's readyState in Safari currently will
+        // The document's readyState in Safari currently will
         // change to loaded/complete before images are loaded.
-        //} else if (EU.webkit) {
-        } else if (EU.webkit) {
+        } else if (EU.webkit && EU.webkit < 525) {
 
             EU._dri = setInterval(function() {
                 var rs=document.readyState;
@@ -2057,10 +1922,8 @@ setTimeout(arguments.callee, YAHOO.util.Event.POLL_INTERVAL);
             }, EU.POLL_INTERVAL); 
 
         // FireFox and Opera: These browsers provide a event for this
-        // moment.
+        // moment.  The latest WebKit releases now support this event.
         } else {
-
-            // @todo will this fire when the library is injected?
 
             EU._simpleAdd(document, "DOMContentLoaded", EU._ready);
 
@@ -2522,4 +2385,4 @@ YAHOO.util.KeyListener.KEY = {
     TAB          : 9,
     UP           : 38
 };
-YAHOO.register("event", YAHOO.util.Event, {version: "2.4.1", build: "742"});
+YAHOO.register("event", YAHOO.util.Event, {version: "2.5.0", build: "895"});

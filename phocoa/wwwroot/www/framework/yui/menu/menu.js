@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.4.1
+version: 2.5.0
 */
 
 
@@ -2505,7 +2505,11 @@ _onMouseOver: function (p_sType, p_aArgs) {
         Event.on(this.element, "mousemove", this._onMouseMove, this, true);
 
 
-        this.clearActiveItem();
+		if (!Dom.isAncestor(oItem.element, Event.getRelatedTarget(oEvent))) {
+
+        	this.clearActiveItem();
+        
+        }
 
 
         if (this.parent && this._nSubmenuHideDelayId) {
@@ -2735,90 +2739,102 @@ _onMouseMove: function (p_oEvent, p_oMenu) {
 */
 _onClick: function (p_sType, p_aArgs) {
 
-    var oEvent = p_aArgs[0],
-        oItem = p_aArgs[1],
-        oSubmenu,
-        bInMenuAnchor = false,
-        oRoot,
-        sId,
-        sURL,
-        nHashPos,
-        nLen;
+	var Event = YAHOO.util.Event,
+		Dom = YAHOO.util.Dom,
+		oEvent = p_aArgs[0],
+		oItem = p_aArgs[1],
+		oSubmenu,
+		bInMenuAnchor = false,
+		oRoot,
+		sId,
+		sURL,
+		nHashPos,
+		nLen;
 
 
-    if (oItem && !oItem.cfg.getProperty("disabled")) {
+	if (oItem) {
+	
+		if (oItem.cfg.getProperty("disabled")) {
+		
+			Event.preventDefault(oEvent);
 
-        oSubmenu = oItem.cfg.getProperty("submenu");
+		}
+		else {
 
-        
-        /*
-             Check if the URL of the anchor is pointing to an element that is 
-             a child of the menu.
-        */
-        
-        sURL = oItem.cfg.getProperty("url");
+			oSubmenu = oItem.cfg.getProperty("submenu");
+	
+			
+			/*
+				 Check if the URL of the anchor is pointing to an element that is 
+				 a child of the menu.
+			*/
+			
+			sURL = oItem.cfg.getProperty("url");
 
-        
-        if (sURL) {
-
-            nHashPos = sURL.indexOf("#");
-
-            nLen = sURL.length;
-
-
-            if (nHashPos != -1) {
-
-                sURL = sURL.substr(nHashPos, nLen);
-    
-                nLen = sURL.length;
-
-
-                if (nLen > 1) {
-
-                    sId = sURL.substr(1, nLen);
-
-                    bInMenuAnchor = Dom.isAncestor(this.element, sId);
-                    
-                }
-                else if (nLen === 1) {
-
-                    bInMenuAnchor = true;
-                
-                }
-
-            }
-        
-        }
-
-
-        if (bInMenuAnchor && !oItem.cfg.getProperty("target")) {
-
-            Event.preventDefault(oEvent);
-
-            oItem.focus();
-        
-        }
+		
+			if (sURL) {
+	
+				nHashPos = sURL.indexOf("#");
+	
+				nLen = sURL.length;
+	
+	
+				if (nHashPos != -1) {
+	
+					sURL = sURL.substr(nHashPos, nLen);
+		
+					nLen = sURL.length;
+	
+	
+					if (nLen > 1) {
+	
+						sId = sURL.substr(1, nLen);
+	
+						bInMenuAnchor = Dom.isAncestor(this.element, sId);
+						
+					}
+					else if (nLen === 1) {
+	
+						bInMenuAnchor = true;
+					
+					}
+	
+				}
+			
+			}
 
 
-        if (!oSubmenu) {
-
-            oRoot = this.getRoot();
-            
-            if (oRoot instanceof YAHOO.widget.MenuBar || 
-                oRoot.cfg.getProperty("position") == "static") {
-
-                oRoot.clearActiveItem();
-
-            }
-            else {
-
-                oRoot.hide();
-            
-            }
-
-        }
-    
-    }
+	
+			if (bInMenuAnchor && !oItem.cfg.getProperty("target")) {
+	
+				Event.preventDefault(oEvent);
+	
+				oItem.focus();
+			
+			}
+	
+	
+			if (!oSubmenu) {
+	
+				oRoot = this.getRoot();
+				
+				if (oRoot instanceof YAHOO.widget.MenuBar || 
+					oRoot.cfg.getProperty("position") == "static") {
+	
+					oRoot.clearActiveItem();
+	
+				}
+				else {
+	
+					oRoot.hide();
+				
+				}
+	
+			}
+			
+		}
+	
+	}
 
 },
 
@@ -4337,7 +4353,8 @@ configMaxHeight: function (p_sType, p_aArgs, p_oMenu) {
         fnMouseOut = this._onScrollTargetMouseOut,
         nMinScrollHeight = this.cfg.getProperty("minscrollheight"),
         nHeight,
-        nOffsetWidth;
+        nOffsetWidth,
+        sWidth;
 
 
     if (nMaxHeight !== 0 && nMaxHeight < nMinScrollHeight) {
@@ -4373,24 +4390,36 @@ configMaxHeight: function (p_sType, p_aArgs, p_oMenu) {
         offsetParent's "position" property is also set to "absolute."  It is 
         possible to work around this bug by specifying a value for the width 
         property in addition to overflow.
+
+		In IE it is also necessary to give the Menu a width when the scrollbars are 
+		rendered to prevent the Menu from rendering with a width that is 100% of
+		the browser viewport.
     */
 
-    if (UA.gecko && this.parent && this.parent.parent && 
-        this.parent.parent.cfg.getProperty("position") == "dynamic" && 
-        !this.cfg.getProperty("width")) {
+	var bSetWidth = ((UA.gecko && this.parent && this.parent.parent && 
+        this.parent.parent.cfg.getProperty("position") == "dynamic") || UA.ie);
 
-        nOffsetWidth = oElement.offsetWidth;
 
-        /*
-            Measuring the difference of the offsetWidth before and after
-            setting the "width" style attribute allows us to compute the 
-            about of padding and borders applied to the element, which in 
-            turn allows us to set the "width" property correctly.
-        */
-        
-        oElement.style.width = nOffsetWidth + "px";
-        oElement.style.width = 
-                (nOffsetWidth - (oElement.offsetWidth - nOffsetWidth)) + "px";
+    if (bSetWidth) {
+
+		if (!this.cfg.getProperty("width")) {
+
+			nOffsetWidth = oElement.offsetWidth;
+	
+			/*
+				Measuring the difference of the offsetWidth before and after
+				setting the "width" style attribute allows us to compute the 
+				about of padding and borders applied to the element, which in 
+				turn allows us to set the "width" property correctly.
+			*/
+			
+			oElement.style.width = nOffsetWidth + "px";
+	
+			sWidth = (nOffsetWidth - (oElement.offsetWidth - nOffsetWidth)) + "px";
+	
+			this.cfg.setProperty("width", sWidth);
+		
+		}
 
     }
 
@@ -4415,7 +4444,6 @@ configMaxHeight: function (p_sType, p_aArgs, p_oMenu) {
     nHeight = (nMaxHeight - (oHeader.offsetHeight + oHeader.offsetHeight));
 
 
-
     if (nHeight > 0 && (oBody.offsetHeight > nMaxHeight)) {
 
         Dom.addClass(oBody, "yui-menu-body-scrolled");
@@ -4431,6 +4459,13 @@ configMaxHeight: function (p_sType, p_aArgs, p_oMenu) {
 
     }
     else if (oHeader && oFooter) {
+
+		if (bSetWidth) {
+
+			this.cfg.setProperty("width", "");
+		
+		}
+
 
         this._enableScrollHeader();
         this._enableScrollFooter();
@@ -7331,7 +7366,7 @@ MenuItem.prototype = {
         * accompany the text for the menu item.
         * @deprecated Use "text" configuration property to add help text markup.  
         * For example: <code>oMenuItem.cfg.setProperty("text", "Copy &#60;em 
-        * class=\"helptext\"&#62;Ctrl + C&#60;/em&#60;");</code>
+        * class=\"helptext\"&#62;Ctrl + C&#60;/em&#62;");</code>
         * @default null
         * @type String|<a href="http://www.w3.org/TR/
         * 2000/WD-DOM-Level-1-20000929/level-one-html.html#ID-58190037">
@@ -7391,7 +7426,7 @@ MenuItem.prototype = {
         * rendered with emphasis.
         * @deprecated Use "text" configuration property to add emphasis.  
         * For example: <code>oMenuItem.cfg.setProperty("text", "&#60;em&#62;Some 
-        * Text&#60;/em&#60;");</code>
+        * Text&#60;/em&#62;");</code>
         * @default false
         * @type Boolean
         */
@@ -7413,7 +7448,7 @@ MenuItem.prototype = {
         * rendered with strong emphasis.
         * @deprecated Use "text" configuration property to add strong emphasis.  
         * For example: <code>oMenuItem.cfg.setProperty("text", "&#60;strong&#62; 
-        * Some Text&#60;/strong&#60;");</code>
+        * Some Text&#60;/strong&#62;");</code>
         * @default false
         * @type Boolean
         */
@@ -9003,4 +9038,4 @@ toString: function() {
 }
     
 }); // END YAHOO.lang.extend
-YAHOO.register("menu", YAHOO.widget.Menu, {version: "2.4.1", build: "742"});
+YAHOO.register("menu", YAHOO.widget.Menu, {version: "2.5.0", build: "895"});

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.4.1
+version: 2.5.0
 */
 /**
  * The YAHOO object is the single global object used by YUI Library.  It
@@ -272,9 +272,14 @@ YAHOO.env.ua = function() {
          * Safari 2.0.4:         418     <-- preventDefault fixed
          * Safari 2.0.4 (419.3): 418.9.1 <-- One version of Safari may run
          *                                   different versions of webkit
-         * Safari 2.0.4 (419.3): 419     <-- Current Safari release
-         * Webkit 212 nightly:   522+    <-- Safari 3.0 (with native SVG) should
-         *                                   be higher than this
+         * Safari 2.0.4 (419.3): 419     <-- Tiger installations that have been
+         *                                   updated, but not updated
+         *                                   to the latest patch.
+         * Webkit 212 nightly:   522+    <-- Safari 3.0 precursor (with native SVG
+         *                                   and many major issues fixed).
+         * Safari 3.0.4 (523.12):523.12  <-- First Tiger release - automatic update
+         *                                   from 2.x via the 10.4.11 OS patch
+         * Webkit nightly 1/2008:525+    <-- Supports DOMContentLoaded event
          *                                   
          * </pre>
          * http://developer.apple.com/internet/safari/uamatrix.html
@@ -388,7 +393,7 @@ YAHOO.lang = YAHOO.lang || {
      * properties.
      * @method isArray
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */
     isArray: function(o) { 
 
@@ -403,7 +408,7 @@ YAHOO.lang = YAHOO.lang || {
      * Determines whether or not the provided object is a boolean
      * @method isBoolean
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */
     isBoolean: function(o) {
         return typeof o === 'boolean';
@@ -413,7 +418,7 @@ YAHOO.lang = YAHOO.lang || {
      * Determines whether or not the provided object is a function
      * @method isFunction
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */
     isFunction: function(o) {
         return typeof o === 'function';
@@ -423,7 +428,7 @@ YAHOO.lang = YAHOO.lang || {
      * Determines whether or not the provided object is null
      * @method isNull
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */
     isNull: function(o) {
         return o === null;
@@ -433,7 +438,7 @@ YAHOO.lang = YAHOO.lang || {
      * Determines whether or not the provided object is a legal number
      * @method isNumber
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */
     isNumber: function(o) {
         return typeof o === 'number' && isFinite(o);
@@ -444,7 +449,7 @@ YAHOO.lang = YAHOO.lang || {
      * or function
      * @method isObject
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */  
     isObject: function(o) {
 return (o && (typeof o === 'object' || YAHOO.lang.isFunction(o))) || false;
@@ -454,7 +459,7 @@ return (o && (typeof o === 'object' || YAHOO.lang.isFunction(o))) || false;
      * Determines whether or not the provided object is a string
      * @method isString
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */
     isString: function(o) {
         return typeof o === 'string';
@@ -464,7 +469,7 @@ return (o && (typeof o === 'object' || YAHOO.lang.isFunction(o))) || false;
      * Determines whether or not the provided object is undefined
      * @method isUndefined
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */
     isUndefined: function(o) {
         return typeof o === 'undefined';
@@ -488,7 +493,7 @@ return (o && (typeof o === 'object' || YAHOO.lang.isFunction(o))) || false;
      * </pre>
      * @method hasOwnProperty
      * @param {any} o The object being testing
-     * @return Boolean
+     * @return {boolean} the result
      */
     hasOwnProperty: function(o, prop) {
         if (Object.prototype.hasOwnProperty) {
@@ -827,14 +832,14 @@ return (o && (typeof o === 'object' || YAHOO.lang.isFunction(o))) || false;
     },
 
     /**
-     * Executes the supplied function in the scope of the supplied 
+     * Executes the supplied function in the context of the supplied 
      * object 'when' milliseconds later.  Executes the function a 
      * single time unless periodic is set to true.
      * @method later
      * @since 2.4.0
      * @param when {int} the number of milliseconds to wait until the fn 
      * is executed
-     * @param o the scope object
+     * @param o the context object
      * @param fn {Function|String} the function to execute or the name of 
      * the method in the 'o' object to execute
      * @param data [Array] data that is provided to the function.  This accepts
@@ -881,7 +886,7 @@ return (o && (typeof o === 'object' || YAHOO.lang.isFunction(o))) || false;
             }
         };
     },
-
+    
     /**
      * A convenience method for detecting a legitimate non-null value.
      * Returns false for null/undefined/NaN, true for other values, 
@@ -949,7 +954,7 @@ YAHOO.augment = YAHOO.lang.augmentProto;
  */
 YAHOO.extend = YAHOO.lang.extend;
 
-YAHOO.register("yahoo", YAHOO, {version: "2.4.1", build: "742"});
+YAHOO.register("yahoo", YAHOO, {version: "2.5.0", build: "895"});
 /**
  * Provides a mechanism to fetch remote resources and
  * insert them into a document
@@ -1213,6 +1218,7 @@ YAHOO.util.Get = function() {
             var q = queues[i];
             if (q.autopurge && q.finished) {
                 _purge(q.tId);
+                delete queues[i];
             }
         }
 
@@ -1233,6 +1239,7 @@ YAHOO.util.Get = function() {
                 h.removeChild(n[i]);
             }
         }
+        q.nodes = [];
     };
 
     /**
@@ -1568,7 +1575,7 @@ YAHOO.util.Get = function() {
     };
 }();
 
-YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
+YAHOO.register("get", YAHOO.util.Get, {version: "2.5.0", build: "895"});
 /**
  * Provides dynamic loading for the YUI library.  It includes the dependency
  * info for the library, and will automatically pull in dependencies for
@@ -1603,7 +1610,7 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
          */
         info: {
 
-    'base': 'http://yui.yahooapis.com/2.4.1/build/',
+    'base': 'http://yui.yahooapis.com/2.5.0/build/',
 
     'skin': {
         'defaultSkin': 'sam',
@@ -1656,7 +1663,7 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
 
         'colorpicker': {
             'type': 'js',
-            'path': 'colorpicker/colorpicker-beta-min.js',
+            'path': 'colorpicker/colorpicker-min.js',
             'requires': ['slider', 'element'],
             'optional': ['animation'],
             'skinnable': true
@@ -1684,6 +1691,12 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
             'path': 'container/container_core-min.js',
             'requires': ['dom', 'event'],
             'pkg': 'container'
+        },
+
+        'cookie': {
+            'type': 'js',
+            'path': 'cookie/cookie-beta-min.js',
+            'requires': ['yahoo']
         },
 
         'datasource': {
@@ -1740,7 +1753,7 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
 
         'get': {
             'type': 'js',
-            'path': 'get/get-beta-min.js',
+            'path': 'get/get-min.js',
             'requires': ['yahoo']
         },
 
@@ -1757,17 +1770,32 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
             'requires': ['event']
         },
 
-        'imageloader': {
-            'type': 'js',
-            'path': 'imageloader/imageloader-beta-min.js',
-            'requires': ['event', 'dom']
-        },
+         'imagecropper': {
+             'type': 'js',
+             'path': 'imagecropper/imagecropper-beta-min.js',
+             'requires': ['dom', 'event', 'dragdrop', 'element', 'resize'],
+             'skinnable': true
+         },
 
-        'json': {
+         'imageloader': {
             'type': 'js',
-            'path': 'json/json-beta-min.js',
+            'path': 'imageloader/imageloader-min.js',
+            'requires': ['event', 'dom']
+         },
+
+         'json': {
+            'type': 'js',
+            'path': 'json/json-min.js',
             'requires': ['yahoo']
-        },
+         },
+
+         'layout': {
+             'type': 'js',
+             'path': 'layout/layout-beta-min.js',
+             'requires': ['dom', 'event', 'element'],
+             'optional': ['animation', 'dragdrop', 'resize', 'selector'],
+             'skinnable': true
+         }, 
 
         'logger': {
             'type': 'js',
@@ -1781,6 +1809,20 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
             'type': 'js',
             'path': 'menu/menu-min.js',
             'requires': ['containercore'],
+            'skinnable': true
+        },
+
+        'profiler': {
+            'type': 'js',
+            'path': 'profiler/profiler-beta-min.js',
+            'requires': ['yahoo']
+        },
+
+
+        'profilerviewer': {
+            'type': 'js',
+            'path': 'profilerviewer/profilerviewer-beta-min.js',
+            'requires': ['yuiloader', 'element'],
             'skinnable': true
         },
 
@@ -1802,6 +1844,14 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
             'supersedes': ['reset', 'fonts'],
             'rollup': 2
         },
+
+         'resize': {
+             'type': 'js',
+             'path': 'resize/resize-beta-min.js',
+             'requires': ['dom', 'event', 'dragdrop', 'element'],
+             'optional': ['animation'],
+             'skinnable': true
+         },
 
         'selector': {
             'type': 'js',
@@ -1840,6 +1890,12 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
             'skinnable': true
         },
 
+        'uploader': {
+            'type': 'js',
+            'path': 'uploader/uploader-experimental.js',
+            'requires': ['yahoo']
+        },
+
         'utilities': {
             'type': 'js',
             'path': 'utilities/utilities.js',
@@ -1866,7 +1922,7 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
 
         'yuitest': {
             'type': 'js',
-            'path': 'yuitest/yuitest-beta-min.js',
+            'path': 'yuitest/yuitest-min.js',
             'requires': ['logger'],
             'skinnable': true
         }
@@ -2324,15 +2380,35 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
          * @param mod The module definition from moduleInfo
          */
         getRequires: function(mod) {
+            if (!mod) {
+                return [];
+            }
+
             if (!this.dirty && mod.expanded) {
                 return mod.expanded;
             }
 
             mod.requires=mod.requires || [];
-            var i, d=[], r=mod.requires, o=mod.optional, info=this.moduleInfo;
+            var i, d=[], r=mod.requires, o=mod.optional, info=this.moduleInfo, m;
             for (i=0; i<r.length; i=i+1) {
                 d.push(r[i]);
-                YUI.ArrayUtil.appendArray(d, this.getRequires(info[r[i]]));
+                m = info[r[i]];
+                YUI.ArrayUtil.appendArray(d, this.getRequires(m));
+
+                // add existing skins for skinnable modules as well.  The only
+                // way to do this is go through the list of required items (this
+                // assumes that _skin is called before getRequires is called on
+                // the module.
+                if (m.skinnable) {
+                    var req=this.required, l=req.length;
+                    for (var j=0; j<l; j=j+1) {
+                        // YAHOO.log('checking ' + r[j]);
+                        if (req[j].indexOf(r[j]) > -1) {
+                            // YAHOO.log('adding ' + r[j]);
+                            d.push(req[j]);
+                        }
+                    }
+                }
             }
 
             if (o && this.loadOptional) {
@@ -2363,7 +2439,7 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
 
             YUI.ObjectUtil.appendArray(o, s);
 
-            // console.log(this.sorted + ", " + name + " provides " + YUI.ObjectUtil.keys(o));
+            // YAHOO.log(this.sorted + ", " + name + " provides " + YUI.ObjectUtil.keys(o));
 
             return o;
         },
@@ -2626,14 +2702,14 @@ YAHOO.register("get", YAHOO.util.Get, {version: "2.4.1", build: "742"});
                     var skinDef = this.parseSkin(i);
 
                     if (skinDef) {
-                        //console.log("skin found in reduce: " + skinDef.skin + ", " + skinDef.module);
+                        //YAHOO.log("skin found in reduce: " + skinDef.skin + ", " + skinDef.module);
                         // the skin rollup will not have a module name
                         if (!skinDef.module) {
                             var skin_pre = this.SKIN_PREFIX + skinDef.skin;
-                            //console.log("skin_pre: " + skin_pre);
+                            //YAHOO.log("skin_pre: " + skin_pre);
                             for (j in r) {
                                 if (j !== i && j.indexOf(skin_pre) > -1) {
-                                    //console.log ("removing component skin: " + j);
+                                    //YAHOO.log ("removing component skin: " + j);
                                     delete r[j];
                                 }
                             }
@@ -3106,12 +3182,12 @@ throw new Error("You must supply an onSuccess handler for your sandbox");
             u = u + path;
 
             if (f) {
-                // console.log("filter: " + f + ", " + f.searchExp + 
+                // YAHOO.log("filter: " + f + ", " + f.searchExp + 
                 // ", " + f.replaceStr);
                 u = u.replace(new RegExp(f.searchExp), f.replaceStr);
             }
 
-            // console.log(u);
+            // YAHOO.log(u);
 
             return u;
         }

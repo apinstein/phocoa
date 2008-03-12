@@ -1,8 +1,10 @@
 AutoComplete Release Notes
 
-*** version 2.4.1 ***
+*** version 2.5.0 ***
 
-* No change
+* Fixed bug where Mac users were not able to input "&" or "(" characters.
+
+
 
 *** version 2.4.0 ***
 

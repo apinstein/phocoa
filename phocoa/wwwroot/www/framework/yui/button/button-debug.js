@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2007, Yahoo! Inc. All rights reserved.
+Copyright (c) 2008, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
-version: 2.4.1
+version: 2.5.0
 */
 /**
 * @module button
@@ -399,6 +399,20 @@ version: 2.4.1
 
     YAHOO.widget.Button = function (p_oElement, p_oAttributes) {
     
+		if (!Overlay && YAHOO.widget.Overlay) {
+		
+			Overlay = YAHOO.widget.Overlay;
+		
+		}
+
+
+		if (!Menu && YAHOO.widget.Menu) {
+		
+			Menu = YAHOO.widget.Menu;
+		
+		}
+
+
         var fnSuperClass = YAHOO.widget.Button.superclass.constructor,
             oConfig,
             oElement;
@@ -3570,16 +3584,17 @@ version: 2.4.1
         
         fireEvent: function (p_sType , p_aArgs) {
         
-            //  Disabled buttons should not respond to DOM events
-        
-            if (this.DOM_EVENTS[p_sType] && this.get("disabled")) {
-        
-                return;
-        
-            }
-        
-            YAHOO.widget.Button.superclass.fireEvent.call(this, p_sType, 
-                p_aArgs);
+			var sType = arguments[0];
+		
+			//  Disabled buttons should not respond to DOM events
+		
+			if (this.DOM_EVENTS[sType] && this.get("disabled")) {
+		
+				return;
+		
+			}
+		
+			return YAHOO.widget.Button.superclass.fireEvent.apply(this, arguments);
         
         },
         
@@ -4720,4 +4735,4 @@ version: 2.4.1
     });
 
 })();
-YAHOO.register("button", YAHOO.widget.Button, {version: "2.4.1", build: "742"});
+YAHOO.register("button", YAHOO.widget.Button, {version: "2.5.0", build: "895"});
