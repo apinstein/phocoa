@@ -22,8 +22,8 @@ class WFYAHOO_yuiloader
     protected $base;
     protected $required = array();
     protected $allowRollup = true;
-    protected $loadOptional = true; // needs to be TRUE for 2.3.1, otherwise YUILoader doesn't sort optional but explicitly included dependencies
-    protected $debug = false;
+    protected $loadOptional = false;
+    protected $debug = true;
 
     protected $hasRendered = false;
 
@@ -111,7 +111,8 @@ class WFYAHOO_yuiloader
 
         return "
                      (function() {
-                         PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-" . ($this->debug ? 'debug' : 'min') . ".js', 'YAHOO');
+                         // on-demand loading of YUILoader started causing bugs with PhocoaDialog, so for now we hard-code includsion of yuiloader in the head tag.
+                         //PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-" . ($this->debug ? 'debug' : 'min') . ".js', 'YAHOO');
                          var yl = new YAHOO.util.YUILoader();
                          " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
                          yl.require(" . join(',', $this->quotedRequired()) . ");
