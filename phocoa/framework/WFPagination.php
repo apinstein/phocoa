@@ -216,7 +216,8 @@ class WFPaginator extends WFObject
      *
      *  This is a helper function used by the pagination widgets.
      *
-     *  This function is only used with MODE_URL.
+     *  This function is used for MODE_URL, and degrade-no-javascript for MODE_FORM. Functionality won't be quite perfect for the latter, but it is only intended
+     *  to let search engines be able to scan through MODE_FORM paginated content.
      *
      *  If any of the other parameters should be different than they were in the original params created for the page, set the new value(s)
      *  with {@link setAlternativeParameterValue() setAlternativeParameterValue} before displaying any of the pagination widgets.
@@ -232,8 +233,6 @@ class WFPaginator extends WFObject
         // assert params
         if (!($page instanceof WFPage)) throw( new Exception("Invalid page parameter.") );
         if (empty($paginatorState)) throw( new Exception("PaginatorState is empty.") );
-        // check mode
-        if (!($this->mode() == WFPaginator::MODE_URL)) throw( new Exception("urlForPaginatorState only valid for MODE_URL paginators.") );
 
         // make paginatorState URL-safe; the + for "ascending" in the sort keys was being interpreted as a SPACE
         $paginatorState = str_replace('+', '%2B', $paginatorState);

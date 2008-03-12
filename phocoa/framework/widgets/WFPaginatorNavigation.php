@@ -124,7 +124,7 @@ class WFPaginatorNavigation extends WFWidget
             // JS to edit form, then click submit button
             if ($this->paginator->prevPage())
             {
-                $output .= "<a href=\"#\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($this->paginator->prevPage())) . "\">&lt;&lt; Previous " . $this->itemsPhrase($this->paginator->pageSize()) . "</a>";
+                $output .= "<a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState($this->paginator->prevPage())) . "\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($this->paginator->prevPage())) . " return false;\">&lt;&lt; Previous " . $this->itemsPhrase($this->paginator->pageSize()) . "</a>";
             }
             if ($this->paginator->pageCount() > 1 and $this->maxJumpPagesToShow != 0)
             {
@@ -133,7 +133,7 @@ class WFPaginatorNavigation extends WFWidget
                 $output .= " [ Jump to: ";
                 if ($firstJumpPage != 1)
                 {
-                    $output .= "<a href=\"#\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState(1)) . "\">First</a> ...";
+                    $output .= "<a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState(1)) . "\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState(1)) . " return false;\">First</a> ...";
                 }
                 for ($p = $firstJumpPage; $p <= $lastJumpPage; $p++)
                 {
@@ -143,12 +143,12 @@ class WFPaginatorNavigation extends WFWidget
                     }
                     else
                     {
-                        $output .= " <a href=\"#\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($p)) . "\">$p</a>";
+                        $output .= " <a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState($p)) . "\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($p)) . " return false;\">$p</a>";
                     }
                 }
                 if ($lastJumpPage != $this->paginator->pageCount())
                 {
-                    $output .= "... <a href=\"#\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($this->paginator->pageCount())) . "\">Last</a>";
+                    $output .= "... <a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState($this->paginator->pageCount())) . "\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($this->paginator->pageCount())) . " return false;\">Last</a>";
                 }
                 $output .= " ] ";
             }
@@ -158,7 +158,7 @@ class WFPaginatorNavigation extends WFWidget
             }
             if ($this->paginator->nextPage())
             {
-                $output .= "<a href=\"#\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($this->paginator->nextPage())) . "\">Next " . $this->itemsPhrase( min($this->paginator->pageSize(), ($this->paginator->itemCount() - $this->paginator->endItem())) ) . " &gt;&gt;</a>";
+                $output .= "<a href=\"" . $this->paginator->urlForPaginatorState($this->page, $this->paginator->paginatorState($this->paginator->nextPage())) . "\" onClick=\"" . $this->paginator->jsForState($this->paginator->paginatorState($this->paginator->nextPage())) . " return false;\">Next " . $this->itemsPhrase( min($this->paginator->pageSize(), ($this->paginator->itemCount() - $this->paginator->endItem())) ) . " &gt;&gt;</a>";
             }
         }
 
