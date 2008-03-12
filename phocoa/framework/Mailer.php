@@ -5,6 +5,8 @@
  *
  * Basically this is an easy wrapper around Mail and Mail_Mime.
  *
+ * Requires pear modules: pear install Mail Mail_Mime Net_SMTP
+ *
  * PHP Versions 4 and 5
  *
  * @category    Mail
