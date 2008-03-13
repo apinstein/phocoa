@@ -232,8 +232,6 @@ END POSTLET REPLY";
     ' . ($this->dropimageupload ? '<param name = "dropimageupload"       value = "' . $this->baseurl . $this->dropimageupload . '"/>' : NULL ) . '
 
     <param name = "maxthreads"      value = "' . $this->maxthreads . '" />
-    <param name = "language"        value = "" />
-    <!-- <param name = "type"            value = "application/x-java-applet;version=1.3.1" /> -->
     <param name = "destination"     value = "' . $this->baseurl . '/' . $this->page->module()->invocation()->invocationPath() . '" />
     ' . ($this->backgroundcolour ? '<param name = "backgroundcolour" value = "' . $this->backgroundcolour . '" />' : NULL) . '
     ' . ($this->tableheaderbackgroundcolour ? '<param name = "tableheaderbackgroundcolour" value = "' . $this->tableheaderbackgroundcolour . '" />' : NULL) . '
