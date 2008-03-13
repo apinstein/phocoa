@@ -23,7 +23,7 @@ class WFYAHOO_yuiloader
     protected $required = array();
     protected $allowRollup = true;
     protected $loadOptional = false;
-    protected $debug = true;
+    protected $debug = false;
 
     protected $hasRendered = false;
 

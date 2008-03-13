@@ -62,7 +62,7 @@ class WFPaginatorState extends WFWidget
         if (!($this->paginator instanceof WFPaginator)) throw( new WFException("No paginator assigned to WFPaginatorState " . $this->id) );
         if ($this->paginator->mode() == WFPaginator::MODE_FORM)
         {
-            $this->importJS(self::yuiPath() . "/yahoo-dom-event/yahoo-dom-event.js", 'YAHOO');
+            //$this->importJS(self::yuiPath() . "/yahoo-dom-event/yahoo-dom-event.js", 'YAHOO');
         }
         $html = parent::render($blockContent);
         // When restoring the value, only put back the SORT KEYS and PAGE SIZE; the page num should be RESET.
@@ -87,9 +87,13 @@ class WFPaginatorState extends WFWidget
                 if (' . $paginatorModeFormSubmissionVarName . ' == true) return;
                 var submitID = \'' . $this->paginator->submitID() . '\';
                 document.getElementById("' . $this->paginator->paginatorStateParameterID() . '").value = "' . $this->paginator->paginatorState(WFPaginator::PAGINATOR_FIRST_PAGE) . '";
-            }
-            YAHOO.util.Event.addListener("' . $this->paginator->submitID() . '", "click", ' . $paginatorResetJSFunctionName . ');
-            ' . $this->jsEndHTML();
+            }';
+
+            $loader = WFYAHOO_yuiloader::sharedYuiLoader();
+            $loader->yuiRequire('event');
+            $callback = 'function() { YAHOO.util.Event.addListener("' . $this->paginator->submitID() . '", "click", ' . $paginatorResetJSFunctionName . '); }';
+            $js .= $loader->jsLoaderCode($callback);
+            $js .= $this->jsEndHTML();
         }
         return $html . $js . $button;
     }
