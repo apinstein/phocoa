@@ -27,6 +27,10 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
     {
         // in Propel, the MapBuilder class is only set up for an entity when the Peer file is loaded...
         $peerClassName = $name . 'Peer';
+        if (!class_exists($peerClassName))
+        {
+            throw( new WFException("Entity {$name} is not a Propel object.") );
+        }
         $databaseName = eval("return {$peerClassName}::DATABASE_NAME;");        // autolaod will load the Peer file...
         $dbMap = Propel::getDatabaseMap($databaseName);
         $tableMapTableName = eval("return {$peerClassName}::TABLE_NAME;");
@@ -47,10 +51,13 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
         // set up properties
         foreach ($tableMap->getColumns() as $column) {
             $property = new WFModelEntityProperty;
-            $property->setValueForKey($column->getPhpName(), 'name');
+            $propertyName = $column->getPhpName();
+            $propertyName[0] = strtolower($propertyName[0]);
+            $property->setValueForKey($propertyName, 'name');
             $property->setValueForKey($column->getDefaultValue(), 'defaultValue');
             switch ($column->getType()) {
                 case 'INTEGER':
+                case 'NUMERIC':
                 case 'int':
                     $type = WFModelEntityProperty::TYPE_NUMBER;
                     break;
@@ -66,6 +73,7 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
                     break;
                 case 'VARCHAR':
                 case 'string':
+                case 'LONGVARCHAR':
                     $type = WFModelEntityProperty::TYPE_STRING;
                     break;
                 default: 
@@ -112,7 +120,7 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
                 $invRel->setValueForKey(true, 'isExtension');
             }
             $invRel->setToOne($inverseRelationshipIsToOne);
-            $invRel->setValueForKey($tableMap->getPhpName() . ($inverseRelationshipIsToOne ? NULL : 's'), 'name');    // make plural as needed
+            $invRel->setValueForKey($tableMap->getPhpName(), 'name');    // make plural as needed -
             $relatedEntity->addRelationship($invRel);
         }
     
@@ -166,8 +174,8 @@ class WFModel extends WFObject
 
     public function getEntity($name)
     {
-        if (!isset($this->entities[$name])) throw( new WFException("Entity {$name} is not loaded in the model.") );
-        return $this->entities[$name];
+        if (isset($this->entities[$name])) return $this->entities[$name];
+        return NULL;
     }
 
     public function buildEntity($entityName)
@@ -278,7 +286,7 @@ class WFModelEntity extends WFObject
     public function addProperty($property)
     {
         if (!($property instanceof WFModelEntityProperty)) throw( new WFException("addProperty parameter must be a WFModelEntityProperty.") );
-        $this->properties[] = $property;
+        $this->properties[$property->valueForKey('name')] = $property;
         return $this;
     }
     public function getProperty($name)
