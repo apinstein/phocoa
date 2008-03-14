@@ -68,6 +68,7 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
                 case 'text':
                     $type = WFModelEntityProperty::TYPE_TEXT;
                     break;
+                case 'BOOLEAN':
                 case 'boolean':
                     $type = WFModelEntityProperty::TYPE_BOOLEAN;
                     break;
@@ -77,7 +78,7 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
                     $type = WFModelEntityProperty::TYPE_STRING;
                     break;
                 default: 
-                    print "WARNING: Unknown property type for column: " . $property->valueForKey('name') . ":" . $column->getType() . "\n";
+                    print "WARNING: Unknown property type for column " . $property->valueForKey('name') . ": " . $column->getType() . "\n";
                     $type = WFModelEntityProperty::TYPE_STRING;
                     break;
             }
