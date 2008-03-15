@@ -390,14 +390,15 @@
     <section>
       <title>Framework Installation</title>
 
-      <bridgehead>Requirements</bridgehead>
+      <bridgehead>Dependencies</bridgehead>
 
-      <para>PHOCOA requires that you have the following installed on your
-      system:</para>
+      <para>PHOCOA depends on many other great projects. Some of these are
+      optional, and some are required. PHOCOA works best if the following are
+      installed on your system:</para>
 
       <itemizedlist>
         <listitem>
-          <para>PHP5</para>
+          <para>PHP 5.2.x+</para>
         </listitem>
 
         <listitem>
@@ -407,24 +408,59 @@
         <listitem>
           <para>Smarty</para>
         </listitem>
+
+        <listitem>
+          <para>PEAR::Log, PEAR::Mail, PEAR::Mail_Mime, PEAR::Net_SMTP</para>
+        </listitem>
+
+        <listitem>
+          <para>A YAML parser - either <ulink
+          url="http://pear.horde.org/index.php?package=yaml">Horde/Yaml</ulink>,
+          or <ulink url="http://whytheluckystiff.net/syck/">syck</ulink>
+          (<ulink
+          url="http://trac.symfony-project.com/wiki/InstallingSyck">great
+          installation instructions here</ulink>l)</para>
+        </listitem>
+
+        <listitem>
+          <para>Propel 1.2 or 1.3b4+</para>
+        </listitem>
+
+        <listitem>
+          <para>PhpDocumentor</para>
+        </listitem>
       </itemizedlist>
 
-      <para>Installing PHP5 is beyond the scope of this documentation.
-      Installing phing with the following commands:</para>
+      <para>Below is a quick reference for installing these dependencies. For
+      complete details, see Appendix A. </para>
 
-      <screen>pear channel-discover pear.phing.info
-pear install phing/phing</screen>
+      <para>Installing PHP5 is beyond the scope of this documentation. </para>
 
-      <bridgehead>Recommended Dependencies</bridgehead>
+      <para>You can install many of PHOCOA's dependencies with pear:</para>
 
-      <para>If you are using PEAR for PHOCOA's dependencies, you can skip to
-      PHOCOA Directory Structure.</para>
+      <screen>pear install Log Mail Mail_Mime Net_SMTP PhpDocumentor
 
-      <para>You may need to tweak the PHP include_path setting to ensure that
+pear channel-discover pear.phing.info
+pear install phing/phing
+
+pear channel-discover pear.horde.org
+pear install Horde/Yaml
+
+pear channel-discover pear.phpdb.org
+pear config-set preferred_state beta
+pear install phpdb/propel_generator phpdb/propel_runtime</screen>
+
+      <para>To install smarty, <ulink
+      url="http://www.smarty.net/manual/en/installing.smarty.basic.php">follow
+      the directions from the Smarty web site</ulink> on a <ulink
+      url="http://www.smarty.net/download.php">smarty package you
+      download</ulink>.</para>
+
+      <bridgehead>Where to Install Dependencies</bridgehead>
+
+      <para>Depending on where you install your non-PEAR dependencies (Smarty,
+      etc), you need to tweak the PHP include_path setting to ensure that
       PHOCOA can see all of your dependencies.</para>
-
-      <para>If you have non-PEAR installs of smarty, propel, creole, or phing,
-      read on to make sure everything is in the correct place.</para>
 
       <para>PHOCOA assumes that things are installed in PEAR-like directory
       structures. That is, PHOCOA will look for propel via
@@ -450,6 +486,12 @@ smarty</screen>
       custom business logic to your model.</para>
 
       <note>
+        <para>One minor modification needs to be made to the Propel code to
+        work with PHOCOA. See Appendix B for instructions. A similar change
+        would need to be made for any other ORM you would want to use.</para>
+      </note>
+
+      <note>
         <para>PHOCOA works best with Propel 1.3. You can use 1.2, but you have
         to manage your own Propel class autoloading and some code-gen
         capabilities have not been tested.</para>
@@ -459,12 +501,6 @@ smarty</screen>
         <para>Although PHOCOA includes support for Propel out-of-the-box, the
         two projects are very loosely coupled. You could theoretically use any
         PHP ORM/DB solution with PHOCOA.</para>
-      </note>
-
-      <note>
-        <para>One minor modification needs to be made to the Propel code to
-        work with PHOCOA. See Appendix B for instructions. A similar change
-        would need to be made for any other ORM you would want to use.</para>
       </note>
 
       <para>The PHOCOA framework is contained in its own directory. Your
@@ -2194,14 +2230,14 @@ Total time: 2.8443 seconds
       widgets or other PHOCOA technologies for building web pages. However, a
       special Smarty plugin is provided to allow you to include the output of
       a module/page in a skin. This is useful for cases such as building menu
-      navigation systems, including a login form on every page, etc. </para>
+      navigation systems, including a login form on every page, etc.</para>
 
       <para>PHOCOA ships with a module/page called "menu" which makes it easy
       to include a YUI-based menu system on your site. You simply include the
       menu module with the <function>WFSkinModuleView</function> plugin,
       passing the name of the "namedContent" you want to use from your skin,
-      and optionally a 1 to indicate that your menu is a horizontal menu bar.
-      </para>
+      and optionally a 1 to indicate that your menu is a horizontal menu
+      bar.</para>
 
       <para>For example, this creates a horizontal menu bar with drop-down
       menus, using the content supplied by the skin's "mainMenu"
@@ -2382,87 +2418,22 @@ Total time: 2.8443 seconds
       url="http://www.phocoa.com/webapp/public/pages/mailinglists">PHOCOA
       Mailing Lists</ulink>.</para>
     </section>
-
-    <section>
-      <title>Appendices</title>
-
-      <section>
-        <title>Appendix A: Dependencies</title>
-
-        <bridgehead>Required Dependencies</bridgehead>
-
-        <para><itemizedlist>
-            <listitem>
-              <para>PHP5 - PHOCOA requires PHP version 5.0.</para>
-            </listitem>
-
-            <listitem>
-              <para>PEAR::Log - Required.</para>
-              <para>PEAR Horde/Yaml, or syck (install with pecl) - Required.</para>
-            </listitem>
-
-            <listitem>
-              <para>Phing - PHP build system. Required.</para>
-            </listitem>
-
-            <listitem>
-              <para>Propel - not explicitly required, but certainly
-              recommended if you're building a database-driven project. You
-              can use whatever ORM you like as long as the classes can set
-              WFObject as the base class. Version 1.2+ required.</para>
-            </listitem>
-          </itemizedlist>That's all the current required dependencies.</para>
-
-        <bridgehead>Optional Dependencies</bridgehead>
-
-        <para><itemizedlist>
-            <listitem>
-              <para>PEAR::Mail + PEAR::Mail_Mime - Optional; needed to use the
-              included Mail_Mailer class</para>
-            </listitem>
-
-            <listitem>
-              <para>syck - A php extension for YAML parsing that GREATLY
-              improves performance.</para>
-
-              <para>We recommend that you install syck from PEAR with:</para>
-
-              <screen>pecl install channel://pecl.php.net/syck-0.9.1
-</screen>
-
-              <para>This will ensure that the syck library has the appropriate
-              PHP integration. Without this, YAML parsing failures silently
-              return no data, causing confusion if you have a syntax error in
-              your YAML. With the properly installed extension, a
-              SyckException will be thrown and tell you where the syntax error
-              is.</para>
-            </listitem>
-          </itemizedlist></para>
-      </section>
-
-      <section>
-        <title>Appendix B: Using PHOCOA With Propel</title>
-
-        <para>PHOCOA is designed to use Propel as an analog for Core Data. By
-        making a 2-line change to the Propel code, your Propel objects will
-        automatically be Key-Value Coding compliant, making it very simple to
-        make your PHOCOA application interact with Propel.</para>
-
-        <para>To update your Propel to work with Phocoa, simply edit the
-        propel/om/BaseObject.php file in 2 places:</para>
-
-        <para><orderedlist>
-            <listitem>
-              <para>Make the Propel BaseObject a subclass of the PHOCOA
-              WFObject base class:</para>
-
-              <screen>abstract class BaseObject<emphasis> extends WFObject </emphasis>{</screen>
-            </listitem>
-          </orderedlist></para>
-
-        <para>That's it! Your Propel install is now fully compatible with
-        PHOCOA to act as the data store for your objects.</para>
-      </section>
-    </section>
   </chapter>
+
+  <appendix>
+    <title>Using PHOCOA With Propel</title>
+
+    <para>PHOCOA is designed to use Propel as an analog for Core Data. By
+    making a 1-line change to the Propel code, your Propel objects will
+    automatically be Key-Value Coding compliant, making it very simple to make
+    your PHOCOA application interact with Propel.</para>
+
+    <para>To update your Propel to work with Phocoa, simply edit the
+    propel/om/BaseObject.php file to make the Propel BaseObject a subclass of
+    the PHOCOA WFObject base class:</para>
+
+    <para><screen>abstract class BaseObject<emphasis> extends WFObject </emphasis>{</screen>That's
+    it! Your Propel install is now fully compatible with PHOCOA to act as the
+    data store for your objects.</para>
+  </appendix>
 </book>

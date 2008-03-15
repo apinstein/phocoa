@@ -12,6 +12,7 @@ Version 0.1.?
 - [new] Ability to have the "default page" of a module accept parameters without specifying the page name in the invocation path. Must implement module::allPages() to enable.
 - [new] Added WFPostletUpload, which is a widget that offers a Java applet for bulk-uploading files to phocoa apps via drag-n-drop.
 - [bugfix] Phocoa now works properly when accessed from behind proxy servers.
+- [new] Added readline support to the phocoa shell, if you have it installed in your PHP. This adds history and auto-complete support, although history isn't working reliably.
 
 Version 0.1.1
 - [BC-break] WFYAHOO is now an abstract class. Some applications may have previously instantiated WFYAHOO objects to bootstrap the YUI lib. This will now break.
