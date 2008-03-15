@@ -3,6 +3,21 @@
 ini_set("memory_limit", '20M');
 require_once(getenv('PHOCOA_PROJECT_CONF'));
 
+/**
+ * The phocoa shell is an interactive PHP shell for working with your phocoa applications.
+ *
+ * The phocoa shell includes readline support with tab-completion and history.
+ *
+ * To start the shell, simply run "phocoa shell" from your command line. The shell is automatically
+ * bootstrapped into your phocoa application, so you can instantiate your classes and work with them immediately.
+ *
+ * For each command you enter, the result will be displayed and also assigned to $_.
+ *
+ * If you have a tags file for your project, keep it in APP_ROOT and the shell will also include
+ * autocomplete support from your project.
+ *
+ * Use ctl-d to exit the shell, or enter the command "exit".
+ */
 class WFShell extends WFObject
 {
     protected $lastResult = NULL;
@@ -17,6 +32,21 @@ class WFShell extends WFObject
         $this->autocompleteList = array_merge($this->autocompleteList, get_defined_constants());
         $this->autocompleteList = array_merge($this->autocompleteList, get_declared_classes());
         $this->autocompleteList = array_merge($this->autocompleteList, get_declared_interfaces());
+        // look for a tags file in the root of the project
+        $tagsFile = APP_ROOT . '/tags';
+        if (file_exists($tagsFile))
+        {
+            $tags = array();
+            $tagLines = file($tagsFile);
+            foreach ($tagLines as $tag) {
+                $matches = array();
+                if (preg_match('/^([A-z0-9][^ ]*) .*/', $tag, $matches))
+                {
+                    $tags[] = $matches[1];
+                }
+            }
+            $this->autocompleteList = array_merge($this->autocompleteList, $tags);
+        }
     }
     
     public function prompt()
