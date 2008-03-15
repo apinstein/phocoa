@@ -40,7 +40,7 @@ class WFShell extends WFObject
             $tagLines = file($tagsFile);
             foreach ($tagLines as $tag) {
                 $matches = array();
-                if (preg_match('/^([A-z0-9][^ ]*) .*/', $tag, $matches))
+                if (preg_match('/^([A-z0-9][^\W]*)\W.*/', $tag, $matches))
                 {
                     $tags[] = $matches[1];
                 }
