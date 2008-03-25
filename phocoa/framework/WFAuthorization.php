@@ -34,7 +34,7 @@ class WFAuthorizationDelegate extends WFObject
      *
      *  By default, this will be "login/promptLogin". Applications can override this behavior by writing their own login modules, or even simply "wrapping" the built-in one.
      *
-     *  @return string The invocationPath to the login. Remember the page handling login *should* accept a first parameter of "continueURL" (the url will be base64-encoded)
+     *  @return string The invocationPath to the login. Remember the page handling login *should* accept a first parameter of "continueURL" (the url will be encoded with {@link WFWebApplication::serializeURL()})
      */
     function loginInvocationPath() {}
 
