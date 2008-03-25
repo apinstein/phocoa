@@ -8,10 +8,17 @@
  * @author Alan Pinstein <apinstein@mac.com>                        
  */
 
+interface WFUploadedFile
+{
+    function tmpFileName();
+    function originalFileName();
+    function mimeType();
+}
+
 /**
  * A Upload widget for our framework.
  */
-class WFUpload extends WFWidget
+class WFUpload extends WFWidget implements WFUploadedFile
 {
     /**
      * @var string The temp file name of the uploaded file.

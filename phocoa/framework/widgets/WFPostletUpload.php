@@ -17,7 +17,7 @@
  * The code is GPL licensed and is distributed with PHOCOA for convenience. Full source is available from the above link.
  * The current bundled version is 0.14-alan (which is a customized version to support our needs -- we will upgraded to the latest version once our patches are accepted).
  */
-class WFPostletUpload extends WFForm
+class WFPostletUpload extends WFForm implements WFUploadedFile
 {
     /**
      * @var string The temp file name of the uploaded file.

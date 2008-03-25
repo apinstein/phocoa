@@ -114,6 +114,7 @@ class WFIncluding
                 'WFCheckboxGroup' => 'framework/widgets/WFCheckboxGroup.php',
                 'WFRadio' => 'framework/widgets/WFRadio.php',
                 'WFRadioGroup' => 'framework/widgets/WFRadioGroup.php',
+                'WFUploadedFile' => 'framework/widgets/WFUpload.php',
                 'WFUpload' => 'framework/widgets/WFUpload.php',
                 'WFPostletUpload' => 'framework/widgets/WFPostletUpload.php',
                 'WFBulkUpload' => 'framework/widgets/WFBulkUpload.php',

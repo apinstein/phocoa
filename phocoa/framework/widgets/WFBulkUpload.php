@@ -113,7 +113,7 @@ class WFBulkUpload extends WFWidget
     function canPushValueBinding() { return false; }
 }
 
-class WFBulkUploadFile extends WFObject
+class WFBulkUploadFile extends WFObject implements WFUploadedFile
 {
     /**
      * @var string The temp file name of the uploaded file.
@@ -135,19 +135,33 @@ class WFBulkUploadFile extends WFObject
         $this->originalFileName = $originalFileName;
     }
 
-    function getTmpFileName()
+    function tmpFileName()
     {
         return $this->tmpFileName;
     }
 
-    function getMimeType()
+    function getTmpFileName()
+    {
+        return $this->tmpFileName();
+    }
+
+    function mimeType()
     {
         return $this->mimeType;
     }
 
-    function getOriginalFileName()
+    function getMimeType()
+    {
+        return $this->mimeType();
+    }
+
+    function originalFileName()
     {
         return $this->originalFileName;
+    }
+    function getOriginalFileName()
+    {
+        return $this->originalFileName();
     }
 }
 ?>
