@@ -16,6 +16,7 @@
  * This widget uses the {@link http://sourceforge.net/projects/postlet/ Postlet open-source Java applet}.
  * The code is GPL licensed and is distributed with PHOCOA for convenience. Full source is available from the above link.
  * The current bundled version is 0.14-alan (which is a customized version to support our needs -- we will upgraded to the latest version once our patches are accepted).
+ * @todo At some point in the future, maybe fall 2008, remove the embeddedcontent_min stuff because it should be fixed: http://www.swffix.org/devblog/?p=19
  */
 class WFPostletUpload extends WFForm implements WFUploadedFile
 {
