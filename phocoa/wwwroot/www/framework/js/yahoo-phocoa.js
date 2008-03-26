@@ -223,12 +223,15 @@ YAHOO.widget.PhocoaDialog.prototype.registerForms = function() {
     var forms = this.element.getElementsByTagName('form');
     for (i = 0; i < forms.length; i++) {
         var theForm = forms[i];
+        // subscribe to the submit event of the form
         YAHOO.util.Event.addListener(theForm, 'submit', function(e) {
                                                             var submittedForm = YAHOO.util.Event.getTarget(e);
                                                             YAHOO.util.Event.stopEvent(e);
                                                             this.submit(submittedForm);
                                                             submittedForm.blur();
                                                           }, this, true);
+        // override the submit() method of the form so our system still works even if the form is submitted programmatically
+        theForm.submit = this.submit.bind(this, theForm);
     }
 };
 
