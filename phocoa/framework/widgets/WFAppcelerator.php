@@ -29,7 +29,7 @@ class WFAppcelerator extends WFWidget
     {
         parent::__construct($id, $page);
         $this->appceleratorDir = $this->getWidgetWWWDir();
-        $this->debug = true;
+        $this->debug = false;
     }
 
     public static function exposedProperties()
