@@ -15,6 +15,7 @@
 <p>PHOCOA also includes many YUI widgets that have AJAX capabilities, such as AutoComplete, TreeView, and PhocoaDialog (an AJAX-loading YUI Dialog) that have been plugged in nicely to PHOCOA for easy use and require even less setup. All you have to do is supply a PHP callback to provide dynamically loaded data. No Javascript code is required at all.</p>
 
 <h2>AJAX Integration Basics</h2>
+<h3>Settomg Up AJAX Event Handlers</h3>
 <p>At the highest level, PHOCOA provides an "onEvent" property for all classes in the WFView hierarchy that is used to attach Javascript behaviors to your application. Since the onEvent interface takes in a string as a parameter, you can configure AJAX behaviors via YAML with no PHP coding. If you need more complex behavior, you can always use the PHP API, but 95% of the time you'll find that onEvent works perfectly.</p>
 <p>The basic syntax is:</p>
 <blockquote>onEvent: &lt;eventName&gt; do &lt;typeOfAction&gt;[:&lt;target&gt;][:&lt;action&gt;]</blockquote>
@@ -55,6 +56,53 @@
         <blockquote>Will make an AJAX request, executing the server action #module#myPhpFunc (which simply calls the myPhpFunc method of the module).</blockquote>
     </li>
 </ul>
+
+<h3>Sending data from AJAX handlers back to the client</h3>
+<p>For many AJAX (a:) operations, the server will need to send data back to the client, and the client will need to react to that data.</p>
+
+<p>To return data from your Ajax callback, simply return a WFActionResponse instance. There are several subclasses for handling different return types:</p>
+<ul>
+    <li>JSON
+        <blockquote><pre>return new WFActionResponseJSON($phpData);</pre></blockquote>
+    </li>
+    <li>XML
+        <blockquote><pre>return new WFActionResponseJSON($xmlString);</pre></blockquote>
+    </li>
+    <li>Plain Text
+        <blockquote><pre>return new WFActionResponsePlain($textString);</pre></blockquote>
+    </li>
+    <li>Cause UI Updates - PHOCOA has a special WFActionResponse subclass that the PHOCOA client layer will interrupt and process automatically.
+        It is a very easy way for you to effect updates in the browser. The WFActionResponsePhocoaUIUpdater class allows you to update HTML elements, replace them, or run Javascript code that is sent from the server. WFActionResponsePhocoaUIUpdater has a fluent interface to make it easy for you to send multiple updates at the same time.
+        <blockquote><pre>
+            return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()-&gt;
+                     -&gt;addUpdateHTML('myDiv', '&lt;b&gt;new html&lt;/b&gt;')
+                     -&gt;addReplaceHTML('myOtherDiv', '&lt;div id="myOtherDiv"&gt;replacement div&lt;/div&gt;')
+                     -&gt;addRunScript('alert("You did it!");');
+         </pre></blockquote>
+    </li>
+</ul>
+
+<h3>Having the client deal with data returned from the Ajax call</h3>
+<p>When your Ajax call completes successfully, the clickSuccess handler for that widget (if it exists) will be executed.</p>
+
+<p>Example:
+<blockquote><pre>
+{literal}
+// php handler
+public function myCustomFunction($page, $params, $senderId, $eventName) {
+   // do stuff
+   return new WFActionResponseJSON(array('customString' => 'something meaningful'));
+}
+
+// javascript handler
+PHOCOA.namespace('widgets.myLink.events.click');
+PHOCOA.widgets.myLink.events.click.ajaxSuccess = function(response) {
+     // response is a native Javascript object
+     alert(response.CustomString);
+}
+{/literal}
+</pre></blockquote>
+</p>
 
 <h2>Advanced AJAX Integration</h2>
 <p>PHOCOA uses a delegation paradigm to implement the AJAX integration. We have already looked at the default handleEvent delegate method above. There are a few additional delegate methods that you can implement if you want to pass arguments to your handleEvent function, or have specialized success or error handlers.</p>

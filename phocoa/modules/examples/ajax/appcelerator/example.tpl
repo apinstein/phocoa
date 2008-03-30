@@ -1,8 +1,8 @@
 {* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
 <h1>Appcelerator</h1>
-<p>We are very excited to be working with the amazing people over at <a href="http://appcelerator.com" target="_blank">Appcelerator</a>. Appcelerator is an amazing UI toolkit for writing RIA's (rich internet applications) without using proprietary technologies like Flex or Silverlight. Appcelerator is completely standards-compliant, using only Javascript to implement it's magic. You can learn more at the <a href="http://appcelerator.org" target="_blank">Appcelerator Developer Network</a>.</p>
+<p>We are very excited to be working with the amazing people over at <a href="http://appcelerator.com" target="_blank">Appcelerator</a>. Appcelerator is a powerful UI toolkit for writing RIA's (Rich Internet Applications) without using proprietary technologies like Flex or Silverlight. Appcelerator is completely standards-compliant, using only Javascript to implement it's magic. You can learn more at the <a href="http://appcelerator.org" target="_blank">Appcelerator Developer Network</a>.</p>
 
-<p>What's perhaps most amazing about it is how easy it makes writing RIA's. The event-driven programming model works seamlessly with standard HTML coding practices and talks to your server using SOA (service-oriented architecture). It's fast, lightweight, and even fun!</p>
+<p>With Appcelerator, it is incredibly easy to write RIA's. The event-driven programming model works seamlessly with standard HTML coding practices and talks to your server using SOA (service-oriented architecture). It's fast, lightweight, and even fun!</p>
 
 <p>PHOCOA now ships with Appcelerator included, so you can start writing Appcelerator applications with PHOCOA without any additional installs.</p>
 

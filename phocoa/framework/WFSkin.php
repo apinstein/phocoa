@@ -453,7 +453,7 @@ class WFSkin extends WFObject
      */
     function addMetaKeywords($keywords)
     {
-        $this->metaKeywords = array_merge($this->metaKeywords, $keywords);
+        $this->metaKeywords = array_merge($keywords, $this->metaKeywords);
     }
 
     /**
