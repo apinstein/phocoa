@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:app="http://www.appcelerator.org">
+<head>
+    <noscript><meta http-equiv="refresh" content="0;upgrade_script.html"/></noscript>
+    <title>Appcelerator&trade; Service Tester</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+    <script src="javascripts/appcelerator.js" type="text/javascript"></script>
+    <style>
+        * 
+        { 
+            margin:0; padding:0;
+        }
+        body
+        {
+            background-color: #717171;
+            color: #fff;
+            font-family: tahoma,arial,helvetica;
+        }
+        img 
+        { 
+            border: none; 
+        }
+        #header
+        {
+            background-image: url(images/appcelerator_gray_header.png);
+            background-repeat: repeat-x;
+            background-color: #717171;
+            height: 55px;
+            position:relative;
+            margin:0;
+            padding:0;
+        }
+        #logo
+        {
+            height: 53px;
+            position:absolute;
+            right:15px;
+            top:0px;
+        }
+        #title
+        {
+            position:absolute;
+            left:20px;
+            top:15px;
+            font-size:24px;
+            color:#770000;
+        }
+        #form
+        {
+            margin:20px;
+            padding:10px;
+            font-size:14px;
+        }
+        #footer
+        {
+            position:absolute;
+            bottom:5px;
+            left:20px;
+            color:#aaa;
+            font-size:11px;
+        }
+        #intro
+        {
+            font-size:18px;
+            margin-bottom:25px;
+            color:#111;
+        }
+        #messagetype
+        {
+            width:400px;
+            font-family:courier;
+            font-size:14px;
+        }
+        #version
+        {
+            width:30px;
+            font-family:courier;
+            font-size:14px;
+        }
+        #scopename
+        {
+            width:150px;
+            font-family:courier;
+            font-size:14px;
+        }
+        #messageargs
+        {
+            width:100%;
+            height:80px;
+            font-family:courier;
+            font-size:14px;
+        }
+        #trace
+        {
+            margin-top:10px;
+        }
+        #trace textarea
+        {
+            width:100%;
+            font-family:courier;
+            font-size:12px;
+        }
+        div
+        {
+            margin-top:5px;
+            margin-bottom:5px;
+        }
+        #trace div
+        {
+            margin:0;
+            padding:0;
+            margin-bottom:5px;
+        }
+        .noteBox 
+        { 
+           margin:0px auto; 
+           padding: 5px; 
+           border-style: solid; 
+           border-width: 1px; 
+           border-color: #F0C000; 
+           background-color: #FFFFCE; 
+        }
+    </style>
+</head>
+
+<body style="visibility:hidden" on="l:app.compiled then visible">
+
+   <div id="header">
+      <div id="logo"><a href="http://www.appcelerator.org" title="Appcelerator"><img src="images/appcelerator_gray_logo_small.png"/></a></div>
+      <div id="title">Appcelerator Service Tester</div>
+   </div>
+   
+    <div id="form">
+
+        <div id="intro">
+            This utility will allow you to test Appcelerator Universal Client&trade; connectivity with
+            Appcelerator Services.
+        </div>
+
+        <form>
+            <div>
+                Type in a service: 
+                <input id="messagetype" fieldset="myform" type="text" validator="required" value="remote:app.test.message.request"/>
+                Version: <input id="version" type="text" value="1.0"/>
+                Scope: <input id="scopename" type="text" value="appcelerator"/>
+            </div>
+            <div>
+                <div style="float:right"><input type="button" value="Clear" on="click then clear[id=messageargs]"/></div>
+                <div>Optionally, you can specify arguments below. You can also specify JSON as the data payload.</div>
+                <div><textarea name="message" id="messageargs">Hello,world</textarea></div>
+            </div>
+            <div>
+                <input type="button" fieldset="myform" on="click then l:send.test.message"
+                 activators="messagetype" value="Invoke Service"/>
+            </div>
+            <div style="height:30px;">
+                <div style="display:none;color:#222;" class="noteBox" id="messagebox"
+                    on="r:app.test.message.response then effect[appear] or 
+                    r:app.test.message.response then effect[fade] after 5s" scope="*">
+                      <img src="images/confirm.png" alt="*"/><span>&nbsp;&nbsp;</span><span
+                        on="remote:app.test.message.response then value[message]"></span>
+                </div>
+            </div>  
+            <div id="trace">
+                <div style="float:right"><input type="button" value="Clear" on="click then clear[id=tracelog]"/></div>
+                <div>Message Trace Log</div>
+                <textarea id="tracelog" readonly="true" rows="8" scope="*"
+                   on="r:~.* then value[append=true,value=expr('[' + Appcelerator.Util.DateTime.get12HourTime() + '] ' + this.direction+':' + this.type + ' => ' + this.data+'\n')]"></textarea>
+            </div>
+    
+        </form>
+
+        <div id="footer">
+            <p>For more information, documentation and demos, please visit the <a href="http://www.appcelerator.org">Appcelerator Developer Network</a>.</p>
+            <p>Appcelerator&trade; is Copyright &copy; 2007-2008 by Appcelerator, Inc. All Rights Reserved.</p>
+        </div>
+              
+        <app:script on="local:send.test.message then execute" style="display:none">
+            try
+            {
+                var type = $("messagetype").value;
+                var args = $('messageargs');
+                var value = args.value;
+                var data = {};
+                if (value.charAt(0)=='{')
+                {
+                    data = value.evalJSON();
+                }
+                else
+                {
+                    data = {message:value};
+                }
+                var scope = $('scopename').value;
+                var version = $('version').value;
+                $MQ(type, data, scope, version);
+            }
+            catch (e)
+            {
+                Logger.error ('Oops! Error received: '+e+'\n'+(e.stack||'no stack trace available'));
+                alert ('Oops! Error received: '+e+'\n'+(e.stack||'no stack trace available'));
+            }
+        </app:script>
+        
+    </div>
+</body>
+</html>

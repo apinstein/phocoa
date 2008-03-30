@@ -1,0 +1,33 @@
+phocoaForm:
+  class: WFForm
+  children:
+    appcelerator:
+      class: WFAppcelerator
+    from:
+      class: WFTextField
+      bindings:
+        value: 
+          instanceID: email
+          controllerKey: selection
+          modelKeyPath: from
+    subject:
+      class: WFTextField
+      bindings:
+        value: 
+          instanceID: email
+          controllerKey: selection
+          modelKeyPath: subject
+    body:
+      class: WFTextArea
+      bindings:
+        value: 
+          instanceID: email
+          controllerKey: selection
+          modelKeyPath: body
+    to:
+      class: WFTextField
+      bindings:
+        value: 
+          instanceID: email
+          controllerKey: selection
+          modelKeyPath: to

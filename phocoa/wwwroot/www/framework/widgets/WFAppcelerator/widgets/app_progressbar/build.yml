@@ -1,0 +1,10 @@
+--- 
+:type: widget
+:name: app:progressbar
+:version: 1.0
+:dependencies: 
+- :type: websdk
+  :version: ">=2.1"
+  :name: websdk
+:tags: [ uicontrol ]
+:description: "app:progressbar is a UI control for displaying a progress bar and driving the progress values based on a message"

@@ -1,0 +1,4 @@
+email:
+  class: WFObjectController
+  properties:
+    class: email

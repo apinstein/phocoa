@@ -1,0 +1,10 @@
+--- 
+:type: widget
+:name: app:button
+:version: 1.0
+:dependencies: 
+- :type: websdk
+  :version: ">=2.1"
+  :name: websdk
+:tags: [ uicontrol ]
+:description: "app:button is a fancier looking button that can be used in place of a normal HTML button"

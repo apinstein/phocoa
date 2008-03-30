@@ -1,0 +1,21 @@
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 90;
+    width: 100%;
+    height: 500px;
+    background-color: #222;
+    filter: alpha( opacity = 60 );
+    -moz-opacity: 0.6;
+    opacity: 0.6;
+}
+
+#overlay_data
+{
+	position: absolute;
+	left: 0;
+	width: 100%;
+	z-index: 100;
+}
+

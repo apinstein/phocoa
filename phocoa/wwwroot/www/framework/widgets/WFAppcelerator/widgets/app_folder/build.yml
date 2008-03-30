@@ -1,0 +1,10 @@
+--- 
+:type: widget
+:name: app:folder
+:version: 1.0
+:dependencies: 
+- :type: websdk
+  :version: ">=2.1"
+  :name: websdk
+:tags: [ uicontrol ]
+:description: "app:folder is a simple tree-like ui control for displaying items in a set of folders"

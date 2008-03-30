@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<appcelerator version="1.0" xmlns="http://www.appcelerator.org/config">
+	<servicebroker poll="false">@{rootPath}servicebroker.php</servicebroker>
+	<upload>@{rootPath}upload.php</upload>
+	<download>@{rootPath}download.php</download>
+	<sessionid>PHPSESSID</sessionid>
+   <language>php</language>
+</appcelerator>

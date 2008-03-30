@@ -1,0 +1,10 @@
+--- 
+:type: widget
+:name: app:panel
+:version: 1.0
+:dependencies: 
+- :type: websdk
+  :version: ">=2.1"
+  :name: websdk
+:tags: [ uicontrol, layout ]
+:description: "app:panel is a UI control for displaying content in a nice looking panel with capabilities like dragging, resizing, etc."

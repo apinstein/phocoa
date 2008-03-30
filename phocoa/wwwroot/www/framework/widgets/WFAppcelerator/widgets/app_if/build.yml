@@ -1,0 +1,10 @@
+--- 
+:type: widget
+:name: app:if
+:version: 1.0
+:dependencies: 
+- :type: websdk
+  :version: ">=2.1"
+  :name: websdk
+:tags: [ logic ]
+:description: "app:if is a non-visual control for conditional execution of content based on a Javascript expression"

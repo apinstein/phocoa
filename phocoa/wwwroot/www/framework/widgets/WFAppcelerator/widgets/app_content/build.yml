@@ -1,0 +1,10 @@
+--- 
+:type: widget
+:name: app:content
+:version: 1.0.1
+:dependencies: 
+- :type: websdk
+  :version: ">=2.1"
+  :name: websdk
+:tags: [ ]
+:description: "app:content allows you to load external HTML content. this content can be parameterized and can be loaded on-demand or when the page is first loaded"

@@ -1,0 +1,10 @@
+--- 
+:type: widget
+:name: app:tooltip
+:version: 1.0
+:dependencies: 
+- :type: websdk
+  :version: ">=2.1"
+  :name: websdk
+:tags: [ uicontrol ]
+:description: "app:tooltip is a UI control for displaying nice looking tooltips based on a message"

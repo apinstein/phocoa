@@ -20,6 +20,7 @@
 class WFAppcelerator extends WFWidget
 {
     protected $appceleratorDir;
+    protected $debug;
 
     /**
       * Constructor.
@@ -27,7 +28,8 @@ class WFAppcelerator extends WFWidget
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
-        $this->appceleratorDir = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/appcelerator';
+        $this->appceleratorDir = $this->getWidgetWWWDir();
+        $this->debug = true;
     }
 
     public static function exposedProperties()
@@ -50,13 +52,15 @@ class WFAppcelerator extends WFWidget
         }
         else
         {
-            return '<script src="' . $this->appceleratorDir . '/js/appcelerator-debug.js"></script>' . $this->jsStartHTML() . '
+            return '
+                <script src="' . $this->appceleratorDir . '/javascripts/scriptaculous/scriptaculous.js"></script>
+                <script src="' . $this->appceleratorDir . '/javascripts/appcelerator-' . ($this->debug ? 'debug' : 'lite') . '.js"></script>' . $this->jsStartHTML() . '
+                        Appcelerator.DocumentPath = "' . $this->getWidgetWWWDir() . '/";
                         Appcelerator.Browser.autoReportStats = false;
                         Appcelerator.Util.ServerConfig.disableRemoteConfig = true;
                         Appcelerator.Util.ServiceBroker.marshaller = "application/x-www-form-urlencoded";
 
                         Appcelerator.Core.onload( function() {
-                            //debugger;
                             Appcelerator.Util.ServerConfig.set({
                                 "servicebroker": {
                                        "value": "' . WWW_ROOT . '/' . $this->page()->module()->invocation()->invocationPath() . '"
@@ -94,6 +98,8 @@ class WFAppcelerator extends WFWidget
 
 /**
  * A custom WFActionResponse class for sending messages back to the Appcelerator client.
+ *
+ * NOTE: payloads should be associative arrays.
  *
  * Fluent interface:
  * WFActionResponseAppcelerator::WFActionResponseAppcelerator($message, $payload)->addMessage($message2, $payload2)
