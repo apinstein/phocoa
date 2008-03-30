@@ -6,7 +6,8 @@ Codes:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.1.?
+Version 0.1.4
+- [new] Appcelerator integration.
 - [new] Replace spyc integration with Horde/Yaml.
 - [new] WFYAHOO_widget_YahooScript for including YAHOO-dependent Javascript on your pages.
 - [new] Ability to have the "default page" of a module accept parameters without specifying the page name in the invocation path. Must implement module::allPages() to enable.
