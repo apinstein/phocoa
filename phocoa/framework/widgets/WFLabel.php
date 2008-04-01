@@ -21,6 +21,8 @@
  * 
  * <b>Optional:</b><br>
  * - {@link WFLabel::$ellipsisAfterChars ellipsisAfterChars}
+ * - {@link WFLabel::$textAsHTML textAsHTML} 
+ * - {@link WFLabel::$raw raw}
  */
 class WFLabel extends WFWidget
 {
@@ -32,6 +34,10 @@ class WFLabel extends WFWidget
      * @var boolean TRUE to convert newlines to html BR entities. False to output string as text.
      */
     protected $textAsHTML;
+    /**
+     * @var boolean TRUE to output ONLY the value. False to produce HTML with a span tag and ID and support other features.
+     */
+    protected $raw;
 
     /**
       * Constructor.
@@ -42,6 +48,7 @@ class WFLabel extends WFWidget
         $this->value = NULL;
         $this->ellipsisAfterChars = NULL;
         $this->textAsHTML = false;
+        $this->raw = false;
     }
 
     public static function exposedProperties()
@@ -70,6 +77,12 @@ class WFLabel extends WFWidget
         }
         else
         {
+            // are we in RAW mode?
+            if ($this->raw)
+            {
+                return $this->value;
+            }
+
             if ($this->textAsHTML)
             {
                 $text = str_replace("\n", "<br />", $this->value);
