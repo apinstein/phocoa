@@ -27,13 +27,13 @@
     <td>Body:</td><td><textarea decorator="required" validator="required" fieldset="myFields" id="body" name="body"></textarea></td>
 </tr>
 <tr>
-    <td colspan="2"><input activators="to,from,subject,body" fieldset="myFields" type="button" value="send" on="click then r:send" /></td>
+    <td colspan="2"><input activators="to,from,subject,body" fieldset="myFields" type="button" value="send" on="click then r:request.send" /></td>
 </tr>
 </table>
 
 <div style="position: relative; height: 200px; width: 200px;">
-    <div on="r:send then effect[grow] or r:response then hide" style="display: none; position: absolute; ">Sending message...</div>
-    <div on="r:send then hide or r:response then value[message] and show" style="display: none"></div>
+    <div on="r:request.send then effect[grow] or r:response.sent then hide" style="display: none; position: absolute; ">Sending message...</div>
+    <div on="r:request.send then hide or r:response.sent then value[message] and show" style="display: none"></div>
 </div>
 
 {WFView id="appcelerator"}

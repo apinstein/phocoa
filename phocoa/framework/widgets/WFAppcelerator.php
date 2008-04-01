@@ -11,11 +11,18 @@
 /**
  * This widget is an Appcelerator (http://appcelerator.org) container.
  * 
+ * Messages send from Appcelerator in dotted notation are converted to php function names as follows:
+ *
+ * - request => request()
+ * - request.send => requestSend()
+ * - request.send.message => requestSendMessage()
+ *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
  * 
  * <b>Optional:</b><br>
+ * - {@link WFAppcelerator::$debug debug} boolean True to use the debug version of Appcelerator.
  */
 class WFAppcelerator extends WFWidget
 {
@@ -72,13 +79,25 @@ class WFAppcelerator extends WFWidget
 
                         var parentParameterize = Appcelerator.Util.ServiceBrokerMarshaller["application/x-www-form-urlencoded"].parameterize;
                         Appcelerator.Util.ServiceBrokerMarshaller["application/x-www-form-urlencoded"].parameterize = function(msg) {
+                            var action = null;
+                            msg[0]["type"].split(".").each(function(messagePart) {
+                                if (action == null)
+                                {
+                                    action = messagePart;
+                                }
+                                else
+                                {
+                                    action += messagePart.capitalize();
+                                }
+                            });
+
                             var str = parentParameterize.call(Appcelerator.Util.ServiceBrokerMarshaller["application/x-www-form-urlencoded"], msg);
                             str += "&'
                                         // phocoa-ajax bridge
                                         . WFRPC::PARAM_ENABLE . '=1&'
                                         . WFRPC::PARAM_INVOCATION_PATH . '=' . WWW_ROOT . '/' . $this->page()->module()->invocation()->invocationPath() . '&'
                                         . WFRPC::PARAM_TARGET . '=#page#&'
-                                        . WFRPC::PARAM_ACTION . '=" + msg[0]["type"] + "&'
+                                        . WFRPC::PARAM_ACTION . '=" + action + "&'
                                         . WFRPC::PARAM_RUNS_IF_VALID . '=true&'
                                         . WFRPC::PARAM_ARGC . '=0&'
                                         // form compatibility

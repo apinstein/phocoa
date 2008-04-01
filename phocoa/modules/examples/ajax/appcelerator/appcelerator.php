@@ -21,12 +21,12 @@ class module_appcelerator_example
     }
 
     // Appcelerator Services Below
-    function send($page, $params)
+    function requestSend($page, $params)
     {
         // code to send message here...
         // Send response to appcelerator
         sleep(2);   // give animation time to display for demo
-        return WFActionResponseAppcelerator::WFActionResponseAppcelerator('response', array('message' => 'Mail request received. NOTE: This demo does not actually send the email.'));
+        return WFActionResponseAppcelerator::WFActionResponseAppcelerator('response.sent', array('message' => 'Mail request received. NOTE: This demo does not actually send the email.'));
     }
 }
 
