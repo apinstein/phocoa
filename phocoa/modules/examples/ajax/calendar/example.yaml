@@ -1,0 +1,7 @@
+form:
+  class: WFForm
+  children:
+    date:
+      class: WFYAHOO_widget_Calendar
+      properties:
+        value: 5/22/2007

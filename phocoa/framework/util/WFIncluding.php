@@ -142,6 +142,8 @@ class WFIncluding
                 'WFYAHOO_widget_AutoComplete' => 'framework/widgets/yahoo/WFYAHOO_widget_AutoComplete.php',
                 'WFYAHOO_widget_Tab' => 'framework/widgets/yahoo/WFYAHOO_widget_TabView.php',
                 'WFYAHOO_widget_TabView' => 'framework/widgets/yahoo/WFYAHOO_widget_TabView.php',
+                'WFYAHOO_widget_ColorPicker' => 'framework/widgets/yahoo/WFYAHOO_widget_ColorPicker.php',
+                'WFYAHOO_widget_Calendar' => 'framework/widgets/yahoo/WFYAHOO_widget_Calendar.php',
                 'WFPaginatorPageInfo' => 'framework/widgets/WFPaginatorPageInfo.php',
                 'WFValueTransformer' => 'framework/ValueTransformers/WFValueTransformer.php',
                 'WFNegateBooleanTransformer' => 'framework/ValueTransformers/WFNegateBooleanTransformer.php',
