@@ -11,19 +11,28 @@
 /**
  * A Hidden widget for our framework.
  *
- * NOTE: It is very important to note that WFHidden does NOT push values back to the bound objects. Therefore, if you are using WFHidden to carry state from one page to another, you'll
- * need to programatically extract the data when processing the form. {@link See WFState}.
  * Typically WFHidden is used to include values to be used as parameters for a given page, as hidden parameters are automatically searched for "parameters" to be passed to your module during the _PageDidLoad() routine.
- * 
+ *
+ * NOTE: It is very important to note that WFHidden does NOT push values back to the bound objects by default.
+ * Therefore, if you are using WFHidden to carry state from one page to another, you'll need to set canPushValueBinding to true or manually extract the form data.
+ *
+ * Optional:
+ * - {@link WFHidden::$canPushValueBinding}
  */
 class WFHidden extends WFWidget
 {
+    /**
+     * @var boolean TRUE to make the binding 2-way. By default, it is read-only.
+     */
+    protected $canPushValueBinding;
+
     /**
       * Constructor.
       */
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
+        $this->canPushValueBinding = false;
     }
 
     function restoreState()
@@ -49,7 +58,7 @@ class WFHidden extends WFWidget
         return '<input type="hidden" id="' . $this->id . '" name="' . $this->name . '" value="' . htmlspecialchars($this->value) . '" />';
     }
 
-    function canPushValueBinding() { return false; }
+    function canPushValueBinding() { return $this->canPushValueBinding; }
 }
 
 ?>
