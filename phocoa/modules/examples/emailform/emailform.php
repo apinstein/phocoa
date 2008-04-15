@@ -41,19 +41,27 @@ class emailform extends WFModule
       * Tell system which page to show if none specified.
       */
     function defaultPage() { return 'compose'; }
+}
 
-    function compose_submit_Action($page)
+class emailform_compose
+{
+
+    function send($page, $params)
     {
-        $this->email->send();
-        $this->setupResponsePage('emailSuccess');
+        $page->sharedOutlet('email')->send();
+        $page->module()->setupResponsePage('emailSuccess');
     }
 
-    function compose_SetupSkin($skin)
+    function setupSkin($page, $params, $skin)
     {
         $skin->setTitle("Compose an email.");
     }
 
-    function emailSuccess_SetupSkin($skin)
+}
+
+class emailform_emailSuccess
+{
+    function setupSkin($page, $params, $skin)
     {
         $skin->setTitle("Email sent successfully.");
     }

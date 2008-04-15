@@ -29,7 +29,7 @@ form:
       class     : WFTextField
       properties: 
         size: 50
-    submit : 
+    send : 
       class     : WFSubmit
       properties: 
         label: Send Email

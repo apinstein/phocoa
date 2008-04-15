@@ -16,7 +16,7 @@
     <tr><td valign="top">To Email:</td><td>{WFTextField id="email"}<br /> {WFShowErrors id="email"}</td></tr>
     <tr><td valign="top">Subject:</td><td>{WFTextField id="subject"}<br /> {WFShowErrors id="subject"}</td></tr>
     <tr><td valign="top">Message:</td><td>{WFTextArea id="message"}<br /></td></tr>
-    {WFSubmit id="submit"}
+    {WFSubmit id="send"}
 {/WFForm}
 </table>
 
