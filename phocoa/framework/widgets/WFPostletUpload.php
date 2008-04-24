@@ -12,6 +12,11 @@
  * A Java upload widget for our framework.
  *
  * This widget allows easy bulk uploading from the desktop to the web server.
+ *
+ * To use, simply add a WFPostletUpload to your web page using <code>{WFView id="myUpload"}</code>.
+ * Note that WFPostletUpload is a WFForm subclass itself, so be sure that your WFPostletUpload instance is not nested inside of another form.
+ *
+ * All you need to do to receive the uploaded files is create a single function to handle the uploaded file. When someone uploads file(s) through the bulk uploader, your module's {@link WFPostletUpload::$hasUploadCallback hasUploadCallback} will be called, once for each file uploaded. From this function you can do as you please with each uploaded file.
  * 
  * This widget uses the {@link http://sourceforge.net/projects/postlet/ Postlet open-source Java applet}.
  * The code is GPL licensed and is distributed with PHOCOA for convenience. Full source is available from the above link.
@@ -75,7 +80,7 @@ class WFPostletUpload extends WFForm implements WFUploadedFile
         $this->dropimage = NULL;
         $this->dropimageupload = NULL;
         $this->maxthreads = 5;
-        $this->backgroundcolour = NULL;
+        $this->backgroundcolour = 'ffffff';
         $this->tableheaderbackgroundcolour = NULL;
         $this->tableheadercolour = NULL;
         $this->warnmessage = false;
