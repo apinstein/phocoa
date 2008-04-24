@@ -80,7 +80,7 @@ class WFPostletUpload extends WFForm implements WFUploadedFile
         $this->dropimage = NULL;
         $this->dropimageupload = NULL;
         $this->maxthreads = 5;
-        $this->backgroundcolour = 'ffffff';
+        $this->setBackgroundcolour('ffffff');
         $this->tableheaderbackgroundcolour = NULL;
         $this->tableheadercolour = NULL;
         $this->warnmessage = false;
