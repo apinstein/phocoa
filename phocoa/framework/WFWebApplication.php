@@ -36,16 +36,15 @@ function WFWebApplicationMain()
  */
 class WFWebApplication extends WFObject
 {
-    const DIR_LOG 		= 1;
-    const DIR_RUNTIME 	= 2;
-    const DIR_CLASSES 	= 3;
-    const DIR_SMARTY 	= 4;
-    const DIR_MODULES 	= 5;
-    const DIR_WWW       = 6;
-    const DIR_SKINS     = 7;
-
-    const WWW_DIR_BASE          = 1;
-    const WWW_DIR_FRAMEWORK     = 2;
+    const DIR_LOG 		        = 1;
+    const DIR_RUNTIME 	        = 2;
+    const DIR_CLASSES 	        = 3;
+    const DIR_SMARTY 	        = 4;
+    const DIR_MODULES 	        = 5;
+    const DIR_WWW               = 6;
+    const DIR_SKINS             = 7;
+    const WWW_DIR_BASE          = 100;
+    const WWW_DIR_FRAMEWORK     = 101;
 
     /**
      * @var object The delegate object for the application.
@@ -209,7 +208,7 @@ class WFWebApplication extends WFObject
             case self::WWW_DIR_FRAMEWORK:
                 return WWW_ROOT . '/www/framework/' . PHOCOA_VERSION;
             default:
-                throw(new Exception("Unknown app dir: {$webDirPath}."));
+                throw(new Exception("Unknown web directory: {$webDirPath}."));
         }
     }
 
