@@ -14,6 +14,8 @@ Version 0.1.4
 - [new] Added WFPostletUpload, which is a widget that offers a Java applet for bulk-uploading files to phocoa apps via drag-n-drop.
 - [bugfix] Phocoa now works properly when accessed from behind proxy servers.
 - [new] Added readline support to the phocoa shell, if you have it installed in your PHP. This adds history and auto-complete support, although history isn't working reliably.
+- [new] Added ability to customize respondsToForms from WFSkinModuleView.
+- 
 
 Version 0.1.1
 - [BC-break] WFYAHOO is now an abstract class. Some applications may have previously instantiated WFYAHOO objects to bootstrap the YUI lib. This will now break.
