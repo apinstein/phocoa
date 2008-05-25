@@ -1,21 +1,53 @@
-#!/usr/bin/env perl 
+#!/usr/bin/env perl
 
 #####
-#  FCKeditor - The text editor for internet
-#  Copyright (C) 2003-2005 Frederico Caldeira Knabben
-#  
-#  Licensed under the terms of the GNU Lesser General Public License:
-#  		http://www.opensource.org/licenses/lgpl-license.php
-#  
-#  For further information visit:
-#  		http://www.fckeditor.net/
-#  
-#  File Name: sampleposteddata.cgi
-#  	This page lists the data posted by a form.
-#  
-#  File Authors:
-#  		Takashi Yamaguchi (jack@omakase.net)
+#  FCKeditor - The text editor for Internet - http://www.fckeditor.net
+#  Copyright (C) 2003-2008 Frederico Caldeira Knabben
+#
+#  == BEGIN LICENSE ==
+#
+#  Licensed under the terms of any of the following licenses at your
+#  choice:
+#
+#   - GNU General Public License Version 2 or later (the "GPL")
+#     http://www.gnu.org/licenses/gpl.html
+#
+#   - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+#     http://www.gnu.org/licenses/lgpl.html
+#
+#   - Mozilla Public License Version 1.1 or later (the "MPL")
+#     http://www.mozilla.org/MPL/MPL-1.1.html
+#
+#  == END LICENSE ==
+#
+#  This page lists the data posted by a form.
 #####
+
+## START: Hack for Windows (Not important to understand the editor code... Perl specific).
+if(Windows_check()) {
+	chdir(GetScriptPath($0));
+}
+
+sub Windows_check
+{
+	# IIS,PWS(NT/95)
+	$www_server_os = $^O;
+	# Win98 & NT(SP4)
+	if($www_server_os eq "") { $www_server_os= $ENV{'OS'}; }
+	# AnHTTPd/Omni/IIS
+	if($ENV{'SERVER_SOFTWARE'} =~ /AnWeb|Omni|IIS\//i) { $www_server_os= 'win'; }
+	# Win Apache
+	if($ENV{'WINDIR'} ne "") { $www_server_os= 'win'; }
+	if($www_server_os=~ /win/i) { return(1); }
+	return(0);
+}
+
+sub GetScriptPath {
+	local($path) = @_;
+	if($path =~ /[\:\/\\]/) { $path =~ s/(.*?)[\/\\][^\/\\]+$/$1/; } else { $path = '.'; }
+	$path;
+}
+## END: Hack for IIS
 
 require '../../fckeditor.pl';
 
@@ -62,7 +94,7 @@ _HTML_TAG_
 		print <<"_HTML_TAG_";
 			<tr>
 				<td valign="top" nowrap><b>$key</b></td>
-				<td width="100%">$postedValue</td>
+				<td width="100%" style="white-space:pre">$postedValue</td>
 			</tr>
 _HTML_TAG_
 	}

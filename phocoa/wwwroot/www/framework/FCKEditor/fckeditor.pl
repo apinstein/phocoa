@@ -1,18 +1,24 @@
 #####
-#  FCKeditor - The text editor for internet
-#  Copyright (C) 2003-2005 Frederico Caldeira Knabben
-#  
-#  Licensed under the terms of the GNU Lesser General Public License:
-#  		http://www.opensource.org/licenses/lgpl-license.php
-#  
-#  For further information visit:
-#  		http://www.fckeditor.net/
-#  
-#  File Name: fckeditor.pl
-#  	This is the integration file for Perl.
-#  
-#  File Authors:
-#  		Takashi Yamaguchi (jack@omakase.net)
+#  FCKeditor - The text editor for Internet - http://www.fckeditor.net
+#  Copyright (C) 2003-2008 Frederico Caldeira Knabben
+#
+#  == BEGIN LICENSE ==
+#
+#  Licensed under the terms of any of the following licenses at your
+#  choice:
+#
+#   - GNU General Public License Version 2 or later (the "GPL")
+#     http://www.gnu.org/licenses/gpl.html
+#
+#   - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+#     http://www.gnu.org/licenses/lgpl.html
+#
+#   - Mozilla Public License Version 1.1 or later (the "MPL")
+#     http://www.mozilla.org/MPL/MPL-1.1.html
+#
+#  == END LICENSE ==
+#
+#  This is the integration file for Perl.
 #####
 
 #my $InstanceName;
@@ -28,7 +34,7 @@ sub FCKeditor
 
 	local($instanceName) = @_;
 	$InstanceName	= $instanceName;
-	$BasePath		= '/FCKeditor/';
+	$BasePath		= '/fckeditor/';
 	$Width			= '100%';
 	$Height			= '200';
 	$ToolbarSet		= 'Default';
@@ -57,23 +63,23 @@ sub CreateHtml
 {
 
 	$HtmlValue = &specialchar_cnv($Value);
-	$Html = '<div>' ;
+	$Html = '' ;
 	if(&IsCompatible()) {
 		$Link = $BasePath . "editor/fckeditor.html?InstanceName=$InstanceName";
 		if($ToolbarSet ne '') {
 			$Link .= "&amp;Toolbar=$ToolbarSet";
 		}
 		#// Render the linked hidden field.
-		$Html .= "<input type=\"hidden\" id=\"$InstanceName\" name=\"$InstanceName\" value=\"$HtmlValue\" />" ;
+		$Html .= "<input type=\"hidden\" id=\"$InstanceName\" name=\"$InstanceName\" value=\"$HtmlValue\" style=\"display:none\" />" ;
 
 		#// Render the configurations hidden field.
 		$cfgstr = &GetConfigFieldString();
 		$wk = $InstanceName."___Config";
-		$Html .= "<input type=\"hidden\" id=\"$wk\" value=\"$cfgstr\" />" ;
+		$Html .= "<input type=\"hidden\" id=\"$wk\" value=\"$cfgstr\" style=\"display:none\" />" ;
 
 		#// Render the editor IFRAME.
 		$wk = $InstanceName."___Frame";
-		$Html .= "<iframe id=\"$wk\" src=\"$Link\" width=\"$Width\" height=\"$Height\" frameborder=\"no\" scrolling=\"no\"></iframe>";
+		$Html .= "<iframe id=\"$wk\" src=\"$Link\" width=\"$Width\" height=\"$Height\" frameborder=\"0\" scrolling=\"no\"></iframe>";
 	} else {
 		if($Width =~ /\%/g){
 			$WidthCSS = $Width;
@@ -85,9 +91,8 @@ sub CreateHtml
 		} else {
 			$HeightCSS = $Height . 'px';
 		}
-		$Html .= "<textarea name=\"$InstanceName\" rows=\"4\" cols=\"40\" style=\"width: $WidthCSS; height: $HeightCSS\" wrap=\"virtual\">$HtmlValue</textarea>";
+		$Html .= "<textarea name=\"$InstanceName\" rows=\"4\" cols=\"40\" style=\"width: $WidthCSS; height: $HeightCSS\">$HtmlValue</textarea>";
 	}
-	$Html .= '</div>';
 	return($Html);
 }
 
@@ -101,8 +106,13 @@ sub IsCompatible
 	} elsif($sAgent =~ /Gecko\//i) {
 		$iVersion = substr($sAgent,index($sAgent,'Gecko/') + 6,8);
 		return($iVersion >= 20030210) ;
+	} elsif($sAgent =~ /Opera\//i) {
+		$iVersion = substr($sAgent,index($sAgent,'Opera/') + 6,4);
+		return($iVersion >= 9.5) ;
+	} elsif($sAgent =~ /AppleWebKit\/(\d+)/i) {
+		return($1 >= 522) ;
 	} else {
-		return(1);
+		return(0);		# 2.0 PR fix
 	}
 }
 
