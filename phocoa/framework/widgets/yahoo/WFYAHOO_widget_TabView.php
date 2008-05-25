@@ -138,6 +138,14 @@ class WFYAHOO_widget_TabView extends WFYAHOO
         $this->yuiloader()->yuiRequire('tabview');
     }
 
+    function allConfigFinishedLoading()
+    {
+        if (isset($_REQUEST[$this->id]))
+        {
+            $this->setSelectedTabId($_REQUEST[$this->id]);
+        }
+    }
+
     function tabDidRender($tab)
     {
         $tabId = $tab->id();
