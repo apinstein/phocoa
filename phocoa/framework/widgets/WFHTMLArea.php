@@ -10,11 +10,38 @@
 
 /**
  * A HTML WYSIWYG Editor widget for our framework.
+ *
+ * <b>PHOCOA Builder Setup:</b>
+ *
+ * Properties:
+ * - {@link WFHTMLArea::$width width}
+ * - {@link WFHTMLArea::$height height}
+ * - {@link WFHTMLArea::$CustomConfigurationsPath CustomConfigurationsPath}
+ * - {@link WFHTMLArea::$ToolbarSet ToolbarSet}
+ *
+ * Bindings:
+ * <b>Required:</b><br>
+ * - {@link WFWidget::$value value} or {@link WFSelect::$values values}, depending on {@link WFSelect::$multiple multiple}.
  */
 class WFHTMLArea extends WFWidget
 {
+    /**
+     * @var string The width of the HTML area. Default 100%.
+     */
     protected $width;
+    /**
+     * @var string The height of the HTML area. Default 400px.
+     */
     protected $height;
+
+    /**
+     * @var sring The URL to a custom config js file for the FCKEditor.
+     */
+    protected $CustomConfigurationsPath;
+    /**
+     * @var string THe toolbar set name to use. Default: NULL (whatever FCK does by default).
+     */
+    protected $ToolbarSet;
 
     /**
       * Constructor.
@@ -25,6 +52,8 @@ class WFHTMLArea extends WFWidget
         $this->value = NULL;
         $this->width = '100%';
         $this->height = '400';
+        $this->CustomConfigurationsPath = 'Default';
+        $this->ToolbarSet = NULL;
     }
 
     public static function exposedProperties()
@@ -64,6 +93,11 @@ class WFHTMLArea extends WFWidget
         $editor->Height = $this->height;
         $editor->BasePath = WWW_ROOT . '/www/framework/FCKEditor/';
         $editor->Value = $this->value();
+        $editor->ToolbarSet = $this->ToolbarSet;
+        if ($this->CustomConfigurationsPath)
+        {
+            $editor->Config['CustomConfigurationsPath'] = $this->CustomConfigurationsPath;
+        }
         return $editor->CreateHtml();
     }
 
