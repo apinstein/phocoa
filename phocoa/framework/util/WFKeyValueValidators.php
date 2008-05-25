@@ -32,7 +32,7 @@ class WFKeyValueValidators extends WFObject
         $value = trim($value);
         $edited = true;
 
-        if (!preg_match('/^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$/', $value))
+        if (!preg_match('/^[_A-Za-z0-9-\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$/', $value))
         {
             $errors[] = new WFError("That doesn't seem to be a email address. Please try again in the format 'email@domain.com'.");
             return false;
