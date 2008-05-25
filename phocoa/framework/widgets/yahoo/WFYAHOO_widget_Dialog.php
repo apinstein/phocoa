@@ -114,14 +114,14 @@ PHOCOA.widgets.{$this->id}.Dialog.queueProps = function(o) {
     // alert('id={$this->id}: queue Dialog props');
     // queue Dialog props here
     " . ($buttonsJS ? "o.cfg.queueProperty(\"buttons\", {$buttonsJS});" : NULL) . "
-}
+};
 PHOCOA.widgets.{$this->id}.Dialog.init = function() {
     PHOCOA.widgets.{$this->id}.Panel.init();  // init parent
     var dialog = PHOCOA.runtime.getObject('{$this->id}');
     dialog.cfg.setProperty('postmethod', '{$this->postmethod}');
     " . ($this->callbackSuccess ? "dialog.callback.success = {$this->callbackSuccess};" : NULL) . "
     " . ($this->callbackFailure ? "dialog.callback.failure = {$this->callbackFailure};" : NULL) . "
-}
+};
 " .
 ( (get_class($this) == 'WFYAHOO_widget_Dialog') ? "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.Dialog.init(); };" : NULL );
         return $script;

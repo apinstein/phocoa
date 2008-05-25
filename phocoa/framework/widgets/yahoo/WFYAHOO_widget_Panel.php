@@ -102,7 +102,7 @@ PHOCOA.widgets.{$this->id}.Panel.queueProps = function(o) {
     PHOCOA.widgets.{$this->id}.Overlay.queueProps(o);   // queue parent props
     // alert('id={$this->id}: queue Panel props');
     // queue Panel props here
-}
+};
 PHOCOA.widgets.{$this->id}.Panel.init = function() {
     PHOCOA.widgets.{$this->id}.Overlay.init();  // init parent
     var panel = PHOCOA.runtime.getObject('{$this->id}');
@@ -110,7 +110,7 @@ PHOCOA.widgets.{$this->id}.Panel.init = function() {
     panel.cfg.setProperty('close', " . ($this->close ? 'true' : 'false') . ");
     panel.cfg.setProperty('draggable', " . ($this->draggable ? 'true' : 'false') . ");
     panel.cfg.setProperty('modal', " . ($this->modal ? 'true' : 'false') . ");
-}
+};
 " .
 ( (get_class($this) == 'WFYAHOO_widget_Panel') ? "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.Panel.init(); };" : NULL );
         return $script;

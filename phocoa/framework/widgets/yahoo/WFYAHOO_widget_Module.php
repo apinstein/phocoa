@@ -188,7 +188,7 @@ PHOCOA.namespace('widgets.{$this->id}.Module');
 PHOCOA.widgets.{$this->id}.Module.queueProps = function(o) {
     // alert('id={$this->id}: queue Module props');
     // queue Module props here
-}
+};
 PHOCOA.widgets.{$this->id}.Module.init = function() {
     var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\");
     module.cfg.queueProperty('visible', " . ($this->visible ? 'true' : 'false') . ");
@@ -230,7 +230,7 @@ PHOCOA.widgets.{$this->id}.Module.init = function() {
 // Module visibility controlled by display attr; subclass visibility controlled by visibilty. Non-modules must be display: block so that they'll appear when asked
 ( (get_class($this) != 'WFYAHOO_widget_Module') ? "\n    YAHOO.util.Dom.setStyle('{$this->id}', 'display', 'block')" : NULL) . "
     PHOCOA.runtime.addObject(module, '{$this->id}');
-}
+};
 ";
         if ( get_class($this) == 'WFYAHOO_widget_Module')
         {

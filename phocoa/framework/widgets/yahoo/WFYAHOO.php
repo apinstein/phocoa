@@ -164,9 +164,8 @@ abstract class WFYAHOO extends WFWidget
      * - PHOCOA.widgets.<widgetId>.yuiDelegate.widgetWillLoad()
      * - PHOCOA.widgets.<widgetId>.yuiDelegate.widgetDidLoad(obj) // obj is the YUI widget instance, also available from PHOCOA.runtime.getObject('<widgetId>')
      *
-     *
      * @param string The content of the YUI widget as a block, if needed. Some YUI widgets like the Container family need access to this in the bootstrap routines.
-     * @return string The JS code to run to instantiate the YUI widget.
+     * @return string The JS code to run to instantiate the YUI widget. This could should define PHOCOA.widgets.<id>.init(), which will be executed to load the widget.
      */
     abstract public function initJS($blockContent);
 
@@ -264,7 +263,7 @@ abstract class WFYAHOO extends WFWidget
             PHOCOA.widgets.{$this->id}.yuiDelegate.widgetDidLoad(PHOCOA.runtime.getObject('{$this->id}'));
         }
     });
-}
+};
 "
                                                                             ) . $this->jsEndHTML();
             }

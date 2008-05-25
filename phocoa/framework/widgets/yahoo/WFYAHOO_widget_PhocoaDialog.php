@@ -114,14 +114,14 @@ PHOCOA.widgets.{$this->id}.PhocoaDialog.queueProps = function(o) {
     PHOCOA.widgets.{$this->id}.Panel.queueProps(o); // queue parent props
     // alert('id={$this->id}: queue PhocoaDialog props');
     // queue PhocoaDialog props here
-}
+};
 PHOCOA.widgets.{$this->id}.PhocoaDialog.init = function() {
     PHOCOA.widgets.{$this->id}.Panel.init();   // init parent
     var phocoaDialog = PHOCOA.runtime.getObject('{$this->id}');
     phocoaDialog.cfg.setProperty('deferModuleViewLoading', " . ($this->deferModuleViewLoading ? 'true' : 'false') . ");
     phocoaDialog.cfg.setProperty('cacheModuleView', " . ($this->cacheModuleView ? 'true' : 'false') . ");
     phocoaDialog.cfg.setProperty('moduleViewInvocationPath', " . ($this->moduleView ? "'" . WWW_ROOT . '/' . $this->moduleView->invocationPath() . "'" : 'null') . ");
-}
+};
 " .
 ( (get_class($this) == 'WFYAHOO_widget_PhocoaDialog') ? "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.PhocoaDialog.init(); };" : NULL );
         return $script;

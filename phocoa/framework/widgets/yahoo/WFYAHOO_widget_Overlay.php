@@ -179,7 +179,7 @@ PHOCOA.widgets.{$this->id}.Overlay.queueProps = function(o) {
     PHOCOA.widgets.{$this->id}.Module.queueProps(o);    // queue parent props
     // alert('id={$this->id}: queue Overlay props');
     // queue Overlay props here
-}
+};
 PHOCOA.widgets.{$this->id}.Overlay.init = function() {
     PHOCOA.widgets.{$this->id}.Module.init();  // init parent
     var overlay = PHOCOA.runtime.getObject('{$this->id}');
@@ -220,7 +220,7 @@ PHOCOA.widgets.{$this->id}.Overlay.init = function() {
                                                     YAHOO.util.Dom.setStyle(overlayEl, 'display', 'none');
                                                 } );
     }
-}
+};
 ";
         if ( get_class($this) == 'WFYAHOO_widget_Overlay')
         {
