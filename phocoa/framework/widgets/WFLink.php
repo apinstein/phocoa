@@ -37,6 +37,10 @@ class WFLink extends WFWidget
      * @var string The HTML target for the link. Example: _blank, _self, _top etc.
      */
     protected $target;
+    /**
+     * @var string The class of the <a> tag.
+     */
+    protected $class;
 
     /**
       * Constructor.
@@ -103,7 +107,7 @@ class WFLink extends WFWidget
             {
                 $target = " target=\"{$this->target}\" ";
             }
-            $label = ($this->label ? $this->label : $this->value);
+            $label = ($this->label !== NULL ? $this->label : $this->value);
             $title = ($this->title ? " title=\"{$this->title}\" " : NULL);
             return "<a id=\"{$this->id}\" href=\"{$this->value}\" {$class}{$target}{$title}" . $this->getJSActions() . ">{$label}</a>\n" . $this->getListenerJSInScriptTag();
         }
