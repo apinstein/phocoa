@@ -461,6 +461,12 @@ class WFModelCodeGenPropel extends WFObject
                             'label' => 'Search'
                             ),
                         ),
+                    'clear' => array(
+                        'class' => 'WFSubmit',
+                        'properties' => array(
+                            'label' => 'Clear'
+                            ),
+                        ),
                     'paginatorState' => array(
                         'class' => 'WFPaginatorState',
                         'properties' => array('paginator' => '#module#paginator')

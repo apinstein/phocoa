@@ -47,6 +47,13 @@ class module_{{$moduleName}}_list
         $page->sharedOutlet('{{$sharedEntityId}}')->setContent($page->sharedOutlet('paginator')->currentItems());
     }
 
+    function clear($page, $params)
+    {   
+        $page->outlet('query')->setValue(NULL);
+        $this->search($page, $params);
+    }
+
+
     function setupSkin($page, $parameters, $skin)
     {   
         $skin->addHeadString('<link rel="stylesheet" type="text/css" href="' . $skin->getSkinDirShared() . '/form.css" />');

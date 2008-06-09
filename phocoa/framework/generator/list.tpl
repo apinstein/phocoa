@@ -1,21 +1,17 @@
 {* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
 <h2>{{$entityName}}</h2>
+<p><a href="{WFURL action="edit"}">Add a new {{$entityName}}.</a></p>
 
+<h3>{{$entityName}} Search</h3>
 <div class="form-container">
 {WFViewBlock id="{{$listFormId}}"}
     {WFView id="paginatorState"}
     <fieldset>
-		<legend>{{$entityName}} Search</legend>
-		
+        <p><label for="query">Enter a partial {{$descriptiveColumnName}}:</label></p>
 		<div>
-			<label for="query">{{$descriptiveColumnName}}:</label>
-			{WFView id="query"}
+			{WFView id="query"} {WFView id="search"} {WFView id="clear"}
 		</div>
     </fieldset>
-
-    <div class="buttonrow">
-	    {WFView id="search"} <a href="{WFURL action="edit"}">Add a new {{$entityName}}.</a>
-	</div>
 {/WFViewBlock}
 </div>{* end form-container *}
 
