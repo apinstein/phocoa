@@ -94,7 +94,7 @@ class WFMessageBox extends WFWidget
             }
             $modeClass = "phocoaWFMessageBox_{$this->mode}";
             return "
-<div style=\"margin: 5px 0; padding: 0;\"><div class=\"phocoaWFMessageBox {$modeClass}\">
+<div id=\"{$this->id}\" style=\"margin: 5px 0; padding: 0;\"><div class=\"phocoaWFMessageBox {$modeClass}\">
 <img class=\"phocoaWFMessageBox_icon\" src=\"{$imgSrc}\" />
 <div class=\"phocoaWFMessageBox_message\">{$this->value}</div>
 </div></div>
