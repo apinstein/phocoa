@@ -63,6 +63,48 @@ abstract class WFFormatter extends WFObject
     abstract function valueForString($string, &$error);
 }
 
+abstract class WFBaseDateFormatter extends WFFormatter
+{
+    public function relativeDate($time)
+    {
+        $today = strtotime(date('M j, Y'));
+        $reldays = ($time - $today)/86400;
+        if ($reldays >= 0 && $reldays < 1)
+        {
+            return 'Today';
+        }
+        else if ($reldays >= 1 && $reldays < 2)
+        {
+            return 'Tomorrow';
+        }
+        else if ($reldays >= -1 && $reldays < 0)
+        {
+            return 'Yesterday';
+        }
+        if (abs($reldays) < 7)
+        {
+            if ($reldays > 0)
+            {
+                $reldays = floor($reldays);
+                return 'in ' . $reldays . ' day' . ($reldays != 1 ? 's' : '');
+            }
+            else
+            {
+                $reldays = abs(floor($reldays));
+                return $reldays . ' day'  . ($reldays != 1 ? 's' : '') . ' ago';
+            }
+        }
+        if (abs($reldays) < 182)
+        {
+            return date('l, F j',$time ? $time : time());
+        }
+        else
+        {
+            return date('l, F j, Y',$time ? $time : time());
+        }
+    }
+}
+
 /**
  * The UNIX date formatter converts between human-readable dates and UNIX time.
  *
@@ -169,7 +211,7 @@ class WFDateTimeFormatter extends WFUNIXDateFormatter
  * Default formatString is 'r', example: "Thu, 21 Dec 2000 16:01:07 +0200".
  * IMPORTANT! Please be aware that some date formats are not reversible! that is, they can be shown human-readable, but not reversed into a valid time.
  */
-class WFSQLDateFormatter extends WFFormatter
+class WFSQLDateFormatter extends WFBaseDateFormatter
 {
     /**
     * @var string The format string (passed to {@link date}) to use.
@@ -195,7 +237,13 @@ class WFSQLDateFormatter extends WFFormatter
         $timeStr = substr($value, 0, 18);
         $result = strtotime($timeStr);
         if ($result === false) throw( new Exception("Error converting string '$timeStr' into time.") );
-        return date($this->formatString, $result);
+        $formattedString = date($this->formatString, $result);
+        if (strstr($formattedString, '+++'))
+        {
+            $relDate = $this->relativeDate($result);
+            $formattedString = str_replace('+++', $relDate, $formattedString);
+        }
+        return $formattedString;
     }
 
     /**
