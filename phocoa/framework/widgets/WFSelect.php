@@ -45,6 +45,8 @@
  *   InsertsNullPlaceholder - boolean, true to insert an item for "NULL" value at the top of the list.
  *   NullPlaceholder - string, the label of the "Null" placeholder item.
  *  </pre>
+ *
+ *  @todo Add support for OPTGROUP. I think to do this we'll need a separate way to do values/labels/options for OPTGROUP capable.
  */
 class WFSelect extends WFWidget
 {
@@ -172,7 +174,9 @@ class WFSelect extends WFWidget
             case 'options':
                 if ($options[WFBindingSetup::WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER]) {
                     $defaultLabel = $options[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER];
-                    $boundValue = array_merge(array('' => $defaultLabel), $boundValue);
+                    WFLog::log("BEFORE: " . var_export($boundValue, true));
+                    $boundValue = array('' => $defaultLabel) + $boundValue;
+                    WFLog::log("AFETR: " . var_export($boundValue, true));
                 }
                 break;
         }
