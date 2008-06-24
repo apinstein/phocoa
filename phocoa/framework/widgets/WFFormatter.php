@@ -538,4 +538,67 @@ class WFBooleanFormatter extends WFFormatter
         $this->noValue = $s;
     }
 }
+
+/**
+ * The SensitiveData formatter takes a string of sensitive data and blocks out certain pieces of the info.
+ */
+class WFSensitiveDataFormatter extends WFFormatter
+{
+    /**
+    * @var integer The number of characters at the end of the string to reveal.
+    */
+    protected $showEndCharacters = 4;
+    /**
+    * @var string The number of characters as the beginning of the string to reveal.
+    */
+    protected $showBeginCharacters = 0;
+    /**
+    * @var string The character to use in place of redacted chars.
+    */
+    protected $redactedChr = 'X';
+
+    function stringForValue($value)
+    {
+        $displayString = NULL;
+
+        if ($this->showBeginCharacters === 0)
+        {
+            $displayString = str_repeat($this->redactedChr, strlen($value) - $this->showEndCharacters);
+        }
+        else
+        {
+            $displayString = substr($value, 0, $this->showBeginCharacters);
+            $displayString .= str_repeat($this->redactedChr, strlen($value) - ($this->showBeginCharacters + $this->showEndCharacters));
+        }
+        $displayString .= substr($value, -$this->showEndCharacters);
+
+        return $displayString;
+    }
+
+    function valueForString($string, &$error)
+    {
+        $error->setErrorMessage("SensitiveDataFormatter cannot be used in reverse.");
+        return NULL;
+    }
+
+    /**
+    * Set the number of characters at the end of the string to reveal.
+    *
+    * @param integer
+    */
+    function setShowEndCharacters($s)
+    {
+        $this->showEndCharacters = $s;
+    }
+
+    /**
+    * Set the number of characters at the beginning of the string to reveal.
+    *
+    * @param integer
+    */
+    function setShowBeginCharacters($s)
+    {
+        $this->showBeginCharacters = $s;
+    }
+}
 ?>

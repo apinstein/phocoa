@@ -81,6 +81,7 @@ class WFIncluding
                 'WFUNIXDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFSQLDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFNumberFormatter' => 'framework/widgets/WFFormatter.php',
+                'WFSensitiveDataFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFPaginator' => 'framework/WFPagination.php',
                 'WFPagedArray' => 'framework/WFPagination.php',
                 'WFPagedPropelQuery' => 'framework/WFPagination.php',
