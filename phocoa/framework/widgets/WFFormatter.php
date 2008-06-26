@@ -302,6 +302,10 @@ class WFNumberFormatter extends WFFormatter
     * @var string The thousands separator character.
     */
     protected $thousandsSep;
+    /**
+    * @var boolean TRUE to add cardinality to the end (ie 1st, 2nd, 3rd)
+    */
+    protected $addOrdinality;
 
     const WFNumberFormatterNoStyle = 'None';
     const WFNumberFormatterDecimalStyle = 'Decimal';
@@ -319,6 +323,7 @@ class WFNumberFormatter extends WFFormatter
         $this->thousandsSep = ',';
         $this->style = WFNumberFormatter::WFNumberFormatterDecimalStyle;
         $this->currencySymbol = '$';
+        $this->addOrdinality = false;
     }
 
     /**
@@ -340,27 +345,55 @@ class WFNumberFormatter extends WFFormatter
 
     function stringForValue($value)
     {
+        $outValue = NULL;
         switch ($this->style) {
             case WFNumberFormatter::WFNumberFormatterPercentStyle:
                 if ($value == '') return NULL;
-                return number_format( ($value * 100) , $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep) . '%';
+                $outValue = number_format( ($value * 100) , $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep) . '%';
                 break;
             case WFNumberFormatter::WFNumberFormatterNoStyle:
                 if ($value == '') return '';
-                return $value;
+                $outValue = $value;
                 break;
             case WFNumberFormatter::WFNumberFormatterDecimalStyle:
                 if ($value == '') return '';
-                return number_format($value, $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep);
+                $outValue = number_format($value, $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep);
                 break;
             case WFNumberFormatter::WFNumberFormatterCurrencyStyle:
                 if ($value == '') return '';
                 $num = number_format($value, $this->decimalPlaces, $this->decimalPoint, $this->thousandsSep);
-                return $this->currencySymbol . $num;
+                $outValue = $this->currencySymbol . $num;
                 break;
             default:
                 throw( new Exception("Unsupported WFNumberFormatter style: " . $this->style) );
         }
+        if ($this->addOrdinality)
+        {
+            $lastChr = substr($value, -1);
+            switch ($lastChr) {
+                case '0';
+                case '4';
+                case '5';
+                case '6';
+                case '7';
+                case '8';
+                case '9';
+                    $outValue .= 'th';
+                    break;
+                case '1':
+                    $outValue .= 'st';
+                    break;
+                case '2':
+                    $outValue .= 'nd';
+                    break;
+                case '3':
+                    $outValue .= 'rd';
+                    break;
+                default:
+                    throw( new Exception('Value passed ctype_digit test yet does not end with 0-9. Should never happen.') );
+            }
+        }
+        return $outValue;
     }
 
     /**
