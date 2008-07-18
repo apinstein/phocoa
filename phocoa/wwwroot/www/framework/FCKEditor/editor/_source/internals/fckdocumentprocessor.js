@@ -45,7 +45,7 @@ var FCKDocumentProcessor_CreateFakeImage = function( fakeClass, realElement )
 {
 	var oImg = FCKTools.GetElementDocument( realElement ).createElement( 'IMG' ) ;
 	oImg.className = fakeClass ;
-	oImg.src = FCKConfig.FullBasePath + 'images/spacer.gif' ;
+	oImg.src = FCKConfig.BasePath + 'images/spacer.gif' ;
 	oImg.setAttribute( '_fckfakelement', 'true', 0 ) ;
 	oImg.setAttribute( '_fckrealelement', FCKTempBin.AddElement( realElement ), 0 ) ;
 	return oImg ;
@@ -247,3 +247,19 @@ FCKEmbedAndObjectProcessor.AddCustomHandler( function( el, fakeImg )
 		fakeImg.className = 'FCK__Flash' ;
 		fakeImg.setAttribute( '_fckflash', 'true', 0 );
 	} ) ;
+
+// Buggy <span class="Apple-style-span"> tags added by Safari.
+if ( FCKBrowserInfo.IsSafari )
+{
+	FCKDocumentProcessor.AppendNew().ProcessDocument = function( doc )
+	{
+		var spans = doc.getElementsByClassName ?
+			doc.getElementsByClassName( 'Apple-style-span' ) :
+			Array.prototype.filter.call(
+					doc.getElementsByTagName( 'span' ),
+					function( item ){ return item.className == 'Apple-style-span' ; }
+					) ;
+		for ( var i = spans.length - 1 ; i >= 0 ; i-- )
+			FCKDomTools.RemoveNode( spans[i], true ) ;
+	}
+}

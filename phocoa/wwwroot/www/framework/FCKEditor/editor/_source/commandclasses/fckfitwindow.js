@@ -83,6 +83,7 @@ FCKFitWindow.prototype.Execute = function()
 		var oViewPaneSize = FCKTools.GetViewPaneSize( eMainWindow ) ;
 
 		eEditorFrameStyle.position	= "absolute";
+		eEditorFrame.offsetLeft ;		// Kludge for Safari 3.1 browser bug, do not remove. See #2066.
 		eEditorFrameStyle.zIndex	= FCKConfig.FloatingPanelsZIndex - 1;
 		eEditorFrameStyle.left		= "0px";
 		eEditorFrameStyle.top		= "0px";

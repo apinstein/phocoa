@@ -29,11 +29,11 @@ FCK._GetBehaviorsStyle = function()
 {
 	if ( !FCK._BehaviorsStyle )
 	{
-		var sBasePath = FCKConfig.FullBasePath ;
+		var sBasePath = FCKConfig.BasePath ;
 		var sTableBehavior = '' ;
 		var sStyle ;
 
-		// The behaviors should be pointed using the FullBasePath to avoid security
+		// The behaviors should be pointed using the BasePath to avoid security
 		// errors when using a different BaseHref.
 		sStyle = '<style type="text/css" _fcktemp="true">' ;
 
@@ -150,6 +150,7 @@ FCK.InsertHtml = function( html )
 	html = FCK.ProtectTags( html ) ;
 
 //	FCK.Focus() ;
+	FCKSelection.Restore() ;
 	FCK.EditorWindow.focus() ;
 
 	FCKUndo.SaveUndoStep() ;

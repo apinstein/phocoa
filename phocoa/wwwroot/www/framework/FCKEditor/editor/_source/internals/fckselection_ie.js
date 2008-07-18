@@ -147,7 +147,7 @@ FCKSelection.HasAncestorNode = function( nodeTagName )
 
 	while ( oContainer )
 	{
-		if ( oContainer.tagName == nodeTagName ) return true ;
+		if ( oContainer.nodeName.IEquals( nodeTagName ) ) return true ;
 		oContainer = oContainer.parentNode ;
 	}
 
@@ -260,7 +260,10 @@ FCKSelection.Restore = function()
 		{
 			// Don't repeat the restore process if the editor document is already selected.
 			if ( this._GetSelectionDocument( FCK.EditorDocument.selection ) == FCK.EditorDocument )
+			{
+				FCK.IsSelectionChangeLocked = false ;
 				return ;
+			}
 			this.SelectionData.select() ;
 		}
 		catch ( e ) {}

@@ -972,8 +972,9 @@ var FCKDomTools =
 	},
 
 	/**
-	 * Current implementation for ScrollIntoView (due to #1462). We don't have
-	 * a complete implementation here, just the things that fit our needs.
+	 * Current implementation for ScrollIntoView (due to #1462 and #2279). We
+	 * don't have a complete implementation here, just the things that fit our
+	 * needs.
 	 */
 	ScrollIntoView : function( element, alignTop )
 	{

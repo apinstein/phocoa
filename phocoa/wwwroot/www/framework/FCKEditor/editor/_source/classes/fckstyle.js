@@ -221,6 +221,8 @@ FCKStyle.prototype =
 											if ( FCKDomTools.GetAttributeValue( pathElement, att ) != this.GetFinalAttributeValue( att ) )
 												continue ;
 
+											/*jsl:fallthru*/
+
 										default :
 											FCKDomTools.RemoveAttribute( pathElement, att ) ;
 									}
@@ -372,6 +374,8 @@ FCKStyle.prototype =
 									// The 'class' element value must match (#1318).
 									if ( FCKDomTools.GetAttributeValue( currentNode, att ) != this.GetFinalAttributeValue( att ) )
 										continue ;
+
+									/*jsl:fallthru*/
 
 								default :
 									FCKDomTools.RemoveAttribute( currentNode, att ) ;
@@ -545,6 +549,8 @@ FCKStyle.prototype =
 							// The 'class' element value must match (#1318).
 							if ( FCKDomTools.GetAttributeValue( innerElement, att ) != this.GetFinalAttributeValue( att ) )
 								continue ;
+
+							/*jsl:fallthru*/
 
 						default :
 							FCKDomTools.RemoveAttribute( innerElement, att ) ;

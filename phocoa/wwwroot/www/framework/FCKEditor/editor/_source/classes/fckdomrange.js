@@ -458,13 +458,13 @@ FCKDomRange.prototype =
 		// Also note that the node that we use for "address base" would change during backtracking.
 		var addrStart = this._Range.startContainer ;
 		var addrEnd = this._Range.endContainer ;
-		while ( curStart && curStart.nodeType == 3 )
+		while ( curStart && addrStart.nodeType == 3 )
 		{
 			bookmark.Start[0] += curStart.length ;
 			addrStart = curStart ;
 			curStart = curStart.previousSibling ;
 		}
-		while ( curEnd && curEnd.nodeType == 3 )
+		while ( curEnd && addrEnd.nodeType == 3 )
 		{
 			bookmark.End[0] += curEnd.length ;
 			addrEnd = curEnd ;
@@ -862,6 +862,12 @@ FCKDomRange.prototype =
 		// Move the contents of the temporary range to the fixed block.
 		this.ExtractContents().AppendTo( oFixedBlock ) ;
 		FCKDomTools.TrimNode( oFixedBlock ) ;
+
+		// If the fixed block is empty (not counting bookmark nodes)
+		// Add a <br /> inside to expand it.
+		if ( FCKDomTools.CheckIsEmptyElement(oFixedBlock, function( element ) { return element.getAttribute('_fck_bookmark') != 'true' ; } )
+				&& FCKBrowserInfo.IsGeckoLike )
+				FCKTools.AppendBogusBr( oFixedBlock ) ;
 
 		// Insert the fixed block into the DOM.
 		this.InsertNode( oFixedBlock ) ;

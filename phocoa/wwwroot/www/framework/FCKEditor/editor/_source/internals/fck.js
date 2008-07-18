@@ -198,6 +198,13 @@ var FCK =
 					// Ignore space only or empty text.
 					if ( oNewBlock || oNode.nodeValue.Trim().length > 0 )
 						bMoveNode = true ;
+					break;
+
+				// Comment Node
+				case 8 :
+					if ( oNewBlock )
+						bMoveNode = true ;
+					break;
 			}
 
 			if ( bMoveNode )
@@ -664,9 +671,22 @@ var FCK =
 		// object that may internally supply this feature.
 		var range = new FCKDomRange( this.EditorWindow ) ;
 
+		// Move to the selection and delete it.
+		range.MoveToSelection() ;
+		range.DeleteContents() ;
+
 		if ( FCKListsLib.BlockElements[ elementName ] != null )
 		{
-			range.SplitBlock() ;
+			if ( range.StartBlock )
+			{
+				if ( range.CheckStartOfBlock() )
+					range.MoveToPosition( range.StartBlock, 3 ) ;
+				else if ( range.CheckEndOfBlock() )
+					range.MoveToPosition( range.StartBlock, 4 ) ;
+				else
+					range.SplitBlock() ;
+			}
+
 			range.InsertNode( element ) ;
 
 			var next = FCKDomTools.GetNextSourceElement( element, false, null, [ 'hr','br','param','img','area','input' ], true ) ;
@@ -696,9 +716,7 @@ var FCK =
 		}
 		else
 		{
-			// Delete the current selection and insert the node.
-			range.MoveToSelection() ;
-			range.DeleteContents() ;
+			// Insert the node.
 			range.InsertNode( element ) ;
 
 			// Move the selection right after the new element.
@@ -887,6 +905,14 @@ function _FCK_PaddingNodeListener()
 			if ( FCK.EditorDocument.body.childNodes.length == 1
 					&& FCK.EditorDocument.body.firstChild == paddingNode )
 			{
+				/*
+				 * Bug #1764: Don't move the selection if the
+				 * current selection isn't in the editor
+				 * document.
+				 */
+				if ( FCKSelection._GetSelectionDocument( FCK.EditorDocument.selection ) != FCK.EditorDocument )
+					return ;
+
 				var range = FCK.EditorDocument.body.createTextRange() ;
 				var clearContents = false ;
 				if ( !paddingNode.childNodes.firstChild )
@@ -1173,3 +1199,23 @@ function FCKFocusManager_Win_OnFocus()
 		FCK.Events.FireEvent( "OnFocus" ) ;
 	}
 }
+
+/*
+ * #1633 : Protect the editor iframe from external styles.
+ * Notice that we can't use FCKTools.ResetStyles here since FCKTools isn't
+ * loaded yet.
+ */
+(function()
+{
+	var el = window.frameElement ;
+	var width = el.width ;
+	var height = el.height ;
+	if ( /^\d+$/.test( width ) ) width += 'px' ;
+	if ( /^\d+$/.test( height ) ) height += 'px' ;
+	var style = el.style ;
+	style.border = style.padding = style.margin = 0 ;
+	style.backgroundColor = 'transparent';
+	style.backgroundImage = 'none';
+	style.width = width ;
+	style.height = height ;
+})() ;

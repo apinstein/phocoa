@@ -162,7 +162,7 @@ FCKSelection.HasAncestorNode = function( nodeTagName )
 
 	while ( oContainer )
 	{
-		if ( oContainer.nodeType == 1 && oContainer.tagName == nodeTagName ) return true ;
+		if ( oContainer.nodeType == 1 && oContainer.nodeName.IEquals( nodeTagName ) ) return true ;
 		oContainer = oContainer.parentNode ;
 	}
 
@@ -180,7 +180,7 @@ FCKSelection.MoveToAncestorNode = function( nodeTagName )
 
 	while ( oContainer )
 	{
-		if ( oContainer.nodeName == nodeTagName )
+		if ( oContainer.nodeName.IEquals( nodeTagName ) )
 			return oContainer ;
 
 		oContainer = oContainer.parentNode ;

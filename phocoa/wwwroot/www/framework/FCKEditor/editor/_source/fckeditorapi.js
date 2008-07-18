@@ -40,8 +40,8 @@ function InitializeAPI()
 		// objects that aren't really FCKeditor instances.
 		var sScript =
 			'window.FCKeditorAPI = {' +
-				'Version : "2.6",' +
-				'VersionBuild : "18638",' +
+				'Version : "2.6.2",' +
+				'VersionBuild : "19417",' +
 				'Instances : new Object(),' +
 
 				'GetInstance : function( name )' +
@@ -164,13 +164,15 @@ function _AttachFormSubmitToAPI()
 
 function FCKeditorAPI_Cleanup()
 {
-	if ( ! window.FCKUnloadFlag )
+	if ( window.FCKConfig && FCKConfig.MsWebBrowserControlCompat
+			&& !window.FCKUnloadFlag )
 		return ;
 	delete FCKeditorAPI.Instances[ FCK.Name ] ;
 }
 function FCKeditorAPI_ConfirmCleanup()
 {
-	window.FCKUnloadFlag = true ;
+	if ( window.FCKConfig && FCKConfig.MsWebBrowserControlCompat )
+		window.FCKUnloadFlag = true ;
 }
 FCKTools.AddEventListener( window, 'unload', FCKeditorAPI_Cleanup ) ;
 FCKTools.AddEventListener( window, 'beforeunload', FCKeditorAPI_ConfirmCleanup) ;
