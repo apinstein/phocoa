@@ -1,10 +1,17 @@
 Release notes by PHOCOA version number.
 
-Codes:
+Legend:
 [bugfix] - Bug fix.
 [new] - New feature.
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
+
+Version 0.1.5
+NOTE: need to look up a better list of improvements made since 0.1.4. Not sure how...
+- [new] WFSensitiveDataFormatter makes it easy to X-out parts of strings.
+- [bugfix] WFSelect now works properly when using options bindings in conjunction with InsertNullPlaceholder.
+- [new] Update to FCKeditor 2.6.
+- [new] Update to YUI 2.5.2.
 
 Version 0.1.4
 - [new] Appcelerator integration.
