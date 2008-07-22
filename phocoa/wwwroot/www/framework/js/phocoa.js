@@ -53,7 +53,10 @@ PHOCOA.importJS = function(path, globalNamespace, localNamespace) {
         try {
             PHOCOA.sandbox(js.transport.responseText, globalNamespace);
         } catch (err) {
-            alert('importJS: ' + path + ' failed to parse: (errNo: ' + err.number + ')' + err.message);
+            if (console && console.warn)
+            {
+                console.warn('importJS: ' + path + ' failed to parse: (errNo: ' + err.number + ')' + err.message);
+            }
         }
     }
 //    else
