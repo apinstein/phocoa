@@ -418,3 +418,5 @@ YAHOO.widget.PhocoaDialog.prototype.focusFirst = function() {
 YAHOO.widget.PhocoaDialog.prototype.toString = function() {
 	return "PhocoaDialog " + this.id;
 };
+
+YAHOO.register("phocoaDialog", YAHOO.util.Panel, {version: "0.1", build: "1"}); 

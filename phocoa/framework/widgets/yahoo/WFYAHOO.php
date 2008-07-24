@@ -24,12 +24,34 @@ class WFYAHOO_yuiloader
     protected $allowRollup = true;
     protected $loadOptional = false;
     protected $debug = false;
+    protected $customModules = array();
 
     protected $hasRendered = false;
 
     private function __construct() 
     {
         $this->base = WFYAHOO::yuiPath() . '/';
+    }
+
+    public function addModule($name, $type, $path, $fullpath, $requires, $optional, $after, $varName)
+    {
+        $params = array(
+                                        'name'     => $name,
+                                        'type'     => $type,
+                                        'path'     => $path,
+                                        'fullpath' => $fullpath,
+                                        'requires' => $requires,
+                                        'optional' => $optional,
+                                        'after'    => $after,
+                                        'varName'  => $varName
+                                    );
+        foreach (array_keys($params) as $k) {
+            if ($params[$k] === NULL)
+            {
+                unset($params[$k]);
+            }
+        }
+        $this->customModules[$name] = $params;
     }
 
     public static function sharedYuiLoader()
@@ -109,11 +131,32 @@ class WFYAHOO_yuiloader
         //if ($this->hasRendered) return NULL;
         $this->hasRendered = true;
 
+        $customModules = NULL;
+        $indent = 
+"                         ";
+        foreach ($this->customModules as $mod) {
+            $customModules .= "\n{$indent}yl.addModule({";
+            foreach ($mod as $k => $v) {
+                if (is_array($v) and count($v))
+                {
+                    $customModules .= "\n{$indent}  {$k}: ['" . join("','", $v) . "'],";
+                }
+                else
+                {
+                    $customModules .= "\n{$indent}  {$k}: '{$v}',";
+                }
+            }
+            // strip last ,
+            $customModules = substr($customModules, 0, -1);
+            $customModules .= "\n{$indent}});\n";
+        }
+
         return "
                      (function() {
                          // on-demand loading of YUILoader started causing bugs with PhocoaDialog, so for now we hard-code includsion of yuiloader in the head tag.
                          //PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-" . ($this->debug ? 'debug' : 'min') . ".js', 'YAHOO');
-                         var yl = new YAHOO.util.YUILoader();
+                         var yl = new YAHOO.util.YUILoader();" .
+                         $customModules . "
                          " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
                          yl.require(" . join(',', $this->quotedRequired()) . ");
                          yl.allowRollup = " . ($this->allowRollup() ? 'true' : 'false') . ";

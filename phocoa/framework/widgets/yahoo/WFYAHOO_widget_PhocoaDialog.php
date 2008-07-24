@@ -45,7 +45,16 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         $this->deferModuleViewLoading = false;
         $this->cacheModuleView = false;
 
-        $this->yuiloader()->yuiRequire("connection");
+        $this->yuiloader()->addModule('phocoaDialog',
+                                        'js',
+                                        NULL,
+                                        WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/yahoo-phocoa.js',
+                                        array('connection', 'container', 'dragdrop'),
+                                        NULL,
+                                        NULL,
+                                        NULL
+                                    );
+        $this->yuiloader()->yuiRequire("phocoaDialog");
     }
 
     public static function exposedProperties()
@@ -108,7 +117,6 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
     {
         $script .= parent::initJS($blockContent);
         $script .= "
-PHOCOA.importJS('" . WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . "/js/yahoo-phocoa.js');
 PHOCOA.namespace('widgets.{$this->id}.PhocoaDialog');
 PHOCOA.widgets.{$this->id}.PhocoaDialog.queueProps = function(o) {
     PHOCOA.widgets.{$this->id}.Panel.queueProps(o); // queue parent props

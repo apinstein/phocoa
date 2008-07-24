@@ -53,7 +53,7 @@ PHOCOA.importJS = function(path, globalNamespace, localNamespace) {
         try {
             PHOCOA.sandbox(js.transport.responseText, globalNamespace);
         } catch (err) {
-            if (console && console.warn)
+            if (typeof(console) != 'undefined' && console.warn)
             {
                 console.warn('importJS: ' + path + ' failed to parse: (errNo: ' + err.number + ')' + err.message);
             }
@@ -318,7 +318,7 @@ PHOCOA.WFAction.prototype = {
             }
             else
             {
-                if (console && console.warn)
+                if (typeof(console) != 'undefined' && console.warn)
                 {
                     console.warn("Callback doesn't exist: PHOCOA.widgets." + event.target.identify() + ".events." + event.type);
                 }
@@ -408,4 +408,3 @@ PHOCOA.WFAction.prototype = {
         }
     }
 };
-
