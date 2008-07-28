@@ -12,16 +12,10 @@
  */
 function WFWebApplicationMain()
 {
-    $api = php_sapi_name();
-    $webapp = NULL;
     $webapp = WFWebApplication::sharedWebApplication();
-    switch ($api) {
-        case 'cli':
-            break;
-        default:
-            $webapp->runWebApplication();
-            break;
-
+    if (WFWebApplication::isHTTPRequest())
+    {
+        $webapp->runWebApplication();
     }
     return $webapp;
 }
@@ -326,6 +320,16 @@ class WFWebApplication extends WFObject
     public static function unserializeURL($data)
     {
         return base64_decode(strtr($data, '-_', '+/'));
+    }
+
+    /**
+     * Determine if the current execution environment is the result of a WEB request (as oppopsed to a CLI script).
+     *
+     * @return boolean
+     */
+    public static function isHTTPRequest()
+    {
+        return (php_sapi_name() !== 'cli');
     }
 }
 
