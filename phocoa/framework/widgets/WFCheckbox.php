@@ -210,6 +210,7 @@ class WFCheckbox extends WFWidget
         }
         return '<input type="checkbox" ' .
                     'name="' . $this->name() . ($this->groupMode() ? '[]' : '') . '" ' .
+                    ($this->class ? ' class="' . $this->class . '" ' : '') .
                     'id="' . $this->id() . '" ' .
                     'value="' . $this->checkedValue() . '" ' .
                     ($this->checked() ? ' checked="checked" ' : '') .
