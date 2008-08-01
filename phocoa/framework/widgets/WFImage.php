@@ -32,6 +32,7 @@
  * - {@link WFImage::$filesystemBasePath filesystemBasePath}
  * - {@link WFImage::$width width}
  * - {@link WFImage::$height height}
+ * - {@link WFImage::$fitToBox fitToBox}
  * - {@link WFImage::$alt alt}
  * - {@link WFImage::$border border}
  * - {@link WFImage::$align align}
@@ -76,9 +77,13 @@ class WFImage extends WFWidget
 
     /**
      * @var boolean If true, fit the image to the box specified by {@link WFImage::$width width} and {@link WFImage::$height height}.
+     *
      *              The image will be scaled proportionally.
+     *
      *              If only one of width or height is specified, the image will be scaled to fit that dimension only.
+     *
      *              Requires that the filesystemPath property exist.
+     *
      *              If any error conditions occur, will throw an exception.
      */
     protected $fitToBox;
