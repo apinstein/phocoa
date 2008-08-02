@@ -3,7 +3,7 @@
 interface WFModelBuilder
 {
     // get a WFModelEntity for the given entity name
-    function buildEntityModel($name);
+    function buildEntityModel($entity);
 }
 
 // PROPEL 1.2/1.3 (check both versions!) model builder
@@ -37,16 +37,22 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
         $tableMap = $dbMap->getTable($tableMapTableName);
         return $tableMap;
     }
-    function buildEntityModel($name)
+
+    /**
+     * Pass in a WFModelEntity object with a name filled out.
+     *
+     * @param object WFModelEntity An WFModelEntity with a name.
+     * @throws object WFModelEntity
+     */
+    function buildEntityModel($entity)
     {
+        if (!($entity instanceof WFModelEntity)) throw( new WFException("WFModelEntity required.") );
+        $name = $entity->valueForKey('name');
+
         if (isset($this->builtEntities[$name])) return $this->builtEntities[$name];
 
         // build a WFModelEntity structure from the Propel metadata....
         $tableMap = $this->getEntityMetadata($name); 
-
-        // set up entity
-        $entity = new WFModelEntity;
-        $entity->setValueForKey($tableMap->getPhpName(), 'name');
 
         // set up properties
         foreach ($tableMap->getColumns() as $column) {
@@ -59,6 +65,7 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
                 case 'INTEGER':
                 case 'NUMERIC':
                 case 'int':
+                case 'double':
                     $type = WFModelEntityProperty::TYPE_NUMBER;
                     break;
                 case 'TIMESTAMP':
@@ -98,35 +105,47 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
         foreach ($tableMap->getColumns() as $column) {
             if (!$column->isForeignKey()) continue;
 
-            // create relationship from this table to the other one
-            $rel = new WFModelEntityRelationship;
             // get related entity
             $relatedEntityName = NameFactory::generateName(NameFactory::PHP_GENERATOR, array($column->getRelatedTableName(), NameGenerator::CONV_METHOD_PHPNAME));
             $relatedEntityTableMap = $this->getEntityMetadata($relatedEntityName);
-            $relatedEntity = WFModel::sharedModel()->buildEntity($relatedEntityTableMap->getPhpName());
+            $relatedEntity = WFModel::sharedModel()->getEntity($relatedEntityTableMap->getPhpName());
+            if (!$relatedEntity)
+            {
+                $relatedEntity = WFModel::sharedModel()->buildEntity($relatedEntityTableMap->getPhpName());
+            }
+
             // configure relationship
-            $rel->setToOne(true);   // if we are the fk column, it must be to-one (unless it's many-to-many)
-            $rel->setValueForKey($relatedEntity->valueForKey('name'), 'name'); // singular
-            $rel->setValueForKey($column->isNotNull(), 'required');
-            $entity->addRelationship($rel);
+            $relName = $relatedEntity->valueForKey('name');
+            if (!$entity->getRelationship($relName))
+            {
+                // create relationship from this table to the other one
+                $rel = new WFModelEntityRelationship;
+                $rel->setToOne(true);   // if we are the fk column, it must be to-one (unless it's many-to-many)
+                $rel->setValueForKey($relName, 'name'); // singular
+                $rel->setValueForKey($column->isNotNull(), 'required');
+                $entity->addRelationship($rel);
+            }
 
             // create relationship in the other direction
-            $invRel = new WFModelEntityRelationship;
-            // configure relationship
-            $inverseRelationshipIsToOne = false;
-            // is this an "extension" table? TRUE if the relationship is on our PK; this makes the INVERSE relationship have an EXT relationship to this table
-            if ($column->isPrimaryKey())
+            $invRelName = $tableMap->getPhpName();    // make plural as needed -
+            if (!$relatedEntity->getRelationship($invRelName))
             {
-                $inverseRelationshipIsToOne = true;
-                $invRel->setValueForKey(true, 'isExtension');
+                $invRel = new WFModelEntityRelationship;
+                // configure relationship
+                $inverseRelationshipIsToOne = false;
+                // is this an "extension" table? TRUE if the relationship is on our PK; this makes the INVERSE relationship have an EXT relationship to this table
+                if ($column->isPrimaryKey())
+                {
+                    $inverseRelationshipIsToOne = true;
+                    $invRel->setValueForKey(true, 'isExtension');
+                }
+                $invRel->setToOne($inverseRelationshipIsToOne);
+                $invRel->setValueForKey($invRelName, 'name');
+                $relatedEntity->addRelationship($invRel);
             }
-            $invRel->setToOne($inverseRelationshipIsToOne);
-            $invRel->setValueForKey($tableMap->getPhpName(), 'name');    // make plural as needed -
-            $relatedEntity->addRelationship($invRel);
         }
     
         $this->builtEntities[$entity->valueForKey('name')] = $entity;
-        return $entity;
     }
 }
 
@@ -183,10 +202,16 @@ class WFModel extends WFObject
     {
         if (isset($this->entities[$entityName]))
         {
+            throw( new WFException("Entity {$entityName} is already built. Use WFModel::getEntity().") );
             return $this->getEntity($entityName);
         }
-        $entity = $this->builder->buildEntityModel($entityName);
+
+        // create entity
+        $entity = new WFModelEntity;
+        $entity->setValueForKey($entityName, 'name');
         $this->addEntity($entity);
+        $this->builder->buildEntityModel($entity);
+
         return $entity;
     }
 
@@ -237,7 +262,10 @@ class WFModel extends WFObject
                                         if (!$entityName or !$relName) throw( new WFException("inverseRelationship format must be <entityName>.<relationshipName>") );
                                         if (!$this->getEntity($entityName))
                                         {
-                                            $this->addEntity($this->builder->buildEntityModel($entityName));
+                                            $invEntity = new WFModelEntity;
+                                            $invEntity->setValueForKey($entityName, 'name');
+                                            $this->builder->buildEntityModel($invEntity);
+                                            $this->addEntity($invEntity);
                                         }
                                         $rel->setInverseRelationship($this->getEntity($entityName)->getRelationship('relName'));
                                     }
@@ -304,7 +332,7 @@ class WFModelEntity extends WFObject
     {
         if (!$rel->valueForKey('name')) throw( new WFException("Relationships must have a name before being added.") );
         if (!($rel instanceof WFModelEntityRelationship)) throw( new WFException("addRelationship parameter must be a WFModelEntityRelationship.") );
-        if (isset($this->relationships[$rel->valueForKey('name')])) throw( new WFException("Relationship " . $rel->valueForKey('name') . " already exists.") );
+        if (isset($this->relationships[$rel->valueForKey('name')])) throw( new WFException("Relationship " . $rel->valueForKey('name') . " already exists for entity " . $this->valueForKey('name')) );
         $this->relationships[$rel->valueForKey('name')] = $rel;
         return $this;
     }
@@ -334,7 +362,7 @@ class WFModelEntityProperty extends WFObject
 }
 class WFModelEntityRelationship extends WFObject
 {
-    protected $name = NULL;     // a call to get$name on the entity should fetch the related object(s)
+    protected $name = NULL;     // a call to get{$name} on the entity should fetch the related object(s)
     protected $isExtension = false; // extensions are to-one relationships that use the same id field in both tables and the related table stores "extended" properties. The extended table is basically a "grouping" of properties for the primary entity.
     protected $toOne = true;    // TRUE = to-one, FALSE = to-many
     protected $required = false;    // orthogonal to minCount; minCount is only enforced if there is a relationship. Required disallows lack of related object(s).
