@@ -21,6 +21,7 @@
  * - {@link WFSelect::$visibleItems visibleItems}
  * - {@link WFSelect::$labelFormatter labelFormatter}
  * - {@link WFSelect::$labelFormatterSkipFirst labelFormatterSkipFirst}
+ * - {@link WFSelect::$strictValueTyping strictValueTyping}
  *
  * Bindings:
  * <b>Required:</b><br>
@@ -87,6 +88,10 @@ class WFSelect extends WFWidget
      *              format correctly). Default FALSE
      */
     protected $labelFormatterSkipFirst;
+    /**
+     * @var boolean TRUE if the determination of whether a value is "selected" uses STRICT comparisons (===); FALSE to use relaxed comparisons (==). Default FALSE.
+     */
+    protected $strictValueTyping;
 
     /**
       * Constructor.
@@ -102,6 +107,7 @@ class WFSelect extends WFWidget
         $this->width = NULL;
         $this->labelFormatter = NULL;
         $this->labelFormatterSkipFirst = false;
+        $this->strictValueTyping = false;
     }
 
     function setJSonChange($js)
@@ -256,16 +262,26 @@ class WFSelect extends WFWidget
     {
         if ($this->multiple())
         {
-            if (in_array($value, $this->values))
+            if (in_array($value, $this->values, $this->strictValueTyping))
             {
                 return true;
             }
         }
         else
         {
-            if ($value == $this->value)
+            if ($this->strictValueTyping)
             {
-                return true;
+                if ($value === $this->value)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if ($value == $this->value)
+                {
+                    return true;
+                }
             }
         }
         return false;
