@@ -70,6 +70,10 @@ class module_widgets extends WFModule
                                     );
         $page->outlet('radios')->setWidgetConfig($radioDynamicOptions);
     }
+
+    function select_submitForm_Action($page, $params)
+    {
+    }
 }
 
 class module_widgets_form

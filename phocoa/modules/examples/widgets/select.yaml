@@ -1,16 +1,30 @@
 
-city: 
-  bindings: 
-    contentLabels: 
-      controllerKey: arrangedObjects
-      instanceID   : cities
-      modelKeyPath : name
-    contentValues: 
-      controllerKey: arrangedObjects
-      instanceID   : cities
-      modelKeyPath : id
-    value        : 
-      controllerKey: selection
-      instanceID   : person
-      modelKeyPath : cityID
-  class   : WFSelect
+cityForm:
+  class: WFForm
+  children:
+    submitForm:
+      class: WFSubmit
+    city: 
+      class   : WFSelect
+      bindings: 
+        contentLabels: 
+          controllerKey: arrangedObjects
+          instanceID   : cities
+          modelKeyPath : name
+        contentValues: 
+          controllerKey: arrangedObjects
+          instanceID   : cities
+          modelKeyPath : id
+    cityMultiple: 
+      class   : WFSelect
+      properties:
+        multiple: true
+      bindings: 
+        contentLabels: 
+          controllerKey: arrangedObjects
+          instanceID   : cities
+          modelKeyPath : name
+        contentValues: 
+          controllerKey: arrangedObjects
+          instanceID   : cities
+          modelKeyPath : id
