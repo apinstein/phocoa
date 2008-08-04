@@ -21,7 +21,6 @@
  * - {@link WFSelect::$visibleItems visibleItems}
  * - {@link WFSelect::$labelFormatter labelFormatter}
  * - {@link WFSelect::$labelFormatterSkipFirst labelFormatterSkipFirst}
- * - {@link WFSelect::$strictValueTyping strictValueTyping}
  *
  * Bindings:
  * <b>Required:</b><br>
@@ -88,10 +87,6 @@ class WFSelect extends WFWidget
      *              format correctly). Default FALSE
      */
     protected $labelFormatterSkipFirst;
-    /**
-     * @var boolean TRUE if the determination of whether a value is "selected" uses STRICT comparisons (===); FALSE to use relaxed comparisons (==). Default FALSE.
-     */
-    protected $strictValueTyping;
 
     /**
       * Constructor.
@@ -107,7 +102,6 @@ class WFSelect extends WFWidget
         $this->width = NULL;
         $this->labelFormatter = NULL;
         $this->labelFormatterSkipFirst = false;
-        $this->strictValueTyping = false;
     }
 
     function setJSonChange($js)
@@ -231,7 +225,7 @@ class WFSelect extends WFWidget
     function setValue($val)
     {
         $this->assertMultiple(false);
-        parent::setValue($val);
+        parent::setValue((string) $val);
     }
     function value()
     {
@@ -255,33 +249,28 @@ class WFSelect extends WFWidget
     {
         $this->assertMultiple(true);
         if (!is_array($valArray)) throw( new Exception("setValues requires an array.") );
+        foreach ($valArray as $k => $val) {
+            $valArray[$k] = (string) $val;
+        }
         $this->values = $valArray;
     }
 
     function valueIsSelected($value)
     {
+        $value = (string) $value;
+
         if ($this->multiple())
         {
-            if (in_array($value, $this->values, $this->strictValueTyping))
+            if (in_array($value, $this->values, true))
             {
                 return true;
             }
         }
         else
         {
-            if ($this->strictValueTyping)
+            if ($value === $this->value)
             {
-                if ($value === $this->value)
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                if ($value == $this->value)
-                {
-                    return true;
-                }
+                return true;
             }
         }
         return false;

@@ -8,6 +8,7 @@ Legend:
 
 Version 0.1.6 - ???
 - [new] Added WFFixture class to handle loading of fixture data via YAML files.
+- [bugfix] WFSelect now treats all values as type string, thus fixing a problem where options "" and "0" were not treated as distinct values.
 
 Version 0.1.5 - 7/24/2008
 NOTE: need to look up a better list of improvements made since 0.1.4. Not sure how...
