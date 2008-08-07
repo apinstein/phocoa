@@ -6,7 +6,9 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.1.6 - ???
+Version 0.1.7 - ???
+
+Version 0.1.6 - 8/7/2008
 - [bc-break] The "onEvent: <event> do j:" syntax was updated so that it no longer stops the javascript event by default. If you want to stop the javascript event now, 
   do "this.stopEvent(event);" inside of your "j:" handler.
 - [new] Added WFFixture class to handle loading of fixture data via YAML files.
