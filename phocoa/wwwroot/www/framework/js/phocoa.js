@@ -265,13 +265,21 @@ PHOCOA.WFAction = function(elId, eventName) {
     this.eventName = eventName;
     this.callback = PHOCOA.widgets[this.elId].events[this.eventName].handleEvent;
     this.rpc = null;
+    this.stopsEvent = true;
     YAHOO.util.Event.addListener(this.elId, this.eventName, this.yuiTrigger, this, true);
     return this;
 };
 
 PHOCOA.WFAction.prototype = {
-    yuiTrigger: function(event) {
+    stopEvent: function(event) {
         YAHOO.util.Event.preventDefault(event);
+    },
+
+    yuiTrigger: function(event) {
+        if (this.stopsEvent)
+        {
+            this.stopEvent(event);
+        }
         this.execute(event);
     },
 

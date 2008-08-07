@@ -125,6 +125,22 @@ abstract class WFView extends WFObject
         return NULL;
     }
 
+    /**
+     * All WFView objects support our powerful onEvent syntax. This makes it very easy to attach javascript operations to any DOM events of your choosing.
+     *
+     * You can specify these programmatically or in the YAML file, like:
+     *
+     * onEvent: <eventName> do <processingOption>:<processingInfo>
+     *
+     * You can choose from three processing options, "j" (execute javascript code), "s" (execute a server action via a form submit), or "a" (execute a server action via ajax).
+     *
+     * For "j" events, it looks like:
+     * 
+     * onEvent: click do j:alert("Somthing was clicked")
+     *
+     * Your code is actually processed inside of an object function callback; "this" will be the WFAction, and it has a parameter "event". By default, the event is NOT stopped
+     * when using "j" events, so if you don't want the default behavior to occur, be sure to use this.stopEvent(event) in your javascript.
+     */
     public function setOnEvent($str)
     {
         $matches = array();
@@ -142,7 +158,7 @@ abstract class WFView extends WFObject
                     $action = WFAction::JSAction();
                     if ($actionArgument !== NULL)
                     {
-                        $action->setJsEventHandler( "function() { " . $actionArgument . " };" );
+                        $action->setJsEventHandler( "function(event) { " . $actionArgument . " };" );
                     }
                 }
                 else if ($lr === 's')

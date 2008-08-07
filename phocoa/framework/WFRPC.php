@@ -540,7 +540,7 @@ class WFBlurEvent extends WFEvent
  * WFAction represents an action that is called when a WFEvent occurs on the client.
  *
  * WFAction offers 3 action types in response to an event:
- * - JSAction - perform a JS function 
+ * - JSAction - perform a JS function. By default JSActions do NOT stop the default event processing. Use WFAction.stopEvent(event) to do this.
  * - ServerAction - cause a page refresh, and effect an action on the server during that refresh. Uses an RPC.
  * - AjaxAction - Effect an action on the server via an AJAX callback. Uses an RPC.
  *
@@ -560,14 +560,19 @@ class WFBlurEvent extends WFEvent
 class WFAction extends WFObject
 {
     /**
-     * The {@link WFRPC} object used by ServerAction and AjaxAction.
+     * @var object WFRPC The {@link WFRPC} object used by ServerAction and AjaxAction.
      */
     protected $rpc;
 
     /**
-     * A reference to the {@link WFEvent} that will trigger this action.
+     * @var object WFEvent A reference to the {@link WFEvent} that will trigger this action.
      */
     protected $event;
+
+    /**
+     * @var boolean TRUE to stop the javascript event default behavior, FALSE to let the event flow through. Default TRUE.
+     */
+    protected $stopsEvent;
 
     protected $jsEventHandler;
 
@@ -576,6 +581,17 @@ class WFAction extends WFObject
         $this->rpc = NULL;
         $this->event = NULL;
         $this->jsEventHandler = NULL;
+        $this->stopsEvent = true;
+    }
+
+    /**
+     * Whether or not the triggering javascript event should be stopped.
+     *
+     * @param boolean
+     */
+    public function setStopEvent($stopsEvent)
+    {
+        $this->stopsEvent = $stopsEvent;
     }
 
     /**
@@ -667,6 +683,7 @@ class WFAction extends WFObject
         $script = "function() {
                 PHOCOA.namespace('widgets." . $this->event()->widget()->id() . ".events." . $this->event()->name() . "');
                 var action = new PHOCOA.WFAction('" . $this->event()->widget()->id() . "', '" . $this->event()->name() . "');
+                action.stopsEvent = " . ($this->stopsEvent ? 'true' : 'false') . ";
                 action.callback = " . $this->jsEventHandler() . ";
             ";
         if ($this->rpc)
@@ -788,7 +805,9 @@ class WFAction extends WFObject
      */
     public static function JSAction()
     {
-        return new WFAction();
+        $a = new WFAction();
+        $a->setStopEvent(false);
+        return $a;
     }
     /**
      * Create a new ServerAction to reponsd to an event.
