@@ -302,6 +302,7 @@ PHOCOA.widgets.{$this->id}.init = function()
             
             // finish script init function
             $script .= "
+    PHOCOA.runtime.addObject({$this->id}, '{$this->id}');
     {$this->id}.draw();
 }
 ";
