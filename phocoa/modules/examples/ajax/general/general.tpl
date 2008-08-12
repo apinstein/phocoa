@@ -74,10 +74,11 @@
     <li>Cause UI Updates - PHOCOA has a special WFActionResponse subclass that the PHOCOA client layer will interrupt and process automatically.
         It is a very easy way for you to effect updates in the browser. The WFActionResponsePhocoaUIUpdater class allows you to update HTML elements, replace them, or run Javascript code that is sent from the server. WFActionResponsePhocoaUIUpdater has a fluent interface to make it easy for you to send multiple updates at the same time.
         <blockquote><pre>
-            return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()-&gt;
-                     -&gt;addUpdateHTML('myDiv', '&lt;b&gt;new html&lt;/b&gt;')
-                     -&gt;addReplaceHTML('myOtherDiv', '&lt;div id="myOtherDiv"&gt;replacement div&lt;/div&gt;')
-                     -&gt;addRunScript('alert("You did it!");');
+return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()-&gt;
+         -&gt;addUpdateHTML('myDiv', '&lt;b&gt;new html&lt;/b&gt;')
+         -&gt;addReplaceHTML('myOtherDiv',
+                             '&lt;div id="myOtherDiv"&gt;replacement div&lt;/div&gt;')
+         -&gt;addRunScript('alert("You did it!");');
          </pre></blockquote>
     </li>
 </ul>
@@ -228,15 +229,15 @@ We also implement our ajaxFormSubmitNormal action handler, which in this example
 {literal}
 function ajaxFormSubmitNormal($page, $params, $senderId, $eventName)
 {
-    $result = 'You said: "' . $page->outlet('textField')->value() . '" and "' . $page->outlet('textField2')->value() . '".';
-    if (WFRequestController::sharedRequestController()->isAjax())
+    $result = 'You said: "' . $page-&gt;outlet('textField')-&gt;value() . '" and "' . $page-&gt;outlet('textField2')-&gt;value() . '".';
+    if (WFRequestController::sharedRequestController()-&gt;isAjax())
     {
         return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()
-            ->addUpdateHTML('ajaxFormResult', $result);
+            -&gt;addUpdateHTML('ajaxFormResult', $result);
     }
     else
     {
-        $page->assign('formResult', $result);
+        $page-&gt;assign('formResult', $result);
     }
 }
 </pre></blockquote>
