@@ -14,7 +14,7 @@
  * Content can be static or dynamically loaded.
  *
  * WFYAHOO_widget_Tab is a block element. Use WFViewBlock to use a tab in your template. The block content is the default content for the tab.
- * 
+ *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
@@ -111,6 +111,14 @@ class WFYAHOO_widget_Tab extends WFYAHOO
  * To use tabview, simply create a WFYAHOO_widget_TabView with WFYAHOO_widget_Tab for children. PHOCOA takes care of the rest.
  *
  * WFYAHOO_widget_TabView is a block element. Use WFViewBlock to use a tabview in your template. All WFYAHOO_widget_Tab instancs should be inside the block, in the order you with them to appear.
+ *
+ * Example:
+ * <code>
+ * {WFViewBlock id="myTabs"}
+ *     {WFViewBlock id="tab1"}Tab 1 content goes here{/WFViewBlock}
+ *     {WFViewBlock id="tab2"}Tab 2 content goes here{/WFViewBlock}
+ * {/WFViewBlock}
+ * </code>
  *
  * <b>PHOCOA Builder Setup:</b>
  *
