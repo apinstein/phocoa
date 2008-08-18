@@ -228,13 +228,17 @@ class WFYAHOO_widget_TabView extends WFYAHOO
         $configs = array('cacheData', 'dataSrc', 'dataTimeout', 'disabled', 'loadMethod');
         $i = 0;
         foreach ($this->tabRenderOrder as $tabId => $tab) {
-            $html .= "
-            tab = tabView.getTab(" . $i++ . ");\n";
+            $needTabVarInJS = true;
             foreach ($configs as $config) {
                 if ($tab->$config() !== NULL)
                 {
-                    $html .= "
-            tab.set('{$config}', " . $this->jsValueForValue($tab->$config()) . ");";
+                    if ($needTabVarInJS)
+                    {
+                        $html .= "
+            tab = tabView.getTab(" . $i++ . ");\n";
+                    $needTabVarInJS = false;
+                    }
+                    $html .= "            tab.set('{$config}', " . $this->jsValueForValue($tab->$config()) . ");\n";
                 }
             }
         }
