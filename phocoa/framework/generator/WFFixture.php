@@ -52,7 +52,7 @@ class WFFixture extends WFObject
     public static function load($files, $saveMethod = NULL)
     {
         $fixtureLoader = new WFFixture;
-        $createdObjs = array();
+        $allCreatedObjects = array();
 
         // load the fixtures data & process
         foreach ($files as $file)
@@ -60,21 +60,22 @@ class WFFixture extends WFObject
             $pathParts = pathinfo($file);
             switch (strtolower($pathParts['extension'])) {
                 case 'yaml':
-                    $createdObjs = $fixtureLoader->processObjectList(WFYaml::load($file));
+                    $newObjs = $fixtureLoader->processObjectList(WFYaml::load($file));
+                    $allCreatedObjects = array_merge($newObjs, $allCreatedObjects);
                     break;
                 default:
                     throw( new WFException("No fixture support for files of type {$pathParts['extension']}.") );
             }
             if ($saveMethod)
             {
-                foreach ($createdObjs as $o)
+                foreach ($allCreatedObjects as $o)
                 {
                     $o->$saveMethod();
                 }
             }
         }
 
-        return $createdObjs;
+        return $allCreatedObjects;
     }
 
     public static function loadObject($file, $saveMethod = NULL)
@@ -84,7 +85,7 @@ class WFFixture extends WFObject
 
     function processObjectList($yaml)
     {
-        $createdObjs = array();
+        $allCreatedObjects = array();
         foreach ($yaml as $class_name => $instances)
         {
             if (!is_array($instances))
@@ -98,16 +99,25 @@ class WFFixture extends WFObject
                 } catch (Exception $e) {
                     throw( new WFException("Error processing class {$class_name}[{$instanceId}]: " . $e->getMessage()) );
                 }
-                $createdObjs[$instanceId] = $o;
+                // store all "named" objects for future reference
                 if (gettype($instanceId) != 'integer')
                 {
                     if (isset($this->objById[$class_name][$instanceId])) throw( new Exception("There already exists a {$class_name} for id {$instanceId}.") );
                     $this->objById[$class_name][$instanceId] = $o;
                 }
+                // store all created objects; save them as named objects if possible
+                if (gettype($instanceId) == 'integer')
+                {
+                    $allCreatedObjects[] = $o;
+                }
+                else
+                {
+                    $allCreatedObjects[$instanceId] = $o;
+                }
             }
         }
 
-        return $createdObjs;
+        return $allCreatedObjects;
     }
 
     function makeObj($class, $props)

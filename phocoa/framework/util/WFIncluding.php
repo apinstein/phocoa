@@ -34,6 +34,8 @@ class WFIncluding
                 'Smarty' => 'smarty/Smarty.class.php',
                 'Horde_Yaml' => 'Horde/Yaml.php',
                 'Horde_Yaml_Dumper' => 'Horde/Yaml/Dumper.php',
+                'Horde_Yaml_Loader' => 'Horde/Yaml/Loader.php',
+                'Horde_Yaml_Node' => 'Horde/Yaml/Node.php',
                 'Services_JSON' => 'libs/JSON.php',
 
                 'Mail_Mailer' => 'framework/Mailer.php',
