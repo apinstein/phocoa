@@ -42,7 +42,7 @@ class WFTextField extends WFWidget
     {
         if ($this->hidden) return NULL;
 
-        return '<input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . $this->value . '"' .
+        return '<input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . htmlspecialchars($this->value) . '"' .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->class ? ' class="' . $this->class . '"' : '') .
