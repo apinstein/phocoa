@@ -98,6 +98,17 @@ class WFSubmit extends WFWidget
         $this->submitEvent->action()->setAction($action);
     }
 
+    /**
+     * Switch the submit widget to using AJAX for submission.
+     *
+     * This function is really only here so that we can preserve the action/rpc setup when WFForm isAjax is true.
+     * Previously, WFForm would just re-create the click event, but that created a bug where any customization of the action was lost. Particuarly, custom "action" methods were getting blown away.
+     */
+    function useAjax()
+    {
+        $this->submitEvent->action()->rpc()->setIsAjax(true);
+    }
+
     function setLabel($label)
     {
         $this->label = $label;

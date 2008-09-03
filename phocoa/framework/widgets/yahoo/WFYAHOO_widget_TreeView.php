@@ -276,7 +276,7 @@ PHOCOA.widgets.{$this->id}.init = function()
                 {
                     $parentNode = "root";
                 }
-                $script .= "    nodes['{$labelPath}'] = new YAHOO.widget.{$this->nodeType}('" . $currentItem->data() . "', {$parentNode}, false, true);\n";
+                $script .= "    nodes['{$labelPath}'] = new YAHOO.widget.{$this->nodeType}(" . WFJSON::encode($currentItem->data()) . ", {$parentNode}, false, true);\n";
                 $script .= "    nodes['{$labelPath}'].nodeId = '" . addslashes($currentItem->id()) . "';\n";
                 if (!$currentItem->couldHaveChildren())
                 {

@@ -157,7 +157,9 @@ class WFForm extends WFWidget
             foreach ($this->children() as $id => $widget) {
                 if ($widget instanceof WFSubmit)
                 {
-                    $widget->setListener( new WFClickEvent(WFAction::AjaxAction()->setAction($id)) );
+                    // switch existing action over to an ajax action; needed to add a function for this since if we re-create the action here we remove any customized settings (ie the ACTION)
+                    $widget->useAjax();
+                    //$widget->setListener( new WFClickEvent(WFAction::AjaxAction()->setAction($id)) );
                 }
             }
         }
