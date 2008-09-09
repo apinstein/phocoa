@@ -31,8 +31,13 @@
  *          MyRelationshipName:
  *              prop1: a
  *              prop2: <?php MyRelatedClass::SOME_CONSTANT ?>
- *  MyRelatedClass:
+ *  MyToOneRelatedClass:
+ *      prop1: val1
+ *      myOtherClass: inst1
+ *  MyToManyRelatedClass:
  *      - prop1: val1
+ *        myOtherClass: inst1
+ *      - prop1: val2
  *        myOtherClass: inst1
  * </code>
  *
@@ -46,7 +51,8 @@ class WFFixture extends WFObject
      *
      * @param array An array of paths to YAML fixture files.
      * @param string The method to call on all top-level objects declared in the YAML file. Defaults to NULL (no call). Useful for calling "save" method to persist fixtures to a DB.
-     * @return array An array containing all created objects.
+     * @return array An array containing all created objects, as an associative array. NOTE that if you load multiple files with this call and you have the same "name" for different objects,
+     *               they will stomp each other and you aren't guaranteed which one you'll get.
      * @throws object WFException
      */
     public static function load($files, $saveMethod = NULL)
@@ -116,6 +122,7 @@ class WFFixture extends WFObject
                 }
                 else
                 {
+                    if (isset($allCreatedObjects[$instanceId])) throw( new WFException("Can't have two objects with the same instance ID in the same YAML file.") );
                     $allCreatedObjects[$instanceId] = $o;
                 }
             }
