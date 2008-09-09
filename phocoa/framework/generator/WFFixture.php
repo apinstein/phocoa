@@ -70,7 +70,11 @@ class WFFixture extends WFObject
             {
                 foreach ($allCreatedObjects as $o)
                 {
-                    $o->$saveMethod();
+                    try {
+                        $o->$saveMethod();
+                    } catch (Exception $e) {
+                        throw (new WFException("Error saving object: " . $o . "\n" . $e->getMessage()) );
+                    }
                 }
             }
         }
@@ -142,6 +146,7 @@ class WFFixture extends WFObject
                 $entity = $model->getEntity($class);
                 if ($entity->getProperty($k))
                 {
+                    // it's a basic property
                     if (!is_array($v))
                     {
                         // is $v a php eval?
