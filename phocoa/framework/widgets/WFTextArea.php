@@ -39,6 +39,7 @@ class WFTextArea extends WFWidget
 
     function render($blockContent = NULL)
     {
+        if ($this->hidden) return NULL;
         return '<textarea name="' . $this->name() . '" id="' . $this->id() . '"' . 
             ($this->cols ? ' cols="' . $this->cols . '" ' : '') .
             ($this->rows ? ' rows="' . $this->rows . '" ' : '') .
