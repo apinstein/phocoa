@@ -75,6 +75,11 @@ abstract class WFView extends WFObject
     protected $jsEvents;
 
     /**
+     * @var string The original onEvent script text. This is used internally by advanced applications like WFDynamic.
+     */
+    protected $originalOnEvent;
+
+    /**
       * Constructor.
       *
       * Sets up the smarty object for this module.
@@ -94,6 +99,7 @@ abstract class WFView extends WFObject
         $this->setId($id);
         $this->jsActions = array();
         $this->jsEvents = array();
+        $this->originalOnEvent = NULL;
 
         // js/css import infrastructure
         $this->importInHead = false;
@@ -126,6 +132,16 @@ abstract class WFView extends WFObject
     }
 
     /**
+     * Get the raw onEvent script text.
+     *
+     * @return string Or NULL if no onEvent script attached to this widget.
+     */
+    public function getOnEvent()
+    {
+        return $this->originalOnEvent;
+    }
+
+    /**
      * All WFView objects support our powerful onEvent syntax. This makes it very easy to attach javascript operations to any DOM events of your choosing.
      *
      * You can specify these programmatically or in the YAML file, like:
@@ -143,6 +159,12 @@ abstract class WFView extends WFObject
      */
     public function setOnEvent($str)
     {
+        // clean up script & gracefully handle empty scripts
+        $str = trim($str);
+        if (empty($str)) return;
+
+        $this->originalOnEvent = $str;
+
         $matches = array();
         // statement syntax: <event> do <l|r>:[action]
         // repeat by adding "onEvent:" and another statement

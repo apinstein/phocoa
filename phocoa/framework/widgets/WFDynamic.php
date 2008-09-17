@@ -457,6 +457,8 @@ class WFDynamic extends WFWidget
             if (!is_null($this->prototype))
             {
                 $widget = $this->prototype->cloneWithID($id);
+                // copy onEvent script to the clone
+                $widget->setOnEvent($this->prototype->getOnEvent());
             }
             else
             {
