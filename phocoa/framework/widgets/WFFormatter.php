@@ -65,6 +65,50 @@ abstract class WFFormatter extends WFObject
 
 abstract class WFBaseDateFormatter extends WFFormatter
 {
+    /**
+    * @var string The format string (passed to {@link date}) to use.
+    */
+    protected $formatString;
+    protected $relativeDateFormatString;
+
+    function __construct()
+    {
+        parent::__construct();
+        $this->formatString = 'r';
+        $this->relativeDateFormatString = 'l, F j, Y';
+    }
+
+
+    /**
+    * Set the format string (see {@link date}) to use for the formatter.
+    *
+    * @param string The format string to use in formatting the date.
+    */
+    function setFormatString($fmt)
+    {
+        $this->formatString = $fmt;
+    }
+
+    /**
+    * Set the format string (see {@link date}) to use for the relative data format string if it can't be represented with a relative date (ie, Yesterday, Tomorrow, Today, etc).
+    *
+    * @param string The format string to use in formatting the relative date.
+    */
+    function setRelativeDateFormatString($fmt)
+    {
+        $this->relativeDateFormatString = $fmt;
+    }
+
+    public function replaceRelativeDates($formattedString, $unixTS)
+    {
+        if (strstr($formattedString, '+++'))
+        {
+            $relDate = $this->relativeDate($unixTS);
+            $formattedString = str_replace('+++', $relDate, $formattedString);
+        }
+        return $formattedString;
+    }
+
     public function relativeDate($time)
     {
         $today = strtotime(date('M j, Y'));
@@ -94,14 +138,7 @@ abstract class WFBaseDateFormatter extends WFFormatter
                 return $reldays . ' day'  . ($reldays != 1 ? 's' : '') . ' ago';
             }
         }
-        if (abs($reldays) < 182)
-        {
-            return date('l, F j',$time ? $time : time());
-        }
-        else
-        {
-            return date('l, F j, Y',$time ? $time : time());
-        }
+        return date($this->relativeDateFormatString, $time ? $time : time());
     }
 }
 
@@ -111,19 +148,8 @@ abstract class WFBaseDateFormatter extends WFFormatter
  * Default formatString is 'r', example: "Thu, 21 Dec 2000 16:01:07 +0200".
  * IMPORTANT! Please be aware that some date formats are not reversible! that is, they can be shown human-readable, but not reversed into a valid time.
  */
-class WFUNIXDateFormatter extends WFFormatter
+class WFUNIXDateFormatter extends WFBaseDateFormatter
 {
-    /**
-    * @var string The format string (passed to {@link date}) to use.
-    */
-    protected $formatString;
-
-    function __construct()
-    {
-        parent::__construct();
-        $this->formatString = 'r';
-    }
-
     function stringForValue($value)
     {
         // allow empty values
@@ -131,7 +157,9 @@ class WFUNIXDateFormatter extends WFFormatter
         {
             return '';
         }
-        return date($this->formatString, $value);
+        $formattedString = date($this->formatString, $value);
+        $formattedString = $this->replaceRelativeDates($formattedString, $value);
+        return $formattedString;
     }
 
     function valueForString($string, &$error)
@@ -153,16 +181,6 @@ class WFUNIXDateFormatter extends WFFormatter
             return $result;
         }
     }
-
-    /**
-    * Set the format string (see {@link date}) to use for the formatter.
-    *
-    * @param string The format string to use in formatting the date.
-    */
-    function setFormatString($fmt)
-    {
-        $this->formatString = $fmt;
-    }
 }
 
 /**
@@ -181,7 +199,9 @@ class WFDateTimeFormatter extends WFUNIXDateFormatter
             return '';
         }
         if (!($dtObject instanceof DateTime)) throw( new WFException("Parameter passed must be a DateTime object.") );
-        return $dtObject->format($this->formatString);
+        $formattedString = $dtObject->format($this->formatString);
+        $formattedString = $this->replaceRelativeDates($formattedString, $dtObject->format('U'));
+        return $formattedString;
     }
 
     function valueForString($string, &$error)
@@ -214,17 +234,6 @@ class WFDateTimeFormatter extends WFUNIXDateFormatter
 class WFSQLDateFormatter extends WFBaseDateFormatter
 {
     /**
-    * @var string The format string (passed to {@link date}) to use.
-    */
-    protected $formatString;
-
-    function __construct()
-    {
-        parent::__construct();
-        $this->formatString = 'r';
-    }
-
-    /**
     * Convert a SQL date/time string into a nicely formatted string.
     */
     function stringForValue($value)
@@ -234,15 +243,11 @@ class WFSQLDateFormatter extends WFBaseDateFormatter
         {
             return '';
         }
-        $timeStr = substr($value, 0, 18);
+        $timeStr = substr($value, 0, 19);
         $result = strtotime($timeStr);
         if ($result === false) throw( new Exception("Error converting string '$timeStr' into time.") );
         $formattedString = date($this->formatString, $result);
-        if (strstr($formattedString, '+++'))
-        {
-            $relDate = $this->relativeDate($result);
-            $formattedString = str_replace('+++', $relDate, $formattedString);
-        }
+        $formattedString = $this->replaceRelativeDates($formattedString, $result);
         return $formattedString;
     }
 
@@ -267,16 +272,6 @@ class WFSQLDateFormatter extends WFBaseDateFormatter
         {
             return date('r', $result);
         }
-    }
-
-    /**
-    * Set the format string (see {@link date}) to use for the formatter.
-    *
-    * @param string The format string to use in formatting the date.
-    */
-    function setFormatString($fmt)
-    {
-        $this->formatString = $fmt;
     }
 }
 
