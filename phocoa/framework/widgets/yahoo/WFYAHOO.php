@@ -14,6 +14,7 @@
  *
  * @todo Deal with filters.
  * @todo Document.
+ * @todo Look at re-working the way we do YUIloader. They recommend only 1x per page; and it looks like the way we do it, you load ALL items once for each time a widget exists. Probably slows things down a lot.
  */
 class WFYAHOO_yuiloader
 {

@@ -91,6 +91,10 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
         {
             // render the tab's content block
             $html = parent::render($blockContent);
+            if ($this->textFieldId)
+            {
+                $html .= '<input type="button" value="Pick Color" id="' . $this->id . '_trigger" />';
+            }
             $html .= '
             <div id="' . $this->id . '" class="yui-picker-panel" style="display: none">
                 <div class="hd">Please choose a color:</div>
@@ -102,11 +106,6 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
                 <div class="ft"></div>
             </div>
 ';
-
-            if ($this->textFieldId)
-            {
-                $html .= '<input type="button" value="Pick Color" id="' . $this->id . '_trigger" />';
-            }
             return $html;
         }
     }
