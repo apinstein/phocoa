@@ -1,0 +1,12 @@
+colorForm:
+  class: WFForm
+  children:
+    color:
+      class: WFTextField
+      properties:
+        value: '#ababab'
+    colorPicker:
+      class: WFYAHOO_widget_ColorPicker
+      properties:
+        textFieldId: color
+        showwebsafe: false
