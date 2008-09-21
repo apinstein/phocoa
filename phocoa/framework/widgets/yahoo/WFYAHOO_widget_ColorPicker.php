@@ -131,7 +131,7 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
             // Instantiate the Dialog
             PHOCOA.widgets.{$this->id}.dialog = new YAHOO.widget.Dialog('{$this->id}', {
                 width : '500px',
-                fixedcenter : true,
+                fixedcenter : false,
                 visible : false, 
                 constraintoviewport : true,
                 buttons : [ { text:'Save', handler:PHOCOA.widgets.{$this->id}.handleOK, isDefault:true },
@@ -176,7 +176,7 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
                 var hexRE = /#[0-9A-Fa-f]{6}/;
                 var hexColor = \$F('{$this->textFieldId}');
                 var reRes = hexColor.match(hexRE);
-                if ( reRes != -1)
+                if ( reRes !== null)
                 {
                     PHOCOA.widgets.{$this->id}.picker.setValue(YAHOO.util.Color.hex2rgb(reRes[0].substr(1)), true);
                 }
