@@ -7,9 +7,18 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.1.7 - ???
-- [bugfix] Custom action methods on WFSubmit widgets now work in conjunction with WFForm.isAjax. Previously the "default" action name was always used even if a custom action was specified.
+- [bugfix] Added htmlspecialchars to WFTextField
+- [new] Add onEvent support for WFDynamic objects via setting onEvent on the prototype.
+- [new] Add relative date support to all WF*DateFormatters via +++ token. Add relativeDateFormatString for controlling formatting of out-of-bounds format strings in relative mode.
+- [BC-deprecated] Removed WFException::raise() which was a bad idea and not really used.
+- [new] Add WFDecorator to ControllerLayer. You can now specify a "decorator" or "decorators" as class names of WFDecorator subclasses. The WFDecorator infrastructure makes
+  it easy to write functions to format things for UI's without having to muddy up your model objects with UI code. 
+- [BC-deprecated] All Binding Options are now described in WFBinding, not WFBindingSetup. WFBinding options are now documented in WFBinding API docs page. WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME,WFBINDINGSETUP_PATTERN_OPTION_VALUE,WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER,WFBINDINGSETUP_NULL_PLACEHOLDER will be removed in a future version.
+- [new] Added WFYAHOO_widget_ColorPicker widget.
+- [bugfix] If a bound value is an array, and a formatter is assigned to the binding, PHOCOA will now apply the formatter function to the elements of the array, rather than the array (which resulted in a bungled value). Useful for things like WFJumpSelect::$contentLabels.
 
 Version 0.1.6 - 8/7/2008
+- [bugfix] Custom action methods on WFSubmit widgets now work in conjunction with WFForm.isAjax. Previously the "default" action name was always used even if a custom action was specified.
 - [bc-break] The "onEvent: <event> do j:" syntax was updated so that it no longer stops the javascript event by default. If you want to stop the javascript event now, 
   do "this.stopEvent(event);" inside of your "j:" handler.
 - [new] Added WFFixture class to handle loading of fixture data via YAML files.

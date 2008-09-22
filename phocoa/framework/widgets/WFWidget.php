@@ -373,7 +373,18 @@ abstract class WFWidget extends WFView
         {
             WFLog::log("Formatting value " . var_export($boundValue, true) . " with " . $binding->formatter(), WFLog::TRACE_LOG);
             $formatter = $this->page()->module()->valueForKey($binding->formatter());
-            $boundValue = $formatter->stringForValue($boundValue);
+            // automatically handle formatting of arrays of objects
+            if (is_array($boundValue))
+            {
+                // using foreach since for some f'd up reason array_walk($boundValue, array($formatter,"stringForValue")) didn't munge the values.
+                foreach (array_keys($boundValue) as $k) {
+                    $boundValue[$k] = $formatter->stringForValue($boundValue[$k]);
+                }
+            }
+            else
+            {
+                $boundValue = $formatter->stringForValue($boundValue);
+            }
             WFLog::log("Formatted value: " . var_export($boundValue, true), WFLog::TRACE_LOG);
         }
 
