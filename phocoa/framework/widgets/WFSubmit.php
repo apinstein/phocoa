@@ -97,6 +97,10 @@ class WFSubmit extends WFWidget
     {
         $this->submitEvent->action()->setAction($action);
     }
+    function setTarget($target)
+    {
+        $this->submitEvent->action()->setTarget($target);
+    }
 
     /**
      * Switch the submit widget to using AJAX for submission.

@@ -16,6 +16,7 @@ Version 0.1.7 - ???
 - [BC-deprecated] All Binding Options are now described in WFBinding, not WFBindingSetup. WFBinding options are now documented in WFBinding API docs page. WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME,WFBINDINGSETUP_PATTERN_OPTION_VALUE,WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER,WFBINDINGSETUP_NULL_PLACEHOLDER will be removed in a future version.
 - [new] Added WFYAHOO_widget_ColorPicker widget.
 - [bugfix] If a bound value is an array, and a formatter is assigned to the binding, PHOCOA will now apply the formatter function to the elements of the array, rather than the array (which resulted in a bungled value). Useful for things like WFJumpSelect::$contentLabels.
+- [new] Added a setTarget() method to WFSubmit so you can better control the method called when submitting a form.
 
 Version 0.1.6 - 8/7/2008
 - [bugfix] Custom action methods on WFSubmit widgets now work in conjunction with WFForm.isAjax. Previously the "default" action name was always used even if a custom action was specified.
