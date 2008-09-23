@@ -55,6 +55,19 @@ class WFWebApplication extends WFObject
     function __construct() {}
 
     /**
+     * Is the application running in debug mode?
+     *
+     * You can turn on debug mode by setting a cookie or a request vairable PHOCOA_DEBUG=1
+     *
+     * @return boolean
+     */
+    public function debug()
+    {
+        if (isset($_REQUEST['PHOCOA_DEBUG']) and $_REQUEST['PHOCOA_DEBUG'] == 1) return true;
+        return false;
+    }
+
+    /**
      *  This is the true "setup function"; use this instead of constructor for setup because the object is a singleton with callback,
      *  and down in the call stack of "init" are calls to get the singleton. 
      *  If this happens from the constructor, then the singleton accessor is called before it has a chance to save the singleton.

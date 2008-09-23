@@ -507,6 +507,7 @@ class WFSkin extends WFObject
         $smarty->assign('skinMetaDescription', $this->metaDescription);
         $smarty->assign('skinBody', $this->body);
         $smarty->assign('skinHeadStrings', join("\n", array_values($this->headStrings)));
+        $smarty->assign('phocoaDebug', WFWebApplication::sharedWebApplication()->debug());
 
         // set up shared directory URLs
         $smarty->assign('skinDir', $this->getSkinDir() );
