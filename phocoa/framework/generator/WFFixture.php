@@ -184,7 +184,19 @@ class WFFixture extends WFObject
                         try {
                             $model->buildModel('Propel', NULL, array($k));
                         } catch (Exception $e) {
-                            throw( new WFException("{$k} is not a known Propel entity.") );
+                            // maybe it's an instance variable or just a KVC property?
+                            try {
+                                // is $v a php eval?
+                                $matches = array();
+                                if (preg_match('/<\?php (.*)\?>/', $v, $matches))
+                                {
+                                    $v = eval( "return {$matches[1]};" );
+                                }
+                                $o->setValueForKey($v, $k);
+                                continue;
+                            } catch (Exception $e) {
+                                throw( new WFException("{$k} is not a known Propel entity, nor is it a KVC method:" . $e->getMessage()) );
+                            }
                         }
                     }
                     $rel = $entity->getRelationship($k);
