@@ -97,6 +97,12 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         self::assertTrue(count($unionOfArrays) == 3);
     }
 
+    // test @first
+    function testFirstOperator()
+    {
+        self::assertEquals($this->nodeTree->valueForKeyPath('children.@first.children.@first.name'), 'Grandkid1');
+    }
+
     // test @sum
     function testSumOperator()
     {

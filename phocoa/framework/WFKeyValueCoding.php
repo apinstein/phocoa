@@ -10,7 +10,7 @@
 /**
  * Exceptions for KVC.
  */
-define('WFUndefinedKeyException', 'WFUndefinedKeyException');
+class WFUndefinedKeyException extends WFException {}
 
 /** 
  * Key-Value Coding protocol.
@@ -78,9 +78,11 @@ interface WFKeyValueCoding
      *    </code>
      *    And afterwards, arrayOfPersonIDs will have an array containing the ID for each person in the address book, in the same order that the Person objects appear in the array.
      * 2. Array Operators, based on: http://developer.apple.com/documentation/Cocoa/Conceptual/KeyValueCoding/Concepts/ArrayOperators.html
+     *
      *    In a given keyPath, you can include an operator to perform a calculation on the keyPath to that point, provided that the result is an array: "transactions.@sum.amount"<br>
      *    Operators are preceeded by @:<br>
      *    count - Count of items specified by remainder of keypath.<br>
+     *    first - Return the first item in the array, or NULL<BR>
      *    sum - Sum of items specified by remainder of keypath.<br>
      *    max - Maximum value of items specified by remainder of keypath.<br>
      *    min - Minimum value of items specified by remainder of keypath.<br>

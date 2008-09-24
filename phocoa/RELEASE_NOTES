@@ -19,6 +19,8 @@ Version 0.1.7 - ???
 - [new] Added a setTarget() method to WFSubmit so you can better control the method called when submitting a form.
 - [new] Add minified versions of core JS files and add GZIP encoding to httpd.conf template
 - [bugfix] Add support for setting any KVC property in fixtures. Previously only properties backed by the database would work.
+- [new] Add a global debug mode PHOCOA_DEBUG=1 in any $_REQUEST param.
+- [new] Add a magic array operator @first to get the first value from an array.
 
 Version 0.1.6 - 8/7/2008
 - [bugfix] Custom action methods on WFSubmit widgets now work in conjunction with WFForm.isAjax. Previously the "default" action name was always used even if a custom action was specified.

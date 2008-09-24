@@ -33,7 +33,7 @@ class WFObject implements WFKeyValueCoding
 
     function valueForKey($key)
     {
-        if ($key == NULL) WFException::raise(WFUndefinedKeyException, "NULL key Exception");
+        if ($key == NULL) throw( new WFUndefinedKeyException("NULL key Exception") );
 
         $performed = false;
 
@@ -84,7 +84,7 @@ class WFObject implements WFKeyValueCoding
      */
     function valueForUndefinedKey($key)
     {
-        WFException::raise(WFUndefinedKeyException, "Unknown key '$key' requested for object '" . get_class($this) . "'.");
+        throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
     }
 
     function valueForKeyPath($keyPath)
@@ -138,7 +138,7 @@ class WFObject implements WFKeyValueCoding
             {
                 $nextPart = $keys[$keyI + 1];
                 // are we in operator mode as well?
-                if (in_array($nextPart, array('@count', '@sum', '@max', '@min', '@avg', '@unionOfArrays', '@unionOfObjects', '@distinctUnionOfArrays', '@distinctUnionOfObjects')))
+                if (in_array($nextPart, array('@count', '@first', '@sum', '@max', '@min', '@avg', '@unionOfArrays', '@unionOfObjects', '@distinctUnionOfArrays', '@distinctUnionOfObjects')))
                 {
                     $operator = $nextPart;
                     $rightKeyPath = join('.', array_slice($keyParts, $keyI + 2));
@@ -170,6 +170,16 @@ class WFObject implements WFKeyValueCoding
                     switch ($operator) {
                         case '@count':
                             $result = count($magicArray);
+                            break;
+                        case '@first':
+                            if (count($magicArray) > 0)
+                            {
+                                $result = $magicArray[0];
+                            }
+                            else
+                            {
+                                $result = null;
+                            }
                             break;
                         case '@sum':
                             $result = array_sum ( $magicArray );
@@ -251,7 +261,7 @@ class WFObject implements WFKeyValueCoding
 
         if (!$performed)
         {
-            throw( new Exception("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
+            throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
         }
     }
 
