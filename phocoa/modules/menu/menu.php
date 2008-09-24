@@ -7,7 +7,10 @@ class module_menu extends WFModule
     {
         return 'menu';
     }
-
+    function allPages()
+    {
+        return array('menu');
+    }
 }
 
 class module_menu_menu
