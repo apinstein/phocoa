@@ -43,7 +43,7 @@ class WFTextArea extends WFWidget
         return '<textarea name="' . $this->name() . '" id="' . $this->id() . '"' . 
             ($this->cols ? ' cols="' . $this->cols . '" ' : '') .
             ($this->rows ? ' rows="' . $this->rows . '" ' : '') .
-            ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
+            ($this->valueForKey('enabled') ? '' : ' disabled ') .       // used to add readonly here too, but not sure why. may have been a browser compatibility thing, but seems to work now (tested on ie6/ie7/ff2/ff3/safari3)
             '>' . $this->value . '</textarea>' . $this->getListenerJSInScriptTag();
     }
 
