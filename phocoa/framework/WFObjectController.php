@@ -13,6 +13,7 @@
  *
  * @see WFKeyValueCoding
  * @see WFKeyValueBindingCreation
+ * @see WFDecorator
  *
  * The WFObjectController provides a controller-layer compatible container for a single object.
  *
@@ -49,18 +50,89 @@ class WFObjectController extends WFObject
      * @var boolean Does the controller create an instance of the controller class type if there is not one already?
      */
     protected $automaticallyPreparesContent;
+    /**
+     * @var array An array of WFDecorator objects that will be used to wrap the content object(s).
+     */
+    protected $decorators;
 
     function __construct()
     {
         parent::__construct();
         $this->content = NULL;
+        $this->decorators = NULL;
         $this->class = 'WFDictionary';
         $this->automaticallyPreparesContent = true;
     }
 
+    /**
+     * Set the class name that is managed by this object controller.
+     *
+     * @param string Class name.
+     */
     function setClass($class)
     {
         $this->class = $class;
+    }
+
+    /**
+     * Set a {@link object WFDecorator} object to be used with this controller.
+     *
+     * @param string The name of the decorator class.
+     */
+    function setDecorator($decoratorClassName)
+    {
+        $this->decorators = array($decoratorClassName);
+    }
+
+    /**
+     * Set multiple {@link object WFDecorator} objects to be used with this controller.
+     *
+     * @param string The name(s) of the decorator class(es) to be used to decorate objects managed by this controller. Names should be separated by commas; LAST one wins.
+     */
+    function setDecorators($decoratorList)
+    {
+        if (is_string($decoratorList))
+        {
+            $decoratorList = array_map('trim', explode(',', $decoratorList));
+        }
+        $this->decorators = $decoratorList;
+    }
+
+    /**
+     * Make sure the passed object is of the type that this array controller manages.
+     *
+     * NOTE: This check will succeed as long as the object is a instance of the class, subclass, or implements the interface, in {@link WFArrayController::$class class}.
+     * NOTE: {@link WFArrayController::insert() insert} enforces an additional check, in that {@link WFArrayController::$class class} must be a class, so that it is instantiable.
+     *
+     * @param object WFObject An instance of the object to check.
+     * @throws object WFException If the passed object is not of the type managed by this ArrayController.
+     */
+    function checkObjectClass($obj)
+    {
+        if ($obj === NULL) throw( new WFException("NULL passed instead of object of type {$this->class}.") );
+        if (!is_object($obj)) throw( new WFException("Passed parameter is not an object.") );
+        $obj = $this->undecorateObject($obj);
+        if (!($obj instanceof $this->class)) throw( new WFException("Object must be of type managed by this array controller.") );
+    }
+
+    /**
+     * Decorate the passed object with the decorator(s) for this controller.
+     */
+    protected function decorateObject($o)
+    {
+        if (!$this->decorators) return $o;
+        foreach ($this->decorators as $d) {
+            $o = new $d($o);
+        }
+        return $o;
+    }
+
+    protected function undecorateObject($o)
+    {
+        while ($o instanceof WFDecorator) {
+            $o = $o->decoratedObject();
+        }
+        return $o;
     }
 
     /**
@@ -88,7 +160,7 @@ class WFObjectController extends WFObject
     function setContent($obj)
     {
         if (!is_object($obj)) throw( new Exception("The passed content must be a WFObject subclass.") );
-        $this->content = $obj;
+        $this->content = $this->decorateObject($obj);
     }
 
     /**

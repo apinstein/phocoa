@@ -70,6 +70,7 @@ interface WFKeyValueObserving
  *
  * These instances are typically created in the {@link setupExposedBindings} callback of the WFKeyValueBindingCreation protocol.
  *
+ * @todo Refactor constants to WFBinding.
  */
 class WFBindingSetup extends WFObject
 {
@@ -82,13 +83,11 @@ class WFBindingSetup extends WFObject
     const WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND = 1;
     const WFBINDINGTYPE_MULTIPLE_BOOLEAN_OR = 2;
 
-    // info for PATTERN bindings -- ooops should this be in WFBinding?
-    const WFBINDINGSETUP_PATTERN_OPTION_NAME = 'ValuePattern';
-    const WFBINDINGSETUP_PATTERN_OPTION_VALUE = '%1%';
-
-    // NullPlaceholder stuff. -- ooops should this be in WFBinding?
-    const WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER = 'InsertsNullPlaceholder';
-    const WFBINDINGSETUP_NULL_PLACEHOLDER = 'NullPlaceholder';
+    // @todo global rename all of these to the WFBinding::* equivalents
+    const WFBINDINGSETUP_PATTERN_OPTION_NAME = 'ValuePattern';                  // deprecated
+    const WFBINDINGSETUP_PATTERN_OPTION_VALUE = '%1%';                          // deprecated
+    const WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER = 'InsertsNullPlaceholder';   // deprecated
+    const WFBINDINGSETUP_NULL_PLACEHOLDER = 'NullPlaceholder';                  // deprecated
 
     /**
      * @var string The name of the bound proprety.
@@ -263,21 +262,40 @@ class WFBindingSetup extends WFObject
  * The binding object encapsulates all information about a particular bound property of an object. These instances are created at runtime each time the
  * {@link bind} function of the WFKeyValueBindingCreation protocol is used.
  * 
- * @todo Incorporate commonly used binding options here??? In addition to valueTransformer? I think I ended up putting a bunch in WFBindingSetup... coalesce?
- * @todo Does formatter need to assert for !readOnly? or MULTIVALUE? anything else? I think truly we only want to do it on multivalue bindings, b/c o/w you should just use the
- *       widget's formatter. Also, it should only work on read-only ones lest someone get the idea that it can go both ways.
- * http://developer.apple.com/documentation/Cocoa/Reference/CocoaBindingsRef/Concepts/BindingsOptions.html
+ * Note class constants named OPTION_*. These are available binding options for use as described.
+ *
+ * Built-in Binding Options:
+ * - ValueTransformer : A class name of a WFValueTransformer subclass such as {@link WFIsEmpty}, {@link WFIsNotEmpty}, {@link WFNegateBoolean}
+ * - ValuePattern : Used by WFBINDINGTYPE_MULTIPLE_PATTERN bindings; can bind value to a single value created by substituting multiple values in a string, such as "%1% of %2%".
+ * - Formatter : A string pointing to a formatter instance to use for the value option; useful for WFBINDINGTYPE_MULTIPLE_PATTERN bindings. For single-value bindings, use {@link WFWidget::$formatter}
+ * - InsertsNullPlaceholder : A boolean value; true to have the bindings system use the value specified in 'NullPlaceholder' instead of NULL for the value.
+ * - NullPlaceholder : The value displayed in the UI which is substitued for NULL.
+ * - ReadWriteMode : Used to control whether the binding will be "normal" (read-write), "readonly", or "writeonly". Useful in some circumstances when linking a UI to a read-only attribute.
+ *
+ * @see http://developer.apple.com/documentation/Cocoa/Reference/CocoaBindingsRef/Concepts/BindingsOptions.html
  */
 class WFBinding extends WFObject
 {
     // commonly used binding options available globally
-    const VALUE_TRANSFORMER_NAME = 'ValueTransformer';
-    const VALUE_FORMATTER_NAME = 'Formatter';
+    const OPTION_VALUE_TRANSFORMER = 'ValueTransformer';
+    const OPTION_FORMATTER = 'Formatter';
 
-    const VALUE_READ_WRITE_MODE = 'ReadWriteMode';  // 'normal', 'readonly', 'writeonly'. Default 'normal'. A way to use a binding option on any binding to make it act read-only, write-only, or read-write. This cannot add any capability not allowed in the binding's setup.
-    const VALUE_READ_WRITE_MODE_NORMAL = 'normal'; 
-    const VALUE_READ_WRITE_MODE_WRITE_ONLY = 'writeonly'; 
-    const VALUE_READ_WRITE_MODE_READ_ONLY = 'readonly'; 
+    // info for PATTERN bindings
+    //const WFBINDINGSETUP_PATTERN_OPTION_NAME = 'ValuePattern';                  // reference only; delete once refactoring above done
+    //const WFBINDINGSETUP_PATTERN_OPTION_VALUE = '%1%';                          // reference only; delete once refactoring above done
+    const OPTION_VALUE_PATTERN = 'ValuePattern';
+    const OPTION_VALUE_PATTERN_DEFAULT_PATTERN = '%1%';
+
+    // NullPlaceholder stuff
+    //const WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER = 'InsertsNullPlaceholder';   // reference only; delete once refactoring above done
+    //const WFBINDINGSETUP_NULL_PLACEHOLDER = 'NullPlaceholder';                  // reference only; delete once refactoring above done
+    const OPTION_INSERTS_NULL_PLACEHOLDER = 'InsertsNullPlaceholder';
+    const OPTION_NULL_PLACEHOLDER = 'NullPlaceholder';
+
+    const OPTION_READ_WRITE_MODE = 'ReadWriteMode';  // 'normal', 'readonly', 'writeonly'. Default 'normal'. A way to use a binding option on any binding to make it act read-only, write-only, or read-write. This cannot add any capability not allowed in the binding's setup.
+    const OPTION_READ_WRITE_MODE_NORMAL = 'normal'; 
+    const OPTION_READ_WRITE_MODE_WRITE_ONLY = 'writeonly'; 
+    const OPTION_READ_WRITE_MODE_READ_ONLY = 'readonly'; 
 
     /**
      * @var object The object that this property is bound to.
@@ -409,11 +427,11 @@ class WFBinding extends WFObject
 
     function formatter()
     {
-        if (isset($this->options[WFBinding::VALUE_FORMATTER_NAME]))
+        if (isset($this->options[WFBinding::OPTION_FORMATTER]))
         {
             if (!$this->bindingSetup()->readOnly() or $this->bindingSetup()->bindingType() != WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN) throw( new WFException("Formatters are only allowed on read-only, multi-value-pattern bindings.") );
             // seamlessly allow for #module#
-            $formatterName = $this->options[WFBinding::VALUE_FORMATTER_NAME];
+            $formatterName = $this->options[WFBinding::OPTION_FORMATTER];
             if (strncmp('#module#', $formatterName, 8) == 0)
             {
                 $formatterName = substr($formatterName, 8);
@@ -428,24 +446,24 @@ class WFBinding extends WFObject
 
     function canReadBoundValue()
     {
-        if (!isset($this->options[WFBinding::VALUE_READ_WRITE_MODE])) return true;
-        if ($this->options[WFBinding::VALUE_READ_WRITE_MODE] == WFBinding::VALUE_READ_WRITE_MODE_NORMAL) return true;
-        if ($this->options[WFBinding::VALUE_READ_WRITE_MODE] == WFBinding::VALUE_READ_WRITE_MODE_READ_ONLY) return true;
+        if (!isset($this->options[WFBinding::OPTION_READ_WRITE_MODE])) return true;
+        if ($this->options[WFBinding::OPTION_READ_WRITE_MODE] == WFBinding::OPTION_READ_WRITE_MODE_NORMAL) return true;
+        if ($this->options[WFBinding::OPTION_READ_WRITE_MODE] == WFBinding::OPTION_READ_WRITE_MODE_READ_ONLY) return true;
         return false;
     }
     function canWriteBoundValue()
     {
-        if (!isset($this->options[WFBinding::VALUE_READ_WRITE_MODE])) return true;
-        if ($this->options[WFBinding::VALUE_READ_WRITE_MODE] == WFBinding::VALUE_READ_WRITE_MODE_NORMAL) return true;
-        if ($this->options[WFBinding::VALUE_READ_WRITE_MODE] == WFBinding::VALUE_READ_WRITE_MODE_WRITE_ONLY) return true;
+        if (!isset($this->options[WFBinding::OPTION_READ_WRITE_MODE])) return true;
+        if ($this->options[WFBinding::OPTION_READ_WRITE_MODE] == WFBinding::OPTION_READ_WRITE_MODE_NORMAL) return true;
+        if ($this->options[WFBinding::OPTION_READ_WRITE_MODE] == WFBinding::OPTION_READ_WRITE_MODE_WRITE_ONLY) return true;
         return false;
     }
 
     function valueTransformerName()
     {
-        if (isset($this->options[WFBinding::VALUE_TRANSFORMER_NAME]))
+        if (isset($this->options[WFBinding::OPTION_VALUE_TRANSFORMER]))
         {
-            return $this->options[WFBinding::VALUE_TRANSFORMER_NAME];
+            return $this->options[WFBinding::OPTION_VALUE_TRANSFORMER];
         }
         else if (isset($this->options['valueTransformer'])) // support for original naming convention which is now deprecated in favor of TitleCaseNamingConvention
         {

@@ -95,22 +95,6 @@ class WFArrayController extends WFObjectController implements Iterator
         $this->avoidsEmptySelection = true;
     }
 
-    /**
-     * Make sure the passed object is of the type that this array controller manages.
-     *
-     * NOTE: This check will succeed as long as the object is a instance of the class, subclass, or implements the interface, in {@link WFArrayController::$class class}.
-     * NOTE: {@link WFArrayController::insert() insert} enforces an additional check, in that {@link WFArrayController::$class class} must be a class, so that it is instantiable.
-     *
-     * @param object WFObject An instance of the object to check.
-     * @throws object WFException If the passed object is not of the type managed by this ArrayController.
-     */
-    function checkObjectClass($obj)
-    {
-        if ($obj === NULL) throw( new WFException("NULL passed instead of object of type {$this->class}.") );
-        if (!is_object($obj)) throw( new WFException("Passed parameter is not an object.") );
-        if (!($obj instanceof $this->class)) throw( new WFException("Object must be of type managed by this array controller.") );
-    }
-
     function changeCount()
     {
         return $this->changeCount;
@@ -428,12 +412,12 @@ class WFArrayController extends WFObjectController implements Iterator
         // need to ensure its key is correct!
         if ($this->usingIndexedMode)
         {
-            $this->content[] = $obj;
+            $this->content[] = $this->decorateObject($obj);
         }
         else
         {
             $hash = $this->identifierHashForObject($obj);
-            $this->content["$hash"] = $obj;
+            $this->content["$hash"] = $this->decorateObject($obj);
         }
 
         if ($this->selectsInsertedObjects)

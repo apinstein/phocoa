@@ -39,6 +39,7 @@ class ObjectHolder extends WFObject
     public $myObject;
 }
 
+// Has properties firstName, lastName, uid, child. Has method get/set FirstName, no accessors for others. Has KVV method validateFirstName.
 class Person extends WFObject
 {
     public $firstName;
@@ -50,8 +51,8 @@ class Person extends WFObject
 
     function __construct($first = NULL, $last = NULL, $id = NULL)
     {
-        $this->first = $first;
-        $this->last = $last;
+        $this->firstName = $first;
+        $this->lastName = $last;
         $this->uid = $id;
         $this->child = NULL;
 
@@ -66,6 +67,15 @@ class Person extends WFObject
             return false;
         }
         return true;
+    }
+
+    function getFirstName()
+    {
+        return $this->firstName;
+    }
+    function setFirstName($first)
+    {
+        $this->firstName = $first;
     }
 }
 

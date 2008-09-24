@@ -49,6 +49,7 @@ class WFIncluding
                 'WFMenuItem' => 'framework/WFMenuItem.php',
                 'WFMenuItemBasic' => 'framework/WFMenuItem.php',
                 'WFObject' => 'framework/WFObject.php',
+                'WFDecorator' => 'framework/WFDecorator.php',
                 'WFKeyValueCoding' => 'framework/WFKeyValueCoding.php',
                 'WFKeyValueValidators' => 'framework/util/WFKeyValueValidators.php',
                 'WFRequestController' => 'framework/WFRequestController.php',

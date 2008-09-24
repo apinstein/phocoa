@@ -415,6 +415,7 @@ class WFModuleInvocation extends WFObject
      *  NOTE: Will convert WFNull params into NULL values.
      *
      *  @throws Various exceptions in setting up the module.
+     *  @todo This doesn't seem super-clean... I don't understand needsRedirect, and throwing exceptions for redir causes problems with quickModule() not being able to use shorthand invocation paths, and it doesn't trip the !isRootInvocation() check...
      */
     private function extractComponentsFromInvocationPath()
     {
@@ -430,8 +431,8 @@ class WFModuleInvocation extends WFObject
         }
 
         // this block determines modulePath, moduleName, and pageName [optionally]
+        //print "URI: {$this->invocationPath}<BR>";
         //print_r($pathInfoParts);
-        //print "URI: $<BR>";
         $foundModule = false;
         $modulePath = $possibleModulePath = '';
         $moduleName = NULL;
@@ -481,6 +482,9 @@ class WFModuleInvocation extends WFObject
         {
             throw( new WFRequestController_NotFoundException("Module 404: invocation path '{$this->invocationPath}' could not be found.") );
         }
+
+        // test - i don't think this can happen. can refactor needsRedirect to if (empty(pageName)) if true...
+        if (empty($this->moduleName)) throw( new WFException("empty moduleName - don't expect that this can even happen.") );
 
         if (empty($this->moduleName) or empty($this->pageName))
         {
@@ -551,8 +555,10 @@ class WFModuleInvocation extends WFObject
         {
             if ($this->isRootInvocation())
             {
-                header('Location: ' . WFRequestController::WFURL($this->modulePath, $this->pageName));
-                exit;
+                // should be internal redirect to preserve pretty urls
+                throw( new WFRequestController_InternalRedirectException(WFRequestController::WFURL($this->modulePath, $this->pageName)) );
+                //header('Location: ' . WFRequestController::WFURL($this->modulePath, $this->pageName));
+                //exit;
             }
             else
             {
@@ -577,8 +583,12 @@ class WFModuleInvocation extends WFObject
      */
     public static function quickModule($invocationPath, $skinDelegate = NULL)
     {
-        $modInv = new WFModuleInvocation($invocationPath, NULL, $skinDelegate);
-        $result = $modInv->execute();
+        try {
+            $modInv = new WFModuleInvocation($invocationPath, NULL, $skinDelegate);
+            $result = $modInv->execute();
+        } catch (Exception $e) {
+            throw( new WFException("Uncaught Exception with quickModule('{$invocationPath}'): (" . get_class($e) . ") " . $e->getMessage()) );
+        }
         return $result;
     }
 }
