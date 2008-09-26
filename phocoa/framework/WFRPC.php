@@ -732,11 +732,7 @@ class WFAction extends WFObject
                      ";
         }
         $script .= "}";
-        // yuiloader wrapper
-        $yl = WFYAHOO_yuiloader::sharedYuiLoader();
-        $yl->yuiRequire('connection');
-        $script = $yl->jsLoaderCode($script);
-        return $script;
+        return "({$script})();";
     }
 
     /**

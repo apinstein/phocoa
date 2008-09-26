@@ -63,7 +63,14 @@ class WFWebApplication extends WFObject
      */
     public function debug()
     {
-        if (isset($_REQUEST['PHOCOA_DEBUG']) and $_REQUEST['PHOCOA_DEBUG'] == 1) return true;
+        if (isset($_REQUEST['PHOCOA_DEBUG']))
+        {
+            $_SESSION['PHOCOA_DEBUG'] = $_REQUEST['PHOCOA_DEBUG'];
+        }
+        if (isset($_SESSION['PHOCOA_DEBUG']) and $_SESSION['PHOCOA_DEBUG'] == 1)
+        {
+            return true;
+        }
         return false;
     }
 

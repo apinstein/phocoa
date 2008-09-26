@@ -3,7 +3,6 @@
  * @constructor
  *
  * The PHOCOA namespace contains JS utility and support functions.
- * @todo Potentially convert all YAHOO usage to prototype? This way we can avoid requireing YUI for non-YUI widgets...
  */
 window.PHOCOA = window.PHOCOA || {};
 
@@ -237,8 +236,9 @@ PHOCOA.WFRPC.prototype = {
                 $(this.form).request(   {
                                             method: 'GET',
                                             parameters: this.phocoaRPCParameters(this.execute.arguments),
-                                            onComplete: this.callback.success.bind(this.callback.scope),
-                                            onFailure: this.callback.failure.bind(this.callback.scope)
+                                            onSuccess: this.callback.success.bind(this.callback.scope),
+                                            onFailure: this.callback.failure.bind(this.callback.scope),
+                                            onException: this.callback.failure.bind(this.callback.scope)
                                         });
             }
         }
@@ -248,7 +248,23 @@ PHOCOA.WFRPC.prototype = {
             if (this.isAjax)
             {
                 // set up XHR request & callback
-                this.transaction = YAHOO.util.Connect.asyncRequest('GET', url, this.callback);
+                var successCallbackFixer = function(o) {
+                    o.argument = this.callback.argument;
+                    this.callback.success.apply(this.callback.scope, [o]);
+                };
+                var failureCallbackFixer = function(o) {
+                    o.argument = this.callback.argument;
+                    this.callback.failure.apply(this.callback.scope, [o]);
+                };
+				this.transaction = new Ajax.Request(url,
+                                                        {
+                                                            method : 'get',
+                                                            asynchronous : true,
+                                                            onSuccess : successCallbackFixer.bind(this),
+                                                            onFailure: failureCallbackFixer.bind(this),
+                                                            onException: failureCallbackFixer.bind(this)
+                                                        }
+                                                    );
             }
             else
             {
@@ -266,13 +282,13 @@ PHOCOA.WFAction = function(elId, eventName) {
     this.callback = PHOCOA.widgets[this.elId].events[this.eventName].handleEvent;
     this.rpc = null;
     this.stopsEvent = true;
-    YAHOO.util.Event.addListener(this.elId, this.eventName, this.yuiTrigger, this, true);
+	Event.observe(this.elId, this.eventName, this.yuiTrigger.bindAsEventListener(this));
     return this;
 };
 
 PHOCOA.WFAction.prototype = {
     stopEvent: function(event) {
-        YAHOO.util.Event.preventDefault(event);
+        Event.stop(event);
     },
 
     yuiTrigger: function(event) {

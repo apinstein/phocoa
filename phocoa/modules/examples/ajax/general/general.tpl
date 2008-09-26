@@ -38,7 +38,7 @@
 <p><strong>A few examples (all added to the widget of id myWidget):</strong></p>
 <ul>
     <li><em>onEvent: click do j</em>
-        <blockquote>Will call the Javascript function PHOCOA.widgets.myWidget.events.click.handleEvent.</blockquote>
+        <blockquote>Will call the Javascript function PHOCOA.widgets.myWidget.events.click.handleEvent. This is simly the "default" Javascript function based on a naming convention that phocoa will call.</blockquote>
     </li>
     <li><em>onEvent: click do j: myFunc()</em>
         <blockquote>Will call the Javascript function myFunc.</blockquote>
@@ -122,6 +122,7 @@ PHOCOA.namespace('widgets.localAction.events.click');
 PHOCOA.widgets.localAction.events.click.collectArguments = function() { return ['myArg1', 'myArg2']; };
 PHOCOA.widgets.localAction.events.click.handleEvent = function(e, myArg1, myArg2) {
     alert("I've been clicked!\nThe first argument to the callback is the event: " + e + "\nFollowed by all arguments from collectArguments(): " + myArg1 + ", " + myArg2); 
+    this.stopEvent(e);
 };
 </script>
 {/literal}
