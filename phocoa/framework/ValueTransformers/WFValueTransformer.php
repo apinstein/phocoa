@@ -17,7 +17,7 @@
  *
  * To create your own value transformer, simply subclass WFValueTransformer, implement the necessary methods, etc.
  * Then, in the ViewDidLoad method of the view that uses the transformer, register the named transformer.
- * To add a valueTransformer to the bindings, simply add an option to the bindings config with WFBinding::VALUE_TRANSFORMER_NAME => 'name of registered transformer'.
+ * To add a valueTransformer to the bindings, simply add an option to the bindings config with WFBinding::OPTION_VALUE_TRANSFORMER => 'name of registered transformer'.
  *
  */
 abstract class WFValueTransformer extends WFObject
