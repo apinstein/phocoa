@@ -16,7 +16,7 @@
  * Menu rending systems are built to accept an array of WFMenuItem objects which are then displayed. Decoupling the rendering from the data via the WFMenuItem interface
  * means that PHOCOA applications can easily use any meny rendering system.
  *
- * Presently, there is only one rendering system implemented: {@link WFDynarchMenu}.
+ * Presently, there are two rendering systems implemented: {@link WFDynarchMenu} and {@link WFYAHOO_widget_Menu}.
  */
 interface WFMenuItem
 {
@@ -40,7 +40,6 @@ interface WFMenuTreeBuilding
  * Generic menu item class for dynamically building menu trees.
  *
  * @see WFMenuTree::nestedArrayToMenuTree()
- * @todo Add support for tooltop, linkTarget, and icon
  */
 class WFMenuItemBasic implements WFMenuItem, WFMenuTreeBuilding
 {
@@ -56,6 +55,18 @@ class WFMenuItemBasic implements WFMenuItem, WFMenuTreeBuilding
      * @var array The child menu items (ie submenus) for this menu item.
      */
     protected $children;
+    /**
+     * @var string The HTML "target" attribute value.
+     */
+    protected $linkTarget;
+    /**
+     * @var string The tooltip for the mneu.
+     */
+    protected $toolTip;
+    /**
+     * @var string The URL to the path for the icon for the menu item.
+     */
+    protected $icon;
 
     protected $menuPath;
 
@@ -64,12 +75,83 @@ class WFMenuItemBasic implements WFMenuItem, WFMenuTreeBuilding
         $this->label = NULL;
         $this->link = NULL;
         $this->menuPath = NULL;
+        $this->linkTarget = NULL;
+        $this->toolTip = NULL;
+        $this->icon = NULL;
         $this->children = array();
     }
 
+    /**
+     * Static access to create a WFMenuItemBasic. Ideal for use with fluent interfaces.
+     *
+     * @return object WFMenuItemBasic
+     */
     public static function WFMenuItemBasic()
     {
         return new WFMenuItemBasic;
+    }
+
+    /**
+     *  Get the toolTip for this menu item.
+     *
+     *  @return string
+     */
+    function toolTip()
+    {
+        return $this->toolTip;
+    }
+    
+    /**
+     *  Set the toolTip for this menu item.
+     *
+     *  @param string The toolTip
+     */
+    function setToolTip($toolTip)
+    {
+        $this->toolTip = $toolTip;
+        return $this;
+    }
+
+    /**
+     *  Get the linkTarget for this menu item.
+     *
+     *  @return string
+     */
+    function linkTarget()
+    {
+        return $this->linkTarget;
+    }
+    
+    /**
+     *  Set the linkTarget for this menu item.
+     *
+     *  @param string The linkTarget
+     */
+    function setLinkTarget($linkTarget)
+    {
+        $this->linkTarget = $linkTarget;
+        return $this;
+    }
+
+    /**
+     *  Get the icon for this menu item.
+     *
+     *  @return string
+     */
+    function icon()
+    {
+        return $this->icon;
+    }
+    
+    /**
+     *  Set the icon for this menu item.
+     *
+     *  @param string The icon
+     */
+    function setIcon($icon)
+    {
+        $this->icon = $icon;
+        return $this;
     }
 
     /**
@@ -144,10 +226,6 @@ class WFMenuItemBasic implements WFMenuItem, WFMenuTreeBuilding
         $this->children[] = $child;
         return $this;
     }
-
-    function toolTip() { return NULL; }
-    function linkTarget() { return NULL; }
-    function icon() { return NULL; }
 }
 
 /**
@@ -193,6 +271,7 @@ class WFMenuTree
      *                  'topMenu1' => array(
      *                                      'Menu Item 1' => '/link/to/target1',
      *                                      'Menu Item 2' => '/link/to/target2',
+     *                                      'Menu Item 2' => WFMenuItemBasic::WFMenuItemBasic()->setLink('http://yahoo.com')->setTarget('_blank')
      *                                      ),
      *                  'topMenuItem2' => '/link/to/target'
      *                  );
@@ -203,15 +282,25 @@ class WFMenuTree
      *  @param array The array of menu items.
      *  @param object WFMenuItemBasic The menu item to add items found to as submenus.
      *  @return array An array of WFMenuItemBasic objects.
-     *  @todo Amend the array structure to provide ALL properties of {@link WFMenuItemBasic}.
      */
     static function nestedArrayToMenuTree($menuArray, $addToMenuItem = null)
     {
         $topMenuItems = array();
         foreach ($menuArray as $label => $value) {
-            $currentMenuItem = new WFMenuItemBasic;
+            if ($value instanceof WFMenuItemBasic)
+            {
+                $currentMenuItem = $value;
+                if ($currentMenuItem->label() === NULL)
+                {
+                    $currentMenuItem->setLabel($label);
+                }
+            }
+            else
+            {
+                $currentMenuItem = new WFMenuItemBasic;
+                $currentMenuItem->setLabel($label);
+            }
 
-            $currentMenuItem->setLabel($label);
             if ($addToMenuItem == NULL)
             {
                 $topMenuItems[] = $currentMenuItem;
@@ -225,7 +314,7 @@ class WFMenuTree
             {
                 $item = WFMenuTree::nestedArrayToMenuTree($value, $currentMenuItem);
             }
-            else
+            else if (!($value instanceof WFMenuItemBasic))
             {
                 $currentMenuItem->setLink($value);
             }

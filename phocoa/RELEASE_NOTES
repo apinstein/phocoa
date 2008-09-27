@@ -23,6 +23,7 @@ Version 0.1.7 - ???
 - [new] Refactor WFRPC to remove YUI dependency. Things are much faster now. Thanks @jwatts!
 - [new] Add a magic array operator @first to get the first value from an array.
 - [new] Add a WFYAHOO_widget_Uploader to wrap the YUI Uploader widget.
+- [new] Complete WFMenuItemBasic; add support for additional parameters in WFYAHOO_widget_Menu. Add support for inline WFMenuItemBasic objects in nestedArrayToMenuTree
 
 Version 0.1.6 - 8/7/2008
 - [bugfix] Custom action methods on WFSubmit widgets now work in conjunction with WFForm.isAjax. Previously the "default" action name was always used even if a custom action was specified.

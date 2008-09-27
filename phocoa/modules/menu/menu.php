@@ -25,7 +25,7 @@ class module_menu_menu
         $menu = new WFYAHOO_widget_Menu($params['menuId'], $page);
         $menu->setHorizontal( $params['horizontal'] == 1 );
         $page->assign('menuId', $params['menuId']);
-        $menu->setMenuItems( WFMenuTree::nestedArrayToMenuTree( $skin->namedContent($params['menuId']) ) );
+        $menu->setMenuItemsNestedArray( $skin->namedContent($params['menuId']) );
     }
 }
 ?>

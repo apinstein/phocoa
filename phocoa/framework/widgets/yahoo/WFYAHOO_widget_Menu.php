@@ -132,7 +132,7 @@ class WFYAHOO_widget_Menu extends WFYAHOO
         $submenu = NULL;
         if ($item->link())
         {
-            $html .= "<a class=\"{$itemlabelclass}\" href=\"" . $item->link() . "\">" . $item->label() . "</a>";
+            $html .= "<a class=\"{$itemlabelclass}\" href=\"" . $item->link() . "\"" . ($item->linkTarget() ? " target=\"" . $item->linkTarget() . "\" " : NULL) . ">" . $item->label() . "</a>";
         }
         else
         {
@@ -156,6 +156,10 @@ class WFYAHOO_widget_Menu extends WFYAHOO
 
     function canPushValueBinding() { return false; }
 
+    /**
+     * This is a hack...
+     * @todo Do we need a WFObject::keyExists() function or similar that can "check" for a binding without having to call the accessor? or WFObject::canSetKey()? Or do binding need to have a "readyonly" or "writeonly" option?
+     */
     function valueForUndefinedKey($key)
     {
         switch ($key) {
