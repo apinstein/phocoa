@@ -108,6 +108,16 @@ class WFRPC extends WFObject
         $this->invocationPath = $mp;
         return $this;
     }
+
+    public function invocationPath()
+    {
+        return $this->invocationPath;
+    }
+
+    public function url()
+    {
+        return WWW_ROOT . '/' . $this->invocationPath();
+    }
     
     /**
      * Set the target for the rpc. See {@link WFRPC::$target}.
@@ -200,7 +210,7 @@ class WFRPC extends WFObject
     {
         $params = array();
         $params[WFRPC::PARAM_ENABLE] = 1;
-        $params[WFRPC::PARAM_INVOCATION_PATH] = WWW_ROOT . '/' . $this->invocationPath; // need the WWW_ROOT because it's in rpcFromRequest(). Not sure why...
+        $params[WFRPC::PARAM_INVOCATION_PATH] = $this->url();
         $params[WFRPC::PARAM_TARGET] = $this->target;
         $params[WFRPC::PARAM_ACTION] = $this->action;
         $params[WFRPC::PARAM_RUNS_IF_VALID] = ($this->runsIfInvalid ? 'true' : 'false');

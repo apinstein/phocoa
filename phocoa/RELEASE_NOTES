@@ -22,6 +22,7 @@ Version 0.1.7 - ???
 - [new] Add PHOCOA_DEBUG mode to turn on advanced debugging for javascript, etc. Just set PHOCOA_DEBUG=1 in your URL and that session will be in debug mode for the remainder of that session. PHOCOA_DEBUG turns on debug reporting and uses non-minified Javascript files.
 - [new] Refactor WFRPC to remove YUI dependency. Things are much faster now. Thanks @jwatts!
 - [new] Add a magic array operator @first to get the first value from an array.
+- [new] Add a WFYAHOO_widget_Uploader to wrap the YUI Uploader widget.
 
 Version 0.1.6 - 8/7/2008
 - [bugfix] Custom action methods on WFSubmit widgets now work in conjunction with WFForm.isAjax. Previously the "default" action name was always used even if a custom action was specified.
