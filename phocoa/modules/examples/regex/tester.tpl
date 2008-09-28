@@ -1,11 +1,17 @@
 {* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
+{WFHead}
 <style>
 {literal}
-#regexTarget, #regexExpression {
+#regexTarget {
     width: 500px;
+}
+#regexExpression {
+    width: 492px;
 }
 {/literal}
 </style>
+{/WFHead}
+
 <h1>PHP Regular Expression Tester</h1>
 <p>This demonstrates a good use of the AJAX technologies in PHOCOA.</p>
 {WFForm id="regexForm"}
@@ -16,7 +22,7 @@
     </tr>
     <tr>
         <td>Expression:</td>
-        <td>{WFView id=regexExpression} {WFView id="regexRun"}</td>
+        <td>/{WFView id=regexExpression}/ {WFView id="regexRun"}</td>
     </tr>
     <tr>
         <td>Input Text:</td>
