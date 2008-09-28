@@ -6,7 +6,11 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.1.7 - ???
+Version 0.1.8 - 9/28/2008
+- [bugfix] "newProject" task now creates runtime/ and log/ directories in the correct place. Previously put them in "/".
+- bump version number
+
+Version 0.1.7 - 9/27/2008
 - [bugfix] Added htmlspecialchars to WFTextField
 - [new] Add onEvent support for WFDynamic objects via setting onEvent on the prototype.
 - [new] Add relative date support to all WF*DateFormatters via +++ token. Add relativeDateFormatString for controlling formatting of out-of-bounds format strings in relative mode.
