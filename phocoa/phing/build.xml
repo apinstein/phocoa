@@ -15,6 +15,10 @@
 
     <!-- this target should be called by all targets that expect the project to already exist. if it doesn't already exist, this target will bail. -->
     <target name="prepareProject" description="Pre-flight for working on a PHOCOA project. Loads build.properties file." depends="prepareGeneral">
+        <!-- defaults if not already defined -->
+        <property name="phocoa.project.dir" value="" />
+        <property name="phocoa.container.dir" value="" />
+
         <available file="${phocoa.project.dir}" property="projectDirExists" type="dir"/>
         <echo message="${projectDirExists}" />
         <if>
@@ -38,7 +42,12 @@
         </if>
         <echo message="Using PHP: ${phocoa.project.php}" />
         <echo message="PHOCOA project dir at: ${phocoa.project.dir}" />
-        <realpathexpandhome propertyName="phocoa.project.container" file="${phocoa.project.dir}/.."/>
+        <if>
+            <equals arg1="${phocoa.container.dir}" arg2="" />
+            <then>
+                <resolvepath propertyName="phocoa.project.container" file="${phocoa.project.dir}/.."/>
+            </then>
+        </if>
         <echo message="PHOCOA project container dir at: ${phocoa.project.container}" />
         <!-- attempt to load information from a file -->
         <property file="${phocoa.project.dir}/conf/build.properties" />
