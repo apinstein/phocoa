@@ -1301,55 +1301,6 @@ class WFPage extends WFObject
                 $this->noAction();
             }
 
-        #   // Are we performing an action? 
-        #   // initialize to PERFORM NO ACTION
-        #   $actionOutletID = NULL;
-        #   // only perform an action if there is one in the form, and that form is valid
-        #   if ($this->hasSubmittedForm()) {
-        #       if ($this->formIsValid()) {
-        #           // look up the instance ID for the specified action... look for "action|<actionOutletID>" in $_REQUEST...
-        #           // but need to skip the _x and _y fields submitted with image submit buttons
-        #           foreach ($_REQUEST as $name => $value) 
-        #           {
-        #               if (strncmp("action|", $name, 7) == 0 and !in_array(substr($name, -2, 2), array('_x', '_y')))
-        #               {
-        #                   list(,$actionOutletID) = explode('|', $name);
-        #                   break;
-        #               }
-        #           }
-        #           // if there is no button found in the parameters, we ask the WFForm what the default submit button is
-        #           if (!$actionOutletID)
-        #           {
-        #               $form = $this->outlet($this->submittedFormName());
-        #               $actionOutletID = $form->defaultSubmitID();
-        #               WFLog::log("Form submitted, but no action button detected. Using default button: {$actionOutletID}", WFLog::TRACE_LOG);
-        #           }
-        #           // call the ACTION handler for the page, if there is an action.
-        #           if ($actionOutletID)
-        #           {
-        #               try {
-        #                   $actionName = $this->outlet($actionOutletID)->action();
-        #               } catch (Exception $e) {
-        #                   throw( new WFException("Could not find form button (outlet) for current action: {$actionOutletID}. Make sure that you don't have nested forms!") );
-        #               }
-        #               // call action on delegate
-        #               $this->doAction($actionName);
-        #           }
-        #           else
-        #           {
-        #               WFLog::log("Not running action because no action occurred (no action specified in form data)", WFLog::WARN_LOG);
-        #           }
-        #       }
-        #       else
-        #       {
-        #           WFLog::log("Not running action because form data did not validate.", WFLog::TRACE_LOG);
-        #       }
-        #   }
-        #   else
-        #   {
-        #       WFLog::log("Not running action because no action occurred (i.e. no form posted)", WFLog::TRACE_LOG);
-        #   }
-
             // action/noAction may have affecting the arrayControllers
             $this->createDynamicWidgets();
         }
@@ -1545,6 +1496,9 @@ class WFPage extends WFObject
         }
     }
 
+    /**
+     * @todo Has this been deprecated? I don't think it's ever used... I think WFRPC::execute() is used in practice...
+     */
     function doAction($actionName)
     {
         WFLog::log("Running action: '{$actionName}'", WFLog::TRACE_LOG);

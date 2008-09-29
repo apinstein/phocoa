@@ -134,6 +134,17 @@
                 <echo message="${propel.bin.propel-gen} ${phocoa.propel.dir} main" />
             </else>
         </if>
+        <echo message="Activating propel in application delegate..." />
+        <reflexive>
+            <fileset dir="${phocoa.project.dir}/classes" >
+                <include name="MyWebApplicationDelegate.php" />
+            </fileset>
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="\/\/Propel::init" replace="Propel::init"/>
+                </replaceregexp>
+            </filterchain>
+        </reflexive>
         <echo message="Done adding Propel support." />
     </target>
 

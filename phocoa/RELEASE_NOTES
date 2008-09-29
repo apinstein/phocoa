@@ -8,6 +8,7 @@ Legend:
 
 Version 0.1.8 - 9/28/2008
 - [bugfix] "newProject" task now creates runtime/ and log/ directories in the correct place. Previously put them in "/".
+- [new] The "addpropel" task now automatically enables the Propel::init() call in MyWebApplicationDelegate.php. This step is no longer manually required on new projects.
 - bump version number
 
 Version 0.1.7 - 9/27/2008
