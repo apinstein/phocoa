@@ -157,7 +157,17 @@
         </if>
     </target>
 
-    <target name="setupProjectContainer" description="Set up the container dir for the project." depends="prepareProject">
+    <target name="setupProjectContainer" description="Set up the container dir for the project.">
+        <!-- default -->
+        <property name="phocoa.project.container" value="" />
+
+        <!-- normally we're called from another task where things are set up; but if not, we'll prompt for it -->
+        <if>
+            <equals arg1="${phocoa.project.container}" arg2="" />
+            <then>
+                <propertyprompt propertyName="phocoa.project.container" defaultValue="${phocoa.pwd}/mycontainerdir" promptText="Enter the full path of the container dir to set up." />
+            </then>
+        </if>
         <fail unless="phocoa.project.container" message="phocoa.project.container must be defined." />
         <!-- Create a reasonable directory structure -->
         <echo msg="Creating project container directories and setting up permissions" /> 
