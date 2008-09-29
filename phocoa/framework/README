@@ -49,6 +49,7 @@ TODO
                                          'splitIntoArray' => ','
                                          )
                 )
+- IDEA: Make ObjectControllers inherently handle "Decorator" classses where you can specify a decorator class to be used to "wrap" any object returned by the ObjectController. There would be a WFDecorator base class that just handles "decoratedObject" and passes everything through (via __call and/or KVC implementations). 
 - IDEA: Do we need a way to specify free-form PHP or at least static calls in bindings? It would be handy... I find myself writing accessors just to get around the fact that we can't make calls to statics via bindings.
 - IDEA: Instead of having to restore state each time the page loads, couldn't we just serialize the entire state to the session and re-load that? Seems that it would be much faster and more accurate.
   Of course, then have to deal with what happens when state is out-of-sync with DB.

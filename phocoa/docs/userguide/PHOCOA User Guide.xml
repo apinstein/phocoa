@@ -423,7 +423,7 @@
         </listitem>
 
         <listitem>
-          <para>Propel 1.2 or 1.3b4+</para>
+          <para>Propel 1.2 or 1.3 (1.3 is recommended)</para>
         </listitem>
 
         <listitem>
@@ -432,9 +432,9 @@
       </itemizedlist>
 
       <para>Below is a quick reference for installing these dependencies. For
-      complete details, see Appendix A. </para>
+      complete details, see Appendix A.</para>
 
-      <para>Installing PHP5 is beyond the scope of this documentation. </para>
+      <para>Installing PHP5 is beyond the scope of this documentation.</para>
 
       <para>You can install many of PHOCOA's dependencies with pear:</para>
 
@@ -1016,14 +1016,6 @@ Total time: 0.7053 seconds
       <para>We now have PHP classes to represent our data model, thanks to
       Propel. Propel automatically puts these classes in
       <filename>blog/blog/classes/blog/*</filename>.</para>
-
-      <bridgehead>Enable Propel</bridgehead>
-
-      <para>New PHOCOA projects have Propel support disabled. To enable Propel
-      support, just uncomment the <methodname>Propel::init()</methodname> line
-      in your web application delegate's <methodname>initialize</methodname>
-      method
-      (<filename>classes/MyWebApplicationDelegate.php</filename>).</para>
     </section>
 
     <section>
@@ -1131,8 +1123,8 @@ Total time: 0.7053 seconds
 
       <para><code>function doAction($page, $params);</code></para>
 
-      <para>Where "do" is replaced with the name of your action (which is by
-      default the name of the submit widget).</para>
+      <para>Where "doAction" is replaced with the name of your action (which
+      is by default the name of the submit widget).</para>
 
       <para>Additionally, if there is NO action to be taken on this request,
       this special callback is executed:</para>

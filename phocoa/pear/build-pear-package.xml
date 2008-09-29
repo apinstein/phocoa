@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+
+<!--
+	This build file creates a pear package of the TRUNK svn checkout of phocoa.
+	builds a package.xml for installation using PEAR and creates the necessary TGZ file.
+
+-->
+
+<project name="phocoa" basedir="." default="main">
+
+	<property name="pkg.version" value="0.1.8"/>
+	<property name="pkg.name" value="phocoa-${pkg.version}"/>
+    <property name="pkg.prefix" value="phocoa"/>
+    <property name="pkg.channel" value="pear.phocoa.com"/>
+    <property name="pkg.summary" value="PHOCOA web develoment framework for PHP5."/>
+	<property name="pkg.description"><![CDATA[This is a beta release of the Phocoa PHP web framework.
+See: RELEASE_NOTES in package for a complete changelog.
+	]]></property>
+	<property name="pkg.state" value="beta"/>
+    <property name="pkg.relnotes" value="RELEASE NOTES are included in the package."/>
+
+	<property name="build.src.dir" value="./${pkg.name}-dist"/>
+	<property name="build.dist.dir" value="."/>
+	<property name="svn.export.dir" value="${build.src.dir}"/>
+
+    <target name="main">
+        <!-- svn export -->
+        <svnexport
+            svnpath="/opt/local/bin/svn"
+            force="true"
+            repositoryurl="file:///Users/Shared/Development/svnroot/phocoa/trunk/phocoa"
+            todir="${svn.export.dir}"/>
+
+        <fileset dir="${svn.export.dir}" id="phocoa-svn-export">
+            <include name="**"/>
+        </fileset>
+
+        <!-- package -->
+        <mkdir dir="${build.src.dir}" />
+        <pearpkg2 name="phocoa" dir="${svn.export.dir}">
+            <!-- input files -->
+            <option name="packagedirectory" value="${build.src.dir}"/>
+
+            <!-- package XML file output -->
+            <option name="packagefile" value="package2.xml"/>
+            <option name="outputdirectory" value="${build.src.dir}"/>
+
+            <!-- package setup -->
+            <option name="baseinstalldir" value="${pkg.prefix}"/>
+            <option name="uri" value="http://phocoa.com/pear/phocoa"/>
+            <!-- <option name="channel" value="${pkg.channel}"/> -->
+            <option name="summary" value="${pkg.summary}"/>
+            <option name="description" value="${pkg.description}"/>
+            <option name="apiversion" value="${pkg.version}"/>
+            <option name="apistability" value="beta"/>
+            <option name="releaseversion" value="${pkg.version}"/>
+            <option name="releasestability" value="beta"/>
+            <option name="license" value="MIT"/>
+            <option name="phpdep" value="5.1.0"/>
+            <option name="pearinstallerdep" value="1.4.6"/>
+            <option name="packagetype" value="php"/>
+            <option name="notes" value="${pkg.relnotes}"/>
+            <mapping name="maintainers">
+             <element>
+              <element key="handle" value="apinstein"/>
+              <element key="name" value="Alan Pinstein"/>
+              <element key="email" value="apinstein@mac.com"/>
+              <element key="role" value="lead"/>
+             </element>
+            </mapping>
+
+            <fileset refid="phocoa-svn-export" />
+        </pearpkg2>
+
+        <!-- create tgz package -->
+        <property name="tarfile" value="${build.dist.dir}/${pkg.name}.tgz"/>
+        <delete file="${tarfile}"/>
+        <tar destFile="${tarfile}" basedir="${build.src.dir}" />
+
+        <!-- copy to server -->
+        <exec command="scp ${build.dist.dir}/${pkg.name}.tgz apinstein@phocoa.com:/opt/www/domains/phocoa.com/phocoa.com/wwwroot/www/downloads/" />
+
+        <!-- cleanup -->
+        <delete file="${build.src.dir}">
+        <delete file="${build.dist.dir}/${pkg.name}.tgz">
+    </target>
+</project>
