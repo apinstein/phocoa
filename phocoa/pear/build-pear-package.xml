@@ -21,7 +21,8 @@ See: RELEASE_NOTES in package for a complete changelog.
 
 	<property name="build.src.dir" value="./${pkg.name}-dist"/>
 	<property name="build.dist.dir" value="."/>
-	<property name="svn.export.dir" value="${build.src.dir}"/>
+	<property name="build.dist.filename" value="phocoa-pear.tgz"/>
+	<property name="svn.export.dir" value="${build.src.dir}/${pkg.name}"/>
 
     <target name="main">
         <!-- svn export -->
@@ -39,7 +40,7 @@ See: RELEASE_NOTES in package for a complete changelog.
         <mkdir dir="${build.src.dir}" />
         <pearpkg2 name="phocoa" dir="${svn.export.dir}">
             <!-- input files -->
-            <option name="packagedirectory" value="${build.src.dir}"/>
+            <option name="packagedirectory" value="${svn.export.dir}"/>
 
             <!-- package XML file output -->
             <option name="packagefile" value="package2.xml"/>
@@ -47,7 +48,7 @@ See: RELEASE_NOTES in package for a complete changelog.
 
             <!-- package setup -->
             <option name="baseinstalldir" value="${pkg.prefix}"/>
-            <option name="uri" value="http://phocoa.com/pear/phocoa"/>
+            <option name="uri" value="http://phocoa.com/www/downloads/${build.dist.filename}"/>
             <!-- <option name="channel" value="${pkg.channel}"/> -->
             <option name="summary" value="${pkg.summary}"/>
             <option name="description" value="${pkg.description}"/>
@@ -73,7 +74,7 @@ See: RELEASE_NOTES in package for a complete changelog.
         </pearpkg2>
 
         <!-- create tgz package -->
-        <property name="tarfile" value="${build.dist.dir}/${pkg.name}.tgz"/>
+        <property name="tarfile" value="${build.dist.dir}/${build.dist.filename}"/>
         <delete file="${tarfile}"/>
         <tar destFile="${tarfile}" basedir="${build.src.dir}" />
 
@@ -81,7 +82,7 @@ See: RELEASE_NOTES in package for a complete changelog.
         <exec command="scp ${build.dist.dir}/${pkg.name}.tgz apinstein@phocoa.com:/opt/www/domains/phocoa.com/phocoa.com/wwwroot/www/downloads/" />
 
         <!-- cleanup -->
-        <delete file="${build.src.dir}">
-        <delete file="${build.dist.dir}/${pkg.name}.tgz">
+        <delete dir="${build.src.dir}"/>
+        <delete file="${build.dist.dir}/${pkg.name}.tgz"/>
     </target>
 </project>
