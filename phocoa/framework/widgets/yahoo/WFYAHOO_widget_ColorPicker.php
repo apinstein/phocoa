@@ -93,7 +93,7 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
             $html = parent::render($blockContent);
             if ($this->textFieldId)
             {
-                $html .= '<input type="button" value="Pick Color" id="' . $this->id . '_trigger" />';
+                $html .= '<div id="' . $this->id . '_sample" style="display: inline-block; background: ' . $this->page->outlet($this->textFieldId)->value() . '; border: 1px solid black; vertical-align: bottom; width: 1.25em; height: 1.25em; margin: 0px 7px;" ></div><input type="button" value="Pick Color" id="' . $this->id . '_trigger" />';
             }
             $html .= '
             <div id="' . $this->id . '" class="yui-picker-panel" style="display: none">
@@ -116,9 +116,20 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
         PHOCOA.widgets.{$this->id}.init = function() {
             PHOCOA.widgets.{$this->id}.originalValue = null;
 
+            // add listener to text field for changes
+            YAHOO.util.Event.addListener('{$this->textFieldId}', 'change', function() {
+                PHOCOA.widgets.{$this->id}.syncSampleColor();
+            });
+
             PHOCOA.widgets.{$this->id}.copyRGBToTextField = function(rgb) {
                 \$('{$this->textFieldId}').value = '#' + YAHOO.util.Color.rgb2hex(rgb[0], rgb[1], rgb[2]);
-            }
+                PHOCOA.widgets.{$this->id}.syncSampleColor();
+            };
+
+            PHOCOA.widgets.{$this->id}.syncSampleColor = function() {
+                var color = \$F('{$this->textFieldId}');
+                \$('{$this->id}_sample').setStyle( { background: color });
+            };
 
             PHOCOA.widgets.{$this->id}.handleOK = function() {
                 //PHOCOA.widgets.{$this->id}.copyRGBToTextField(PHOCOA.widgets.colorPicker.picker._configs.rgb.getValue());
@@ -167,7 +178,7 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
                 }
             }); 
 
-            PHOCOA.widgets.colorPicker.dialog.render();
+            PHOCOA.widgets.{$this->id}.dialog.render();
 
             PHOCOA.widgets.{$this->id}.showPicker = function() {
                 PHOCOA.widgets.{$this->id}.dialog.show();
