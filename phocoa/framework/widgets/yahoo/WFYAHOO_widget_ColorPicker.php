@@ -137,6 +137,7 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
             };
             PHOCOA.widgets.{$this->id}.handleCancel = function() {
                 \$('{$this->textFieldId}').value = PHOCOA.widgets.{$this->id}.originalValue;
+                PHOCOA.widgets.{$this->id}.syncSampleColor();
                 PHOCOA.widgets.{$this->id}.dialog.hide();
             };
             // Instantiate the Dialog
