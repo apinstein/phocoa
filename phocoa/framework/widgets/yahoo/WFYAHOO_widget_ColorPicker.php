@@ -91,11 +91,11 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
         {
             // render the tab's content block
             $html = parent::render($blockContent);
-            if ($this->textFieldId)
-            {
-                $html .= '<div id="' . $this->id . '_sample" style="display: inline-block; background: ' . $this->page->outlet($this->textFieldId)->value() . '; border: 1px solid black; vertical-align: bottom; width: 1.25em; height: 1.25em; margin: 0px 7px;" ></div><input type="button" value="Pick Color" id="' . $this->id . '_trigger" />';
-            }
             $html .= '
+            <div style="width: auto; margin: 0 auto; padding: 0 1px; overflow: hidden;">
+                <div id="' . $this->id . '_sample" style="float: left; background: ' . $this->page->outlet($this->textFieldId)->value() . '; border: 1px solid black; width: 1.25em; height: 1.25em; margin: 0px 7px;" ></div>
+                <input style="float: left;" type="button" value="Pick Color" id="' . $this->id . '_trigger" />
+            </div>
             <div id="' . $this->id . '" class="yui-picker-panel" style="display: none">
                 <div class="hd">Please choose a color:</div>
                 <div class="bd">
@@ -132,7 +132,6 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
             };
 
             PHOCOA.widgets.{$this->id}.handleOK = function() {
-                //PHOCOA.widgets.{$this->id}.copyRGBToTextField(PHOCOA.widgets.colorPicker.picker._configs.rgb.getValue());
                 PHOCOA.widgets.{$this->id}.dialog.hide();
             };
             PHOCOA.widgets.{$this->id}.handleCancel = function() {

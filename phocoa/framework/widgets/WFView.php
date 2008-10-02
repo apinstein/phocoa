@@ -91,6 +91,13 @@ abstract class WFView extends WFObject
         if (is_null($id)) throw( new Exception("id required for new " . get_class($this) . '.') );
         if (!($page instanceof WFPage)) throw( new Exception("page must be a WFPage.") );
 
+        // warn about invalid ID's
+        switch ($id) {
+            case '':
+                WFLog::log("The id '{$id}' is dangerous to use because it is a reserved word in some browsers Javascript engines. For best compatibility, use a different ID.", WFLog::WARN_LOG);
+                break;
+        }
+
         $this->id = $id;
         $this->enabled = true;
         $this->children = array();
