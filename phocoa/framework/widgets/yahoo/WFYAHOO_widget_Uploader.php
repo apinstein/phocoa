@@ -226,22 +226,57 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
 
             uploader.addListener('fileSelect', function(e) {
                 $('{$this->id}_fileList').show();
+
+                // initialize upload tracking
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker = {};
+                PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes = 0;
+
                 var files = \$H(e.fileList).values();
+                files.pluck('id').each(function(o) {
+                    PHOCOA.widgets.{$this->id}.filesToUploadTracker[o] = {
+                        name: e.fileList[o].name,
+                        size: e.fileList[o].size,
+                        sizeProgress: 0
+                        };
+                });
+                files.pluck('size').each(function(o) {
+                    PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes += o;
+                });
                 $('{$this->id}_fileList').update(files.length + ' file(s) selected: <br />' + files.pluck('name').join('<br />'));
             });
             uploader.addListener('uploadStart', function(e) {
-                $('{$this->id}_progress').update('Upload progress: 0%');
+                PHOCOA.widgets.{$this->id}.updateProgress();
             });
             uploader.addListener('uploadProgress', function(e) {
-                $('{$this->id}_progress').update('Upload progress: ' + Math.round(e.bytesLoaded*100 / e.bytesTotal) + '%');
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].sizeProgress = e.bytesLoaded;
+                PHOCOA.widgets.{$this->id}.updateProgress();
             });
             uploader.addListener('uploadComplete', function(e) {
-                $('{$this->id}_progress').update('Upload complete.');
-                if (" . WFJSON::encode( !empty($this->continueURL) ) . ")
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].sizeProgress = PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].size;
+                PHOCOA.widgets.{$this->id}.updateProgress();
+
+                // are we done with ALL uploads?
+                var uploadComplete = true;
+                \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().each(function(o) {
+                    uploadComplete = uploadComplete && (o.sizeProgress === o.size)
+                });
+                if (uploadComplete)
                 {
-                    window.location = '{$this->continueURL}';
+                    $('{$this->id}_progress').update('Upload complete.');
+                    if (" . WFJSON::encode( !empty($this->continueURL) ) . ")
+                    {
+                        window.location = '{$this->continueURL}';
+                    }
                 }
             });
+        };
+        PHOCOA.widgets.{$this->id}.updateProgress = function() {
+            var uploadProgressBytes = 0;
+            \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().pluck('sizeProgress').each( function(o) {
+                uploadProgressBytes += o;
+            });
+            var msg = 'Upload progress: ' + Math.round(uploadProgressBytes*100 / PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes) + '%';
+            $('{$this->id}_progress').update(msg);
         };
         ";
 

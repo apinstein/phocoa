@@ -6,6 +6,11 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
+Version 0.1.9 - 9/28/2008
+- [bugfix] WFYAHOO_widget_ColorPicker only worked if its ID was "colorpicker" due to a hard-coded reference. It's been fixed.
+- [new] WFYAHOO_widget_ColorPicker now has a color sample display which automatically updates if the associated text field id is changed.
+- [bugfix] Fix WFYAHOO_widget_Uploader bug which caused the "continueURL" to be activated before the uploading was complete, thus cancelling some of the file uploads.
+
 Version 0.1.8 - 9/28/2008
 - [bugfix] "newProject" task now creates runtime/ and log/ directories in the correct place. Previously put them in "/".
 - [new] The "addpropel" task now automatically enables the Propel::init() call in MyWebApplicationDelegate.php. This step is no longer manually required on new projects.
