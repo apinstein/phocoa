@@ -8,6 +8,7 @@ Legend:
 
 Version 0.1.9 - 9/28/2008
 - [bugfix] WFYAHOO_widget_ColorPicker only worked if its ID was "colorpicker" due to a hard-coded reference. It's been fixed.
+- [bugfix] WFYAHOO_widget_ColorPicker didn't work if used inside a form on IE due to a nested forms issue. This has been fixed.
 - [new] WFYAHOO_widget_ColorPicker now has a color sample display which automatically updates if the associated text field id is changed.
 - [bugfix] Fix WFYAHOO_widget_Uploader bug which caused the "continueURL" to be activated before the uploading was complete, thus cancelling some of the file uploads.
 

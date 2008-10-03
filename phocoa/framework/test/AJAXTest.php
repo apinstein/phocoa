@@ -31,7 +31,6 @@ class AJAXTest extends PHPUnit_Extensions_SeleniumTestCase
 
     protected function setUp()
     {
-        //$this->setBrowser('*firefox');
         $this->setBrowserUrl('http://jwatts.dev.tourbuzz.net:8080');   // needed to load the first page; required for SC setup.
     }
  

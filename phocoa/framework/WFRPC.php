@@ -712,8 +712,7 @@ class WFAction extends WFObject
             $script .= "
                 action.rpc = new PHOCOA.WFRPC('" . $invocationPath . "',
                                               '" . $this->rpc->target() . "',
-                                              '" . $this->rpc->action() . "'
-                                              );
+                                              '" . $this->rpc->action() . "');
                 if (" . $this->jsAjaxSuccess() . ")
                 {
                     action.rpc.callback.success = " . $this->jsAjaxSuccess() . ";

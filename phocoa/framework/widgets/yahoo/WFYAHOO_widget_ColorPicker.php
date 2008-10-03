@@ -99,9 +99,7 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
             <div id="' . $this->id . '" class="yui-picker-panel" style="display: none">
                 <div class="hd">Please choose a color:</div>
                 <div class="bd">
-                    <form name="' . $this->id . '-yui-picker-form" id="' . $this->id . '-yui-picker-form" method="post" action="assets/post.php">
                     <div class="yui-picker" id="' . $this->id . '-yui-picker"></div>
-                    </form>
                 </div>
                 <div class="ft"></div>
             </div>
