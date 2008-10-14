@@ -174,16 +174,16 @@ abstract class WFView extends WFObject
         $this->originalOnEvent = $str;
 
         $matches = array();
-        // statement syntax: <event> do <l|r>:[action]
+        // statement syntax: <event> do <j|s|a>:[action]
         // repeat by adding "onEvent:" and another statement
         $pieces = preg_split('/\W\bonEvent\b:\W*/', $str);
         foreach ($pieces as $statement) {
             if (preg_match('/^\W*([A-z]*)\W*do\W*([jsa]):?((#(page|module)#[^:]*):)?(.*)$/', $statement, $matches))
             {
-                list(, $eventName, $lr, , $target, , $actionArgument) = $matches;
+                list(, $eventName, $actionType, , $target, , $actionArgument) = $matches;
                 if (empty($actionArgument)) $actionArgument = NULL; // normalize to null
                 if (empty($target)) $target = NULL; // normalize to null
-                if ($lr === 'j')
+                if ($actionType === 'j')
                 {
                     $action = WFAction::JSAction();
                     if ($actionArgument !== NULL)
@@ -191,7 +191,7 @@ abstract class WFView extends WFObject
                         $action->setJsEventHandler( "function(event) { " . $actionArgument . " };" );
                     }
                 }
-                else if ($lr === 's')
+                else if ($actionType === 's')
                 {
                     $action = WFAction::ServerAction();
                     if ($actionArgument !== NULL)
@@ -203,7 +203,7 @@ abstract class WFView extends WFObject
                         $action->setAction($actionArgument);
                     }
                 }
-                else if ($lr === 'a')
+                else if ($actionType === 'a')
                 {
                     $action = WFAction::AjaxAction();
                     if ($actionArgument !== NULL)
