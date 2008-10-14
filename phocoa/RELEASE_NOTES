@@ -7,6 +7,9 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.1.9 - 9/28/2008
+- [new] Add WFBreadCrumb infrastructure for managing breadcrumbs.
+
+Version 0.1.9 - 9/28/2008
 - [bugfix] WFYAHOO_widget_ColorPicker only worked if its ID was "colorpicker" due to a hard-coded reference. It's been fixed.
 - [bugfix] WFYAHOO_widget_ColorPicker didn't work if used inside a form on IE due to a nested forms issue. This has been fixed.
 - [new] WFYAHOO_widget_ColorPicker now has a color sample display which automatically updates if the associated text field id is changed.

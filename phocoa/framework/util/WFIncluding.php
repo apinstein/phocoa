@@ -133,6 +133,8 @@ class WFIncluding
                 'WFTabView' => 'framework/widgets/WFTabView.php',
                 'WFTableView' => 'framework/widgets/WFTableView.php',
                 'WFAppcelerator' => 'framework/widgets/WFAppcelerator.php',
+                'WFBreadCrumb' => 'framework/widgets/WFBreadCrumb.php',
+                'WFBreadCrumbSetup' => 'framework/widgets/WFBreadCrumb.php',
                 'WFYAHOO' => 'framework/widgets/yahoo/WFYAHOO.php',
                 'WFYAHOO_widget_YahooScript' => 'framework/widgets/yahoo/WFYAHOO_widget_YahooScript.php',
                 'WFYAHOO_yuiloader' => 'framework/widgets/yahoo/WFYAHOO.php',
