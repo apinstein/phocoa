@@ -155,15 +155,23 @@
     }
              
 	// read pages
-	NSDirectoryEnumerator *dirEn = [[NSFileManager defaultManager] enumeratorAtPath: [module valueForKey: @"path"]];
-	[dirEn skipDescendents];
-	NSString        *file;
-    NSMutableSet    *pages = [module mutableSetValueForKey: @"pages"];
+    NSArray                 *dirContents = [[NSFileManager defaultManager] directoryContentsAtPath: [module valueForKey: @"path"]];
+	NSEnumerator            *dirEn = [dirContents objectEnumerator];
+	NSString                *file;
+    NSMutableSet            *pages = [module mutableSetValueForKey: @"pages"];
 	while (file = [dirEn nextObject]) {
+        // skip subdirectories
+        BOOL    isDir;
+        if ([[NSFileManager defaultManager] fileExistsAtPath: [[module valueForKey: @"path"] stringByAppendingPathComponent: file] isDirectory: &isDir])
+        {
+            if (isDir) continue;
+        }
+
         // skip .myTemplate.tpl files (webdav artifact)
         NSArray     *components = [file pathComponents];
         NSString    *fileName = [components objectAtIndex: ([components count] - 1)];
         unichar     firstChar = [fileName characterAtIndex: 0];
+        
         // skip hidden files
         if (firstChar == '.') continue;
         // skip files that aren't ending in .tpl
