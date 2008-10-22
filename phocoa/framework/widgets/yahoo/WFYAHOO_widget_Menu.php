@@ -100,9 +100,11 @@ class WFYAHOO_widget_Menu extends WFYAHOO
     }
     
     function initJS($blockContent)
-    {
+    {   
+        // quickly hide it then menu-ify it; need it shown originally for SEO
         $html = "
         PHOCOA.widgets.{$this->id}.init = function() {
+            $('{$this->id}').hide();
             var oMenu = new YAHOO.widget." . ($this->horizontal ? 'MenuBar' : 'Menu') . "('{$this->id}', { position: 'static', autosubmenudisplay: true, hidedelay: 750, showdelay: 50, lazyload: true });
             oMenu.render();
             oMenu.show();
