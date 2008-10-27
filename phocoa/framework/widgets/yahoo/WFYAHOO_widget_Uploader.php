@@ -209,6 +209,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                            ->setTarget('#page#' . $this->id)
                            ->setAction('handleUploadedFile')
                            ->setForm($this->getForm())
+                           ->setRunsIfInvalid(true)
                            ->setIsAjax(true);
 
         $html = "
