@@ -51,6 +51,19 @@ class WFYAHOO_widget_Tab extends WFYAHOO
         $this->loadMethod = NULL;
     }
 
+    public static function exposedProperties()
+    {
+        $items = parent::exposedProperties();
+        return array_merge($items, array(
+                'cacheData' => array('true','false'),
+                'dataSrc',
+                'dataTimeout',
+                'disabled',
+                'label',
+                'loadMethod',
+            ));
+    }
+
     function cacheData()
     {
         return $this->cacheData;
