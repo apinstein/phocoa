@@ -188,6 +188,10 @@ class WFUNIXDateFormatter extends WFBaseDateFormatter
  *
  * Default formatString is 'r', example: "Thu, 21 Dec 2000 16:01:07 +0200".
  * IMPORTANT! Please be aware that some date formats are not reversible! that is, they can be shown human-readable, but not reversed into a valid time.
+ *
+ * IMPORTANT! WFDateTimeFormatter expects a DateTime object. However, oftentimes the formatter is used in conjunction with widgets that normally work with strings,
+ * and this the "value" will often be a multi-value string binding. Therefore often when using WFDateTimeFormatter you will need to add the formatter as a binding option
+ * rather than as a property of the widget. If you are getting BLANK values for your timestamps, and an WFException in the log, this is probably the problem.
  */
 class WFDateTimeFormatter extends WFUNIXDateFormatter
 {
