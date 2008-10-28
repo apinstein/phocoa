@@ -390,4 +390,3 @@ class WFObject implements WFKeyValueCoding
         return get_class($this);
     }
 }
-?>
