@@ -20,21 +20,48 @@
  * <b>Required:</b><br>
  * 
  * <b>Optional:</b><br>
- * cacheData - boolean - Whether or not to cache the data (if using dataSrc)
- * dataSrc - string - The absolute URL of a page on this server to load for dynamic content. If you want to load http:// urls, you need to set up a proxy.
- * dataTimeout - integer - Number of ms to wait before "failing" a dynamic content load.
- * disabled - boolean - Disabled tabs cannot be activated.
- * label - string - The label of the tab. Can be HTML.
- * loadMethod - string - GET/POST. What dataSrc will be loaded with.
+ * {@link WFYAHOO_widget_Tab::$cacheData cacheData}
+ * {@link WFYAHOO_widget_Tab::$dataSrc cacheData}
+ * {@link WFYAHOO_widget_Tab::$dataTimeout dataTimeout}
+ * {@link WFYAHOO_widget_Tab::$disabled disabled}
+ * {@link WFYAHOO_widget_Tab::$label label}
+ * {@link WFYAHOO_widget_Tab::$loadMethod loadMethod}
+ * {@link WFYAHOO_widget_Tab::$preventAbandondedForm preventAbandondedForm}
  */
 class WFYAHOO_widget_Tab extends WFYAHOO
 {
+    // YUI properties
+    /**
+     * @var boolean Whether or not to cache the data (if using dataSrc)
+     */
     protected $cacheData;
+    /**
+     * @var string The absolute URL of a page on this server to load for dynamic content. If you want to load http:// urls, you need to set up a proxy.
+     */
     protected $dataSrc;
+    /**
+     * @var integer Number of ms to wait before "failing" a dynamic content load.
+     */
     protected $dataTimeout;
+    /**
+     * @var boolean Disabled tabs cannot be activated.
+     */
     protected $disabled;
+    /**
+     * @var string The label of the tab. Can be HTML.
+     */
     protected $label;
+    /**
+     * @var string GET/POST. What dataSrc will be loaded with.
+     */
     protected $loadMethod;
+
+    // phocoa features
+    /**
+     * @var string The ID of a form appearing on this tab that you want to prevent people from accidentally leaving without saving. Default: NULL
+     *             If you put an id in here, 
+     */
+    protected $preventAbandondedForm;
 
     /**
       * Constructor.
@@ -49,6 +76,7 @@ class WFYAHOO_widget_Tab extends WFYAHOO
         $this->disabled = NULL;
         $this->label = $id;
         $this->loadMethod = NULL;
+        $this->preventAbandondedForm = NULL;
     }
 
     public static function exposedProperties()
@@ -61,6 +89,7 @@ class WFYAHOO_widget_Tab extends WFYAHOO
                 'disabled',
                 'label',
                 'loadMethod',
+                'preventAbandondedForm'
             ));
     }
 
@@ -88,6 +117,10 @@ class WFYAHOO_widget_Tab extends WFYAHOO
     {
         return $this->loadMethod;
     }
+    function preventAbandondedForm()
+    {
+        return $this->preventAbandondedForm;
+    }
     function initJS($blockContent)
     {
         return NULL;
@@ -109,6 +142,10 @@ class WFYAHOO_widget_Tab extends WFYAHOO
             if ($this->dataSrc !== NULL)
             {
                 $this->yuiloader()->yuiRequire('connection');
+            }
+            if ($this->preventAbandondedForm())
+            {
+                $this->yuiloader()->yuiRequire('container');
             }
             // render the tab's content block
             $html = parent::render($blockContent);
@@ -227,6 +264,7 @@ class WFYAHOO_widget_TabView extends WFYAHOO
     {
         if ($blockContent === NULL) return NULL;
         $html = "
+        PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs = {};
         PHOCOA.widgets.{$this->id}.init = function() {
             var tabView = new YAHOO.widget.TabView('{$this->id}', {";
         // set up tabview properties
@@ -238,7 +276,7 @@ class WFYAHOO_widget_TabView extends WFYAHOO
             var tab;
             ";
         // set up individual tabs
-        $configs = array('cacheData', 'dataSrc', 'dataTimeout', 'disabled', 'loadMethod');
+        $configs = array('cacheData', 'dataSrc', 'dataTimeout', 'disabled', 'loadMethod', 'preventAbandondedForm');
         $i = 0;
         foreach ($this->tabRenderOrder as $tabId => $tab) {
             $needTabVarInJS = true;
@@ -251,7 +289,61 @@ class WFYAHOO_widget_TabView extends WFYAHOO
             tab = tabView.getTab(" . $i++ . ");\n";
                     $needTabVarInJS = false;
                     }
-                    $html .= "            tab.set('{$config}', " . $this->jsValueForValue($tab->$config()) . ");\n";
+                    switch ($config) {
+                        case 'cacheData':
+                        case 'dataSrc':
+                        case 'dataTimeout':
+                        case 'disabled':
+                        case 'loadMethod':
+                            $html .= "            tab.set('{$config}', " . $this->jsValueForValue($tab->$config()) . ");\n";
+                            break;
+                        case 'preventAbandondedForm':
+                            if ($tab->preventAbandondedForm())
+                            {
+                                // beforeActiveIndexChange, beforeActiveTabChange. return false to cancel
+                                $html .= "
+            PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs." . $tab->id() . " = \$('" . $tab->preventAbandondedForm() . "').serialize();
+            tabView.addListener('beforeActiveTabChange', function(o) {
+                                    var losingTabId = o.prevValue.get('contentEl').id;
+                                    var theForm = \$('" . $tab->preventAbandondedForm() . "');
+                                    if (theForm && typeof PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId] !== 'undefined' && theForm.serialize() !== PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId])
+                                    {
+                                        var confirmDialog = new YAHOO.widget.SimpleDialog('dlg', { 
+                                                                                            width: '20em', 
+                                                                                            //effect:{effect:YAHOO.widget.ContainerEffect.FADE, duration:0.25}, 
+                                                                                            fixedcenter:true,
+                                                                                            modal:true,
+                                                                                            visible:false,
+                                                                                            draggable:false });
+                                        var handleSave = function() {
+                                            this.hide();
+                                            theForm.submit();
+                                        };
+                                        var handleDontSave = function() {
+                                            this.hide();
+                                            theForm.reset();
+                                            tabView.set('activeTab', o.newValue);
+                                        };
+                                        var handleCancel = function() {
+                                            this.hide();
+                                        };
+                                        var myButtons = [   { text:'Save', handler: handleSave },
+                                                            { text:'Don\'t Save', handler: handleDontSave },
+                                                            { text:'Cancel', handler: handleCancel, isDefault: true },
+                                                        ];
+                                        confirmDialog.setHeader('Warning: Unsaved data!');
+                                        confirmDialog.setBody('You are navigating away from a tab that has unsaved changes. What do you want to do with that unsaved data?');
+                                        confirmDialog.cfg.queueProperty('close',false);
+                                        confirmDialog.cfg.queueProperty('icon',YAHOO.widget.SimpleDialog.ICON_WARN); 
+                                        confirmDialog.cfg.queueProperty('buttons', myButtons);
+                                        confirmDialog.render(document.body);
+                                        confirmDialog.show();
+                                        return false;   // don't switch tabs; we'll go to the clicked tab as needed in callbacks
+                                    }
+                                });";
+                            }
+                            break;
+                    }
                 }
             }
         }

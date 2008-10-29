@@ -6,6 +6,9 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
+Version 0.2.0 - ??
+- [new] Add preventAbandondedForm property to WFYAHOO_widget_Tab. Given the ID of a form element, this will prevent navigation to another tab with "dirty" data.
+
 Version 0.1.9 - 9/28/2008
 - [new] Add WFBreadCrumb infrastructure for managing breadcrumbs.
 
