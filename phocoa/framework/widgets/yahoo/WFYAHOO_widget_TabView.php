@@ -302,11 +302,11 @@ class WFYAHOO_widget_TabView extends WFYAHOO
                             {
                                 // beforeActiveIndexChange, beforeActiveTabChange. return false to cancel
                                 $html .= "
-            PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs." . $tab->id() . " = \$('" . $tab->preventAbandondedForm() . "').serialize();
+            PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs." . $tab->id() . " = \$H(\$('" . $tab->preventAbandondedForm() . "').serialize(true)).toJSON();
             tabView.addListener('beforeActiveTabChange', function(o) {
                                     var losingTabId = o.prevValue.get('contentEl').id;
                                     var theForm = \$('" . $tab->preventAbandondedForm() . "');
-                                    if (theForm && typeof PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId] !== 'undefined' && theForm.serialize() !== PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId])
+                                    if (theForm && typeof PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId] !== 'undefined' && \$H(theForm.serialize(true)).toJSON() !== PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId])
                                     {
                                         var confirmDialog = new YAHOO.widget.SimpleDialog('dlg', { 
                                                                                             width: '20em', 
@@ -322,6 +322,14 @@ class WFYAHOO_widget_TabView extends WFYAHOO
                                         var handleDontSave = function() {
                                             this.hide();
                                             theForm.reset();
+                                            // also fix hidden elements
+                                            var originalData = PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId].evalJSON();
+                                            theForm.select('input[type=\"hidden\"]').each( function(hidEl) {
+                                                if (hidEl.id)
+                                                {
+                                                    hidEl.value = originalData[hidEl.id];
+                                                }
+                                            });
                                             tabView.set('activeTab', o.newValue);
                                         };
                                         var handleCancel = function() {
