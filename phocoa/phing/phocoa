@@ -49,7 +49,14 @@ while [ `pwd` != '/' ]; do
     if [ -r './conf/webapp.conf' ]; then
         if [ -n "$PHOCOA_PROJECT_CONF" ] && [ "$PHOCOA_PROJECT_CONF" != "`pwd`/conf/webapp.conf" ]; then
             echo "FATAL: PHOCOA_PROJECT_CONF in ENV ($PHOCOA_PROJECT_CONF) is outside of the current project."
-            exit 1
+            echo "Do you want use the current project's PHOCOA_PROJECT_CONF? [yes]"
+            read input
+            if [ -z "$input" ] || [ $input == "yes" ]; then
+                PHOCOA_PROJECT_CONF=""
+            else
+                echo "Exiting..."
+                exit 1
+            fi
         fi
         PHOCOA_PROJECT_CONF="`pwd`/conf/webapp.conf"
         break
