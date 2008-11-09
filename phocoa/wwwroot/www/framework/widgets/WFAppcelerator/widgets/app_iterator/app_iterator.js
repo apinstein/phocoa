@@ -1,23 +1,20 @@
+
 /*
- * This file is part of Appcelerator.
- *
- * Copyright (C) 2006-2008 by Appcelerator, Inc. All Rights Reserved.
- * For more information, please visit http://www.appcelerator.org
- *
- * Appcelerator is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Copyright 2006-2008 Appcelerator, Inc.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. 
  */
+
 
 
 Appcelerator.Widget.Iterator =
@@ -32,7 +29,7 @@ Appcelerator.Widget.Iterator =
 	},
 	getVersion: function()
 	{
-		return '1.0.1';
+		return '1.0.4';
 	},
 	getSpecVersion: function()
 	{
@@ -125,9 +122,10 @@ Appcelerator.Widget.Iterator =
 				});
 				html+='</tr>';
 			}
-         // this is in the case we pass in an object instead of 
+         	// this is in the case we pass in an object instead of 
 			// an array, make it an array of length one so we can iterate
-			if (!Object.isArray(array))
+			// !Object.isArray(array) fails in some cases so we don't use it (it's poorly implemented)
+			if (array.length != 0 && array[0] == undefined)
 			{
 				array = [array];
 			}
@@ -149,7 +147,7 @@ Appcelerator.Widget.Iterator =
 						html+='<tr class="'+parameterMap['rowEvenClassName']+'">';
 				}
 				/* escape out the "'" so that works in IE */
-				for (idx in o)
+				for (var idx in o)
 				{
 					if (typeof o[idx] == 'string')
 					{
@@ -172,6 +170,8 @@ Appcelerator.Widget.Iterator =
 		{
 			element.setAttribute('selectable',selectable);
 		}
+
+        Appcelerator.Compiler.destroyContent(element);
 		element.innerHTML = Appcelerator.Compiler.addIENameSpace(html);
 		Appcelerator.Compiler.dynamicCompile(element);
 	},

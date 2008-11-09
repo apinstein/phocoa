@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <appcelerator version="1.0" xmlns="http://www.appcelerator.org/config">
-	<servicebroker poll="false">@{rootPath}servicebroker.php</servicebroker>
+	<servicebroker poll="false" marshaller="application/json">@{rootPath}servicebroker.php</servicebroker>
 	<upload>@{rootPath}upload.php</upload>
 	<download>@{rootPath}download.php</download>
+   <proxy>@{rootPath}proxy.php</proxy>
 	<sessionid>PHPSESSID</sessionid>
    <language>php</language>
+   <service>php</service>
 </appcelerator>

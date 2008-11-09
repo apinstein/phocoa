@@ -1,0 +1,10 @@
+--- 
+:release_notes: initial release
+:type: layout
+:licenses: [6]
+
+:description: xy layout
+:name: xy
+:version: 1.0
+:tags: 
+- layout

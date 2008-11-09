@@ -1,0 +1,122 @@
+.tabpanel_minimal
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_minimal ul
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_minimal li
+{
+	margin:0px !important;
+	padding:0px;
+}
+
+.tabpanel_minimal_hoverbox
+{
+	height:10px;
+	background-color:#ccc;
+	float:left;
+	width:90px;
+	padding:5px !important;
+}
+
+
+
+/* TAB */
+.tabpanel_minimal_tab_container
+{
+	float:left;
+}
+.tabpanel_minimal_tab_left
+{
+	float:left;
+}
+.tabpanel_minimal_tab_right
+{
+	float:left;
+}
+
+.tabpanel_minimal_tab_mid
+{
+	height:10px;
+	width:100px;
+	border-right:1px solid #999;
+	float:left;
+	padding:5px !important;
+	text-align:center;
+	position:relative;
+	z-index:2;
+	line-height:10px;
+	font-size:12px  !important;
+	cursor:pointer;
+}
+
+/* TAB ACTIVE */
+.tabpanel_minimal_tab_mid_active
+{
+	font-weight:bold;
+	font-style:italic;
+}
+
+/* TAB HOVER */
+.tabpanel_minimal_tab_mid:hover
+{
+}
+
+/* DIVIDER LINE UNDER TABS */
+.tabpanel_minimal_divider
+{
+	clear:both;
+}
+
+.tabpanel_minimal_left
+{
+	/* left end of tab panel */
+	float:left;
+	height:20px;
+	width:1px;
+	background-color:#999;
+
+}
+.tabpanel_minimal_right
+{
+	/* right end of tab panel */
+	float:left;
+
+}
+.tabpanel_minimal_tab_left_active
+{
+	/* left end of tab - active */
+	float:left;
+}
+.tabpanel_minimal_tab_right_active
+{
+	/* right end of tab - active */
+	float:left;
+
+}
+
+.tabpanel_minimal_tab_left
+{
+	/* left end of tab  */
+	float:left;
+
+}
+.tabpanel_minimal_tab_right
+{
+	/* right end of tab */
+	float:left;
+
+}
+
+.tabpanel_minimal_tab_left:hover
+{
+	/* left end of tab - hover */
+}
+.tabpanel_minimal_tab_right:hover
+{
+	/* right end of tab - hover */
+}

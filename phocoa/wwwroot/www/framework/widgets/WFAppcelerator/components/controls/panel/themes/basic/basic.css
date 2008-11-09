@@ -1,0 +1,114 @@
+.panel_basic
+{
+	position:relative;
+	padding:0px;
+	margin:0px;
+}
+.panel_basic div
+{
+	padding:0px;
+	margin:0px;	
+}
+.panel_basic_hdr
+{
+	padding:0; 
+	border:none; 
+	color:#000; 
+	margin-left:6px !important; 
+	margin-right:6px  !important; 
+	text-align:center; 
+	overflow:visible; 
+	background-color:#ccc;
+	border-top:1px solid #aaa;
+	height:22px; 
+}
+
+.panel_basic_tl
+{
+	width:7px; 
+	height:22px; 
+	top:0; 
+	left:0px; 
+	border-left:1px solid #aaa;
+	position:absolute; 
+	background-color:#ccc;
+	border-top:1px solid #aaa;
+}
+
+.panel_basic_title
+{
+	vertical-align:middle; 
+	line-height:22px; 
+	font-weight:bold; 
+}
+
+.panel_basic_tr
+{
+	width:7px; 
+	height:22px; 
+	top:0; 
+	right:0px; 
+	position:absolute;
+	border-right:1px solid #aaa;
+	border-top:1px solid #aaa;
+	background-color:#ccc;
+}
+
+.panel_basic_btm
+{
+	background-color:white;
+	border-bottom:1px solid #aeaeae;
+}
+
+.panel_basic_bl
+{
+	width:7px; 
+	height:22px; 
+	bottom:0px; 
+	left:0px; 
+	border-left:1px solid #aeaeae;
+	position:absolute;
+}
+
+.panel_basic_br
+{
+	width:7px; 
+	height:22px; 
+	bottom:0px; 
+	right:0px; 
+	border-right:1px solid #aeaeae;
+	position:absolute;
+}
+
+.panel_basic_btm_text
+{
+	font-size:11px;
+	padding:2px !important;
+	position:relative;
+	left:5px;
+}
+
+.panel_basic_close 
+{ 
+	position:absolute; 
+	top:3px; 
+	right:6px; 
+	height:18px; 
+	width:17px; 
+	cursor:pointer;
+	background:url(images/cross.png) no-repeat;
+} 
+
+.panel_basic_close:hover
+{ 
+} 
+
+.panel_basic_body
+{
+	border:1px solid #AEAEAE;
+	padding:10px !important;
+	background-color:white;
+	
+}
+
+

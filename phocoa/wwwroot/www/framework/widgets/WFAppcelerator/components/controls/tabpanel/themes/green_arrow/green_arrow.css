@@ -1,0 +1,133 @@
+.tabpanel_green_arrow
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_green_arrow ul
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_green_arrow li
+{
+	margin-left:0px !important;
+	margin-top:0px !important;
+	margin-bottom:0px !important;
+	margin-top:0px !important;
+	padding:0px;
+}
+
+
+/* TAB */
+.tabpanel_green_arrow_tab_container
+{
+	float:left;
+}
+.tabpanel_green_arrow_tab_mid
+{
+	height:33px;
+	float:left;
+	border:1px solid #c9c9c9;
+	border-bottom:none;
+	background-color:#fff;
+	line-height:33px;
+	
+	color:#004bb2;
+	font-weight:bold;
+	font-size:13px !important;
+	text-align:center;
+	margin-right:20px !important;
+	cursor:pointer;
+	width:163px;
+}
+
+/** need to do this for IE6 since normal tab has no image **/
+body.ie6 .tabpanel_green_arrow_tab_mid
+{
+	filter:none;
+}
+
+/* TAB ACTIVE */
+.tabpanel_green_arrow_tab_mid_active
+{
+	background:url(images/active.png) repeat-x;
+	height:40px;
+	float:left;
+	color:white;
+	font-weight:bold;
+	border:none;
+	position:relative;
+	z-index:1;
+}
+
+/** need to do this for IE6 since normal tab has no image **/
+body.ie6 .tabpanel_green_arrow_tab_mid_active
+{
+	filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/active.png',sizingMethod='scale');
+}
+/* TAB HOVER */
+.tabpanel_green_arrow_tab_mid:hover
+{
+
+}
+
+/* DIVIDER LINE UNDER TABS */
+.tabpanel_green_arrow_divider
+{
+	clear:both;
+	border-top:1px solid #c9c9c9;
+	position:relative;
+	top:-7px;
+	z-index:0;
+	margin-bottom:-7px;
+}
+body.msie .tabpanel_green_arrow_divider
+{
+	top:-17px;
+	margin-bottom:-17px;
+}
+/* left end of tab panel */
+.tabpanel_green_arrow_left
+{
+	float:left;
+}
+
+/* right end of tab panel */
+.tabpanel_green_arrow_right
+{
+	float:left;
+}
+
+/* left end of tab - active */
+.tabpanel_green_arrow_tab_left_active
+{
+	float:left;
+}
+
+/* right end of tab - active */
+.tabpanel_green_arrow_tab_right_active
+{
+	float:left;
+}
+
+/* left end of tab  */
+.tabpanel_green_arrow_tab_left
+{
+	float:left;
+}
+
+/* right end of tab */
+.tabpanel_green_arrow_tab_right
+{
+	float:left;
+}
+
+/* left end of tab - hover */
+.tabpanel_green_arrow_tab_left:hover
+{
+}
+
+/* right end of tab - hover */
+.tabpanel_green_arrow_tab_right:hover
+{
+}

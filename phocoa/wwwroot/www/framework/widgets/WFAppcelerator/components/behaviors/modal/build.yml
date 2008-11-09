@@ -1,0 +1,10 @@
+--- 
+:release_notes: initial release
+:type: behavior
+:licenses: [6]
+
+:description: modal behavior
+:name: modal
+:version: 1.1
+:tags: 
+- behavior

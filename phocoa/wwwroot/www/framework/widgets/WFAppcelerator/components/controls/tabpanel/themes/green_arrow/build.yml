@@ -1,0 +1,11 @@
+--- 
+:type: theme
+:control: control
+:version: 1.1
+:release_notes: initial release
+:name: tabpanel:green_arrow
+:licenses: [6]
+
+:tags: 
+- theme
+:description: tabpanel green_arrow theme

@@ -1,23 +1,20 @@
-/*
+/*!
  * This file is part of Appcelerator.
  *
- * Copyright (C) 2006-2008 by Appcelerator, Inc. All Rights Reserved.
- * For more information, please visit http://www.appcelerator.org
+ * Copyright 2006-2008 Appcelerator, Inc.
  *
- * Appcelerator is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- */
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
 
 /* The following files are subject to license agreements by their respective license owners */
 /**
@@ -6577,28 +6574,1763 @@ Resizeable.prototype = {
       return false;
    }
   }
-}
-/* END THIRD PARTY SOURCE */
+}/*
+
+Copyright (c) 2007 Travis Hensgen, http://mondea.com.au
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+*/
+
+var Jel = {
+    version:    1.0
+};
+
 /*
+
+Class: Jel.Lang
+    *Language Resources* for the Jel library which allow it to be internationalised.
+    
+*/
+
+Jel.Lang = 
+{
+    KEY:                            "en.us", 
+    DATE_FORMAT:                    "m/d/Y",
+    DATE_12_FORMAT:                 "m/d/Y g:i A"
+};
+
+Jel.Lang.String = 
+{
+
+};
+
+
+/*
+
+Class: Jel.Lang.Date
+    Language resources for <Jel.Date>
+    
+*/
+
+
+/* 
+    Property: DAYS 
+        an *array* of *long day name* string constants for the current language build. e.g. for English ["Sunday", ..., "Saturday"]. These are also used by <Jel.Date.format> and <Jel.Date.parse>.
+    
+    Example: 
+        > Jel.Lang.Date.DAYS[4]; // Thursday
+        > Jel.Lang.Date.DAYS[1]; // Monday
+*/
+
+/* 
+    Property: DAYS_SHORT
+        an *array* of *short day name* string constants for the current language build. e.g. for English ["Sun", ..., "Sat"]. These are also used by <Jel.Date.format> and <Jel.Date.parse>.
+    
+    Example: 
+        > Jel.Lang.Date.DAYS_SHORT[4]; // Thu
+        > Jel.Lang.Date.DAYS_SHORT[1]; // Mon
+*/
+
+/* 
+    Property: MONTHS
+        an *array* of *long month names* string constants for the current language build. e.g. for English ["January", ..., "December"]. These are also used by <Jel.Date.format> and <Jel.Date.parse>.
+    
+    Example: 
+        > Jel.Lang.Date.MONTHS[4]; // May
+        > Jel.Lang.Date.MONTHS[1]; // Februrary
+*/
+
+/* 
+    Property: MONTHS_SHORT
+        an array of *short month names* string constants for the current language build. e.g. for English ["Jan", ..., "Dec"]. These are also used by <Jel.Date.format> and <Jel.Date.parse>.
+
+    Example: 
+        > Jel.Lang.Date.MONTHS_SHORT[4]; // May
+        > Jel.Lang.Date.MONTHS_SHORT[1]; // Feb
+*/
+
+
+
+Jel.Lang.Date = 
+{
+    DAYS: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+    DAYS_SHORT: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    MONTHS: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    MONTHS_SHORT: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    MONTHS_LCASE: ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"],
+    MONTHS_SHORT_LCASE: ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+};
+  
+/*
+Class: Jel.String
+    *Utility Methods* for manipulating JavaScript's *built-in String class*
+*/
+
+Jel.String = 
+{
+    /*
+        Method: repeat
+            gets the *repeat* of a string for a specified *count*
+
+        Arguments:
+            str - string, the string to repeat
+            count - integer, the delimiter to use between words. If not specified, a dash ("-") is used
+    
+        Returns: 
+            string
+        
+        Examples:
+            > String.repeat("-", 5);     // "-----"
+            > String.repeat("hello", 3); // "hellohellohello"
+    */
+
+    repeat: function(str, count)
+    {
+    	var ret = '';
+
+    	for (var i=0; i<count; i++)
+    		ret += str;
+	
+    	return ret;
+    },
+    
+    wrapToLines: function(str, lineLength)
+    {
+        var lines = [];
+        var line = '';
+        var words = str.split(" ");
+        var appended;
+        var word;
+        
+        for (var i=0; i<words.length; i++)
+        {
+            word = words[i];
+            appended = line + ( line.length == '' ? '' : ' ' ) + word;
+            
+            
+            if ( appended.length > lineLength )
+            {
+                lines[lines.length] = appended;
+                line = '';
+            }
+            else
+            {
+                line = appended;
+            }
+        }
+        
+        if (line != '')
+            lines[lines.length] = appended;
+        
+        return lines;
+    },
+
+    /*
+        Method: right
+            gets the *specified number of characters from the end* of a given string
+            
+        Arguments:
+            str - String, a given string 
+            length - the number of characters to return
+        
+        Example:
+            > Jel.String.right("wicked", 3); // "ked"
+    */
+            
+    right: function(str, length)
+    {
+	    return str.substring(str.length - length, str.length);
+	},
+
+    /*
+        Method: left
+            gets the *specified number of characters from the beginning* of a given string
+            
+        Arguments:
+            str - String, a given string 
+            length - the number of characters to return
+        
+        Example:
+            > Jel.String.left("wicked", 4); // "wick"
+    */
+	
+	left: function(str, length)
+    {
+    	return str.substring(0, length);
+    },
+    
+    /*
+        Method: ltrim
+            *removes whitespace* characters *from the beginning* of a given string
+
+        Arguments:
+            str - String, a given string 
+        
+        Examples:
+            > Jel.String.lrim("  wicked");      // "wicked"
+            > Jel.String.lrim("  wicked  ");    // "wicked  "
+    */
+	
+    ltrim: function(str)
+    {
+    	return str.replace(/^\s+/,'');
+    },
+
+    /*
+        Method: rtrim
+            *removes whitespace* characters *from the end* of a given string
+
+        Arguments:
+            str - String, a given string 
+        
+        Examples:
+            > Jel.String.rtrim("wicked");       // "wicked"
+            > Jel.String.rtrim("  wicked  ");   // "  wicked"
+    */
+    
+    rtrim: function(str)
+    {
+    	return str.replace(/\s+$/,'');
+    },
+
+    /*
+        Method: trim
+            *removes whitespace* characters *from the beginning and end* of a given string
+
+        Arguments:
+            str - String, a given string 
+        
+        Example:
+            > Jel.String.trim("   wicked  "); // "wicked"
+    */
+    
+    trim: function(str) 
+    {
+    	return Jel.String.ltrim(Jel.String.rtrim(str));
+    },
+    
+    /*
+        Method: toFloat
+            *gets the float value* of a given string in manner *safe for arithmetic expressions*
+
+        Arguments:
+            str - String, a given string 
+        
+        Returns: 
+            float - the float value of the string, if it can be converted into one 
+            0.0 - if the string does not represent a float
+
+        Examples:
+            > Jel.String.toFloat("0.5");                                  // 0.5
+            > Jel.String.toFloat("word");                                 // 0.0
+            > Jel.String.toFloat("0.6") + Jel.String.toFloat("word");     // 0.6
+
+    */
+    
+    toFloat: function(str)
+    {
+    	if (isNaN(str))
+    		return 0.0;
+    	else
+    		if (Jel.String.trim(str) == '')
+    			return 0.0;
+    		else
+    			return parseFloat(str);
+    },
+
+    /*
+        Method: toInt
+            *gets the integer value* of a given string in a manner that is *safe for arithmetic expressions*
+
+        Arguments:
+            str - String, a given string 
+        
+        Returns: 
+            integer - the integer value of the string, if it can be converted into one 
+            0 - if the string does not represent an integer
+
+        Examples:
+            > Jel.String.toInt("4");          // 4
+            > Jel.String.toInt("word");       // 0
+            > Jel.String.toInt(8 + "word");   // 8
+
+    */
+    
+    toInt: function(str)
+    {
+    	if (isNaN(str))
+    		return 0;
+    	else
+    	{
+    		if (Jel.String.trim(str) == '')
+    			return 0;
+    		else
+    			return parseInt(str);
+    	}
+    },
+
+    /*
+        Method: extractInt
+            *extracts the digits in a given string*, returning the *integer value* of them *joined together in sequence*
+
+        Arguments:
+            str - String, a given string 
+        
+        Returns: 
+            integer - the integer value of the all of the digits joined together in a given string, if any are present 
+            0 - otherwise                           
+
+        Examples:
+            > Jel.String.extractInt("4jkbn45");   // 445
+            > Jel.String.extractInt("word");      // 0
+            > Jel.String.extractInt("ff88f999");  // 88999
+
+    */
+    
+    extractInt: function(str)
+    {
+        var ret = "";
+
+        var matches = str.match(/[0-9]+/ig);
+    
+        if (matches)
+        {
+            for (var i=0; i<matches.length; i++)
+            {
+                var part = "";
+                
+                for (var j=0; j<matches[i].length; j++)
+                {
+                    if (!(part.length == 0 && matches[i][j] == '0'))
+                    {
+                        // ignore leading zeros
+                        part += matches[i][j];
+                    }
+                }
+                
+                ret += part;
+            }
+        }
+
+        return ret == "" ? 0 : parseInt(ret);
+    },
+
+    /*
+        Method: eq
+            checks if a given string *is equal to another string*, with the *optional case-insensitive comparison*
+        
+        Arguments:
+            str - String, a given string 
+            strCompare - string, the string to compare to
+            ignoreCase - boolean, whether the comparison is case sensitive or not
+        
+        Returns: 
+            true - if they are equal 
+            false - otherwise                           
+
+        Examples:
+            > Jel.String.equals("clay", "blah");        // false
+            > Jel.String.equals("word", "WORD", true); // true
+    */
+    
+    equals: function(str, strCompare, ignoreCase)
+    {
+        if (!ignoreCase)
+            return str == strCompare;
+        else
+            return str.toLowerCase() == strCompare.toLowerCase();
+    },
+    
+    /*
+        Method: startsWith
+            checks if a given string *begins with another string*, with the *optional case-insensitive comparison*
+
+        Arguments:
+            str - String, a given string 
+            strCompare - string, the string to compare to
+            ignoreCase - boolean, whether the comparison is case sensitive or not
+        
+        Returns: 
+            true - if a given string begins with *str* 
+            false - otherwise                    
+
+        Examples:
+            > Jel.String.startsWith("word", "w");                       // true
+            > Jel.String.startsWith("field-container", "FIELD", false); // true
+            > Jel.String.startsWith("word", "p");                       // false
+    */
+
+    startsWith: function(str, strCompare, ignoreCase)
+    {   
+        return Jel.String.equals(Jel.String.left(str, strCompare.length), strCompare, ignoreCase);
+    },
+ 
+    /*
+        Method: endsWith
+            checks if a given string *ends with another string*, with the option of a case-insensitive comparison
+
+        Arguments:
+            str - String, a given string 
+            strCompare - string, the string to compare to
+            ignoreCase - boolean, whether the comparison is case sensitive or not
+        
+        Returns: 
+            true - if a given string ends with *str* 
+            false - otherwise                    
+
+        Examples:
+            > Jel.String.endsWith("word", "w");                           // false
+            > Jel.String.endsWith("field-container", "CONTAINER", false); // true
+    */
+    
+    endsWith: function(str, strCompare, ignoreCase)
+    {
+        return Jel.String.equals(Jel.String.right(str, strCompare.length), strCompare, ignoreCase);
+    },
+
+    /*
+        Method: decamelize
+            *breaks a given string up into* a string of *lowercase delimited words*, where an uppercase letter in *a given string* denotes a new word (*camel case*)
+
+        Arguments:
+            str - String, the string to decamelize
+            delimiter - String, the delimiter to use between words. If not specified, a dash ("-") is used
+        
+        Returns: 
+            string - the final delimited words string
+            
+        Examples:
+            > Jel.String.decamelize("fieldValidator");   // "field-validator"
+            > Jel.String.decamelize("helloThere", " ");  // "hello there"
+            > Jel.String.decamelize("getValue", "_");    // "get_value"
+    */
+
+    decamelize: function(str, delimiter)
+    {
+        var ret = str.replace(/([A-Z0-9])/g, (delimiter ? delimiter : '-') + '$1').toLowerCase();
+
+        var re = new RegExp('([0-9])' + (delimiter ? delimiter : '-') + '([0-9])', 'g');
+
+        while (ret.match(re))
+        {
+            ret = ret.replace(re, "$1$2");
+        }
+
+        return ret;    
+    },
+
+    /*
+        Method: camelize
+            converts a string of dash-delimited words into a camelized version
+
+        Arguments:
+            delimiter - the delimiter to use between words. If not specified, a dash ("-") is used
+            
+        Returns: 
+            string - the final camel cased words string
+        
+        Credit:
+            code taken from Prototype.js 1.5 (c) 2005-2007 Sam Stephenson
+            
+        Example:
+            > Jel.String.camelize("field-validator"); // "fieldValidator"
+    */
+    
+    camelize: function(str, delimiter) 
+    {
+        if (!delimiter)
+            delimiter = '-';
+            
+        var parts = str.split(delimiter), len = parts.length;
+        
+        if (len == 1) 
+            return parts[0];
+
+        var camelized = str.charAt(0) == delimiter ? parts[0].charAt(0).toUpperCase() + parts[0].substring(1) : parts[0];
+
+        for (var i = 1; i < len; i++)
+        {
+            camelized += parts[i].charAt(0).toUpperCase() + parts[i].substring(1);
+        }
+
+        return camelized;
+    },
+
+    /*
+        Method: titleCase
+            converts a string of words into the equivalent title cased word
+
+        Arguments:
+            str - String, the string of words to convert
+            
+        Returns: 
+            string - the final title-cased words string
+            
+        Example:
+            > Jel.String.titleCase("field validator"); // "Field Validator"
+    */
+
+    titleCase: function(str)
+    {
+        var words = str.split(" ");
+        var titleWords = [];
+        
+        for (var i=0; i<words.length; i++)
+        {
+            titleWords[titleWords.length] = words[i].substr(0, 1).toUpperCase() + words[i].substr(1, words[i].length - 1);
+        }
+        
+        return titleWords.join(" ");
+    },
+    
+    /*
+        Method: normalize
+            converts a string of words which are camel-cased, dash-delimited, underscore delimted, or a combination into a string of dash-delimited words
+
+        Arguments:
+            str - String, the string of words to convert
+            
+        Returns: 
+            string - the final dash-delimited words string
+            
+        Example:
+            > Jel.String.normalize("fieldValidator_1"); // "field-validator-1"
+    */
+    
+    normalize: function(str)
+    {
+        var ret = str;
+        
+        ret = ret.replace(/\_/g, "-");
+        ret = Jel.String.camelize(ret);
+        ret = Jel.String.decamelize(ret);
+        
+        return ret;
+    },
+
+    /*
+        Method: constant
+            converts a string of words which are camel-cased, dash-delimited, underscore delimted, or a combination into a style approprite for constant values, that is, a string of underscore-delimited uppercase words
+
+        Arguments:
+            str - String, the string of words to convert
+            
+        Returns: 
+            string - the final uppercase underscore-delimited words string
+            
+        Example:
+            > Jel.String.normalize("fieldValidator_1"); // "FIELD_VALIDATOR_1"
+    */
+    
+    constant: function(str)
+    {
+        return Jel.String.normalize(str).toUpperCase().replace(/\-/g, "_");
+    }
+};/*
+
+Class: Jel.Date
+    *Utility Methods* for manipulating JavaScript's *built-in Date class*
+*/
+
+Jel.Date = {};
+
+Jel.Date.DATE_NOW = "now";
+
+Jel.Date.PARSE_REG_EXP_COMMON =
+{
+    LEADING_1_12:       "10|11|12|(?:0[1-9])",
+    NO_LEADING_1_12:    "10|11|12|(?:[1-9])",
+    BOTH_0_59:          "[0-5][0-9]" 
+};
+
+    
+/* 
+    Property: FORMAT 
+        a *hash* collection of *common formatting string constants* to be used with <Jel.Date.format> and <Jel.Date.parse>
+        
+    Examples:
+        > Jel.Date.format(Jel.Date.parse("23/02/2006", Jel.Date.FORMAT.UK), Jel.Date.FORMAT.US);
+        > // "02/23/2006"
+        >
+        > Jel.Date.format(Jel.Date.parse("23/02/2006 11:50 PM", Jel.Date.FORMAT.UK_12), Jel.Date.FORMAT.UTC);
+        > // "2006-23-02 23:50:00"
+
+    Available constants:
+        > T_12:                     'g:i A' 
+        > T_24:                     'G:i' 
+        > T_MILITARY:               'Gi'
+        > UK:                       'd/m/Y'
+        > US:                       'm/d/Y'
+        > UK_12:                    'd/m/Y g:i A'
+        > US_12:                    'm/d/Y g:i A'
+        > UK_24:                    'd/m/Y G:i'
+        > US_24:                    'm/d/Y G:i'
+        > UK_12_SHORT:              'd/m/Y g A'
+        > US_12_SHORT:              'm/d/Y g A'
+        > UK_24_SHORT:              'd/m/Y G'
+        > US_24_SHORT:              'm/d/Y G'
+        > UK_12_LONG:               'd/m/Y g:i:s A'
+        > US_12_LONG:               'm/d/Y g:i:s A'
+        > UK_24_LONG:               'd/m/Y G:i:s'
+        > US_24_LONG:               'm/d/Y G:i:s'
+        > UTC:                      'Y-m-d G:i:s'
+        > UTC_T:                    'Y-m-dTG:i:s'
+        > UTC_Y:                    'Y'
+        > UTC_YM:                   'Y-m'
+        > UTC_YMD:                  'Y-m-d'
+        > UTC_YMDHM:                'Y-m-d g:i'
+        > UTC_YMDHMS:               'Y-m-d g:i:s'
+        > SHORT_MONTH:              'd M Y',
+        > SHORT_MONTH_12:           'd M Y g:i A'
+        > SHORT_MONTH_24:           'd M Y G:i'
+        > SHORT_MONTH_PHRASE:       'jS M Y'
+        > SHORT_MONTH_PHRASE_12:    'jS M Y g:i A'
+        > SHORT_MONTH_PHRASE_24:    'jS M Y G:i'
+
+    See also:
+        <http://www.w3.org/TR/NOTE-datetime> has more information about the UTC (Coordinated Universal Time) standard formats
+*/
+
+Jel.Date.FORMAT =
+{ 
+    T_12:           'g:i A', 
+    T_24:           'G:i', 
+    T_MILITARY:     'Gi',
+    UK:             'd/m/Y',
+    US:             'm/d/Y',
+    UK_12:          'd/m/Y g:i A',
+    US_12:          'm/d/Y g:i A',
+    UK_24:          'd/m/Y G:i',
+    US_24:          'm/d/Y G:i',
+    UK_12_SHORT:    'd/m/Y g A',
+    US_12_SHORT:    'm/d/Y g A',
+    UK_24_SHORT:    'd/m/Y G',
+    US_24_SHORT:    'm/d/Y G',
+    UK_12_LONG:     'd/m/Y g:i:s A',
+    US_12_LONG:     'm/d/Y g:i:s A',
+    UK_24_LONG:     'd/m/Y G:i:s',
+    US_24_LONG:     'm/d/Y G:i:s',
+    UTC:            'Y-m-d G:i:s',
+    UTC_T:          'Y-m-dTG:i:s',
+    UTC_Y:          'Y',
+    UTC_YM:         'Y-m',
+    UTC_YMD:        'Y-m-d',
+    UTC_YMDHM:      'Y-m-d g:i',
+    UTC_YMDHMS:     'Y-m-d g:i:s',
+    SHORT_MONTH:    "d M Y",
+    SHORT_MONTH_12: "d M Y g:i A",
+    SHORT_MONTH_24: "d M Y G:i",
+    SHORT_MONTH_PHRASE: "jS M Y",
+    SHORT_MONTH_PHRASE_12: "jS M Y g:i A",
+    SHORT_MONTH_PHRASE_24: "jS M Y G:i"
+};
+
+/* 
+    Property: HUMAN_FORMAT 
+        a hash collection of *common date format string constants* as usually *expressed by humans*, with each constant being equivalent to those in <Jel.Date.FORMAT>
+
+    Available constants:
+        > T_12:                     'h:mm AM/PM' 
+        > T_24:                     'hh:mm (24 hour)'
+        > T_MILITARY:               'hmm (military time)' 
+        > UK:                       'dd/mm/yyyy'
+        > US:                       'mm/dd/yyyy'
+        > UK_12:                    'dd/mm/yyyy h:mm AM/PM'
+        > US_12:                    'mm/dd/yyyy h:mm AM/PM'
+        > UK_24:                    'dd/mm/yyyy hh:mm (24 hour)'
+        > US_24:                    'mm/dd/yyyy hh:mm (24 hour)'
+        > UK_12_SHORT:              'dd/mm/yyyy h AM/PM'
+        > US_12_SHORT:              'mm/dd/yyyy h AM/PM'
+        > UK_24_SHORT:              'dd/mm/yyyy h (24 hour)'
+        > US_24_SHORT:              'mm/dd/yyyy h (24 hour)'
+        > UK_12_LONG:               'dd/mm/yyyy h:mm:ss AM/PM'
+        > US_12_LONG:               'mm/dd/yyyy h:mm:ss AM/PM'
+        > UK_24_LONG:               'dd/mm/yyyy h:mm:ss (24 hour)'
+        > US_24_LONG:               'mm/dd/yyyy h:mm:ss (24 hour)'
+        > UTC:                      'yyyy-mm-dd hh:mm:ss (24 hour)'
+        > UTC:                      'yyyy-mm-dd hh:mm:ss (24 hour)'
+        > UTC_T:                    'yyyy-mm-ssThh:mm:ss (24 hour)'
+        > UTC_Y:                    'yyyy'
+        > UTC_YM:                   'yyyy-mm'
+        > UTC_YMD:                  'yyyy-mm-dd'
+        > UTC_YMDHM:                'yyyy-mm-dd hh:mm (24 hour)'
+        > UTC_YMDHMS:               'yyyy-mm-dd hh:mm:ss (24 hour)'
+        > SHORT_MONTH:              "dd mmm yyyy"
+        > SHORT_MONTH_12:           "dd mmm yyyy hh:mm AM/PM"
+        > SHORT_MONTH_24:           "dd mmm yyyy hh:mm (24 hour)"
+        > SHORT_MONTH_PHRASE:       "d(th) mmm yyyy"
+        > SHORT_MONTH_PHRASE_12:    "d(th) mmm yyyy hh:mm AM/PM"
+        > SHORT_MONTH_PHRASE_24:    "d(th) mmm yyyy hh:mm (24 hour)"
+
+*/
+    
+Jel.Date.HUMAN_FORMAT = 
+{
+    T_12:           'h:mm AM/PM', 
+    T_24:           'h:mm (24 hour)', 
+    T_MILITARY:     'hmm (military time)',
+    UK:             'dd/mm/yyyy',
+    US:             'mm/dd/yyyy',
+    UK_12:          'dd/mm/yyyy h:mm AM/PM',
+    US_12:          'mm/dd/yyyy h:mm AM/PM',
+    UK_24:          'dd/mm/yyyy hh:mm (24 hour)',
+    US_24:          'mm/dd/yyyy hh:mm (24 hour)',
+    UK_12_SHORT:    'dd/mm/yyyy h AM/PM',
+    US_12_SHORT:    'mm/dd/yyyy h AM/PM',
+    UK_24_SHORT:    'dd/mm/yyyy h (24 hour)',
+    US_24_SHORT:    'mm/dd/yyyy h (24 hour)',
+    UK_12_LONG:     'dd/mm/yyyy h:mm:ss AM/PM',
+    US_12_LONG:     'mm/dd/yyyy h:mm:ss AM/PM',
+    UK_24_LONG:     'dd/mm/yyyy h:mm:ss (24 hour)',
+    US_24_LONG:     'mm/dd/yyyy h:mm:ss (24 hour)',
+    UTC:            'yyyy-mm-dd hh:mm:ss (24 hour)',
+    UTC:            'yyyy-mm-dd hh:mm:ss (24 hour)',
+    UTC_T:          'yyyy-mm-ssThh:mm:ss (24 hour)',
+    UTC_Y:          'yyyy',
+    UTC_YM:         'yyyy-mm',
+    UTC_YMD:        'yyyy-mm-dd',
+    UTC_YMDHM:      'yyyy-mm-dd hh:mm (24 hour)',
+    UTC_YMDHMS:     'yyyy-mm-dd hh:mm:ss (24 hour)',
+    SHORT_MONTH:    "dd mmm yyyy",
+    SHORT_MONTH_12: "dd mmm yyyy hh:mm AM/PM",
+    SHORT_MONTH_24: "dd mmm yyyy hh:mm (24 hour)",
+    SHORT_MONTH_PHRASE: "d(th) mmm yyyy",
+    SHORT_MONTH_PHRASE_12: "d(th) mmm yyyy hh:mm AM/PM",
+    SHORT_MONTH_PHRASE_24: "d(th) mmm yyyy hh:mm (24 hour)"
+};
+
+Jel.Date.PARSE_REG_EXP = 
+{
+    d: "30|31|(?:[0-2][0-9])",
+    D: Jel.Lang.Date.DAYS_SHORT.join("|"),
+    j: "30|31|(?:[12]?[0-9])",
+    l: Jel.Lang.Date.DAYS.join("|"),
+    N: "[1-7]",
+    S: "st|nd|rd|th",
+    W: "50|51|52|(?:[1234]?[0-9])",
+    F: Jel.Lang.Date.MONTHS.join("|"),
+    m: Jel.Date.PARSE_REG_EXP_COMMON.LEADING_1_12,
+    M: Jel.Lang.Date.MONTHS_SHORT.join("|"),
+    n: Jel.Date.PARSE_REG_EXP_COMMON.NO_LEADING_1_12,
+    t: "28|29|30|31",
+    Y: "[0-9]{4}",
+    y: "[0-9]{2}",
+    a: "am|pm",
+    A: "AM|PM",
+    B: "[0-9]{1,3}",
+    g: Jel.Date.PARSE_REG_EXP_COMMON.NO_LEADING_1_12,
+    G: "20|21|22|23|(?:[1]?[1-9])",
+    h: Jel.Date.PARSE_REG_EXP_COMMON.LEADING_1_12,
+    H: "20|21|22|23|(?:[01]?[1-9])",
+    i: Jel.Date.PARSE_REG_EXP_COMMON.BOTH_0_59,
+    s: Jel.Date.PARSE_REG_EXP_COMMON.BOTH_0_59
+};
+
+Jel.Date.PARSE_REG_EXP.c = Jel.Date.PARSE_REG_EXP.Y + "\-" + Jel.Date.PARSE_REG_EXP.m + "\-" + Jel.Date.PARSE_REG_EXP.d + "T" + Jel.Date.PARSE_REG_EXP.H + ":" + Jel.Date.PARSE_REG_EXP.i + ":" + Jel.Date.PARSE_REG_EXP.s;
+        
+/*
+    Method: parse
+        *parses a date string* into a JavaScript Date object *assuming a specified date format*.
+        
+    Arguments:
+        str - string, the string to parse.
+        format - string, describes the format of the input string.
+                Note that this can contain any arbritrary characters except the reserved formatting characters listed below 
+                (these characters are based on formatting characters used for in the *PHP date function*)
+    
+    Example:
+        > Jel.Date.parse("23/04/2006", "d/m/Y");
+        > // [Date object with day = 23, month = 3, year = 2006]
+        >  
+        > Jel.Date.parse("23 Feb 2006", "d/m/Y");
+        > // false, not in expected format  
+    
+    Returns:
+        Date object - if the date string is in the specified format, and it is a real date in the Gregorian calendar
+        false - otherwise
+        
+    Formatting characters:
+    >   d  Day of the month, 2 digits with leading zeros:                       01 - 31
+    >   D  A textual representation of a day, three letters:                    Mon - Sun
+    >   j  Day of the month without leading zeros:                              1 - 31
+    >   l  A full textual representation of the day of the week:                Sunday - Saturday
+    >   S  English ordinal suffix for the day of the month, 2 characters:       st, nd, rd or th.
+    >   F  A full textual representation of a month, such as January or March:  January - December
+    >   m  Numeric representation of a month, with leading zeros:               01 - 12
+    >   M  A short textual representation of a month, three letters:            Jan - Dec
+    >   n  Numeric representation of a month, without leading zeros:            1 - 12
+    >   Y  A full numeric representation of a year, 4 digits: Examples:         1999 or 2003
+    >   y  A two digit representation of a year:                                Examples:  99 or 03
+    >   a  Lowercase Ante meridiem and Post meridiem:                           am / pm 
+    >   A  Uppercase Ante meridiem and Post meridiem:                           AM / PM
+    >   g  12-hour format of an hour without leading zeros:                     1 - 12
+    >   G  24-hour format of an hour without leading zeros:                     0 - 23
+    >   h  12-hour format of an hour with leading zeros:                        01 - 12 
+    >   H  24-hour format of an hour with leading zeros:                        00 - 23 
+    >   i  Minutes with leading zeros:                                          00 - 59 
+    >   s  Seconds, with leading zeros:                                         00 - 59
+
+    See also: 
+        <Jel.Date.format>, <Jel.Date.FORMAT>
+*/
+
+Jel.Date.parse = function(str, format)
+{
+    // first task is to check that the date is formatted as specified in format
+    // any deviations from this format will result in parse failure
+    
+    // build the equivalent regular expression pattern from the format string
+    
+    var matchIndices = new Object(); 
+    
+    var now = new Date();
+    
+    var day = now.getDate();
+    var month = now.getMonth();
+    var year = Jel.Date.fullYear(now);
+    
+    var hour = 0;
+    var minute = 0;
+    var second = 0;
+    var meridiem = 'AM';
+    
+    var pattern = '';
+    
+    for (var i=0; i<format.length; i++)
+    {
+        var part = format.charAt(i);
+        
+        var matchKey = '';
+        
+        // record parts of the string that represent day, month, year, so that we can check combinational validity
+        switch (part)
+        {
+            case 'd':
+            {
+            }
+            case 'j':
+            {
+                matchKey = 'day';
+                break;
+            }
+            case 'm':
+            case 'F':
+            case 'M':
+            case 'n':
+            {
+                matchKey = 'month';
+                break;
+            }
+            case 'y':
+            case 'Y':
+            {
+                matchKey = 'year';
+                break;
+            }
+            case 'g':
+            case 'G':
+            case 'h':
+            case 'H':
+            {
+                matchKey = 'hour';
+                break;
+            }
+            case 'i':
+            {
+                matchKey = 'minute';
+                break;
+            }
+            case 's':
+            {
+                
+                matchKey = 'second';
+                break;
+            }
+            case 'a':
+            case 'A':
+            {
+                matchKey = 'meridiem';
+                break;
+            }
+            
+        }
+
+        //debugger;
+        
+        if (matchKey)
+            matchIndices[matchKey] = { index: i + 1, format: part };
+    
+        var pre = Jel.Date.PARSE_REG_EXP[part];
+    
+        if (pre)
+            pattern = pattern + "(" + pre + ")";
+        else
+            pattern = pattern + "(" + part + ")";
+    }
+    
+    var matches = str.match(new RegExp(pattern, "i"));
+    
+        
+    if (matches)
+    {
+        // only check further for a real date if our format appears correct
+        
+        if (matchIndices['day'] && matchIndices['month'] && matchIndices['year'])
+        {
+            // check that the date is valid by extracting all parts
+            day = Jel.String.extractInt(matches[matchIndices['day'].index]);
+            
+            if (matchIndices['month'].format == 'F')
+                month = Jel.Lang.Date.MONTHS_LCASE.indexOf(matches[matchIndices['month'].index].toLowerCase());
+            else if (matchIndices['month'].format == 'M')
+                month = Jel.Lang.Date.MONTHS_SHORT_LCASE.indexOf(matches[matchIndices['month'].index].toLowerCase());
+            else
+                month = Jel.String.extractInt(matches[matchIndices['month'].index]) - 1;
+        
+            if (matchIndices['year'].format == 'Y')
+                year = Jel.String.extractInt(matches[matchIndices['year'].index]);
+            else
+            {
+                var yearValue = Jel.String.extractInt(matches[matchIndices['year'].index]);
+            
+                if (yearValue >= 69)
+                {
+                    year = Jel.String.extractInt("19" + Jel.Number.leadingZero(yearValue));
+                }
+                else
+                {
+                    year = Jel.String.extractInt("20" + Jel.Number.leadingZero(yearValue));
+                }
+            }    
+
+            if (!Jel.Date.validDayMonthYear(day, month, year))
+                return false;
+        }
+        
+        // now check for any time components
+        
+        if (matchIndices['meridiem'])
+            meridiem = matches[matchIndices['meridiem'].index].toUpperCase();
+        
+        if (matchIndices['hour'])
+        {
+            hour = Jel.String.extractInt(matches[matchIndices['hour'].index]);
+
+            if (matchIndices['hour'].format == 'g' || matchIndices['hour'].format == 'h')
+            {
+                // consider the meridiem
+                
+                if (meridiem == 'AM')
+                {
+                    if (hour == 12)
+                        hour = 0;
+                }
+                else
+                {
+                    if (hour != 12)
+                        hour = hour + 12;
+                }
+            }   
+        }
+        
+        
+        if (matchIndices['minute'])
+            minute = Jel.String.extractInt(matches[matchIndices['minute'].index]);
+
+        if (matchIndices['second'])
+            second = Jel.String.extractInt(matches[matchIndices['second'].index]);
+        
+        return new Date(year, month, day, hour, minute, second);
+    }
+
+    return false; 
+};
+
+/*
+    Method: format
+        formats the given date as a string using the date format in *format*.
+        
+    Arguments:
+        date   - Date, the date to format
+        format - string, describes the format of the output string using the reserved formatting characters listed below. Any other
+                characters present will simply appear in the output string in the same place. 
+    
+    Returns:
+        string - containing the formatted date
+    
+    Example:
+        > Jel.Date.format(new Date(2007, 2, 2), "d/m/Y"); // 02/03/2007  
+        > Jel.Date.format(new Date(2007, 2, 2), "jS M Y"); // 2nd March 2007  
+    
+    Formatting characters (based on formatting characters used in the *PHP date function*):
+
+    >   d	Day of the month, 2 digits with leading zeros:                      01 - 31
+    >   D	A textual representation of a day, three letters:                   Mon - Sun
+    >   j	Day of the month without leading zeros:                             1 - 31
+    >   l   A full textual representation of the day of the week:               Sunday - Saturday
+    >   N   ISO-8601 numeric representation of the day of the week:             1 (for Monday) - 7 (for Sunday)
+    >   S	English ordinal suffix for the day of the month, 2 characters:      st, nd, rd or th.
+    >   w	Numeric representation of the day of the week:                      0 (for Sunday) - 6 (for Saturday)
+    >   z	The day of the year (starting from 0):                              0 - 365
+    >   F	A full textual representation of a month:	                        January - December
+    >   m	Numeric representation of a month, with leading zeros:              01 - 12
+    >   M	A short textual representation of a month, three letters:           Jan - Dec
+    >   n	Numeric representation of a month, without leading zeros:           1 - 12
+    >   t	Number of days in the given month:                                  28 - 31
+    >   L	Whether it's a leap year:                                           1 (leap year), 0 (otherwise). 
+    >   Y	A full numeric representation of a year, 4 digits:                  Examples: 1999 or 2003
+    >   y	A two digit representation of a year:                               Examples: 99 or 03
+    >   a	Lowercase Ante meridiem and Post meridiem:                          am / pm 
+    >   A	Uppercase Ante meridiem and Post meridiem:                          AM / PM
+    >   B	Swatch Internet time:                                               000 through 999
+    >   g	12-hour format of an hour without leading zeros:                    1 - 12
+    >   G	24-hour format of an hour without leading zeros:                    0 - 23
+    >   h	12-hour format of an hour with leading zeros:                       01 - 12 
+    >   H	24-hour format of an hour with leading zeros:                       00 - 23 
+    >   i	Minutes with leading zeros:                                         00 - 59 
+    >   s	Seconds, with leading zeros:                                        00 - 59
+    >   c	ISO 8601 date:                                                      Example: 2004-02-12T15:19:21+00:00 
+    >   r	RFC 2822 formatted date:                                            Example - Thu, 21 Dec 2000 16:01:07 +0200
+
+    See also: <Jel.Date.parse>, <Jel.Date.FORMAT>
+*/
+
+Jel.Date.format = function(date, format)
+{
+	var ret = '';
+    
+	for (var i=0; i<format.length; i++)
+	{	
+		var chr = format.charAt(i);
+
+		switch (chr)
+		{
+			case 'd' :
+			{
+				ret += Jel.Number.leadingZero(date.getDate());
+				break;
+			}
+			case 'D' :
+			{
+				ret += Jel.Lang.Date.DAYS_SHORT[date.getDay()];
+				break;
+			}	
+			case 'j' :
+			{
+				ret += date.getDate();
+				break;
+			}
+			case 'l' :
+			{
+				ret += Jel.Lang.Date.DAYS[date.getDay()];
+				break;
+			}
+			case 'N' :
+			{
+				var date = date.getDate();
+				ret += (date == 0 ? 7 : date);
+				break;
+			}	
+			case 'S' :
+			{
+				ret += Jel.Date.ordinalSuffix(date.getDate());
+				break;
+			}	
+			case 'w' :
+			{
+				ret += date.getDate();
+				break;
+			}
+			case 'z' :
+			{
+				ret += Jel.Date.dayOfYear(date);
+				break;
+			}
+			case 'F' :
+			{
+				ret += Jel.Lang.Date.MONTHS[date.getMonth()];
+				break;
+			}
+			case 'm' :
+			{
+				ret += Jel.Number.leadingZero(date.getMonth() + 1);
+				break;
+			}
+			case 'M' :
+			{
+				ret += Jel.Lang.Date.MONTHS_SHORT[date.getMonth()];
+				break;
+			}
+			case 'n' :
+			{
+				ret += date.getMonth() + 1;
+				break;
+			}
+			case 't' :
+			{
+				ret += Jel.Date.daysInMonth(date.getMonth(), Jel.Date.fullYear(date));
+				break;
+			}
+			case 'L' :
+			{
+				ret += Jel.Date.isLeapYear(Jel.Date.fullYear(date)) ? 1 : 0;
+				break;
+			}
+			case 'Y' :
+			{
+				ret += Jel.Date.fullYear(date);
+				break;
+			}
+			case 'y' :
+			{
+				ret += Jel.Date.fullYear(date).toString().substr(2, 2);
+				break;
+			}
+			case 'a' :
+			{
+				ret += Jel.Date.meridiem(date.getHours());
+				break;
+			}
+			case 'A' :
+			{
+				ret += Jel.Date.meridiem(date.getHours()).toUpperCase();
+				break;
+			}
+			case 'B' :
+			{
+				ret += Jel.Date.internetBeat(date);
+				break;
+			}
+			case 'g' :
+			{
+				ret += Jel.Date.twelveHour(date.getHours());
+				break;
+			}
+			case 'G' :
+			{
+				ret += date.getHours();
+				break;
+			}
+			case 'h' :
+			{
+				ret += Jel.Number.leadingZero(Jel.Date.twelveHour(date.getHours()));
+				break;
+			}
+			case 'H' :
+			{
+				ret += Jel.Number.leadingZero(date.getHours());
+				break;
+			}
+			case 'i' :
+			{
+				ret += Jel.Number.leadingZero(date.getMinutes());
+				break;
+			}
+			case 's' :
+			{
+				ret += Jel.Number.leadingZero(date.getSeconds());
+				break;
+			}
+			case 'c' :
+			{
+				ret += Jel.Date.format(date, 'Y-m-dTH:i:s');
+				break;
+			}
+			case 'r' :
+			{
+				ret += date.toString();
+				break;
+			}
+
+			default: 
+				ret += chr;
+    	}
+    }
+    
+	return ret;
+};
+
+/*
+    Method: convert
+        converts a *date string from one format to another*. Essentially performs <Jel.Date.parse> on a given string, followed by <Jel.Date.format> on the return date object
+        
+    Arguments:
+        str - string, the original date string to parse
+        fromFormat - the expected format of the date in *str* (refer to <Jel.Date.parse> for valid formatter characters)
+        toFormat - the desired output format  (refer to <Jel.Date.format> for valid formatter characters)
+    
+    Returns:
+        string - the formatted date, if both the original date string was in the expected format, and the parsed date was a real date
+        false - otherwise 
+    
+    Examples:
+        > Jel.Date.convert("28 Feb 2006 2PM", "j M Y gA", Jel.Date.FORMAT.UK_12);        
+        > // "28/02/2006 2:00 PM"
+        >
+        > Jel.Date.convert("30/04/2007 10:00 PM", Jel.Date.FORMAT.US_12, "js M Y, gA");  
+        > // "30th April 2007, 10PM"
+        >
+        > Jel.Date.convert("31/02/2007 10:00 PM", Jel.Date.FORMAT.US_12, "js M Y, gA");  
+        > // false, form format correct, but not a real date
+        >
+        > Jel.Date.convert("31st March 2006", "d/m/Y", "js M Y, gA");                
+        > // false, from format is incorrect
+*/
+
+Jel.Date.convert = function(str, fromFormat, toFormat)
+{
+    var date = Jel.Date.parse(str, fromFormat);
+    
+    if (date)
+        return Jel.Date.format(date, toFormat);
+        
+    return false;
+};
+
+ /*
+    Method: now
+        gets a *Date object* representing the *current date*, with an optional *format* string. 
+        
+    Arguments:
+        format - String (optional), if provided, will return a string of the current date in this format , using <Jel.Date.format>
+    
+    Returns:
+        Date - if format is not specified
+        String - otherwise
+*/
+
+Jel.Date.now = function(format)
+{
+    if (format)
+    {
+        return Jel.Date.format(new Date(), format);
+    }
+    else
+    {
+        return new Date();
+    }
+};
+
+ /*
+    Method: daysInMonth
+        gets the *number of days* for a *given month* and *year*.
+
+    Arguments:
+        month - integer, the month of the year 0-11 (not 1-12, as standard in JavaScript)
+        year - integer, the 4 digit year
+        
+    Returns:
+        integer
+    
+    Examples: 
+        > Jel.Date.daysInMonth(2, 2006); // 31
+*/
+
+Jel.Date.daysInMonth = function(month, year)
+{
+    switch (month)
+	{
+		case 8:
+		case 3:
+		case 5:
+		case 10:
+		{
+			return 30;
+			break;
+		}
+		case 1:
+	    {
+			return (Jel.Date.isLeapYear(year) ? 29 : 28);
+			break;
+		}
+		default:
+		{
+			return 31;
+		}
+	}
+};
+
+ /*
+    Method: isLeapYear
+        checks *if a given year* is a *leap year*
+
+    Arguments:
+        year - integer, the 4 digit year
+        
+    Returns:
+        true - if the year is a leap year
+        false - otherwise
+    
+    Examples: 
+        > Jel.Date.isLeapYear(2004); // true
+        > Jel.Date.isLeapYear(2006); // false
+*/
+
+Jel.Date.isLeapYear = function(year)
+{
+    return year % 4 == 0;
+};
+
+ /*
+    Method: validDayMonthYear
+        checks *if a given day, month, and year* combination is a *valid date* in the Gregorian calendar
+
+    Arguments:
+        month - integer, the month of the year 0-11 (not 1-12, as standard in JavaScript)
+        year - integer, the 4 digit year
+        
+    Returns:
+        true - if the combination is a valid day, month, and year combination
+        false - otherwise
+*/
+
+Jel.Date.validDayMonthYear = function(day, month, year)
+{
+    if (isNaN(day) || isNaN(month) || isNaN(year))
+        throw("day, month, and year must all be integer values");
+        
+    return day > 0 && day <= Jel.Date.daysInMonth(month, year);
+};
+
+ /*
+    Method: meridiem
+        gets the *ante/post meridiem* (*am* or *pm*) for a *given hour*
+
+    Arguments:
+        hour - integer, the hour of the day in 24-hour time (0-23) 
+        
+    Returns:
+        string - "am" or "pm"
+    
+    Examples:
+        > Jel.Date.meridiem(0); // "am"
+        > Jel.Date.meridiem(5); // "am"
+        > Jel.Date.meridiem(12); // "pm"
+        > Jel.Date.meridiem(17); // "pm"
+*/
+
+Jel.Date.meridiem = function(hour)
+{
+	return hour < 12 ? 'am' : 'pm';    
+};
+
+/*
+    Method: twelveHour
+        gets the twelve hour value for the given *hour*
+        
+    Arguments:
+        hour - integer an hour from 0-23 (24 hour time)
+    
+    Examples:
+        >Jel.Date.twelveHour(0); // 12
+        >Jel.Date.twelveHour(4); // 4
+        >Jel.Date.twelveHour(12); // 12
+        >Jel.Date.twelveHour(13); // 1
+        >Jel.Date.twelveHour(18); // 6
+*/
+
+Jel.Date.twelveHour = function(hour)
+{
+    if (hour == 0)
+        return 12;
+    else if (hour > 12)
+        return hour - 12;
+    else
+        return hour;
+}; 
+
+/*
+    Method: ordinalSuffix
+        gets the *English ordinal suffix* for a given day *(st, nd, rd, th)*
+    
+    Arguments:
+        day - Integer
+
+    Returns: 
+        string
+        
+    See also: 
+        <Jel.Number.ordinalSuffix>
+    
+    Example:
+        Jel.Date.ordinalSuffix(5) // th
+*/
+
+Jel.Date.ordinalSuffix = function(day)
+{
+	return Jel.Number.ordinalSuffix(day);
+};
+
+/*
+    Method: fullYear
+        gets the *full 4-digit year* for *this* Date object
+
+    Arguments:
+        date - Date object
+
+    Returns: integer
+    
+    Example:
+        > Jel.Date.fullYear(new Date(2007, 6, 30));    // 2007
+
+    Credit:
+        Thanks to Peter-Paul Koch of http://www.quirksmode.org/ for the basis of this code
+*/
+
+Jel.Date.fullYear = function(date) 
+{
+    var x = date.getYear();
+
+    var y = x % 100;
+
+    y += (y < 38) ? 2000 : 1900;
+
+    return y;
+};
+
+/*
+    Method: dayOfYear
+        gets the *day of the year* for the given date
+
+    Arguments:
+        date - Date object
+
+    Returns: integer
+        
+    Example:
+        > Jel.Date.dayOfYear(new Date(2007, 6, 30));    // 211
+        
+*/
+
+Jel.Date.dayOfYear = function(date)
+{
+    var month = date.getMonth();
+    var day = date.getDate();
+    var daysElapsed = 0;
+    
+    for (var i=0; i<month; i++)
+    {
+        daysElapsed += Jel.Date.daysInMonth(i);
+    }   
+    
+    return daysElapsed + day;
+};
+
+/*
+    Method: internetBeat
+        gets the *Swatch internet time* for the given date object 
+
+    Arguments:
+        date - Date object
+
+    Returns: integer
+    
+    Example:
+        > Jel.Date.internetBeat(new Date(2007, 06, 30, 20, 40, 0));    // 486
+
+    Credit:
+        Thanks to Peter-Paul Koch of http://www.quirksmode.org/ for this code
+*/
+
+Jel.Date.internetBeat = function(date)
+{
+	var off = (date.getTimezoneOffset() + 60)*60;
+
+	var theSeconds = (date.getHours() * 3600) + (date.getMinutes() * 60) + date.getSeconds() + off;
+
+	var beat = Math.floor(theSeconds/86.4);
+
+	if (beat > 1000) 
+		beat -= 1000;
+
+	if (beat < 0) 
+		beat += 1000;
+
+	return beat;
+};
+
+/*
+Class: Jel.Number
+    *Utility Methods* for manipulating JavaScript's *built-in Number class*
+*/
+
+Jel.Number = 
+{
+    /*
+        Method: leadingZero
+            gets a *string representation* for a given number *padded out with leading zeros to a given length*
+
+        Arguments:
+            number - Number, the number to append leading zeros to
+            toLength - integer, optional, the total length of the final leading-zero-padded string. 
+                      If not specified, defaults to a length of 2
+
+        Examples:
+            > Jel.Number.leadingZero(1);        // 01
+            > Jel.Number.leadingZero(1, 3);     // 001
+            > Jel.Number.leadingZero(10, 3);    // 010
+            > Jel.Number.leadingZero(1000, 3);  // 1000
+
+    */
+    
+    leadingZero: function(number, toLength)
+    {
+        return Jel.String.repeat('0', (toLength || 2) - number.toString().length) + number.toString();
+    },
+
+    /*
+        Method: ordinalSuffix
+            gets the English ordinal suffix for a given number *(st, nd, rd, th)*
+    
+        Arguments:
+            number - Number, the value to get the ordinal suffix for
+            
+        Example:
+            > Jel.Number.ordinalSuffix(2);    // "st"
+            > Jel.Number.ordinalSuffix(2);    // "nd"
+            > Jel.Number.ordinalSuffix(23);   // "rd"
+            > Jel.Number.ordinalSuffix(11);   // "th"
+            > Jel.Number.ordinalSuffix(14);   // "th"
+    */
+
+    ordinalSuffix: function(number)
+    {
+        var str = Math.round(number).toString();
+        var rem = Math.round(number) % 10;
+    
+        // first, special case for teen numbers (which are always "th")
+    
+        if (Jel.String.right(str, 2))
+            if (Jel.String.right(str, 2).length == 2 && Jel.String.left(Jel.String.right(str, 2), 1) == "1")
+                return "th";
+    
+        switch (rem)
+        {
+            case 1:
+            {
+                return "st";
+                break;
+            }
+            case 2:
+            {
+                return "nd";
+                break;
+            }
+            case 3:
+            {
+                return "rd";
+                break;
+            }
+            default:
+                return "th";
+        }
+    },
+
+    /*
+        Method: format
+            *formats a given number* in a *specified display format*
+
+        Arguments:
+            number - Number object, the number to format
+            format - string, describes the format of the output string (see examples below)
+    
+        Returns:
+            string - the formatted output string
+        
+        Examples:
+            > Jel.Number.format(3129.95, "$#,###.##");  // $3,129.95   
+            > Jel.Number.format(3129.95, "$####.##");   // $3129.95 	  
+            > Jel.Number.format(329.95, "$#####.##");   // $329.95 	  
+            > Jel.Number.format(329, "$###");           // $329 		  
+            > Jel.Number.format(-329, "(###)");         // (329)		  
+            > Jel.Number.format(-1234.95, "#,##0.##");  // -1,234.95	  
+            > Jel.Number.format(0.01, "#.##");          // 01		  
+            > Jel.Number.format(0.01, "#.###");         // 010		  
+            > Jel.Number.format(0.01, "0.##");          // 0.01		  
+            > Jel.Number.format(2, "00");               // 02		  
+            > Jel.Number.format(2345, "00000");         // 02345		  
+            > Jel.Number.format(45, "00000");           // 00045
+        
+        Formatting Rules:
+            > # - substitutes for a number, but only if this position has a definite non-zero number here
+            > 0 - substitutes for a number always, using zero if this position has no definite non-zero number here
+        
+    
+    */
+
+    format: function(number, format)
+    {
+        var formatted;
+    	var formattedDec = '';
+    	var formattedWhole = '';
+
+    	var strWhole;
+
+    	var value = Math.abs(number);
+    	var valueWhole = Math.floor(value);
+
+    	var formatter = format;
+
+    	var parenthesis = false;
+
+    	// check if negative values should use parenthesis formatting
+
+    	var matches = formatter.match(/\((.*?)\)/, "ig");
+
+    	if (matches && matches.length > 0)
+    	{
+    		parenthesis = true;
+
+    		// take the rest of the string as the actual formatter
+    		formatter = matches[1];
+    	}
+
+    	var formatterWhole = formatter;
+
+    	var parts = formatter.split(".");
+
+    	if (parts.length > 1)
+    	{
+    		// the string has a decimal part
+    		value = value.toFixed(parts[1].length);	
+
+    		formatterWhole = parts[0];
+    	}
+    	else
+    	{
+    		valueWhole = Math.round(value);	
+    	}
+
+    	// now work out how to format the whole number part
+    	formatted = value.toString();
+
+    	if (parts.length > 1)
+    	{
+    		formattedDec = "." + formatted.split(".")[1];
+    	}
+
+    	strWhole = Math.abs(valueWhole).toString();
+
+    	// first, pad out formatterWhole up to the length of valueWhole, with #  
+
+    	var count = 0;
+
+    	formatterWhole.toArray().each
+    	(
+    		function (chr)
+    		{
+    			if (chr == '#' || chr == '0')
+    				count++;
+    		}
+    	);
+
+    	matches = formatterWhole.match(/[^#0,]*?([#0,]+)[^#0,]*?/);
+
+    	if (matches.length > 1)
+    	{
+    		formatterWhole = formatterWhole.replace(matches[1], String.stringOfChar('#', strWhole.length - count) + matches[1]);
+    	}
+
+    	var formatterChars = formatterWhole.toArray();
+
+    	var digitIndex = strWhole.length - 1;
+
+    	for (var i = formatterChars.length - 1; i>=0; i--)
+    	{
+    		// process each character in the formatter string 
+
+    		var chr = formatterChars[i];
+    		var ten = Math.pow(10, strWhole.length - 1 - digitIndex);
+
+
+    		if (chr == '#')
+    		{
+    			if (valueWhole >= ten)
+    			{
+    				formattedWhole = strWhole.substr(digitIndex, 1) + formattedWhole;
+    			} 
+    			// otherwise add nothing
+    			digitIndex = digitIndex - 1;	
+    		}
+    		else if (chr == '0')
+    		{
+    			if (valueWhole >= ten)
+    			{
+    				formattedWhole = strWhole.substr(digitIndex, 1) + formattedWhole;
+    			} 
+    			else
+    			{
+    				// otherwise add a 0
+    				formattedWhole = '0' + formattedWhole;
+    			}
+	
+    			digitIndex = digitIndex - 1;
+    		}
+    		else if (chr == ',')
+    		{
+    			if (valueWhole >= ten)
+    			{
+    				formattedWhole = chr + formattedWhole;
+    			}
+    		}
+    		else
+    		{
+    			formattedWhole = chr + formattedWhole;
+    		}
+    	}
+
+    	// apply the parenthesis if the original value is negative
+
+    	if (number < 0)
+    	{
+    		if (parenthesis)
+    			return '(' + formattedWhole + formattedDec + ')';
+    		else
+    			return '-' + formattedWhole + formattedDec;
+    	}
+
+    	return (formattedWhole + formattedDec);
+    }
+};
+
+/* END THIRD PARTY SOURCE */
+/*!
  * This file is part of Appcelerator.
  *
- * Copyright (C) 2006-2008 by Appcelerator, Inc. All Rights Reserved.
- * For more information, please visit http://www.appcelerator.org
+ * Copyright 2006-2008 Appcelerator, Inc.
  *
- * Appcelerator is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- */
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ **/
 /**
  * Appcelerator bootstrap loader
  */
@@ -6651,45 +8383,634 @@ Appcelerator.Module={};
 Appcelerator.Widget={};
 Appcelerator.Shortcuts={}; // please do not touch this
 
+Appcelerator.started = new Date;
+Appcelerator.loadTime = -1;
+Appcelerator.compileTime = -1;
+
 Appcelerator.Version = 
 {
 	major: parseInt('2'),
-	minor: parseInt('1'),
-	revision: parseInt('1'),
+	minor: parseInt('2'),
+	revision: parseInt('2'),
 	toString:function()
 	{
 		return this.major + "." + this.minor + '.' + this.revision;
 	}
 };
 
-Appcelerator.LicenseType = 'GNU Public License (GPL), version 3.0 or later';
+Appcelerator.LicenseType = 'Apache License Version 2.0 - see http://license.appcelerator.org';
 Appcelerator.Copyright = 'Copyright (c) 2006-2008 by Appcelerator, Inc. All Rights Reserved.';
 Appcelerator.LicenseMessage = 'Appcelerator is licensed under ' + Appcelerator.LicenseType;
 Appcelerator.Parameters = $H({});
+
+
+
+var APPCELERATOR_DEBUG_LEVEL = Appcelerator.Parameters.get('debug');
+var APPCELERATOR_DEBUG = window.location.href.indexOf('debug=1') > 0 || APPCELERATOR_DEBUG_LEVEL=='1';
+var log4javascript_threshold = Appcelerator.Parameters.get('log4javascript');
+
+var Logger = Class.create();
+$$l = Logger;
+var _logAppender = null;
+var _logEnabled = true;
+Logger.toLevel = function(value, logger)
+{
+	if (!value)
+		return log4javascript.Level.INFO;
+	value = value.toUpperCase();
+	if (value==log4javascript.Level.INFO.toString())
+		return log4javascript.Level.INFO;
+	else if (value==log4javascript.Level.WARN.toString())
+		return log4javascript.Level.WARN;
+	else if (value==log4javascript.Level.ERROR.toString())
+		return log4javascript.Level.ERROR;
+	else if (value==log4javascript.Level.FATAL.toString())
+		return log4javascript.Level.FATAL;
+	else if (value==log4javascript.Level.TRACE.toString())
+		return log4javascript.Level.TRACE;
+	else if (value==log4javascript.Level.DEBUG.toString())
+		return log4javascript.Level.DEBUG;
+
+	return logger.getLevel();
+}
+
+if (log4javascript_threshold && log4javascript_threshold!='')
+{
+	_log = log4javascript.getDefaultLogger();
+	var Level = Logger.toLevel(log4javascript_threshold, _log);
+	Logger.infoEnabled = log4javascript.Level.INFO.isGreaterOrEqual(Level);
+	Logger.warnEnabled = log4javascript.Level.WARN.isGreaterOrEqual(Level);
+	Logger.errorEnabled = log4javascript.Level.ERROR.isGreaterOrEqual(Level);
+	Logger.fatalEnabled = log4javascript.Level.FATAL.isGreaterOrEqual(Level);
+	Logger.traceEnabled = log4javascript.Level.TRACE.isGreaterOrEqual(Level);
+	Logger.debugEnabled = log4javascript.Level.DEBUG.isGreaterOrEqual(Level);
+}
+else
+{
+	_logAppender = true;
+	_logEnabled = _logEnabled && typeof(console)!='undefined';
+	_log =
+	{
+		console:function(type,msg)
+		{
+			try
+			{
+				if (console && console[type]) console[type](msg);
+			}
+			catch(e)
+			{
+
+			}
+		},
+		debug:function(msg) { if (APPCELERATOR_DEBUG) this.console('debug',msg);  },
+		info:function(msg)  { this.console('info',msg);   },
+		error:function(msg) { this.console('error',msg);  },
+		warn:function(msg)  { this.console('warn',msg);   },
+		trace:function(msg) { if (APPCELERATOR_DEBUG) this.console('debug',msg);  },
+		fatal:function(msg) { this.console('error',msg);  }
+	};
+
+	Logger.infoEnabled = _logEnabled && console.info;
+	Logger.warnEnabled = _logEnabled && console.warn;
+	Logger.errorEnabled = _logEnabled && console.error;
+	Logger.fatalEnabled = _logEnabled && console.error;
+	Logger.traceEnabled = _logEnabled && APPCELERATOR_DEBUG && console.debug;
+	Logger.debugEnabled = _logEnabled && APPCELERATOR_DEBUG && console.debug;
+}
+
+
+Logger.info = function(msg)
+{
+    if (Logger.infoEnabled) _log.info(msg);
+};
+Logger.warn = function(msg)
+{
+    if (Logger.warnEnabled) _log.warn(msg);
+};
+Logger.debug = function(msg)
+{
+    if (Logger.debugEnabled) _log.debug(msg);
+};
+Logger.error = function(msg)
+{
+    if (Logger.errorEnabled) _log.error(msg);
+};
+Logger.trace = function(msg)
+{
+    if (Logger.traceEnabled) _log.trace(msg);
+}
+Logger.fatal = function(msg)
+{
+    if (Logger.fatalEnabled) _log.fatal(msg);
+}
+
+
+/**
+ * define a convenience shortcut for debugging messages
+ */
+function $D()
+{
+    if (Logger.debugEnabled)
+    {
+        Logger.debug(Logger.buildMessage(arguments));
+    }
+}
+
+function $E()
+{
+    if (Logger.errorEnabled)
+    {
+        Logger.error(Logger.buildMessage(arguments));
+    }
+}
+
+// prettier debug output
+Logger.buildMessage = function(args)
+{
+    args = $A(args)
+    for(var i = 0; i<args.length; i++)
+    {
+        var arg = args[i];
+        if(arg)
+        {
+            if(args[i].constructor == Object)
+            {   // for simple objects
+                args[i] = Object.toJSON(args[i]);
+            }
+            else
+            {   // for dom elements, builtin types, etc
+                args[i] = args[i].toString();
+            }
+        }
+    }
+    return args.join('');
+}
+
+if(typeof err == 'undefined') {
+    var err = {
+        println: function(msg) {
+            $E(msg);
+        }
+    };
+}
+if(typeof out == 'undefined') {
+    var out = {
+        println: function(msg) {
+            $D(msg);
+        }
+    };
+}
+
+
+Object.extend(String.prototype,
+{
+	/**
+	 * trims leading and trailing spaces
+	 */
+    trim: function()
+    {
+        return this.replace(/^\s+/g, '').replace(/\s+$/g, '');
+    },
+
+	/**
+	 * return true if this string starts with value
+	 */
+    startsWith: function(value)
+    {
+        if (value.length <= this.length)
+        {
+            return this.substring(0, value.length) == value;
+        }
+        return false;
+    },
+
+	/**
+	 * eval the contents of the string as a javascript function
+	 * and return the function reference
+	 */
+    toFunction: function (dontPreProcess)
+    {
+        var str = this.trim();
+        if (str.length == 0)
+        {
+            return Prototype.emptyFunction;
+        }
+        if (!dontPreProcess)
+        {
+            if (str.match(/^function\(/))
+            {
+                str = 'return ' + String.unescapeXML(this) + '()';
+            }
+            else if (!str.match(/return/))
+            {
+                str = 'return ' + String.unescapeXML(this);
+            }
+            else if (str.match(/^return function/))
+            {
+                // invoke it as the return value
+                str = String.unescapeXML(this) + ' ();';
+            }
+        }
+        var code = 'var f = function(){ var args = $A(arguments); ' + str + '}; f;';
+        var func = eval(code);
+        if (typeof(func) == 'function')
+        {
+            return func;
+        }
+        throw Error('code was not a function: ' + this);
+    },
+
+	toFunctionString: function (functionId)
+	{
+		var str = this.trim();
+        var code = 'var functionString_'+functionId+' = function(){ var args = $A(arguments); ' + str + '}; functionString_'+functionId+'();';
+		return code;
+	}
+
+});
+
+
+/**
+ * escape XML entities in the value passed
+ */
+String.escapeXML = function(value)
+{
+	if (!value) return null;
+    return value.replace(
+    /&/g, "&amp;").replace(
+    /</g, "&lt;").replace(
+    />/g, "&gt;").replace(
+    /"/g, "&quot;").replace(
+    /'/g, "&apos;");
+}
+
+/**
+ * unescape XML entities back into their normal values
+ */
+String.unescapeXML = function(value)
+{
+    if (!value) return null;
+    return value.replace(
+	/&lt;/g,   "<").replace(
+	/&gt;/g,   ">").replace(
+	/&apos;/g, "'").replace(
+	/&amp;/g,  "&").replace(
+	/&quot;/g, "\"");
+};
+
+
+// This code was written by Tyler Akins and has been placed in the
+// public domain.  It would be nice if you left this header intact.
+// Base64 code from Tyler Akins -- http://rumkin.com
+
+(function()
+{
+    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+	String.prototype.encode64 = function() 
+	{
+	   var input = this;
+	   var output = "";
+	   var chr1, chr2, chr3;
+	   var enc1, enc2, enc3, enc4;
+	   var i = 0;
+	
+	   do {
+	      chr1 = input.charCodeAt(i++);
+	      chr2 = input.charCodeAt(i++);
+	      chr3 = input.charCodeAt(i++);
+	
+	      enc1 = chr1 >> 2;
+	      enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+	      enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+	      enc4 = chr3 & 63;
+	
+	      if (isNaN(chr2)) {
+	         enc3 = enc4 = 64;
+	      } else if (isNaN(chr3)) {
+	         enc4 = 64;
+	      }
+	
+	      output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + 
+	         keyStr.charAt(enc3) + keyStr.charAt(enc4);
+	   } while (i < input.length);
+	   
+	   return output;
+	};
+	String.prototype.decode64 = function () {
+	   var output = "";
+	   var chr1, chr2, chr3;
+	   var enc1, enc2, enc3, enc4;
+	   var i = 0;
+	   
+	   var input = this;
+	
+	   // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
+	   input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+	
+	   do {
+	      enc1 = keyStr.indexOf(input.charAt(i++));
+	      enc2 = keyStr.indexOf(input.charAt(i++));
+	      enc3 = keyStr.indexOf(input.charAt(i++));
+	      enc4 = keyStr.indexOf(input.charAt(i++));
+	
+	      chr1 = (enc1 << 2) | (enc2 >> 4);
+	      chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+	      chr3 = ((enc3 & 3) << 6) | enc4;
+	
+	      output = output + String.fromCharCode(chr1);
+	
+	      if (enc3 != 64) {
+	         output = output + String.fromCharCode(chr2);
+	      }
+	      if (enc4 != 64) {
+	         output = output + String.fromCharCode(chr3);
+	      }
+	   } while (i < input.length);
+	
+	   return output;
+	};
+})();
+
+String.stringValue = function(str) 
+{
+	if (str)
+	{
+		return '"'+str.replace(/"/g, '\\"')+'"';
+	}
+	else
+	{
+		return null;
+	}
+};
+
+/*!
+ ******************************************************************************
+  uri_funcs.js - URI functions based on STD 66 / RFC 3986
+
+  Author (original): Mike J. Brown <mike at skew.org>
+  Version: 2007-01-04
+
+  License: Unrestricted use and distribution with any modifications permitted,
+  so long as:
+  1. Modifications are attributed to their author(s);
+  2. The original author remains credited;
+  3. Additions derived from other code libraries are credited to their sources
+  and used under the terms of their licenses.
+
+*******************************************************************************/
+
+/** 
+ * slight modifications by Jeff Haynie of Appcelerator
+ */
+
+var absoluteUriRefRegex = /^[A-Z][0-9A-Z+\-\.]*:/i;
+var splitUriRefRegex = /^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?$/;
+var reMissingGroupSupport = (typeof "".match(/(a)?/)[1] != "string");
+
+Appcelerator.URI = Class.create();
+
+/**
+ * This function determines whether the given URI reference is absolute
+ * (has a scheme).
+ */
+Appcelerator.URI.isAbsolute = function(uriRef) 
+{
+	return absoluteUriRefRegex.test(uriRef);
+};
+
+/*
+splitUriRef(uriRef)
+
+This function splits a URI reference into an Array of its principal components,
+[scheme, authority, path, query, fragment] as per STD 66 / RFC 3986 appendix B.
+*/
+
+Appcelerator.URI.splitUriRef = function(uriRef) 
+{
+	var parts = uriRef.match(splitUriRefRegex);
+	parts.shift();
+	var scheme=parts[1], auth=parts[3], path=parts[4], query=parts[6], frag=parts[8];
+	if (!reMissingGroupSupport) {
+		var undef;
+		if (parts[0] == "") scheme = undef;
+		if (parts[2] == "") auth = undef;
+		if (parts[5] == "") query = undef;
+		if (parts[7] == "") frag = undef;
+	}
+	parts = [scheme, auth, this.uriPathRemoveDotSegments(path), query, frag];
+	return parts;
+};
+
+/*
+unsplitUriRef(uriRefSeq)
+
+This function, given an Array as would be produced by splitUriRef(),
+assembles and returns a URI reference as a string.
+*/
+Appcelerator.URI.unsplitUriRef=function(uriRefSeq) 
+{
+    var uriRef = "";
+    if (typeof uriRefSeq[0] != "undefined") uriRef += uriRefSeq[0] + ":";
+    if (typeof uriRefSeq[1] != "undefined") uriRef += "//" + uriRefSeq[1];
+    uriRef += uriRefSeq[2];
+    if (typeof uriRefSeq[3] != "undefined") uriRef += "?" + uriRefSeq[3];
+    if (typeof uriRefSeq[4] != "undefined") uriRef += "#" + uriRefSeq[4];
+    return uriRef;
+}
+
+/*
+uriPathRemoveDotSegments(path)
+
+This function supports absolutizeURI() by implementing the remove_dot_segments
+function described in RFC 3986 sec. 5.2.  It collapses most of the '.' and '..'
+segments out of a path without eliminating empty segments. It is intended
+to be used during the path merging process and may not give expected
+results when used independently.
+
+Based on code from 4Suite XML:
+http://cvs.4suite.org/viewcvs/4Suite/Ft/Lib/Uri.py?view=markup
+*/
+Appcelerator.URI.uriPathRemoveDotSegments = function (path) 
+{
+	// return empty string if entire path is just "." or ".."
+	if (path == "." || path == "..") {
+		return "";
+	}
+	// remove all "./" or "../" segments at the beginning
+	while (path) {
+		if (path.substring(0,2) == "./") {
+			path = path.substring(2);
+		} else if (path.substring(0,3) == "../") {
+			path = path.substring(3);
+		} else if (path.substring(0,2)=="//") {
+		   path = path.substring(1);
+		} else {
+			break;
+		}
+	}
+	// We need to keep track of whether there was a leading slash,
+	// because we're going to drop it in order to prevent our list of
+	// segments from having an ambiguous empty first item when we call
+	// split().
+	var leading_slash = false;
+	if (path.charAt(0) == "/") {
+		path = path.substring(1);
+		if (path.charAt(0)=='/')
+		{
+			path = path.substring(1);
+		}
+		leading_slash = true;
+	}
+	// replace a trailing "/." with just "/"
+	if (path.substring(path.length - 2) == "/.") {
+		path = path.substring(0, path.length - 1);
+	}
+	// convert the segments into a list and process each segment in
+	// order from left to right.
+	var segments = path.split("/");
+	var keepers = [];
+	segments = segments.reverse();
+	while (segments.length) {
+		var seg = segments.pop();
+		// '..' means drop the previous kept segment, if any.
+		// If none, and if the path is relative, then keep the '..'.
+		// If the '..' was the last segment, ensure
+		// that the result ends with '/'.
+		if (seg == "..") {
+			if (keepers.length) {
+				keepers.pop();
+			} else if (! leading_slash) {
+				keepers.push(seg);
+			}
+			if (! segments.length) {
+				keepers.push("");
+			}
+		// ignore '.' segments and keep all others, even empty ones
+		} else if (seg != ".") {
+			keepers.push(seg);
+		}
+	}
+	// reassemble the kept segments
+	return (leading_slash && "/" || "") + keepers.join("/");
+}
+
+/*
+absolutizeURI(uriRef, baseUri)
+
+This function resolves a URI reference to absolute form as per section 5 of
+STD 66 / RFC 3986. The URI reference is considered to be relative to the
+given base URI.
+
+It is the caller's responsibility to ensure that the base URI matches
+the absolute-URI syntax rule of RFC 3986, and that its path component
+does not contain '.' or '..' segments if the scheme is hierarchical.
+Unexpected results may occur otherwise.
+
+Based on code from 4Suite XML:
+http://cvs.4suite.org/viewcvs/4Suite/Ft/Lib/Uri.py?view=markup
+*/
+Appcelerator.URI.absolutizeURI = function(uriRef, baseUri)
+{
+	// Ensure base URI is absolute
+	if (! baseUri || ! Appcelerator.URI.isAbsolute(baseUri)) {
+		 throw Error("baseUri '" + baseUri + "' is not absolute");
+	}
+	// shortcut for the simplest same-document reference cases
+	if (uriRef == "" || uriRef.charAt(0) == "#") {
+		return baseUri.split('#')[0] + uriRef;
+	}
+	var tScheme, tAuth, tPath, tQuery;
+	// parse the reference into its components
+	var parts = Appcelerator.URI.splitUriRef(uriRef);
+	var rScheme=parts[0], rAuth=parts[1], rPath=parts[2], rQuery=parts[3], rFrag=parts[4];
+	// if the reference is absolute, eliminate '.' and '..' path segments
+	// and skip to the end
+	if (typeof rScheme != "undefined") {
+		var tScheme = rScheme;
+		var tAuth = rAuth;
+		var tPath = Appcelerator.URI.uriPathRemoveDotSegments(rPath);
+		var tQuery = rQuery;
+	} else {
+		// the base URI's scheme, and possibly more, will be inherited
+		parts = Appcelerator.URI.splitUriRef(baseUri);
+		var bScheme=parts[0], bAuth=parts[1], bPath=parts[2], bQuery=parts[3], bFrag=parts[4];
+		// if the reference is a net-path, just eliminate '.' and '..' path
+		// segments; no other changes needed.
+		if (typeof rAuth != "undefined") {
+			tAuth = rAuth;
+			tPath = Appcelerator.URI.uriPathRemoveDotSegments(rPath);
+			tQuery = rQuery;
+		// if it's not a net-path, we need to inherit pieces of the base URI
+		} else {
+			// use base URI's path if the reference's path is empty
+			if (! rPath) {
+				tPath = bPath;
+				// use the reference's query, if any, or else the base URI's,
+				tQuery = (typeof rQuery != "undefined" && rQuery || bQuery);
+			// the reference's path is not empty
+			} else {
+				// just use the reference's path if it's absolute
+				if (rPath.charAt(0) == "/") {
+					tPath = Appcelerator.URI.uriPathRemoveDotSegments(rPath);
+				// merge the reference's relative path with the base URI's path
+				} else {
+					if (typeof bAuth != "undefined" && ! bPath) {
+						tPath = "/" + rPath;
+					} else {
+						tPath = bPath.substring(0, bPath.lastIndexOf("/") + 1) + rPath;
+					}
+					tPath = Appcelerator.URI.uriPathRemoveDotSegments(tPath);
+				}
+				// use the reference's query
+				tQuery = rQuery;
+			}
+			// since the reference isn't a net-path,
+			// use the authority from the base URI
+			tAuth = bAuth;
+		}
+		// inherit the scheme from the base URI
+		tScheme = bScheme;
+	}
+	// always use the reference's fragment (but no need to define another var)
+	//tFrag = rFrag;
+	// now compose the target URI (RFC 3986 sec. 5.3)
+	var result = Appcelerator.URI.unsplitUriRef([tScheme, tAuth, tPath, tQuery, rFrag]);
+	return result;
+};/**
+ * Appcelerator Core
+ */
 
 // 
 // basic initialization for the core
 // 
 (function()
 {
-	if (window.AppceleratorConfig)
-	{
-		Appcelerator.Config = window.AppceleratorConfig;
-	}
-	else
-	{
-		Appcelerator.Config['cookie_check'] = false;
-		Appcelerator.Config['browser_check'] = true;
-		Appcelerator.Config['hide_body'] = false;		
-	}
+	var baseHref = null;
+	var documentRoot = null;
 	
-	var jsFileLocation = null;
-	
+	//
+	// top is important such that if the JS file is in a different location (hosted)
+	// than the primary document, we use the primary document's path (cross site scripting)
+	//
+	var idx = top.window.document.location.href.lastIndexOf('/');
+    if (idx == top.window.document.location.href.length - 1)
+    {
+    	documentRoot = top.window.document.location.href;
+    }
+    else
+    {
+        documentRoot  = top.window.document.location.href.substr(0, idx);
+        if (documentRoot.substring(documentRoot.length - 1) != '/')
+        {
+            documentRoot  = documentRoot + '/';
+        }
+    }
+
 	$A(document.getElementsByTagName("script")).findAll( function(s) 
 	{
 	    if (s.src && s.src.match(/appcelerator(-debug){0,1}\.js(\?.*)?$/))
 	    {
-	    	jsFileLocation = s.src;
+	    	Appcelerator.jsFileLocation = Appcelerator.URI.absolutizeURI(s.src,documentRoot);
 	    	return true;
 	    }
 	    return false;
@@ -6697,37 +9018,57 @@ Appcelerator.Parameters = $H({});
 	{
 		Appcelerator.Parameters = $H(s.src.toQueryParams());
 	});	
-	
-    var idx = window.document.location.href.lastIndexOf('/');
-    if (idx == window.document.location.href.length - 1)
-    {
-    	Appcelerator.DocumentPath = window.document.location.href;
-    }
-    else
-    {
-        Appcelerator.DocumentPath  = window.document.location.href.substr(0, idx);
-        if (Appcelerator.DocumentPath.substring(Appcelerator.DocumentPath.length - 1) != '/')
-        {
-            Appcelerator.DocumentPath  = Appcelerator.DocumentPath + '/';
-        }
-    }
 
-	//
-	// this check will determine if the JS file (and related structure)
-	// is in a different directory than our document and if so, make the
-	// document path and our assets relative to where appcelerator JS is loaded
-	//
-	if (jsFileLocation)
+	$A(document.getElementsByTagName("base")).each( function(s) 
 	{
-		idx = jsFileLocation.lastIndexOf('/');
-		jsFileLocation = jsFileLocation.substring(0,idx);
-		if (jsFileLocation!=Appcelerator.DocumentPath+'js')
+		if (s.href)
 		{
-			idx = jsFileLocation.lastIndexOf('/');
-			var newpath = jsFileLocation.substring(0,idx+1);
-			if (newpath)
+			baseHref = Appcelerator.URI.absolutizeURI(s.href,documentRoot);
+			throw $break;
+		}
+	});
+
+	if (baseHref)
+	{
+		Appcelerator.DocumentPath = baseHref;
+	}
+	else
+	{	
+		Appcelerator.DocumentPath = documentRoot;
+	}
+	
+	if (Appcelerator.jsFileLocation)
+	{
+		if (!baseHref)
+		{
+			// see if it's a full URI
+			var hostIdx = Appcelerator.jsFileLocation.indexOf(':/');
+			if (hostIdx > 0)
 			{
-			    Appcelerator.DocumentPath = newpath;
+				var jsHostPath = Appcelerator.jsFileLocation.substring(hostIdx + 3, Appcelerator.jsFileLocation.indexOf('/',hostIdx + 4));
+				var docIdx = Appcelerator.DocumentPath.indexOf(':/');
+				if (docIdx > 0)
+				{
+					var docHostPath = Appcelerator.DocumentPath.substring(docIdx + 3, Appcelerator.DocumentPath.indexOf('/',docIdx+4));
+					if (docHostPath == jsHostPath)
+					{
+						// if on the same host then always prefer the JS location (one directory up) as the base href
+						// such that we can have multiple content directories that include the JS relatively from the top
+						Appcelerator.DocumentPath = Appcelerator.URI.absolutizeURI(Appcelerator.jsFileLocation.substring(0,Appcelerator.jsFileLocation.lastIndexOf('/')) + '/../',Appcelerator.DocumentPath);
+					}
+				}
+			}
+			else
+			{
+				// relative URI we need to adjust the DocumentPath
+				if (Appcelerator.jsFileLocation.startsWith('/') || Appcelerator.jsFileLocation.startsWith('.'))
+				{
+					var idx = Appcelerator.jsFileLocation.lastIndexOf('/');
+					if (idx!=-1)
+					{
+						Appcelerator.DocumentPath = Appcelerator.URI.absolutizeURI(Appcelerator.jsFileLocation.substring(0,idx+1) + '../',Appcelerator.DocumentPath);
+					}
+				}
 			}
 		}
 	}
@@ -6742,9 +9083,16 @@ Appcelerator.Parameters = $H({});
     Appcelerator.ContentPath = Appcelerator.DocumentPath + 'content/';
     Appcelerator.ModulePath = Appcelerator.DocumentPath + 'widgets/';
     Appcelerator.WidgetPath = Appcelerator.DocumentPath + 'widgets/';
-	
+
+	if (Appcelerator.jsFileLocation.indexOf('code.appcelerator.org') != -1)
+	{
+		var codepath = (('https:' == document.location.protocol) ? 'https://s3.amazonaws.com/code.appcelerator.org' : 'http://code.appcelerator.org' );
+		Appcelerator.ModulePath = codepath + Appcelerator.Version + '/widgets/';
+		Appcelerator.WidgetPath = Appcelerator.ModulePath;
+	}
+
     Appcelerator.Parameters = Appcelerator.Parameters.merge(window.location.href.toQueryParams());
-    
+
 	if (Appcelerator.Parameters.get('instanceid'))
 	{
 		Appcelerator.instanceid = Appcelerator.Parameters.get('instanceid');
@@ -6753,13 +9101,14 @@ Appcelerator.Parameters = $H({});
 	{
 		Appcelerator.instanceid = Math.round(9999*Math.random()) + '-' + Math.round(999*Math.random());
 	}
-	
+
 	var ua = navigator.userAgent.toLowerCase();
 	Appcelerator.Browser.isPreCompiler = (ua.indexOf('Appcelerator Compiler') > -1);
 	Appcelerator.Browser.isOpera = (ua.indexOf('opera') > -1);
 	Appcelerator.Browser.isSafari = (ua.indexOf('safari') > -1);
 	Appcelerator.Browser.isSafari2 = false;
-	Appcelerator.Browser.isIE = (window.ActiveXObject);
+	Appcelerator.Browser.isSafari3 = false;
+	Appcelerator.Browser.isIE = !!(window.ActiveXObject);
 	Appcelerator.Browser.isIE6 = false;
 	Appcelerator.Browser.isIE7 = false;
 	Appcelerator.Browser.isIE8 = false;
@@ -6772,7 +9121,7 @@ Appcelerator.Parameters = $H({});
 		Appcelerator.Browser.isIE7 = version >= 7.0 && version < 8;
 		Appcelerator.Browser.isIE8 = version >= 8.0 && version < 9;
 	}
-	
+
 	if (Appcelerator.Browser.isSafari)
 	{
 		var webKitFields = RegExp("( applewebkit/)([^ ]+)").exec(ua);
@@ -6780,11 +9129,15 @@ Appcelerator.Parameters = $H({});
 		{
 			Appcelerator.Browser.isSafari2 = true;
 		}
+		else if (webKitFields[2] > 500 && webKitFields[2] < 600)
+		{
+			Appcelerator.Browser.isSafari3 = true;
+		}
 	}
 
 	Appcelerator.Browser.isGecko = !Appcelerator.Browser.isSafari && (ua.indexOf('gecko') > -1);
 	Appcelerator.Browser.isCamino = Appcelerator.Browser.isGecko && ua.indexOf('camino') > -1;
-	Appcelerator.Browser.isFirefox = Appcelerator.Browser.isGecko && (ua.indexOf('firefox') > -1 || ua.indexOf('minefield') > -1 || Appcelerator.Browser.isCamino || ua.indexOf('granparadiso'));
+	Appcelerator.Browser.isFirefox = Appcelerator.Browser.isGecko && (ua.indexOf('firefox') > -1 || Appcelerator.Browser.isCamino || ua.indexOf('minefield') > -1 || ua.indexOf('granparadiso') > -1 || ua.indexOf('bonecho') > -1);
 	Appcelerator.Browser.isIPhone = Appcelerator.Browser.isSafari && ua.indexOf('iphone') > -1;
 	Appcelerator.Browser.isMozilla = Appcelerator.Browser.isGecko && ua.indexOf('mozilla/') > -1;
 	Appcelerator.Browser.isWebkit = Appcelerator.Browser.isMozilla && Appcelerator.Browser.isGecko && ua.indexOf('applewebkit') > 0;
@@ -6792,32 +9145,79 @@ Appcelerator.Parameters = $H({});
 	Appcelerator.Browser.isPrism = Appcelerator.Browser.isMozilla && ua.indexOf('prism/') > 0;
     Appcelerator.Browser.isIceweasel = Appcelerator.Browser.isMozilla && ua.indexOf('iceweasel') > 0;
     Appcelerator.Browser.isEpiphany = Appcelerator.Browser.isMozilla && ua.indexOf('epiphany') > 0;
-    
+	Appcelerator.Browser.isFluid = (window.fluid != null);
+	Appcelerator.Browser.isGears = (window.google && google.gears) != null;
+	Appcelerator.Browser.isChromium = Appcelerator.Browser.isWebkit && ua.indexOf('chrome/') > 0;
+
 	Appcelerator.Browser.isWindows = false;
 	Appcelerator.Browser.isMac = false;
 	Appcelerator.Browser.isLinux = false;
 	Appcelerator.Browser.isSunOS = false;
 
+	var platform = null;
+
 	if(ua.indexOf("windows") != -1 || ua.indexOf("win32") != -1)
 	{
 	    Appcelerator.Browser.isWindows = true;
+		platform = 'win32';
 	}
 	else if(ua.indexOf("macintosh") != -1 || ua.indexOf('mac os x') != -1)
 	{
 		Appcelerator.Browser.isMac = true;
+		platform = 'mac';
 	}
 	else if (ua.indexOf('linux')!=-1)
 	{
 		Appcelerator.Browser.isLinux = true;
+		platform = 'linux';
 	}
 	else if (ua.indexOf('sunos')!=-1)
 	{
 		Appcelerator.Browser.isSunOS = true;
+		platform = 'sun';
 	}
-	
+
+	// silverlight detection
+	// thanks to http://www.nikhilk.net/Silverlight-Analytics.aspx
+    Appcelerator.Browser.isSilverlight = false;
+	Appcelerator.Browser.silverlightVersion = 0;
+	Event.observe(window,'load',function()
+	{
+	    var container = null;
+	    try {
+	        var control = null;
+	        if (window.ActiveXObject) {
+	            control = new ActiveXObject('AgControl.AgControl');
+	        }
+	        else {
+	            if (navigator.plugins['Silverlight Plug-In']) {
+	                container = document.createElement('div');
+	                document.body.appendChild(container);
+	                container.innerHTML= '<embed type="application/x-silverlight" src="data:," />';
+	                control = container.childNodes[0];
+	            }
+	        }
+	        if (control) {
+	            if (control.isVersionSupported('2.0')) 
+				{ 
+					Appcelerator.Browser.silverlightVersion = 2.0; 
+				}
+	            else if (control.isVersionSupported('1.0')) 
+				{ 
+					Appcelerator.Browser.silverlightVersion = 1.0; 
+				}
+				Appcelerator.Browser.isSilverlight = Appcelerator.Browser.silverlightVersion > 0;
+	        }
+	    }
+	    catch (e) { }
+	    if (container) {
+	        document.body.removeChild(container);
+	    }
+	});
+
+	// flash detection
 	Appcelerator.Browser.isFlash = false;
 	Appcelerator.Browser.flashVersion = 0;
-
 	if (Appcelerator.Browser.isIE)
 	{
 			try
@@ -6876,18 +9276,122 @@ Appcelerator.Parameters = $H({});
         if (Appcelerator.Browser['is'+name]===true)
         {
             Appcelerator.Browser.isBrowserSupported=true;
-            throw $break;    	   
+			Event.observe(window,'load',function()
+			{
+				if (platform) Element.addClassName(document.body,platform);
+				Element.addClassName(document.body,name.toLowerCase());
+				if (Appcelerator.Browser.isMozilla)
+				{
+					Element.addClassName(document.body,'mozilla');
+				}
+				if (Appcelerator.Browser.isIPhone)
+				{
+					Element.addClassName(document.body,'iphone');
+					Element.addClassName(document.body,'webkit');
+					Element.addClassName(document.body,'safari');
+				}
+				if (Appcelerator.Browser.isChromium)
+				{
+					Element.addClassName(document.body,'chromium');
+				}
+				if (Appcelerator.Browser.isSafari)
+				{
+					Element.addClassName(document.body,'webkit');
+					if (Appcelerator.Browser.isSafari2)
+					{
+						Element.addClassName(document.body,'safari2');
+					}
+					else if (Appcelerator.Browser.isSafari3)
+					{
+						Element.addClassName(document.body,'safari3');
+					}
+				}
+				else if (Appcelerator.Browser.isGecko)
+				{
+					Element.addClassName(document.body,'gecko');
+				}
+				if (Appcelerator.Browser.isFirefox)
+				{
+					if (ua.indexOf('firefox/3')>0)
+					{
+						Element.addClassName(document.body,'firefox3');
+					}
+					else if (ua.indexOf('firefox/2')>0)
+					{
+						Element.addClassName(document.body,'firefox2');
+					}
+				}
+				else if (Appcelerator.Browser.isIE)
+				{
+					Element.addClassName(document.body,'msie');
+				}
+				if (Appcelerator.Browser.isIPhone)
+				{
+					Element.addClassName(document.body,'width_narrow');
+					Element.addClassName(document.body,'height_short');
+				}
+				else
+				{
+					function calcDim()
+					{
+						var cn = Element.classNames(document.body);
+						if (cn)
+						{
+							cn._each(function(name)
+							{
+								if (name.startsWith('height_') || name.startsWith('width_'))
+								{
+									cn.remove(name);
+								}
+							});
+						}
+                        var width = document.documentElement.clientWidth || window.screen.width;
+                        var height = document.documentElement.clientHeight || window.screen.height;
+
+						if (height < 480)
+						{
+							Element.addClassName(document.body,'height_tiny');
+						}
+						else if (height >= 480 && height <= 768)
+						{
+							Element.addClassName(document.body,'height_small');
+						}
+						else if (height > 768  && height < 1100)
+						{
+							Element.addClassName(document.body,'height_medium');
+						}
+						else if (height >= 1100)
+						{
+							Element.addClassName(document.body,'height_large');
+						}
+						if (width <= 640)
+						{
+							Element.addClassName(document.body,'width_tiny');
+						}
+						else if (width > 640 && width <= 1024)
+						{
+							Element.addClassName(document.body,'width_small');
+						}
+						else if (width > 1024 && width <=1280 )
+						{
+							Element.addClassName(document.body,'width_medium');
+						}
+						else if (width > 1280)
+						{
+							Element.addClassName(document.body,'width_large');
+						}
+					}
+					Event.observe(window,'resize',calcDim);
+					calcDim();
+				}
+			});
+            throw $break;
         }
 	});
 	Appcelerator.Browser.unsupportedBrowserMessage = "<h1>Browser Upgrade Required</h1><p>We're sorry, but your browser version is not supported by this application.</p><p>This application requires a modern browser, such as <a href='http://www.getfirefox.com'>Firefox 2.0+</a>, <a href='http://www.apple.com/safari/'>Safari 2.0+</a>, <a href='http://www.microsoft.com/windows/products/winfamily/ie/default.mspx'>Internet Explorer 6.0+</a> or <a href='http://www.opera.com'>Opera 9.0+</a>.</p><p>Your browser reported: <font face='courier'>" + ua + "</font></p>";
 	Appcelerator.Browser.upgradePath = Appcelerator.DocumentPath + 'upgrade.html';
-	Appcelerator.Browser.autocheckBrowserSupport = true;
-	Appcelerator.Browser.autoReportStats = true;
 })();
 
-/**
- * Appcelerator Core
- */
 
 Appcelerator.Core.usedModules = {};
 Appcelerator.Core.modules = [];
@@ -6910,13 +9414,13 @@ Appcelerator.Core.HeadElement = document.getElementsByTagName('head')[0];
  * @param {string} name of the common file
  * @param {function} onload function to invoke
  */
-Appcelerator.Core.requireCommonCSS = function(name,onload)
+Appcelerator.Core.requireCommonCSS = function(name,onload,onerror)
 {
     var srcpath = Appcelerator.Core.getModuleCommonDirectory()+'/css/'
             
     Appcelerator.Core.requireMultiple(function(path,action)
     {
-        Appcelerator.Core.remoteLoadCSS(path,onload);
+        Appcelerator.Core.remoteLoadCSS(path,onload,onerror);
     },srcpath,name);
 };
 
@@ -6928,20 +9432,20 @@ Appcelerator.Core.requireCommonCSS = function(name,onload)
  * @param {string} name of the common js
  * @param {function} onload function to callback upon load
  */
-Appcelerator.Core.requireCommonJS = function(name,onload)
+Appcelerator.Core.requireCommonJS = function(name,onload,onerror)
 {
     var srcpath = Appcelerator.Core.getModuleCommonDirectory()+'/js/'
             
     Appcelerator.Core.requireMultiple(function(path,action)
     {
-        Appcelerator.Core.remoteLoadScript(path,onload);
+        Appcelerator.Core.remoteLoadScript(path,onload,onerror);
     },srcpath,name);
 };
 
 /**
  * internal method for loading multiple files
  */
-Appcelerator.Core.requireMultiple = function(invoker,srcpath,name,onload)
+Appcelerator.Core.requireMultiple = function(invoker,srcpath,name,onload,onerror)
 {
     if (Object.isUndefined(name))
     {
@@ -6961,10 +9465,10 @@ Appcelerator.Core.requireMultiple = function(invoker,srcpath,name,onload)
             }
             else
             {
-                Appcelerator.Core.requireMultiple(invoker,srcpath,name[idx],loader);                    
+                Appcelerator.Core.requireMultiple(invoker,srcpath,name[idx],loader,onerror);                    
             }
         };
-        Appcelerator.Core.requireMultiple(invoker,srcpath,name[idx],loader);                    
+        Appcelerator.Core.requireMultiple(invoker,srcpath,name[idx],loader,onerror);                    
     }
     else
     {
@@ -6991,9 +9495,9 @@ Appcelerator.Core.requireMultiple = function(invoker,srcpath,name,onload)
  * @param {string} path to resource
  * @param {function} onload function to execute once loaded
  */
-Appcelerator.Core.remoteLoadScript = function(path,onload)
+Appcelerator.Core.remoteLoadScript = function(path,onload,onerror)
 {
-    Appcelerator.Core.remoteLoad('script','text/javascript',path,onload);  
+    Appcelerator.Core.remoteLoad('script','text/javascript',path,onload,onerror);  
 };
 
 /**
@@ -7015,7 +9519,7 @@ Appcelerator.Core.remoteLoadScriptWithDependencies = function()
     if(0 < Appcelerator.Core.scriptWithDependenciesQueue.length) 
     {
         var script = Appcelerator.Core.scriptWithDependenciesQueue[0];
-        Appcelerator.Core.remoteLoad('script', 'text/javascript', script.path, function() {});
+        Appcelerator.Core.remoteLoad('script', 'text/javascript', script.path, null);
         Appcelerator.Core.scriptWithDependenciesCallback = function() 
         {
             script.onload();
@@ -7031,11 +9535,10 @@ Appcelerator.Core.remoteLoadScriptWithDependencies = function()
  * @param {string} path to resource
  * @param {function} onload function to execute once loaded
  */
-Appcelerator.Core.remoteLoadCSS = function(path,onload)
+Appcelerator.Core.remoteLoadCSS = function(path,onload,onerror)
 {
-    Appcelerator.Core.remoteLoad('link','text/css',path,onload);  
+    Appcelerator.Core.remoteLoad('link','text/css',path,onload,onerror);  
 };
-
 
 /**
  * dynamically load a remote file
@@ -7044,9 +9547,15 @@ Appcelerator.Core.remoteLoadCSS = function(path,onload)
  * @param {string} type as in content type
  * @param {string} full path to the resource
  * @param {function} onload to invoke upon load
+ * @param {function} onerror to invoke upon error
  */
-Appcelerator.Core.remoteLoad = function(tag,type,path,onload)
+Appcelerator.Core.remoteLoad = function(tag,type,path,onload,onerror)
 {
+	$D('remoteLoad '+tag+',type='+type+',path='+path+',onload='+onload+',onerror='+onerror);
+
+	// fixup the URI
+	path = Appcelerator.URI.absolutizeURI(path,Appcelerator.DocumentPath);
+	
     var array = Appcelerator.Core.fetching[path];
     if (array)
     {
@@ -7062,6 +9571,7 @@ Appcelerator.Core.remoteLoad = function(tag,type,path,onload)
     }
     var element = document.createElement(tag);
     element.setAttribute('type',type);
+
     switch(tag)
     {
         case 'script':
@@ -7072,14 +9582,17 @@ Appcelerator.Core.remoteLoad = function(tag,type,path,onload)
             element.setAttribute('rel','stylesheet');
             break;
     }
+	var timer = null;
     var loader = function()
     {
+	   $D('loaded '+path);
+	   if (timer) clearTimeout(timer);
        var callbacks = Appcelerator.Core.fetching[path];
        if (callbacks)
        {
            for (var c=0;c<callbacks.length;c++)
            {
-               callbacks[c]();
+               try { callbacks[c](); } catch (E) { }
            }
            delete Appcelerator.Core.fetching[path];
        }
@@ -7098,6 +9611,21 @@ Appcelerator.Core.remoteLoad = function(tag,type,path,onload)
 	        {
 	            var loaded = false;
 	            element.onload = loader;
+				if (onerror)
+				{
+					if (!loaded)
+					{
+						// max time to determine if we've got an error
+						// obviously won't work if takes long than 3.5 secs to load script
+						timer=setTimeout(onerror,3500);
+					}
+					element.onerror = function()
+					{
+						// for browsers that support onerror
+						if (timer) clearTimeout(timer);
+						onerror();
+					};
+				}
 	            element.onreadystatechange = function()
 	            {
 	                switch(this.readyState)
@@ -7129,9 +9657,9 @@ Appcelerator.Core.remoteLoad = function(tag,type,path,onload)
 // dynamically load JS from path and call onload once 
 // loaded (or immediately if already loaded)
 //
-Appcelerator.Core.loadJS = function (path, onload, track)
+Appcelerator.Core.loadJS = function (path, onload, track, onerror)
 {
-    Appcelerator.Core.remoteLoadScript(path,onload);
+    Appcelerator.Core.remoteLoadScript(path,onload,onerror);
 };
 
 //
@@ -7291,7 +9819,7 @@ Appcelerator.Core.getModuleNameFromTag=function(moduleName)
  * @param {string} name of the module (for example, app:script)
  * @param {function} function to call upon loading *and* registering the module
  */
-Appcelerator.Core.requireModule = function(moduleName,onload)
+Appcelerator.Core.requireModule = function(moduleName,onload,onerror)
 {
 	var moduleName = Appcelerator.Core.getModuleNameFromTag(moduleName);
 	var module = Appcelerator.Core.modules[moduleName];
@@ -7510,7 +10038,12 @@ Appcelerator.Core.registerModuleWithJS = function (moduleName,module,js,jspath)
         else
         {
 	        var loaded = false;
-	        script.onload = checkState;
+	        
+	        if(!Appcelerator.Browser.isOpera) 
+            {
+                script.onload = checkState; 
+            }
+            
 	        script.onreadystatechange = function()
 	        {
 	            switch(this.readyState)
@@ -7585,15 +10118,13 @@ Appcelerator.Core.onunload = function(f)
 
 Appcelerator.Core.onloadInvoker = function()
 {
-	var ts = new Date().getTime();
-	
 	for (var c=0;c<Appcelerator.Core.onloaders.length;c++)
 	{
 		Appcelerator.Core.onloaders[c]();
 	} 
 	Appcelerator.Core.onloaders = null;
 	
-	Logger.info('Appcelerator v'+Appcelerator.Version+' ... loaded in '+(new Date().getTime()-ts)+' ms');
+	Logger.info('Appcelerator v'+Appcelerator.Version+' ... loaded in '+(new Date().getTime()-Appcelerator.started.getTime())+' ms');
 	Logger.info(Appcelerator.Copyright);
 	Logger.info(Appcelerator.LicenseMessage);
 	Logger.info('More App. Less Code.');
@@ -7623,11 +10154,13 @@ Appcelerator.Core.onload(function()
         cssPath: Appcelerator.StylePath,
         contentPath: Appcelerator.ContentPath,
         modulePath: Appcelerator.ModulePath,
-        instanceid: Appcelerator.instanceid
+        instanceid: Appcelerator.instanceid,
+		version: Appcelerator.Version,
+		codeServer: 'http://code.appcelerator.org/'
     };
+ 
 
-
-	if (Appcelerator.Browser.autocheckBrowserSupport && !Appcelerator.Browser.isBrowserSupported && Appcelerator.Config['browser_check'])
+	if (Appcelerator.Browser.autocheckBrowserSupport && !Appcelerator.Browser.isBrowserSupported)
 	{
 		document.body.style.display = 'none';
 		try
@@ -7691,316 +10224,6 @@ Appcelerator.Core.onload(function()
         }
     };
 });
-
-var APPCELERATOR_DEBUG = window.location.href.indexOf('debug=1') > 0 || Appcelerator.Parameters.get('debug')=='1';
-
-var Logger = Class.create();
-$$l = Logger;
-var _logAppender = null;
-var _logEnabled = true;
-
-if (typeof(log4javascript)!='undefined')
-{
-	log4javascript.setEnabled(APPCELERATOR_DEBUG);
-
-	var _log = log4javascript.getLogger("main");
-	if (APPCELERATOR_DEBUG)
-	{
-	    _logAppender = new log4javascript.PopUpAppender();
-	}
-	if (_logAppender != null)
-	{
-	    var _popUpLayout = new log4javascript.PatternLayout("%d{HH:mm:ss} %-5p - %m%n");
-	    _logAppender.setLayout(_popUpLayout);
-	    _log.addAppender(_logAppender);
-	    _logAppender.setThreshold(APPCELERATOR_DEBUG ? log4javascript.Level.DEBUG : log4javascript.Level.WARN);
-	}
-	Logger.infoEnabled = _logEnabled && _logAppender;
-	Logger.warnEnabled = _logEnabled && _logAppender;
-	Logger.errorEnabled = _logEnabled && _logAppender;
-	Logger.fatalEnabled = _logEnabled && _logAppender;
-	Logger.traceEnabled = _logEnabled && APPCELERATOR_DEBUG && _logAppender;
-	Logger.debugEnabled = _logEnabled && APPCELERATOR_DEBUG && _logAppender;
-}
-else
-{
-	_logAppender = true;
-	_logEnabled = _logEnabled && typeof(console)!='undefined';
-	_log = 
-	{
-		console:function(type,msg)
-		{
-			try
-			{
-				if (console && console[type]) console[type](msg);
-			}
-			catch(e)
-			{
-				
-			}
-		},
-		debug:function(msg) { if (APPCELERATOR_DEBUG) this.console('debug',msg);  },
-		info:function(msg)  { this.console('info',msg);   },
-		error:function(msg) { this.console('error',msg);  },
-		warn:function(msg)  { this.console('warn',msg);   },
-		trace:function(msg) { if (APPCELERATOR_DEBUG) this.console('debug',msg);  },
-		fatal:function(msg) { this.console('error',msg);  }
-	};
-
-	Logger.infoEnabled = _logEnabled && console.info;
-	Logger.warnEnabled = _logEnabled && console.warn;
-	Logger.errorEnabled = _logEnabled && console.error;
-	Logger.fatalEnabled = _logEnabled && console.error;
-	Logger.traceEnabled = _logEnabled && APPCELERATOR_DEBUG && console.debug;
-	Logger.debugEnabled = _logEnabled && APPCELERATOR_DEBUG && console.debug;
-}
-
-
-Logger.info = function(msg)
-{
-    if (Logger.infoEnabled) _log.info(msg);
-};
-Logger.warn = function(msg)
-{
-    if (Logger.warnEnabled) _log.warn(msg);
-};
-Logger.debug = function(msg)
-{
-    if (Logger.debugEnabled) _log.debug(msg);
-};
-Logger.error = function(msg)
-{
-    if (Logger.errorEnabled) _log.error(msg);
-};
-Logger.trace = function(msg)
-{
-    if (Logger.traceEnabled) _log.trace(msg);
-}
-Logger.fatal = function(msg)
-{
-    if (Logger.fatalEnabled) _log.fatal(msg);
-}
-
-
-/**
- * define a convenience shortcut for debugging messages
- */
-function $D()
-{
-    if (Logger.debugEnabled)
-    {
-        var args = $A(arguments);
-        var msg = (args.length > 1) ? args.join(" ") : args[0];
-        Logger.debug(msg);
-    }
-}
-
-function $E()
-{
-    if (Logger.errorEnabled)
-    {
-        var args = $A(arguments);
-        var msg = (args.length > 1) ? args.join(" ") : args[0];
-        Logger.error(msg);
-    }
-}
-
-
-if(typeof err == 'undefined') {
-    var err = {
-        println: function(msg) {
-            $E(msg);
-        }
-    };
-}
-if(typeof out == 'undefined') {
-    var out = {
-        println: function(msg) {
-            $D(msg);
-        }
-    };
-}
-Object.extend(String.prototype,
-{
-	/**
-	 * trims leading and trailing spaces
-	 */
-    trim: function()
-    {
-        return this.replace(/^\s+/g, '').replace(/\s+$/g, '');
-    },
-
-	/**
-	 * return true if this string starts with value
-	 */
-    startsWith: function(value)
-    {
-        if (value.length <= this.length)
-        {
-            return this.substring(0, value.length) == value;
-        }
-        return false;
-    },
-
-	/**
-	 * eval the contents of the string as a javascript function
-	 * and return the function reference
-	 */
-    toFunction: function (dontPreProcess)
-    {
-        var str = this.trim();
-        if (str.length == 0)
-        {
-            return Prototype.emptyFunction;
-        }
-        if (!dontPreProcess)
-        {
-            if (str.match(/^function\(/))
-            {
-                str = 'return ' + String.unescapeXML(this) + '()';
-            }
-            else if (!str.match(/return/))
-            {
-                str = 'return ' + String.unescapeXML(this);
-            }
-            else if (str.match(/^return function/))
-            {
-                // invoke it as the return value
-                str = String.unescapeXML(this) + ' ();';
-            }
-        }
-        var code = 'var f = function(){ var args = $A(arguments); ' + str + '}; f;';
-        var func = eval(code);
-        if (typeof(func) == 'function')
-        {
-            return func;
-        }
-        throw Error('code was not a function: ' + this);
-    },
-
-	toFunctionString: function (functionId)
-	{
-		var str = this.trim();
-        var code = 'var functionString_'+functionId+' = function(){ var args = $A(arguments); ' + str + '}; functionString_'+functionId+'();';
-		return code;
-	}
-
-});
-
-
-/**
- * escape XML entities in the value passed
- */
-String.escapeXML = function(value)
-{
-	if (!value) return null;
-    return value.replace(
-    /&/g, "&amp;").replace(
-    /</g, "&lt;").replace(
-    />/g, "&gt;").replace(
-    /"/g, "&quot;").replace(
-    /'/g, "&apos;");
-}
-
-/**
- * unescape XML entities back into their normal values
- */
-String.unescapeXML = function(value)
-{
-    if (!value) return null;
-    return value.replace(
-	/&lt;/g,   "<").replace(
-	/&gt;/g,   ">").replace(
-	/&apos;/g, "'").replace(
-	/&amp;/g,  "&").replace(
-	/&quot;/g, "\"");
-};
-
-
-// This code was written by Tyler Akins and has been placed in the
-// public domain.  It would be nice if you left this header intact.
-// Base64 code from Tyler Akins -- http://rumkin.com
-
-(function()
-{
-    var keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-	String.prototype.encode64 = function() 
-	{
-	   var input = this;
-	   var output = "";
-	   var chr1, chr2, chr3;
-	   var enc1, enc2, enc3, enc4;
-	   var i = 0;
-	
-	   do {
-	      chr1 = input.charCodeAt(i++);
-	      chr2 = input.charCodeAt(i++);
-	      chr3 = input.charCodeAt(i++);
-	
-	      enc1 = chr1 >> 2;
-	      enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-	      enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-	      enc4 = chr3 & 63;
-	
-	      if (isNaN(chr2)) {
-	         enc3 = enc4 = 64;
-	      } else if (isNaN(chr3)) {
-	         enc4 = 64;
-	      }
-	
-	      output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + 
-	         keyStr.charAt(enc3) + keyStr.charAt(enc4);
-	   } while (i < input.length);
-	   
-	   return output;
-	};
-	String.prototype.decode64 = function () {
-	   var output = "";
-	   var chr1, chr2, chr3;
-	   var enc1, enc2, enc3, enc4;
-	   var i = 0;
-	   
-	   var input = this;
-	
-	   // remove all characters that are not A-Z, a-z, 0-9, +, /, or =
-	   input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-	
-	   do {
-	      enc1 = keyStr.indexOf(input.charAt(i++));
-	      enc2 = keyStr.indexOf(input.charAt(i++));
-	      enc3 = keyStr.indexOf(input.charAt(i++));
-	      enc4 = keyStr.indexOf(input.charAt(i++));
-	
-	      chr1 = (enc1 << 2) | (enc2 >> 4);
-	      chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-	      chr3 = ((enc3 & 3) << 6) | enc4;
-	
-	      output = output + String.fromCharCode(chr1);
-	
-	      if (enc3 != 64) {
-	         output = output + String.fromCharCode(chr2);
-	      }
-	      if (enc4 != 64) {
-	         output = output + String.fromCharCode(chr3);
-	      }
-	   } while (i < input.length);
-	
-	   return output;
-	};
-})();
-
-String.stringValue = function(str) 
-{
-	if (str)
-	{
-		return '"'+str.replace(/"/g, '\\"')+'"';
-	}
-	else
-	{
-		return null;
-	}
-};
-
 
 
 /**
@@ -8118,8 +10341,11 @@ Object.evalWithinScope = function (code, scope)
 {
     if (code == '{}') return {};
 
+	// make sure we escape any quotes given we're building a string with quotes
+	var expr = code.gsub('"',"\\\"");
+	
     // create the function
-    var func = eval('var f = function(){return eval("(' + code + ')")}; f;');
+    var func = eval('var f = function(){return eval("(' + expr + ')")}; f;');
 
     // now invoke our scoped eval with scope as the this reference
     return func.call(scope);
@@ -8152,7 +10378,7 @@ Object.getExceptionDetail = function (e,format)
 		{
 			// sometimes you'll get a PermissionDenied on certain errors
 		}
-        return 'message: ' + (e.message || e) + ', location: ' + line + ', stack: ' + (format?'<code>':'') +(e.stack || 'not specified') + (format?'</code>':'');
+        return 'message: ' + (e.message || e) + ', location: ' + line + ', stack: ' + (format?'<pre>':'') +(e.stack || 'not specified') + (format?'</pre>':'');
     }
 };
 
@@ -8189,8 +10415,17 @@ Object.cloneWithout = function(obj, without) {
 	return clone;
 }
 
+Appcelerator.Util.makeSet = function(array) {
+    var set = {};
+    var arrayLen = array.length;
+    for(var i = 0; i < arrayLen; i++)
+    {
+        set[array[i]] = true;
+    }
+    return set;
+};
 
-Appcelerator.Util.DateTime = Class.create();
+
 Appcelerator.Util.DateTime =
 {
     ONE_SECOND:1000,
@@ -8200,12 +10435,15 @@ Appcelerator.Util.DateTime =
     ONE_WEEK: 604800000,
     ONE_MONTH: 18748800000, // this is rough an assumes 31 days
     ONE_YEAR: 31536000000,
-	
+
+	/**
+	 * Convert a duration from the format: "2y 3w 5d 27m 13s" into milliseconds
+	 */
 	timeFormat: function (value)
 	{
 		var str = '';
 		var time = 0;
-		
+
 		for (var c=0,len=value.length;c<len;c++)
 		{
 			var ch = value.charAt(c);
@@ -8272,23 +10510,23 @@ Appcelerator.Util.DateTime =
 				}
 			}
 		}
-		
+
 		if (str.length > 0)
 		{
 			time+=parseInt(str);
 		}
-	
+
 		return time;
 	},
     getDurationNoFormat: function (begin, end)
 	{
         end = end || new Date();
         var amount = end.getTime() - begin.getTime();
-		
+
 		var hours = 0
 		var minutes = 0;
 		var seconds = 0;
-		
+
 		if (amount > this.ONE_HOUR)
 		{
 			hours = Math.round(amount/this.ONE_HOUR);
@@ -8311,7 +10549,7 @@ Appcelerator.Util.DateTime =
 		}
 		if (amount > this.ONE_SECOND)
 		{
-			seconds = Math.round(amount/this.ONE_SECOND);			
+			seconds = Math.round(amount/this.ONE_SECOND);
 			amount = amount - (this.ONE_SECOND * seconds);
 		}
 		if (amount == this.ONE_SECOND)
@@ -8322,33 +10560,33 @@ Appcelerator.Util.DateTime =
 		{
 			seconds = "0" + seconds;
 		}
-		
+
 		if (hours > 0)
 		{
 			return hours + ":" + minutes + ":" + seconds;
 		}
-		
+
 		if (minutes > 0)
 		{
 			return minutes + ":" + seconds;
 		}
-		
+
 		if (seconds > 0)
 		{
 			return "0:" + seconds;
 		}
-		
+
 		else return ":00";
 	},
 	getDuration: function (begin, end)
     {
         end = end || new Date();
         var amount = end.getTime() - begin.getTime();
-        
+
 		return this.toDuration(amount);
     },
     toDuration: function (amount)
-    {	
+    {
         amount = amount || 0;
 
 		if (amount < 0)
@@ -8759,7 +10997,31 @@ Appcelerator.Util.DateTime =
         gmtDate.setUTCHours(gmtHour, min, sec);
 
         return gmtDate;
-    }
+    },
+    //Returns the client machine's timezone offset from GMT
+    //Format is something like -0400 or +0815
+    getTimezoneOffset: function()
+	{
+		var curdate = new Date();
+		var offset = curdate.getTimezoneOffset();
+		var hours = Math.floor(offset/60);
+		var modMin = Math.abs(offset%60);
+		var s = new String();
+		s += (hours > 0) ? "-" : "+";
+		var absHours = Math.abs(hours);
+		s += (absHours < 10) ? "0" + absHours :absHours;
+		s += ((modMin == 0) ? "00" : modMin);
+		return s;
+	},
+	
+	parse: function(date, format)
+	{
+	    return Jel.Date.parse(date,format);
+	},
+	format: function(date, format)
+	{
+	    return Jel.Date.format(date, format);
+	}
 };Appcelerator.ServerConfig = {};
 
 Appcelerator.Util.ServerConfig = Class.create();
@@ -8862,24 +11124,81 @@ Appcelerator.Util.ServerConfig.loadComplete = function()
 	Appcelerator.Util.ServerConfig.listeners = null;
 };
 
+Appcelerator.Util.ServerConfig.addConfigListener(function ()
+{
+    Appcelerator.Util.ServerConfig.setValues('cookie_check', true);
+    Appcelerator.Util.ServerConfig.setValues('browser_check', true);
+    Appcelerator.Util.ServerConfig.setValues('hide_body', false);
+    Appcelerator.Util.ServerConfig.setValues('perfmon', false);
+    Appcelerator.Util.ServerConfig.setValues('usegears', true);
+    Appcelerator.Util.ServerConfig.setValues('report_stats', true);
+    Appcelerator.Util.ServerConfig.setValues('track_stats', true);
+
+	// allow the user to override our defaults
+	if (window.AppceleratorConfig)
+	{
+		for (var key in window.AppceleratorConfig)
+		{
+			var value = window.AppceleratorConfig[key];
+			Appcelerator.Util.ServerConfig.setValues(key,value);
+		}
+	}
+
+	Appcelerator.Browser.autocheckBrowserSupport = Appcelerator.Config['browser_check'];
+	Appcelerator.Browser.autoReportStats = Appcelerator.Config['report_stats'];
+});
+
+Appcelerator.Util.ServerConfig.setValues = function(key, def)
+{
+    if (Appcelerator.ServerConfig[key])
+    {
+        Appcelerator.Config[key] = Appcelerator.ServerConfig[key].value;
+    }
+    else if (Appcelerator.Parameters.get(key))
+    {
+        var param = Appcelerator.Parameters.get(key);
+        switch (param)
+        {
+            case 'true':
+            {
+                Appcelerator.Config[key] = true;
+                break;
+            }
+            case 'false':
+            {
+                Appcelerator.Config[key] = false;
+                break;
+            }
+            default:
+            {
+                Appcelerator.Config[key] = Appcelerator.Parameters.get(key);
+            }
+        }
+    }
+    else
+    {
+        Appcelerator.Config[key] = def;
+    }
+}
+
 Appcelerator.Core.onload(Appcelerator.Util.ServerConfig.load);/**
  * Traverses the document, starting at the body node.
- * 
+ *
  * As it encounters widget tags, it fires off async requests for
  * the modules' code. As modules finish fetching they callback
  * listeners which call Appcelerator.Compiler.compileWidget
  * to construct the widget in HTML.
- * 
+ *
  * A.C.compileWidget dispatches widget construction to each module,
  * and then uses flags (called 'instructions') returned by the module
  * to complete the widget building/compiling process.
- * 
+ *
  * @fileOverview a set of functions related to compiling a DOM with web expressions into resulting DHTML/javascript/AJAX
  * @name Appcelerator.Compiler
  */
 
 /**
- * this should be set if you want the document to be 
+ * this should be set if you want the document to be
  * compiled when loaded - otherwise, it must be manually compiled
  */
 Appcelerator.Compiler.compileOnLoad = true;
@@ -8887,7 +11206,7 @@ Appcelerator.Compiler.compileOnLoad = true;
 /**
  * returns true if running in interpretive mode
  * compilation is done at runtime in the browser
- * 
+ *
  * @deprecated no longer used
  */
 Appcelerator.Compiler.isInterpretiveMode = true;
@@ -8895,7 +11214,7 @@ Appcelerator.Compiler.isInterpretiveMode = true;
 /**
  * returns true if running in compiled mode
  * compilation is done at deployment time
- * 
+ *
  * @deprecated no longer used
  */
 Appcelerator.Compiler.isCompiledMode = false;
@@ -8916,9 +11235,9 @@ Appcelerator.Compiler.nextId = 0;
 Appcelerator.Compiler.functionId = 1;
 
 /**
- * check an element for an ID and ensure that if it doesn't have one, 
+ * check an element for an ID and ensure that if it doesn't have one,
  * it will automatically generate a system-generated unique ID
- * 
+ *
  * @param {element} element element to check
  * @return {string} return the id of the element
  */
@@ -8931,7 +11250,7 @@ Appcelerator.Compiler.getAndEnsureId = function(element)
 	if (!element._added_to_cache)
 	{
 	    Appcelerator.Compiler.setElementId(element,element.id);
-    }	
+    }
 	return element.id;
 };
 
@@ -8941,7 +11260,7 @@ Appcelerator.Compiler.getAndEnsureId = function(element)
  * $ID such as if you have an element named foo you can reference the
  * element directly with the global variable named $foo.
  *
- * @param {element} element to set ID 
+ * @param {element} element to set ID
  * @param {string} id of the element
  * @return {element} element
  */
@@ -8958,8 +11277,8 @@ Appcelerator.Compiler.setElementId = function(element, id)
 };
 
 /**
- * removes an element ID attribute from the global cache and 
- * delete the auto-generated global variable 
+ * removes an element ID attribute from the global cache and
+ * delete the auto-generated global variable
  *
  * @param {string} id id of the element to delete
  * @return {boolean} true if found or false if not found
@@ -8968,7 +11287,7 @@ Appcelerator.Compiler.removeElementId = function(id)
 {
 	if (id)
 	{
-		var element_var = window['$'+id]; 
+		var element_var = window['$'+id];
 		if (element_var)
 		{
 			try
@@ -8999,18 +11318,18 @@ Appcelerator.Compiler.removeElementId = function(id)
 /**
  * we're doing to redefine prototype's $ function to do some special
  * processing - we delete it first
- * 
+ *
  * @private
  */
 (function()
 {
 	if (Object.isFunction(window['$']))
 	{
-	    try 
-	    { 
-	        delete window['$']; 
-	    } 
-	    catch (e) 
+	    try
+	    {
+	        delete window['$'];
+	    }
+	    catch (e)
 	    {
 	    }
 	}
@@ -9024,11 +11343,11 @@ Appcelerator.Compiler.removeElementId = function(id)
  * @param {string} element can either by array of string ids, single strip or element
  * @return {element} element object or null if not found
  */
-function $(element) 
+function $(element)
 {
-    var args = $A(arguments);
-	if (args.length > 1) 
+	if (arguments.length > 1)
 	{
+	    var args = $A(arguments);
     	return args.collect(function(a)
 		{
 			return $(a);
@@ -9037,6 +11356,11 @@ function $(element)
 
 	if (Object.isString(element))
 	{
+	    if(element == '')
+	    {
+	        // otherwise $('') == $, which breaks code doing null testing
+	        return null;
+	    }
 		var id = element;
 		element = window['$'+id];
 		if (!element)
@@ -9044,12 +11368,12 @@ function $(element)
 			element = document.getElementById(id);
 		}
 	}
-	
+
 	return element ? Element.extend(element) : null;
 }
 
 /**
- * generate a unique ID 
+ * generate a unique ID
  *
  * @return {string} id that can be used only once
  */
@@ -9059,7 +11383,7 @@ Appcelerator.Compiler.generateId = function()
 };
 
 /**
- * @property {hash} has of key which is name of element (or * for all elements) and array 
+ * @property {hash} has of key which is name of element (or * for all elements) and array
  * of attribute processors that should be called when element is encountered
  */
 Appcelerator.Compiler.attributeProcessors = {'*':[]};
@@ -9067,10 +11391,10 @@ Appcelerator.Compiler.attributeProcessors = {'*':[]};
 /**
  * Register an object that has a <b>handle</b> method which takes
  * an element, attribute name, and attribute value of the processed element.
- * 
+ *
  * This method takes the name of the element (or optionally, null or * as
  * a wildcard) and an attribute (required) value to look for on the element
- * and a listener.  
+ * and a listener.
  *
  * @param {string} name of attribute processor. can be array of strings for multiple elements or * for wildcard.
  * @param {string} attribute to check when matching element
@@ -9087,7 +11411,9 @@ Appcelerator.Compiler.registerAttributeProcessor = function(name,attribute,liste
 			a = [];
 			Appcelerator.Compiler.attributeProcessors[name]=a;
 		}
-		a.push([attribute,listener]);
+		// always push to the end such that custom attribute processors will be 
+		// processed before internal ones so that they can overwrite builtins
+		a.unshift([attribute,listener]);
 	}
 	else
 	{
@@ -9100,7 +11426,9 @@ Appcelerator.Compiler.registerAttributeProcessor = function(name,attribute,liste
 				a = [];
 				Appcelerator.Compiler.attributeProcessors[n]=a;
 			}
-			a.push([attribute,listener]);
+			// always push to the end such that custom attribute processors will be 
+			// processed before internal ones so that they can overwrite builtins
+			a.unshift([attribute,listener]);
 		}
 	}
 };
@@ -9169,7 +11497,7 @@ Appcelerator.Compiler.removeContainerProcessor = function(listener)
 	Appcelerator.Compiler.containerProcessors.remove(listener);
 };
 
-/** 
+/**
  * called when a container is created
  *
  * @param {element} element being compiled
@@ -9192,20 +11520,49 @@ Appcelerator.Compiler.delegateToContainerProcessors = function(element,container
 	return container;
 };
 
-Appcelerator.Compiler.checkLoadState = function (state)
+/**
+ * List of attributes to copy from the original <app:widget_name> element
+ * onto the <div> that replaces that widget.
+ *
+ * Needed for the 'bind' action and 'selectable' attribute.
+ */
+Appcelerator.Compiler.retainedWidgetAttributes = ['name'];
+Appcelerator.Compiler.addContainerProcessor(
 {
-	if (state.pending==0 && state.scanned)
+	process: function(element,container)
+	{
+	    var attrs = Appcelerator.Compiler.retainedWidgetAttributes;
+	    for(var i = 0; i < attrs.length; i++)
+	    {
+	        var attr = attrs[i];
+    		var v = element.getAttribute(attr);
+    		if (v)
+    		{
+    			container.setAttribute(attr,v);
+    		}
+    	}
+	}
+});
+
+
+Appcelerator.Compiler.checkLoadState = function (element)
+{
+	var state = element.state;
+	if (state && state.pending==0 && state.scanned)
 	{
 		if (typeof(state.onfinish)=='function')
 		{
 			state.onfinish(code);
 		}
-				
+
 		if (typeof(state.onafterfinish)=='function')
 		{
 			state.onafterfinish();
 		}
-	}	
+		Appcelerator.Compiler.removeState(element);
+		return true;
+	}
+	return false;
 };
 
 /**
@@ -9219,34 +11576,49 @@ Appcelerator.Compiler.checkLoadState = function (state)
 Appcelerator.Compiler.dynamicCompile = function(element,notimeout,recursive)
 {
 	if (!element) return;
-	
-    $D('dynamic compile called for '+element+' - id='+element.id);
-    
-    Appcelerator.Compiler.doCompile(element,recursive);   
+
+    $D('dynamic compile called for ',element,' - id=',element.id);
+
+    Appcelerator.Compiler.doCompile(element,recursive);
 };
 
 Appcelerator.Compiler.doCompile = function(element,recursive)
-{    
+{
     var state = Appcelerator.Compiler.createCompilerState();
     Appcelerator.Compiler.compileElement(element,state,recursive);
     state.scanned = true;
-    Appcelerator.Compiler.checkLoadState(state);
+    Appcelerator.Compiler.checkLoadState(element);
+};
+
+Appcelerator.Compiler.removeState = function(element)
+{
+	if (element.state)
+	{
+		try 
+		{
+			delete element.state;
+		}
+		catch (e)
+		{
+			element.state = null;
+		}
+	}
 };
 
 Appcelerator.Compiler.createCompilerState = function ()
 {
-	return {pending:0,code:'',scanned:false};
+	return {pending:0,scanned:false};
 };
 
 Appcelerator.Compiler.onbeforecompileListeners = [];
 Appcelerator.Compiler.oncompileListeners = [];
 Appcelerator.Compiler.beforeDocumentCompile = function(l)
 {
-	Appcelerator.Compiler.onbeforecompileListeners.push(l);	
+	Appcelerator.Compiler.onbeforecompileListeners.push(l);
 };
 Appcelerator.Compiler.afterDocumentCompile = function(l)
 {
-    Appcelerator.Compiler.oncompileListeners.push(l);   
+    Appcelerator.Compiler.oncompileListeners.push(l);
 };
 
 /**
@@ -9257,7 +11629,7 @@ Appcelerator.Compiler.afterDocumentCompile = function(l)
 Appcelerator.Compiler.compileDocument = function(onFinishCompiled)
 {
     $D('compiled document called');
-    
+
     if (Appcelerator.Compiler.onbeforecompileListeners)
     {
        for (var c=0;c<Appcelerator.Compiler.onbeforecompileListeners.length;c++)
@@ -9267,7 +11639,7 @@ Appcelerator.Compiler.compileDocument = function(onFinishCompiled)
        delete Appcelerator.Compiler.onbeforecompileListeners;
     }
 
-    var container = document.body;  
+    var container = document.body;
     var originalVisibility = container.style.visibility || 'visible';
 
 	if (Appcelerator.Config['hide_body'])
@@ -9279,9 +11651,10 @@ Appcelerator.Compiler.compileDocument = function(onFinishCompiled)
     {
         Appcelerator.Compiler.setElementId(document.body, 'app_body');
     }
-    
-    var state = Appcelerator.Compiler.createCompilerState();
 
+    var state = Appcelerator.Compiler.createCompilerState();
+	container.state = state;
+	
     // start scanning at the body
     Appcelerator.Compiler.compileElement(container,state);
 
@@ -9299,7 +11672,7 @@ Appcelerator.Compiler.compileDocument = function(onFinishCompiled)
 			Appcelerator.Compiler.compileDocumentOnFinish();
         }).defer();
     };
-    Appcelerator.Compiler.checkLoadState(state);
+    Appcelerator.Compiler.checkLoadState(container);
 };
 
 Appcelerator.Compiler.compileDocumentOnFinish = function ()
@@ -9312,7 +11685,7 @@ Appcelerator.Compiler.compileDocumentOnFinish = function ()
         }
         delete Appcelerator.Compiler.oncompileListeners;
     }
-    $MQ('l:app.compiled');	
+    $MQ('l:app.compiled');
 }
 
 Appcelerator.Compiler.compileInterceptors=[];
@@ -9346,15 +11719,15 @@ Appcelerator.Compiler.compileElement = function(element,state,recursive)
 	Appcelerator.Compiler.determineScope(element);
 
     $D('compiling element => '+element.id);
-	
+
 	if (typeof(state)=='undefined')
 	{
 		throw "compileElement called without state for "+element.id;
 	}
-	
+
 	Appcelerator.Compiler.onPrecompile(element);
 
-	// check to see if we should compile	
+	// check to see if we should compile
 	var doCompile = element.getAttribute('compile') || 'true';
 	if (doCompile == 'false')
 	{
@@ -9370,47 +11743,92 @@ Appcelerator.Compiler.compileElement = function(element,state,recursive)
         element.compiled = 1;
     }
 
-	var name = Appcelerator.Compiler.getTagname(element);
-	if (name.indexOf(':')>0)
+	//TODO: fix this - we need to remove this from element
+	
+	element.state = state;
+
+	try
 	{
-		element.style.originalDisplay = element.style.display || 'block';
-		
-        state.pending+=1;
-		Appcelerator.Core.requireModule(name,function()
+		var name = Appcelerator.Compiler.getTagname(element);
+		var kind = element.getAttribute('kind');  //FIXME: deprecate this
+		if (name.indexOf(':')>0)
 		{
-			var widgetJS = Appcelerator.Compiler.compileWidget(element,state);
-			state.pending-=1;
-			Appcelerator.Compiler.checkLoadState(state);
-		});
-	}	
-	else
-	{
-		Appcelerator.Compiler.delegateToAttributeListeners(element);
-		
-		if (recursive)
-        {		
-			if (element.nodeName.toLowerCase() != 'textarea')
+			element.style.originalDisplay = element.style.display || 'block';
+
+	        state.pending+=1;
+			Appcelerator.Core.requireModule(name,function()
 			{
-				var elementChildren = [];
-				for (var i = 0, length = element.childNodes.length; i < length; i++)
-				{
-				    if (element.childNodes[i].nodeType == 1)
-				    {
-			    	     elementChildren.push(element.childNodes[i]);
-			    	}
-				}
-				for (var i=0,len=elementChildren.length;i<len;i++)
-				{
-	                Appcelerator.Compiler.compileElement(elementChildren[i],state);
-				}
+				Appcelerator.Compiler.compileWidget(element,state);
+				state.pending-=1;
+				Appcelerator.Compiler.checkLoadState(element);
+				Element.fire(element,'element:compiled:'+element.id,{id:element.id});
+			});
+		}
+		else if(kind && kind.length > 0)
+		{
+			var name = 'app:'+kind;
+			state.pending += 1;
+			Appcelerator.Core.requireModule(name,function()
+			{
+				var widgetJS = Appcelerator.Compiler.compileWidget(element,state,name);
+				state.pending -= 1;
+				Appcelerator.Compiler.checkLoadState(state);
+				Element.fire(element,'element:compiled:'+element.id,{id:element.id});
+			});
+		}
+		else
+		{
+			Appcelerator.Compiler.delegateToAttributeListeners(element);
+
+			if (recursive && !element.stopCompile)
+	        {
+				Appcelerator.Compiler.compileElementChildren(element);
+				Element.fire(element,'element:compiled:'+element.id,{id:element.id});
 			}
 		}
 	}
+	catch(e)
+	{
+		Appcelerator.Compiler.handleElementException(element, e, 'compiling ' + element.id);
+	}
 };
+
+Appcelerator.Compiler.compileElementChildren = function(element)
+{
+	if (element && element.nodeType == 1)
+	{
+		if (element.nodeName.toLowerCase() != 'textarea')
+		{
+			var elementChildren = Appcelerator.Compiler.getElementChildren(element);
+			for (var i=0,len=elementChildren.length;i<len;i++)
+			{
+	            Appcelerator.Compiler.compileElement(elementChildren[i],element.state);
+			}
+		}
+		Appcelerator.Compiler.checkLoadState(element);
+		Element.fire(element,'element:compiled:'+element.id,{id:element.id});
+	}
+};
+
+Appcelerator.Compiler.getElementChildren = function (element)
+{
+    var elementChildren = [];
+	if (element && element.nodeType == 1)
+	{
+		for (var i = 0, length = element.childNodes.length; i < length; i++)
+		{
+		    if (element.childNodes[i].nodeType == 1)
+		    {
+	    	     elementChildren.push(element.childNodes[i]);
+	    	}
+		}
+	}
+	return elementChildren;
+}
 
 /**
  * method should be called to clean up any listeners or internally added stuff
- * the compiler places into the element 
+ * the compiler places into the element
  *
  * @param {element} element to destroy
  * @param {boolean} recursive should be destroy element's children as well (defaults to true)
@@ -9419,11 +11837,11 @@ Appcelerator.Compiler.destroy = function(element, recursive)
 {
 	if (!element) return;
 	recursive = recursive==null ? true : recursive;
-	
+
 	element.compiled = 0;
-	
+
 	Appcelerator.Compiler.removeElementId(element.id);
-	
+
 	if (Object.isArray(element.trashcan))
 	{
 		for (var c=0,len=element.trashcan.length;c<len;c++)
@@ -9434,7 +11852,7 @@ Appcelerator.Compiler.destroy = function(element, recursive)
 			}
 			catch(e)
 			{
-				// gulp
+				$D(e);
 			}
 		}
 		try
@@ -9443,10 +11861,10 @@ Appcelerator.Compiler.destroy = function(element, recursive)
 		}
 		catch(e)
 		{
-			// yummy!
+			$D(e);
 		}
 	}
-	
+
 	if (recursive)
 	{
 		if (element.nodeType == 1 && element.childNodes && element.childNodes.length > 0)
@@ -9460,12 +11878,22 @@ Appcelerator.Compiler.destroy = function(element, recursive)
 					{
 						Appcelerator.Compiler.destroy(node,true);
 					}
-					catch(e) 
+					catch(e)
 					{
+					    $E(e);
 					}
 				}
 			}
 		}
+	}
+};
+
+Appcelerator.Compiler.destroyContent = function(element)
+{
+	var elementChildren = Appcelerator.Compiler.getElementChildren(element);
+	for (var i=0,len=elementChildren.length;i<len;i++)
+	{
+	    Appcelerator.Compiler.destroy(elementChildren[i], true);
 	}
 };
 
@@ -9478,23 +11906,35 @@ Appcelerator.Compiler.addTrash = function(element,trash)
 	element.trashcan.push(trash);
 };
 
-Appcelerator.Compiler.getJsonTemplateVar = function(namespace,var_expr,template_var) 
+Appcelerator.Compiler.getJsonTemplateVar = function(namespace,var_expr,template_var)
 {
-	//TODO: allow getter calls in property chain
-	var o = Object.getNestedProperty(namespace,var_expr,template_var);
-	if (typeof(o) == 'object')
-	{
-		o = Object.toJSON(o);
-		o = o.replace(/"/g,'&quot;');
-	}
-	return o;
+    var def = {};
+    var o = Object.getNestedProperty(namespace,var_expr,def);
+
+    if (o == def) // wasn't found in template context
+    {
+        try
+        {
+            with(namespace) { o = eval(var_expr) };
+        }
+        catch (e) // couldn't be evaluated either
+        {
+            return template_var; // maybe a nested template replacement will catch it
+        }
+    }
+    
+    if (typeof(o) == 'object')
+    {
+        o = Object.toJSON(o).replace(/"/g,'&quot;');
+    }
+    return o;
 }
 
 Appcelerator.Compiler.templateRE = /#\{(.*?)\}/g;
-Appcelerator.Compiler.compileTemplate = function(html,htmlonly,varname)			 
+Appcelerator.Compiler.compileTemplate = function(html,htmlonly,varname)
 {
 	varname = varname==null ? 'f' : varname;
-	
+
 	var fn = function(m, name, format, args)
 	{
 		return "', jtv(values,'"+name+"','#{"+name+"}'),'";
@@ -9502,8 +11942,9 @@ Appcelerator.Compiler.compileTemplate = function(html,htmlonly,varname)
 	var body = "var "+varname+" = function(values){ var jtv = Appcelerator.Compiler.getJsonTemplateVar; return ['" +
             html.replace(/(\r\n|\n)/g, '').replace(/\t/g,' ').replace(/'/g, "\\'").replace(Appcelerator.Compiler.templateRE, fn) +
             "'].join('');};" + (htmlonly?'':varname);
-	
+
 	var result = htmlonly ? body : eval(body);
+
 	return result;
 };
 
@@ -9536,8 +11977,8 @@ Appcelerator.Compiler.removeHtmlPrefix = function(html)
 
 /**
  * this super inefficient but nifty function will
- * parse our HTML: namespace tags required when HTML is 
- * included in APP: tags but as long as they are 
+ * parse our HTML: namespace tags required when HTML is
+ * included in APP: tags but as long as they are
  * not within a APP: tags content.  The browser
  * doesn't like HTML: (he'll think it's a non-HTML tag)
  * so we need to strip the HTML: before passing to browser
@@ -9590,7 +12031,7 @@ Appcelerator.Compiler.specialMagicParseTagSet = function(html,prefix)
         // check to see if we're within a nested element of the same name
         var dupidx = content.indexOf(beginTag+tagName);
         if (dupidx!=-1)
-        {   
+        {
             startIdx=lastIdx+endTagName.length;
             continue;
         }
@@ -9620,7 +12061,7 @@ Appcelerator.Compiler.getHtml = function (element,convertHtmlPrefix)
 	convertHtmlPrefix = (convertHtmlPrefix==null) ? true : convertHtmlPrefix;
 
 	var html = element.innerHTML || Appcelerator.Util.Dom.getText(element);
-	
+
 	return Appcelerator.Compiler.convertHtml(html, convertHtmlPrefix);
 };
 
@@ -9675,10 +12116,10 @@ Appcelerator.Compiler.getTagname = function(element)
 {
 	if (!element) throw "element cannot be null";
 	if (element.nodeType!=1) throw "node: "+element.nodeName+" is not an element, was nodeType: "+element.nodeType+", type="+(typeof element);
-	
+
 	// used by the compiler to mask a tag
 	if (element._tagName) return element._tagName;
-	
+
 	if (Appcelerator.Browser.isIE)
 	{
 		if (element.scopeName && element.tagUrn)
@@ -9695,7 +12136,7 @@ Appcelerator.Compiler.getTagname = function(element)
 
 /**
  * internal method to add event listener
- * 
+ *
  * @param {element} element to add event to
  * @param {string} event name
  * @param {function} action to invoke when event is fired
@@ -9710,34 +12151,42 @@ Appcelerator.Compiler.addEventListener = function (element,event,action,delay)
 		$D('on '+element.id+'.'+event+' => invoking action '+action);
 		return action.apply({data:{}},args);
 	};
-	
-	var functionWrapper = delay > 0 ? (function() 
+
+	var functionWrapper = delay > 0 ? (function()
 	{
 		var args = $A(arguments);
+
+		// IE destroys the keyCode when there's a delay
+		var event = args[0];
+		if (event.keyCode)
+		{
+		    args[0] = {keyCode: event.keyCode};
+		}
+
 		var a = function()
 		{
 			return logWrapper.apply(logWrapper,args);
 		};
-		a.delay(delay/1000);
+        a.delay(delay/1000);
 	}) : logWrapper;
 
 	Event.observe(element,event,functionWrapper,false);
-	
+
 	Appcelerator.Compiler.addTrash(element,function()
 	{
 		Event.stopObserving(element,event,functionWrapper);
 	});
-	
+
 	return element;
 }
-    
+
 /**
  * called to install a change listener
  *
  * @param {element} element to add change listener
  * @param {function} action function to call when change is detected in element
  * @return {element} element
- */ 
+ */
 Appcelerator.Compiler.installChangeListener = function (element, action)
 {
     (function()
@@ -9751,18 +12200,16 @@ Appcelerator.Compiler.installChangeListener = function (element, action)
 	    }
 	    else
 	    {
-    	    Event.observe(element,'focus',function()
+	        element._focusChangeListener = function()
     	    {
-    	        element._validatorObserver = new Form.Element.Observer(
-    	          element,
-    	          .5,  
-    	          function(element, value)
-    	          {
+    	        element._validatorObserver = new Form.Element.Observer(element,.5,function(element, value)
+                {
     	            action(element,value);
-    	          }
-    	        );
-    	    });
-    	    Event.observe(element,'blur',function()
+    	        });
+    	    };
+    	    Event.observe(element,'focus',element._focusChangeListener);
+
+	        element._blurChangeListener = function()
     	    {
     	        if (element._validatorObserver)
     	        {
@@ -9770,18 +12217,41 @@ Appcelerator.Compiler.installChangeListener = function (element, action)
     	            try { delete element._validatorObserver; } catch (e) { element._validatorObserver = null; }
                     action(element,Field.getValue(element));
     	        }
-    	    });
+    	    };
+    	    Event.observe(element,'blur',element._blurChangeListener);
     	}
     }).defer();
-    
+
     return element;
 };
+
+Appcelerator.Compiler.removeChangeListener = function (element)
+{
+    (function()
+    {
+        if (element._focusChangeListener)
+        {
+            Event.stopObserving(element, 'focus', element._focusChangeListener);
+            try { delete element._focusChangeListener; } catch (e) { element._focusChangeListener = null; }
+        }
+        if (element._blurChangeListener)
+        {
+            Event.stopObserving(element, 'blur', element._blurChangeListener);
+            try { delete element._blurChangeListener; } catch (e) { element._blurChangeListener = null; }
+        }
+        if (element._validatorObserver)
+        {
+            element._validatorObserver.stop();
+            try { delete element._validatorObserver; } catch (e) { element._validatorObserver = null; }
+        }
+    }).defer();
+}
 
 Appcelerator.Compiler.ElementFunctions = {};
 
 /**
- * get a function attached to element 
- * 
+ * get a function attached to element
+ *
  * @param {element} element that has attached function
  * @param {string} name of function
  * @return {function} function attached or null if none found with name
@@ -9790,13 +12260,13 @@ Appcelerator.Compiler.getFunction = function(element,name)
 {
 	var id = (typeof element == 'string') ? element : element.id;
 	var key = id + '_' + name;
-	
+
 	var f = Appcelerator.Compiler.ElementFunctions[key];
 	if (f)
 	{
 		return f;
 	}
-	
+
 	element = $(id);
 	if (element)
 	{
@@ -9808,7 +12278,7 @@ Appcelerator.Compiler.getFunction = function(element,name)
 /**
  * attach a special function to element which can be invoked (such as a special action)
  * by system
- * 
+ *
  * @param {element} element to attach function to
  * @param {string} name of the function
  * @param {function} function to invoke
@@ -9818,7 +12288,7 @@ Appcelerator.Compiler.attachFunction = function(element,name,f)
 {
 	var id = (typeof element == 'string') ? element : element.id;
 	var key = id + '_' + name;
-	Appcelerator.Compiler.ElementFunctions[key]=f;		
+	Appcelerator.Compiler.ElementFunctions[key]=f;
 	return element;
 };
 
@@ -9838,7 +12308,7 @@ Appcelerator.Compiler.executeFunction = function(element,name,args,required)
 	args = (args==null) ? [] : args;
 	var id = (typeof element == 'string') ? element : element.id;
 	element = $(id);
-	
+
 	var key = id + '_' + name;
 	var f = Appcelerator.Compiler.ElementFunctions[key];
 	if (f)
@@ -9894,6 +12364,9 @@ Appcelerator.Compiler.executeFunction = function(element,name,args,required)
 	}
 };
 
+
+
+
 /**
  * called by compiler to compile a widget
  *
@@ -9902,6 +12375,8 @@ Appcelerator.Compiler.executeFunction = function(element,name,args,required)
  * @param {name} name of the widget which can override what the element actually is
  * @return {string} compiled code or null if none generated
  */
+Appcelerator.Compiler.customConditionObservers = {};
+
 Appcelerator.Compiler.compileWidget = function(element,state,name)
 {
 	name = name || Appcelerator.Compiler.getTagname(element);
@@ -9916,16 +12391,16 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 		{
 			var version = module.flashVersion || 9.0;
 			var error = null;
-			
+
 			if (!Appcelerator.Browser.isFlash)
-			{  
+			{
 				error = 'Flash version ' + version + ' or greater is required';
 			}
 			else if (Appcelerator.Browser.flashVersion < version)
 			{
 				error = 'Flash version ' + version + ' or greater is required. Your version is: '+Appcelerator.Browser.flashVersion;
 			}
-			
+
 			if (error)
 			{
 				error = error + '. <a href="http://www.adobe.com/products/flashplayer/" target="_NEW">Download Flash Now</a>'
@@ -9935,9 +12410,9 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 				return;
 			}
 		}
-		
+
 		var id = Appcelerator.Compiler.getAndEnsureId(element);
-		
+
 		var moduleAttributes = module.getAttributes();
 		var widgetParameters = {};
 		for (var i = 0; i < moduleAttributes.length; i++)
@@ -9965,7 +12440,7 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 			}
 		}
 		widgetParameters['id'] = id;
-		
+
 		//
 		// building custom functions
 		//
@@ -9978,6 +12453,20 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 				Appcelerator.Compiler.buildCustomAction(functions[c]);
 			}
 		}
+
+        // grab any custom conditions before attempting to parse on attributes
+        if(module.getConditions)
+        {
+            Appcelerator.Compiler.customConditionObservers[id] = {};
+            var customConditions = module.getConditions();
+            for (var i = 0; i < customConditions.length; i++)
+            {
+                var custCond = customConditions[i];
+                var condFunct = Appcelerator.Compiler.customConditionFunctionCallback(custCond);
+                Appcelerator.Compiler.registerCustomCondition({conditionNames: [custCond]}, 
+                    condFunct, element.id);
+            }
+        }
 
         //
         // parse on attribute
@@ -9993,7 +12482,7 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
         {
             Appcelerator.Compiler.parseOnAttribute(element);
         }
-
+        
 		//
 		// hand off widget for building
 		//
@@ -10007,7 +12496,7 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 			Appcelerator.Compiler.handleElementException(element, exxx, 'building widget ' + element.id);
 			return;
 		}
-		
+
 		//
 		// allow the widget to change its id
 		//
@@ -10017,13 +12506,13 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 			id = element.id;
 			Appcelerator.Compiler.getAndEnsureId(element);
 		}
-		
+
 		var added = false;
 		if (instructions)
 		{
 			var position = instructions.position || Appcelerator.Compiler.POSITION_REPLACE;
 			var removeElement = position == Appcelerator.Compiler.POSITION_REMOVE;
-			
+
 			if (!removeElement)
 			{
 				//
@@ -10040,15 +12529,15 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 					   var parent_tag = instructions.parent_tag || 'div';
 					   html = '<'+parent_tag+' id="'+id+'_temp" style="margin:0;padding:0;display:none">'+html+'</'+parent_tag+'>';
 					}
-					
+
 					// add the XML namespace IE thing but only if you have what looks to
 					// be a widget that requires namespace - otherwise, it will causes issues like when
-					// you include a single <img> 
+					// you include a single <img>
 					if (Appcelerator.Browser.isIE && html.indexOf('<app:') != -1)
 					{
 						html = Appcelerator.Compiler.addIENameSpace(html);
 					}
-					
+
 					added = true;
 					switch(position)
 					{
@@ -10101,7 +12590,7 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 					}
 				}
 			}
-			
+
 			var outer = null;
 			if (added)
 			{
@@ -10111,12 +12600,13 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 					// in case we're in a content file or regular unattached DOM
 					outer = element.ownerDocument.getElementById(id+'_temp');
 				}
-				
+
 				Appcelerator.Compiler.delegateToContainerProcessors(element, outer);
 			}
-            
+
 			var compileId = id;
-			
+			var fieldset = element.getAttribute('fieldset');
+
 			//
 			// remove element
 			//
@@ -10126,20 +12616,25 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 			    Appcelerator.Compiler.removeElementId(removeId);
 				Element.remove(element);
 			}
-			
-			if (added && outer && !$(id))
+
+			if (outer)
 			{
-				// set outer div only if widget id was not used in presentation
-				Appcelerator.Compiler.setElementId(outer, id);
-				compileId = id;
-				widgetParameters['id']=id;
+    			if (added && !$(id))
+    			{
+    				// set outer div only if widget id was not used in presentation
+    				Appcelerator.Compiler.setElementId(outer, id);
+    				compileId = id;
+    				widgetParameters['id']=id;
+    			}
+			    outer.widget = module;
+                outer.widgetParameters = widgetParameters;
 			}
-			
-			// 
+
+			//
 			// attach any special widget functions
 			//
 			if (functions)
-			{ 
+			{
 				for (var c=0;c<functions.length;c++)
 				{
 					var methodname = functions[c];
@@ -10164,23 +12659,28 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 					})();
 				}
 			}
-			
+
+			if(fieldset && !module.ignoreFieldset)
+			{
+			    Appcelerator.Compiler.addFieldSet(outer, false, fieldset);
+			}
+
             //
             // run initialization
             //
             if (instructions.compile)
             {
-					try
-					{
-						module.compileWidget(widgetParameters,outer);
-					}
-					catch (exxx)
-					{
-						Appcelerator.Compiler.handleElementException($(id), exxx, 'compiling widget ' + id + ', type ' + element.nodeName);
-						return;
-					}
+                try
+                {
+                	module.compileWidget(widgetParameters,outer);
+                }
+                catch (exxx)
+                {
+                	Appcelerator.Compiler.handleElementException($(id), exxx, 'compiling widget ' + id + ', type ' + element.nodeName);
+                	return;
+                }
             }
-            
+
             if (added && instructions.wire && outer)
             {
 				Appcelerator.Compiler.compileElement(outer, state);
@@ -10191,14 +12691,12 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 			{
                 outer.style.display='';
 			}
-
-			if (Appcelerator.Browser.isIE6) Appcelerator.Browser.fixImageIssues.defer();
 		}
 	}
 	else
 	{
 		// reset to the original
-		if (element.style && element.style.display != element.style.originalDisplay) 
+		if (element.style && element.style.display != element.style.originalDisplay)
 		{
 		  element.style.display = element.style.originalDisplay;
 		}
@@ -10207,10 +12705,89 @@ Appcelerator.Compiler.compileWidget = function(element,state,name)
 	return compiledCode;
 };
 
+/**
+ * fire an custom condition from within the widget.  
+ */
+Appcelerator.Compiler.fireCustomCondition = function(id, name, data)
+{
+	// let any listeners have at it
+	Appcelerator.Compiler.fireConditionEvent(id,name);
+
+	
+    var observersForElement = Appcelerator.Compiler.customConditionObservers[id];
+    if(observersForElement == null) {
+        $D('no custom condition found for id="'+id+'"');
+    }
+    else if (observersForElement[name] == null)
+    {
+        $D('no custom condition found for id="'+id+'" condition="'+name+'"');
+    }
+    else
+    {
+        var entries = observersForElement[name];
+        for(var i = 0; i < entries.length; i++) 
+        {   
+            var entry = entries[i];
+            params = entry.params;
+            var actionParams = params ? Appcelerator.Compiler.getParameters(params,false) : null;
+        	var paramsStr = (actionParams) ? Object.toJSON(actionParams) : null;
+            var ok = Appcelerator.Compiler.parseConditionCondition(paramsStr, data);
+            
+            var actionFunc;
+            if (ok)
+        	{
+        	    actionFunc = Appcelerator.Compiler.makeConditionalAction(id,entry.action,entry.ifCond,data);
+        	}
+        	else if (elseaction)
+        	{
+        	    actionFunc = Appcelerator.Compiler.makeConditionalAction(id,entry.elseAction,entry.ifCond,data);
+        	}
+            Appcelerator.Compiler.executeAfter(actionFunc,entry.delay);
+        }
+    }
+};
+
+
+Appcelerator.Compiler.customConditionFunctionCallback = function(custCond)
+{
+    return function (element, condition, action, elseAction, delay, ifCond)
+    {
+        var id = element.id;
+        var actionParams = Appcelerator.Compiler.parameterRE.exec(condition);
+        var type = (actionParams ? actionParams[1] : condition);
+        var params = actionParams ? actionParams[2] : null;
+        if (type == custCond)
+        {
+            var entry =
+            {
+                'action': action,
+                'delay': delay,
+                'elseAction': elseAction,
+                'ifCond': ifCond,
+                'params': params
+            }
+
+            if(Appcelerator.Compiler.customConditionObservers[id] == null) {
+                Appcelerator.Compiler.customConditionObservers[id] = {};
+            }
+
+            if (Appcelerator.Compiler.customConditionObservers[id][custCond])
+            {
+                Appcelerator.Compiler.customConditionObservers[id][custCond].push(entry);
+            }
+            else
+            {
+                Appcelerator.Compiler.customConditionObservers[id][custCond] = [entry];
+            }
+            return true;
+        }
+        return false;
+    }
+}
 Appcelerator.Compiler.determineScope = function(element)
 {
 	var scope = element.getAttribute('scope');
-	
+
 	if (!scope)
 	{
 		var p = element.parentNode;
@@ -10218,7 +12795,7 @@ Appcelerator.Compiler.determineScope = function(element)
 		{
 			scope = p.scope;
 		}
-		
+
 		if (!scope)
 		{
 			scope = 'appcelerator';
@@ -10229,12 +12806,19 @@ Appcelerator.Compiler.determineScope = function(element)
 
 Appcelerator.Compiler.parseOnAttribute = function(element)
 {
-    $D('parseOnAttribute '+element.id);
-	var on = element.getAttribute('on');
-	if (on && Object.isString(on))
+    try
+    {
+    	var on = element.getAttribute('on');
+    	if (on && Object.isString(on))
+    	{
+		    $D('parseOnAttribute ',element.id,' on=',on);
+    		Appcelerator.Compiler.compileExpression(element,on,false);
+    		return true;
+    	}
+    }
+	catch (exxx)
 	{
-		Appcelerator.Compiler.compileExpression(element,on,false);
-		return true;
+		Appcelerator.Compiler.handleElementException(element, exxx, 'compiling "on" attribute for element ' + element.id);
 	}
 	return false;
 };
@@ -10273,7 +12857,7 @@ Appcelerator.Compiler.smartTokenSearch = function(searchString, value)
 					break;
 				}
 			}
-		
+
 			if (in_left_bracket && in_right_bracket)
 			{
 				validx = -1;
@@ -10285,15 +12869,23 @@ Appcelerator.Compiler.smartTokenSearch = function(searchString, value)
 	}
 	else
 	{
-		validx = searchString.indexOf(value);		
+		validx = searchString.indexOf(value);
 	}
 	return validx;
 };
 
-Appcelerator.Compiler.parseExpression = function(value)
+Appcelerator.Compiler.compoundCondRE = /^\((.*)?\) then$/;
+
+Appcelerator.Compiler.parseExpression = function(value,element)
 {
+	if (!value)
+	{
+		return [];
+	}
+
 	if (!Object.isString(value))
 	{
+		alert('framework error: value was '+value+' -- unexpected type: '+typeof(value));
 	    throw "value: "+value+" is not a string!";
 	}
 	value = value.gsub('\n',' ');
@@ -10310,9 +12902,29 @@ Appcelerator.Compiler.parseExpression = function(value)
 		var thenidx = expression.indexOf(' then ');
 		if (thenidx <= 0)
 		{
-			throw "syntax error: expected 'then' for expression: "+expression;
+			// we allow widgets to have a short-hand syntax for execute
+			if (Appcelerator.Compiler.getTagname(element).indexOf(':'))
+			{
+				expression = expression + ' then execute';
+				thenidx = expression.indexOf(' then ');
+			}
+			else
+			{
+				throw "syntax error: expected 'then' for expression: "+expression;
+			}
 		}
 		var condition = expression.substring(0,thenidx);
+		
+		// check to see if we have compound conditions - APPSDK-597
+		var testExpr = expression.substring(0,thenidx+5);
+		var condMatch = Appcelerator.Compiler.compoundCondRE.exec(testExpr);
+		if (condMatch)
+		{
+			var expressions = condMatch[1];
+			// turn it into an array of conditions
+			condition = Appcelerator.Compiler.smartSplit(expressions,' or ');
+		}
+		
 		var elseAction = null;
 		var nextstr = expression.substring(thenidx+6);
 		var elseidx = Appcelerator.Compiler.smartTokenSearch(nextstr, 'else');
@@ -10333,7 +12945,7 @@ Appcelerator.Compiler.parseExpression = function(value)
 		{
 			action = nextstr;
 		}
-		
+
 		var nextStr = elseAction || action;
 		var ifCond = null;
 		var ifIdx = nextStr.indexOf(' if expr[');
@@ -10357,9 +12969,9 @@ Appcelerator.Compiler.parseExpression = function(value)
 			}
 			nextStr = ifStr.substring(endP+2);
 		}
-		
-		var delay = 0;		
-		var afterIdx =  Appcelerator.Compiler.smartTokenSearch(nextstr, 'after '); 		
+
+		var delay = 0;
+		var afterIdx =  Appcelerator.Compiler.smartTokenSearch(nextstr, 'after ');
 
 		if (afterIdx!=-1)
 		{
@@ -10377,24 +12989,48 @@ Appcelerator.Compiler.parseExpression = function(value)
 				}
 			}
 		}
-		
+
 		thens.push([null,condition,action,elseAction,delay,ifCond]);
 	}
 	return thens;
 };
- 
+
 Appcelerator.Compiler.compileExpression = function (element,value,notfunction)
 {
-	var clauses = Appcelerator.Compiler.parseExpression(value);
-	$D('expression has '+clauses.length+' expression for '+element.id);
-	for(var i = 0; i < clauses.length; i++) 
+	value = Appcelerator.Compiler.processMacros(value,element.id);
+	if (!value)
+	{
+		alert('value returned null for '+element.id);
+	}
+	var clauses = Appcelerator.Compiler.parseExpression(value,element);
+	$D('on expression for ',element.id,' has ',clauses.length,' condition/action pairs');
+	for(var i = 0; i < clauses.length; i++)
 	{
 		var clause = clauses[i];
-        $D('compiling expression for '+element.id+' => condition=['+clause[1]+'], action=['+clause[2]+'], elseAction=['+clause[3]+'], delay=['+clause[4]+'], ifCond=['+clause[5]+']');
+        $D('compiling expression for ',element.id,' => condition=[',clause[1],'], action=[',clause[2],'], elseAction=[',clause[3],'], delay=[',clause[4],'], ifCond=[',clause[5],']');
 
         clause[0] = element;
-        var handled = Appcelerator.Compiler.handleCondition.apply(this, clause);
+		var handled = false;
 		
+		if (Object.isArray(clause[1]))
+		{
+			for (var c=0;c<clause[1].length;c++)
+			{
+				var cl = clause[1][c];
+				var copy = [element,cl,clause[2],clause[3],clause[4],clause[5]];
+
+		        handled = Appcelerator.Compiler.handleCondition.call(this, copy);
+		        if (!handled)
+		        {
+		            throw "syntax error: unknown condition type: "+clause[1]+" for "+value;
+		        }
+			}
+			continue;
+		}
+		
+		
+        handled = Appcelerator.Compiler.handleCondition.call(this, clause);
+
         if (!handled)
         {
             throw "syntax error: unknown condition type: "+clause[1]+" for "+value;
@@ -10402,33 +13038,239 @@ Appcelerator.Compiler.compileExpression = function (element,value,notfunction)
 	}
 };
 
+Appcelerator.Compiler.isIDRef = function(value)
+{
+	if (value)
+	{
+		if (Object.isString(value))
+		{
+			return value.charAt(0)=='$';
+		}
+	}
+	return false;
+};
+
+Appcelerator.Compiler.parseConditionCondition = function(actionParamsStr,data) 
+{
+    var ok = true;
+    var actionParams = actionParamsStr ? actionParamsStr.evalJSON() : null;
+
+    if (actionParams)
+    {
+    	for (var c=0,len=actionParams.length;c<len;c++)
+    	{
+    		var p = actionParams[c];
+			var negate = false, regex = false;
+			if (p.empty && p.value)
+			{
+				// swap these out
+				p.key = p.value;
+				p.keyExpression = p.valueExpression;
+				p.value = null;
+			}
+			var lhs = p.key, rhs = p.value, operator = p.operator||'';
+			if (p.key && p.key.charAt(0)=='!')
+			{
+				negate = true;
+				lhs = p.key.substring(1);
+			}
+			else if (p.key && p.key.charAt(p.key.length-1)=='!')
+			{
+				negate = true;
+				lhs = p.key.substring(0,p.key.length-1);
+			}
+			var preLHS = lhs;
+			if (p.keyExpression || Appcelerator.Compiler.isIDRef(lhs))
+			{
+				var out = Appcelerator.Compiler.getEvaluatedValue(lhs,data,data,p.keyExpression);
+				if (!p.keyExpression && Appcelerator.Compiler.isIDRef(lhs) && lhs == out)
+				{
+					lhs = null;
+				}
+				else
+				{
+					lhs = out;
+				}
+			}
+			else
+			{
+				lhs = Appcelerator.Compiler.getEvaluatedValue(lhs,data);
+			}
+			if (lhs == preLHS)
+			{
+				// left hand side must evaluate to a value -- if we get here and it's the same, that 
+				// means we didn't find it
+				lhs = null;
+			}
+			// mathematics
+			if ((operator == '<' || operator == '>') && (rhs && Object.isString(rhs) && rhs.charAt(0)=='='))
+			{
+				operator += '=';
+				rhs = rhs.substring(1);
+			}
+			if (rhs && Object.isString(rhs) && rhs.charAt(0)=='~')
+			{
+				regex = true;
+				rhs = rhs.substring(1);
+			}
+			if (p.empty)
+			{
+				rhs = lhs;
+			}
+			else if (p.keyExpression || Appcelerator.Compiler.isIDRef(rhs))
+			{
+				var out = Appcelerator.Compiler.getEvaluatedValue(rhs,data,data,p.valueExpression);
+				if (!p.valueExpression && Appcelerator.Compiler.isIDRef(rhs) && rhs == out)
+				{
+					rhs = null;
+				}
+				else
+				{
+					rhs = out;
+				}
+			}
+			else
+			{
+				rhs = Appcelerator.Compiler.getEvaluatedValue(rhs,data);
+			}
+			if (regex)
+			{
+				var r = new RegExp(rhs);
+				ok = r.test(lhs);
+			}
+			else if (!operator && p.empty && rhs == null)
+			{
+				ok = lhs;
+			}
+			else
+			{
+				switch(operator||'=')
+				{
+					case '<':
+					{
+						ok = parseInt(lhs) < parseInt(rhs);
+						break;
+					}
+					case '>':
+					{
+						ok = parseInt(lhs) > parseInt(rhs);
+						break;
+					}
+					case '<=':
+					{
+						ok = parseInt(lhs) <= parseInt(rhs);
+						break;
+					}
+					case '>=':
+					{
+						ok = parseInt(lhs) >= parseInt(rhs);
+						break;
+					}
+					default:
+					{
+						ok = String(lhs) == String(rhs);
+						break;
+					}
+				}
+			}
+			if (negate)
+			{
+				ok = !ok;
+			}
+			if (!ok)
+			{
+				break;
+			}
+		}
+	}
+	return ok;
+};
+
 /*
  * Conditions trigger the execution of on expressions,
  * customConditions is a list of parsers that take the left-hand-side
- * of an on expression (before the 'then') and registers event listeners
+ * of an on expression (before the 'then') and register event listeners
  * to be called when the condition is true.
- * 
+ *
  * Parsers registered with registerCustomCondition are called in order
  * until one of them successfully parses the condition and returns true.
- * 
- * Successful parses result in calls to either Event.observe or to $MQL
  */
 Appcelerator.Compiler.customConditions = [];
+Appcelerator.Compiler.customElementConditions = [];
 
-Appcelerator.Compiler.registerCustomCondition = function(metadata, condition)
+Appcelerator.Compiler.registerCustomCondition = function(metadata, condition, elementid)
 {
 	condition.metadata = metadata;
-	Appcelerator.Compiler.customConditions.push(condition);
+	if (!elementid)
+	{
+    	Appcelerator.Compiler.customConditions.push(condition);
+	}
+	else
+	{
+    	Appcelerator.Compiler.customElementConditions.push({elementid: elementid, condition: condition});
+	}
 };
 
-Appcelerator.Compiler.handleCondition = function(element,condition,action,elseAction,delay,ifCond)
+Appcelerator.Compiler.conditionListeners = {};
+
+/**
+ * register for when a condition is begin fired for an element
+ */
+Appcelerator.Compiler.registerConditionListener = function(element,condition,callback)
 {
-    $D('handleCondition called for '+element.id);
+	var key = $(element).id + "__" + condition;
+	var listeners = Appcelerator.Compiler.conditionListeners[key];
+	if (!listeners)
+	{
+		listeners = [];
+		Appcelerator.Compiler.conditionListeners[key]=listeners;
+	}
+	listeners.push(callback);
+};
+
+Appcelerator.Compiler.fireConditionEvent = function(element,condition)
+{
+	var key = $(element).id + "__" + condition;
+	var listeners = Appcelerator.Compiler.conditionListeners[key];
+	if (listeners)
+	{
+		for (var c=0;c<listeners.length;c++)
+		{
+			listeners[c]($(element),condition);
+		}
+	}
+};
+
+Appcelerator.Compiler.handleCondition = function(clause)
+{
+    var element = clause[0];
+    $D('handleCondition called for ',element);
+
+	if (clause[1] && Object.isBoolean(clause[1]))
+	{
+	    var f = Appcelerator.Compiler.makeAction(element.id,clause[2]);
+		return f.call(this,clause[3]);
+	}
+	
+    //first loop through custom conditions defined by the widget
+    for (var f=0;f<Appcelerator.Compiler.customElementConditions.length;f++)
+    {
+        var cond = Appcelerator.Compiler.customElementConditions[f];
+        if (cond.elementid == element.id)
+        {
+            var condFunction = cond.condition;
+            var processed = condFunction.apply(condFunction,clause);
+     		if (processed)
+     		{
+     			return true;
+     		}
+        }
+    }
+
 	for (var f=0;f<Appcelerator.Compiler.customConditions.length;f++)
 	{
 		var condFunction = Appcelerator.Compiler.customConditions[f];
-		var processed = condFunction.apply(condFunction,[element,condition,action,elseAction,delay,ifCond]);
-        $D(element.id+' processed='+processed);
+		var processed = condFunction.apply(condFunction,clause);
  		if (processed)
  		{
  			return true;
@@ -10448,14 +13290,15 @@ Appcelerator.Compiler.parameterRE = /(.*?)\[(.*)?\]/i;
 Appcelerator.Compiler.expressionRE = /^expr\((.*?)\)$/;
 
 Appcelerator.Compiler.customActions = {};
-Appcelerator.Compiler.registerCustomAction = function(name,callback)
+Appcelerator.Compiler.customElementActions = {};
+Appcelerator.Compiler.registerCustomAction = function(name,callback,element)
 {
 	//
 	// create a wrapper that will auto-publish events for each
 	// action that can be subscribed to
-	// 
+	//
 	var action = Object.clone(callback);
-	action.build = function(id,action,params)	
+	action.build = function(id,action,params)
 	{
 		return [
 			'try {',
@@ -10463,14 +13306,21 @@ Appcelerator.Compiler.registerCustomAction = function(name,callback)
 			'; }catch(exxx){Appcelerator.Compiler.handleElementException',
 			'($("',id,'"),exxx,"Executing:',action,'");}'
 		].join('');
-		
+
 	};
-	
+
 	if (callback.parseParameters)
 	{
 		action.parseParameters = callback.parseParameters;
 	}
-	Appcelerator.Compiler.customActions[name] = action;
+	if (!element)
+	{
+    	Appcelerator.Compiler.customActions[name] = action;
+	}
+	else
+	{
+    	Appcelerator.Compiler.customElementActions[name] = action;
+	}
 };
 
 Appcelerator.Compiler.properCase = function (value)
@@ -10480,6 +13330,7 @@ Appcelerator.Compiler.properCase = function (value)
 
 Appcelerator.Compiler.smartSplit = function(value,splitter)
 {
+	value = value.trim();
 	var tokens = value.split(splitter);
 	if(tokens.length == 1) return tokens;
 	var array = [];
@@ -10487,6 +13338,24 @@ Appcelerator.Compiler.smartSplit = function(value,splitter)
 	for (var c=0;c<tokens.length;c++)
 	{
 		var line = tokens[c];
+		if (!current && line.charAt(0)=='(')
+		{
+			current = line + ' or ';
+			continue;
+		}
+		else if (current && current.charAt(0)=='(')
+		{
+			if (line.indexOf(') ')!=-1)
+			{
+				array.push(current+line);
+				current = null;
+			}
+			else
+			{
+				current+=line + ' or ';
+			}
+			continue;
+		}
 		if (!current && line.indexOf('[')>=0 && line.indexOf(']')==-1)
 		{
 			if (current)
@@ -10520,25 +13389,33 @@ Appcelerator.Compiler.smartSplit = function(value,splitter)
 
 Appcelerator.Compiler.makeConditionalAction = function(id, action, ifCond, additionalParams)
 {
-	var actionFunc = null;
-	
-	if (ifCond)
+	var actionFunc = function(scope)
 	{
-		actionFunc = 'if (' + ifCond + ') { ' + Appcelerator.Compiler.makeAction(id,action,additionalParams) + ' } ';
-	}
-	else
-	{
-		actionFunc = Appcelerator.Compiler.makeAction(id,action,additionalParams);
-	}
-	
-	return actionFunc.toFunction(true);	
+	    var f = Appcelerator.Compiler.makeAction(id,action,additionalParams);
+	    if (ifCond)
+	    {
+			if (Object.isUndefined(scope.id))
+			{
+				scope.id = id;
+			}
+			if (Object.evalWithinScope(ifCond,scope))
+			{
+	            f(scope);
+			}
+	    }
+	    else
+	    {
+	        f(scope);
+	    }
+	};
+	return actionFunc;
 };
 
 /**
- * make an valid javascript function for executing the 
+ * make an valid javascript function for executing the
  * action - this string must be converted to a function
  * object before executing
- * 
+ *
  * @param {string} id of the element
  * @param {string} value of the action string
  * @param {object} optional parameters to pass to action
@@ -10546,70 +13423,152 @@ Appcelerator.Compiler.makeConditionalAction = function(id, action, ifCond, addit
  */
 Appcelerator.Compiler.makeAction = function (id,value,additionalParams)
 {
-	var html = '';
-	var actions = Appcelerator.Compiler.smartSplit(value,' and ');
-	
+    var actionFuncs = [];
+	var actions = Appcelerator.Compiler.smartSplit(value.trim(),' and ');
+
 	for (var c=0,len=actions.length;c<len;c++)
 	{
-		var actionstr = actions[c].trim();
-		var remote_msg = actionstr.startsWith('remote:') || actionstr.startsWith('r:');
-		var local_msg = !remote_msg && (actionstr.startsWith('local:') || actionstr.startsWith('l:'));
-		var actionParams = Appcelerator.Compiler.parameterRE.exec(actionstr);
-		var params = actionParams!=null ? Appcelerator.Compiler.getParameters(actionParams[2],(remote_msg||local_msg)) : null;
-		var action = actionParams!=null ? actionParams[1] : actionstr;
+        (function()
+        {
+    		var actionstr = actions[c].trim();
+			var wildcard = actionstr.startsWith('both:') || actionstr.startsWith('*:');
+    		var remote_msg = !wildcard && actionstr.startsWith('remote:') || actionstr.startsWith('r:');
+    		var local_msg = !remote_msg && (actionstr.startsWith('local:') || actionstr.startsWith('l:'));
+    		var actionParams = Appcelerator.Compiler.parameterRE.exec(actionstr);
+    		var params = actionParams!=null ? Appcelerator.Compiler.getParameters(actionParams[2].trim(),false) : null;
+    		var action = actionParams!=null ? actionParams[1] : actionstr;
 
-		if (local_msg || remote_msg)
-		{
-			params = (params || {});
-			if (local_msg && params['id']==null) 
-			{
-			 	params['id'] = id;
-			}
+			params = params || [];
 			if (additionalParams)
 			{
 				for (var p in additionalParams)
 				{
-					params[p] = additionalParams[p];
+					params.push({key:p,value:additionalParams[p]});
 				}
 			}
-			html+='Appcelerator.Compiler.fireServiceBrokerMessage("'+id+'","'+action+'",'+Object.toJSON(params)+', this);';
-		}
-		else
-		{
-			var builder = Appcelerator.Compiler.customActions[action];
-			if (!builder)
-			{
-				throw "syntax error: unknown action: "+action+" for "+id;
-			}
+    		if (local_msg || remote_msg || wildcard)
+    		{
+    			var f = function(scope)
+    			{
+					var newparams = {};
+					for (var x=0;x<params.length;x++)
+					{
+						var entry = params[x];
+						var key = entry.key, value = entry.value;
+						if (entry.keyExpression)
+						{
+							key = Appcelerator.Compiler.getEvaluatedValue(entry.key,null,scope,entry.keyExpression);
+						}
+						else if (entry.valueExpression)
+						{
+							value = Appcelerator.Compiler.getEvaluatedValue(entry.value,null,scope,entry.valueExpression);
+						}
+						else if (entry.empty)
+						{
+							value = Appcelerator.Compiler.getEvaluatedValue(entry.key,null,scope);
+						}
+						else
+						{
+							key = Appcelerator.Compiler.getEvaluatedValue(entry.key);
+							value = Appcelerator.Compiler.getEvaluatedValue(entry.value,null,scope);
+						}
+						newparams[key]=value;
+					}
+    			    Appcelerator.Compiler.fireServiceBrokerMessage(id, action, newparams, scope);
+    			}
+    			actionFuncs.push({func: f, action: action});
+    		}
+    		else
+    		{
+    		    var builder = Appcelerator.Compiler.customElementActions[action];
+                if (!builder)
+                {
+        			builder = Appcelerator.Compiler.customActions[action];
+                }
+    			if (!builder)
+    			{
+    				throw "syntax error: unknown action: "+action+" for "+id;
+    			}
 
-			//
-			// see if the widget has its own parameter parsing routine
-			//
-			var f = builder.parseParameters;
-			
-			if (f && typeof(f)=='function')
-			{
-				// this is called as a function to custom parse parameters in the action between brackets []
-				params = f(id,action,actionParams?actionParams[2]||actionstr:actionstr);
-			}
+    			//
+    			// see if the widget has its own parameter parsing routine
+    			//
+    			var f = builder.parseParameters;
 
-			//
-			// delegate to our pluggable actions to make it easy
-			// to extend the action functionality
-			//
-			html+=builder.build(id,action,params);
-		}
-		if (c+1 < len)
-		{
-			html+='; ';
-		}
+    			if (f && Object.isFunction(f))
+    			{
+    				// this is called as a function to custom parse parameters in the action between brackets []
+    				params = f(id,action,actionParams?actionParams[2]||actionstr:actionstr);
+    			}
+
+    			//
+    			// delegate to our pluggable actions to make it easy
+    			// to extend the action functionality
+    			//
+    			var f = function(scope)
+    			{
+					scope = scope || window;
+					if (Object.isArray(params))
+					{
+						for (var x=0;x<params.length;x++)
+						{
+							var entry = params[x];
+							if (entry.keyExpression)
+							{
+								entry.key = Appcelerator.Compiler.getEvaluatedValue(entry.key,scope.data,scope,entry.keyExpression);
+							 	entry.keyExpression = false;
+							}
+							else if (entry.valueExpression)
+							{
+								entry.value = Appcelerator.Compiler.getEvaluatedValue(entry.value,scope.data,scope,entry.valueExpression);
+								entry.valueExpression = false;
+								if (entry.empty)
+								{
+									entry.key = entry.value;
+								}
+							}
+							else if (entry.empty)
+							{
+								entry.value = Appcelerator.Compiler.getEvaluatedValue(entry.key,scope.data,scope);
+							}
+							else
+							{
+								entry.key = Appcelerator.Compiler.getEvaluatedValue(entry.key);
+								entry.value = Appcelerator.Compiler.getEvaluatedValue(entry.value,scope.data,scope);
+							}
+						}
+					}
+    			    builder.execute(id, action, params, scope);
+    			}
+    			actionFuncs.push({func: f, action: action});
+    		}
+        })();
 	}
-	return html;
+    var actionFunction = function(scope)
+    {
+		var perf = Appcelerator.Config['perfmon'];
+        for (var i=0; i < actionFuncs.length; i++)
+        {
+            actionFunc = actionFuncs[i];
+            var timeStart = null;
+            if (perf)
+            {
+                timeStart = new Date;
+            }
+            actionFunc.func(scope);
+            if (perf)
+            {
+                var time = (new Date).getTime() - timeStart.getTime();
+                $MQ('l:perfmon.action', {id: id, action: actionFunc.action, time: time});
+            }
+        }
+    }
+	return actionFunction;
 };
 
 Appcelerator.Compiler.convertMessageType = function(type)
 {
-	return type.replace(/^r:/,'remote:').replace(/^l:/,'local:');
+	return Appcelerator.Util.ServiceBroker.convertType(type);
 };
 
 Appcelerator.Compiler.getMessageType = function (value)
@@ -10634,52 +13593,24 @@ Appcelerator.Compiler.fireServiceBrokerMessage = function (id, type, args, scope
 		
 		for (var p in data)
 		{
-			data[p] = Appcelerator.Compiler.getEvaluatedValue(data[p],data,scopedata);
+			var entry = data[p];
+			data[p] = Appcelerator.Compiler.getEvaluatedValue(entry,data,scopedata);
 		}
-		
-		var local = type.startsWith('local:') || type.startsWith('l:');
-		
+
+		var localMode = type.startsWith('local:') || type.startsWith('l:');
+
 		if (fieldset)
 		{
-			var fields = Appcelerator.Compiler.fieldSets[fieldset];
-			if (fields && fields.length > 0)
-			{
-				for (var c=0,len=fields.length;c<len;c++)
-				{
-					var fieldid = fields[c];
-					var field = $(fieldid);
-					var name = field.name || fieldid;
-					
-					if (null == data[name])
-					{
-						// special case type field we only want to add 
-						// the value if it's checked
-						if (field.type == 'radio' && !field.checked)
-						{
-							continue;					
-						}
-						var newvalue = Appcelerator.Compiler.getInputFieldValue(field,true,local);
-						var valuetype = typeof(newvalue);
-						if (newvalue!=null && valuetype=='object' || newvalue.length > 0 || valuetype=='boolean')
-						{
-							data[name] = newvalue;
-						}
-						else
-						{
-							data[name] = '';
-						}
-					}
-				}
-			}
+            Appcelerator.Compiler.fetchFieldset(fieldset, localMode, data);
 		}
-		
-		if (local)
+
+		if (localMode)
 		{
 			if (data['id'] == null)
 			{
                 data['id'] = id;
 			}
-		    
+
 		    if (data['element'] == null)
             {
 				// this might not be the element that triggered the message,
@@ -10687,56 +13618,133 @@ Appcelerator.Compiler.fireServiceBrokerMessage = function (id, type, args, scope
                 data['element'] = $(data['id']);
             }
 		}
-		
+
 		if (!scope || scope == '*')
 		{
 			scope = 'appcelerator';
 		}
-		
+
 		$MQ(type,data,scope);
 	}).defer();
 };
 
 
+/*
+ Pluck the current values from a fieldset and return in a hash/dict/object.
+ If a third argument is passed, the key/value pairs from the fieldset will be added to that object. 
+*/
+Appcelerator.Compiler.fetchFieldset = function(fieldset, localMode, data) {
+    if(!data) {
+        data = {};
+    }
+    
+    var fields = Appcelerator.Compiler.fieldSets[fieldset];
+	if (fields && fields.length > 0)
+	{
+		for (var c=0,len=fields.length;c<len;c++)
+		{
+			var fieldid = fields[c];
+			var field = $(fieldid);
+			var name = field.getAttribute('name') || fieldid;
+            
+            // don't overwrite other values in the payload
+			if (data[name] == null)
+			{
+				// special case type field we only want to add
+				// the value if it's checked
+				if (field.type == 'radio' && !field.checked)
+				{
+					continue;
+				}
+				var newvalue = Appcelerator.Compiler.getElementValue(field,true,localMode);
+				var valuetype = typeof(newvalue);
+				if (newvalue != null && (valuetype=='object' || newvalue.length > 0 || valuetype=='boolean'))
+				{
+					data[name] = newvalue;
+				}
+				else
+				{
+					data[name] = '';
+				}
+			}
+			else
+			{
+			    if(field.type != 'radio')
+			    {
+			        Logger.warn('fieldset value for "'+name+'" ignored because it conflicts with existing data payload value');
+		        }
+			}
+		}
+	}
+	return data;
+};
+
 /**
- * return the elements value depending on the type of 
- * element it is 
+ * return the elements value depending on the type of
+ * element it is
  *
  * @param {element} element to get value from
  * @param {boolean} dequote should we automatically dequote value
  * @return {string} value from element
  */
-Appcelerator.Compiler.getElementValue = function (elem, dequote)
+Appcelerator.Compiler.getElementValue = function (elem, dequote, local)
 {
-	elem = $(elem);
-	dequote = (dequote==null) ? true : dequote;
-	
-	switch(Appcelerator.Compiler.getTagname(elem))
-	{
-		case 'input':
-		{
-			return Appcelerator.Compiler.getInputFieldValue(elem,true);
-		}
-		case 'img':
-		{
-			return elem.src;
-		}
-		case 'form':
-		{
-			//TODO
-			return '';
-		}
-		default:
-		{
-			// allow the element to set the value otherwise use the
-			// innerHTML of the component
-			if (elem.value != undefined)
-			{
-				return elem.value;
-			}
-			return elem.innerHTML;
-		}
-	}
+    elem = $(elem);
+    dequote = (dequote==null) ? true : dequote;
+
+    var widget = elem.widget
+    if (widget)
+    {
+        if(elem.widget.getValue)
+        {
+            return elem.widget.getValue(elem.id, elem.widgetParameters);
+        }
+    }
+    else
+    {
+        switch (Appcelerator.Compiler.getTagname(elem))
+        {
+            case 'input':
+            {
+                return Appcelerator.Compiler.getInputFieldValue(elem,true,local);
+            }
+            case 'select':
+            {
+                if(elem.hasAttribute('multiple'))
+                {
+                    var selected = [];
+                    var options = elem.options;
+                    var optionsLen = elem.options.length;
+                    for(var i = 0; i < optionsLen; i++)
+                    {
+                        if(options[i].selected)
+                        {
+                            selected.push(options[i].value);
+                        }
+                    }
+                    return selected;
+                }
+                break; // if not multi-select, we use 
+            }
+            case 'img':
+            case 'iframe':
+            {
+                return elem.src;
+            }
+            case 'form':
+            {
+                //TODO
+                return '';
+            }
+        }
+        // allow the element to set the value otherwise use the
+        // innerHTML of the component
+        if (elem.value != undefined)
+        {
+            return elem.value;
+        }
+        return elem.innerHTML;
+    }
 };
 
 /**
@@ -10745,21 +13753,27 @@ Appcelerator.Compiler.getElementValue = function (elem, dequote)
  * @param {element} element
  * @param {boolean} dequote
  * @param {boolean} local true if it is for a local message
- * @return {string} value 
+ * @return {string} value
  */
 Appcelerator.Compiler.getInputFieldValue = function(elem,dequote,local)
 {
+	var tagname = Appcelerator.Compiler.getTagname(elem);
+	if (tagname != 'input' && tagname != 'textarea' && tagname != 'select')
+	{
+		return null;
+	}
+
 	local = local==null ? true : local;
 	dequote = (dequote==null) ? false : dequote;
 	var type = elem.getAttribute('type') || 'text';
 
 	var v = Form.Element.Methods.getValue(elem);
-	
+
 	switch(type)
 	{
 		case 'checkbox':
 			return (v == 'on' || v == 'checked');
-			
+
 		case 'password':
 		{
 			if (!local)
@@ -10791,30 +13805,11 @@ Appcelerator.Compiler.getInputFieldValue = function(elem,dequote,local)
 	return Appcelerator.Compiler.formatValue(v,!dequote);
 };
 
-Appcelerator.Compiler.getKeyValue = function (value)
-{
-	if (!value) return null;
-	
-	if (value.charAt(0)=='$')
-	{
-		return value;
-	}
-	else
-	{
-		// special syntax to allow 
-		if (Appcelerator.Compiler.expressionRE.test(value))
-		{
-			return value;
-		}
-	}
-	return Appcelerator.Compiler.formatValue(value,false);
-};
-
-Appcelerator.Compiler.getEvaluatedValue = function(v,data,scope)
+Appcelerator.Compiler.getEvaluatedValue = function(v,data,scope,isExpression)
 {
 	if (v && typeof(v) == 'string')
 	{
-		if (v.charAt(0)=='$')
+		if (!isExpression && v.charAt(0)=='$')
 		{
 			var varName = v.substring(1);
 			var elem = $(varName);
@@ -10824,17 +13819,22 @@ Appcelerator.Compiler.getEvaluatedValue = function(v,data,scope)
 				return Appcelerator.Compiler.getElementValue(elem,true);
 			}
 		}
+        else if(!isExpression && !isNaN(parseFloat(v)))
+        {
+            //Assume that if they provided a number, they want the number back
+            //this is important because in IE window[1] returns the first iframe
+            return v;
+        }
 		else
 		{
 			// determine if this is a dynamic javascript
 			// expression that needs to be executed on-the-fly
-			
-			var match = Appcelerator.Compiler.expressionRE.exec(v);
+			var match = isExpression || Appcelerator.Compiler.expressionRE.exec(v);
 			if (match)
 			{
-				var expr = match[1];
+				var expr = isExpression ? v : match[1];
 				var func = expr.toFunction();
-				var s = scope || {};
+				var s = scope ? Object.clone(scope) : {};
 				if (data)
 				{
 					for (var k in data)
@@ -10847,7 +13847,7 @@ Appcelerator.Compiler.getEvaluatedValue = function(v,data,scope)
 				}
 				return func.call(s);
 			}
-			
+
 			if (scope)
 			{
 				var result = Object.getNestedProperty(scope,v,null);
@@ -10856,20 +13856,20 @@ Appcelerator.Compiler.getEvaluatedValue = function(v,data,scope)
 					return result;
 				}
 			}
-			
+
 			if (data)
 			{
 				return Object.getNestedProperty(data,v,v);
 			}
 		}
-	}	
+	}
 	return v;
 };
 
 Appcelerator.Compiler.formatValue = function (value,quote)
 {
 	quote = (quote == null) ? true : quote;
-	
+
 	if (value!=null)
 	{
 		var type = typeof(value);
@@ -10987,7 +13987,7 @@ Appcelerator.Compiler.decodeParameterValue = function(token,wasquoted)
 	return value == null ? token : value;
 };
 
-Appcelerator.Compiler.parameterSeparatorRE = /[=:]+/;
+Appcelerator.Compiler.parameterSeparatorRE = /[\$=:><!]+/;
 
 /**
  * method will parse out a loosely typed json like structure
@@ -11003,19 +14003,25 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 	{
 		return asjson ? {} : [];
 	}
+		
+	var exprRE = /expr\((.*?)\)/;
+	var containsExpr = exprRE.test(str);
+	
 	// this is just a simple optimization to 
 	// check and make sure we have at least a key/value
 	// separator character before we continue with this
 	// inefficient parser
-	if (!Appcelerator.Compiler.parameterSeparatorRE.test(str))
+	if (!Appcelerator.Compiler.parameterSeparatorRE.test(str) && !containsExpr)
 	{
 		if (asjson)
 		{
-			return {key:str,value:null};
+			var valueless_key = {};
+			valueless_key[str] = '';
+			return valueless_key;
 		}
 		else
 		{
-			return [{key:str,value:null}];
+			return [{key:str,value:'',empty:true}];
 		}
 	}
 	var state = 0;
@@ -11023,12 +14029,113 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 	var key = null;
 	var data = asjson ? {} : [];
 	var quotedStart = false, tickStart = false;
-
+	var operator = null;
+	var expressions = containsExpr ? {} : null;
+	if (containsExpr)
+	{
+		var expressionExtractor = function(e)
+		{
+			var start = e.indexOf('expr(');
+			if (start < 0) return null;
+			var p = start + 5;
+			var end = e.length-1;
+			var value = '';
+			while ( true )
+			{
+				var idx = e.indexOf(')',p);
+				if (idx < 0) break;
+				value+=e.substring(p,idx);
+				if (idx == e.length-1)
+				{
+					end = idx+1;
+					break;
+				}
+				var b = false;
+				var x = idx + 1;
+				for (;x<e.length;x++)
+				{
+					switch(e.charAt(x))
+					{
+						case ',':
+						{
+							end = x;
+							b = true;
+							break;
+						}
+						case ' ':
+						{
+							break;
+						}
+						default:
+						{
+							p = idx+1;
+							break;
+						}
+					}
+				}
+				if (x==e.length-1)
+				{
+					end = x;
+					break;
+				}
+				if (b) break;
+				value+=')';
+			}
+			var fullexpr = e.substring(start,end);
+			return [fullexpr,value];
+		};
+		
+		var ec = 0;
+		while(true)
+		{
+			var m = expressionExtractor(str);
+			if (!m)
+			{
+				break;
+			}
+			var k = '__E__'+(ec++);
+			expressions[k] = m[1];
+			str = str.replace(m[0],k);
+		}
+	}
+	
+	function transformValue(k,v,tick)
+	{
+		if (k && k.startsWith('__E__'))
+		{
+			if (!asjson)
+			{
+				return {key:expressions[k],value:v,keyExpression:true,valueExpression:false};
+			}
+			else
+			{
+				return expressions[k];
+			}
+		}
+		if (v && v.startsWith('__E__'))
+		{
+			if (!asjson)
+			{
+				return {key:k,value:expressions[v],valueExpression:true,keyExpression:false};
+			}
+			else
+			{
+				return expressions[v];
+			}
+		}
+		var s = Appcelerator.Compiler.decodeParameterValue(v,tick);
+		if (!asjson)
+		{
+			return {key:k,value:s};
+		}
+		return s;
+	}
+	
 	for (var c=0,len=str.length;c<len;c++)
 	{
 		var ch = str.charAt(c);
 		var append = true;
-
+		
 		switch (ch)
 		{
 			case '"':
@@ -11082,11 +14189,11 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 							append = false;
 							if (asjson)
 							{
-								data[key]=Appcelerator.Compiler.decodeParameterValue(currentstr,quotedStart||tickStart);
+								data[key]=transformValue(key,currentstr,quotedStart||tickStart);
 							}
 							else
 							{
-								data.push({key:key,value:Appcelerator.Compiler.decodeParameterValue(currentstr,quotedStart||tickStart)});
+								data.push(transformValue(key,currentstr,quotedStart||tickStart));
 							}
 							key = null;
 							quotedStart = false, tickStart = false;
@@ -11097,9 +14204,20 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 				}
 				break;
 			}
+			case '>':
+			case '<':
 			case '=':
 			case ':':
 			{
+				if (state == STATE_LOOKING_FOR_VARIABLE_END)
+				{
+					if (ch == '<' || ch == '>')
+					{
+						key = currentstr.trim();
+						currentstr = '';
+						state = STATE_LOOKING_FOR_VARIABLE_VALUE_MARKER;
+					}
+				}
 				switch (state)
 				{
 					case STATE_LOOKING_FOR_VARIABLE_END:
@@ -11108,12 +14226,14 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 						state = STATE_LOOKING_FOR_VALUE_BEGIN;
 						key = currentstr.trim();
 						currentstr = '';
+						operator = ch;
 						break;
 					}
 					case STATE_LOOKING_FOR_VARIABLE_VALUE_MARKER:
 					{
 						append = false;
 						state = STATE_LOOKING_FOR_VALUE_BEGIN;
+						operator = ch;
 						break;
 					}
 				}
@@ -11129,6 +14249,28 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 						state = STATE_LOOKING_FOR_VARIABLE_BEGIN;
 						break;
 					}
+					case STATE_LOOKING_FOR_VARIABLE_END:
+					{
+						// we got to the end (single parameter with no value)
+						state=STATE_LOOKING_FOR_VARIABLE_BEGIN;
+						append=false;
+						if (asjson)
+						{
+							data[currentstr]=null;
+						}
+						else
+						{
+							var entry = transformValue(key,currentstr);
+							entry.operator = operator;
+							entry.key = entry.value;
+							entry.empty = true;
+							data.push(entry);
+						}
+						key = null;
+						quotedStart = false, tickStart = false;
+						currentstr = '';
+						break;
+					}
 					case STATE_LOOKING_FOR_VALUE_END:
 					{
 						if (!quotedStart && !tickStart)
@@ -11137,11 +14279,13 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 							append = false;
 							if (asjson)
 							{
-								data[key]=Appcelerator.Compiler.decodeParameterValue(currentstr,quotedStart||tickStart);
+								data[key]=transformValue(key,currentstr,quotedStart||tickStart);
 							}
 							else
 							{
-								data.push({key:key,value:Appcelerator.Compiler.decodeParameterValue(currentstr,quotedStart||tickStart)});
+								var entry = transformValue(key,currentstr);
+								entry.operator = operator;
+								data.push(entry);
 							}
 							key = null;
 							quotedStart = false, tickStart = false;
@@ -11183,11 +14327,13 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 					currentstr+='}';
 					if (asjson)
 					{
-						data[key]=Appcelerator.Compiler.decodeParameterValue(currentstr,quotedStart||tickStart);
+						data[key]=transformValue(key,currentstr,quotedStart||tickStart);
 					}
 					else
 					{
-						data.push({key:key,value:Appcelerator.Compiler.decodeParameterValue(currentstr,quotedStart||tickStart)});
+						var entry = transformValue(key,currentstr);
+						entry.operator = operator;
+						data.push(entry);
 					}
 					key = null;
 					quotedStart = false, tickStart = false;
@@ -11222,29 +14368,48 @@ Appcelerator.Compiler.getParameters = function(str,asjson)
 			currentstr = currentstr.strip();
 			if (asjson)
 			{
-				data[key]=Appcelerator.Compiler.decodeParameterValue(currentstr,quotedStart||tickStart);
+				data[key]=transformValue(key,currentstr,quotedStart||tickStart);
 			}
 			else
 			{
-				data.push({key:key,value:Appcelerator.Compiler.decodeParameterValue(currentstr,quotedStart||tickStart)});
+				var entry = transformValue(key,currentstr);
+				entry.operator = operator;
+				data.push(entry);
 			}
 		}
 	}
 
+	if (currentstr && !key)
+	{
+		if (asjson)
+		{
+			data[key]=null;
+		}
+		else
+		{
+			var entry = transformValue(key,currentstr);
+			entry.empty = true;
+			entry.key = entry.value;
+			entry.operator = operator;
+			data.push(entry);
+		}
+	}
+	// alert('=>'+Object.toJSON(data));
 	return data;
 };
 
+
 /**
  * potentially delay execution of function if delay argument is specified
- * 
+ *
  * @param {function} action to execute
  * @param {integer} delay value to execute in ms
  * @param {object} scope to invoke function in
  */
 Appcelerator.Compiler.executeAfter = function(action,delay,scope)
-{	
-	var f = (scope!=null) ? function() { action.call(scope); } : action;
-	
+{
+	var f = (scope!=null) ? function() { action(scope); } : action;
+
 	if (delay > 0)
 	{
 		f.delay(delay/1000);
@@ -11264,81 +14429,18 @@ Appcelerator.Compiler.executeAfter = function(action,delay,scope)
  */
 Appcelerator.Compiler.handleElementException = function(element,e,context)
 {
-	var makeDiv = false;
-	
-	if (!element)
-	{
-		var id = Appcelerator.Compiler.generateId();
-		new Insertion.Bottom(document.body,'<div id="'+id+'"></div>');
-		makeDiv = true;
-		element = $(id);
-	}
-	
 	var tag = element ? Appcelerator.Compiler.getTagname(element) : document.body;
-
-	var msg = '<strong>Appcelerator Processing Error:</strong><div>Element ['+tag+'] ith ID: '+(element.id||element)+' has an exception: <div>'+Object.getExceptionDetail(e,true)+'</div><div>in <code>'+(context||'unknown')+'</code></div></div>';
+	var msg = '<strong>Appcelerator Processing Error:</strong><div>Element ['+tag+'] with ID: '+(element.id||element)+' has an error: <div>'+Object.getExceptionDetail(e,true)+'</div>' + (context ? '<div>in <pre>'+context+'</pre></div>' : '') + '</div>';
 	$E(msg);
-
-	switch (tag)
+	if (tag == 'IMG')
 	{
-		case 'input':
-		case 'textbox':
-		{
-			element.value = element.id;
-			makeDiv=true;
-			break;
-		}
-		case 'select':
-		{
-			element.options.length = 0;
-			element.options[0]=new Option(element.id,element.id);
-			makeDiv=true;
-			break;
-		}
-		case 'img':
-		{
-			element.src = Appcelerator.ImagePath + '/warning.png';
-			makeDiv=true;
-			break;
-		}
-		case 'a':
-		{
-			Appcelerator.Compiler.setHTML(element,element.id);
-			makeDiv=true;
-			break;
-		}
-		case 'script':
-		{
-			makeDiv=true;
-			break;
-		}
+		new Insertion.Before(element,msg);
 	}
-	
-	if (tag.indexOf(':')>0)
+	else
 	{
-		makeDiv=true;
+		element.innerHTML = '<div style="border:4px solid #777;padding:30px;background-color:#fff;color:#e00;font-family:sans-serif;font-size:18px;margin-left:20px;margin-right:20px;margin-top:100px;text-align:center;">' + msg + '</div>'
 	}
-
-	if (makeDiv)
-	{
-		Element.remove(element);
-		var id = Appcelerator.Compiler.generateId();
-		new Insertion.Top(document.body,'<div style="2px dotted #900"><img src="'+Appcelerator.ImagePath+'warning.png"/> <span id="'+id+'"></span></div>');
-		element = $(id);
-		var p = element.parentNode;
-        p.style.font='auto';
-		p.style.display='block';
-		p.style.visibility='visible';
-		p.style.color='black';
-		p.style.margin='0px auto';
-		p.style.padding='5px';
-		p.style.border='1px solid #c00';
-		p.style.zIndex='9999';
-		p.style.opacity='1.0';
-		p.style.backgroundColor='#fcc';
-	}
-	
-	Appcelerator.Compiler.setHTML(element,msg);
+	Element.show(element);
 };
 
 Appcelerator.Compiler.fieldSets = {};
@@ -11348,12 +14450,14 @@ Appcelerator.Compiler.fieldSets = {};
  *
  * @param {element} element to add to fieldset
  * @param {boolean} excludeself
+ * @param {string}  optional name for the fieldset, overrides attribute on element
+ *
  * @return {string} fieldset name or null if none found
- */ 
-Appcelerator.Compiler.addFieldSet = function(element,excludeSelf)
+ */
+Appcelerator.Compiler.addFieldSet = function(element,excludeSelf,fieldsetName)
 {
 	excludeSelf = (excludeSelf==null) ? false : excludeSelf;
-	var fieldsetName = element.getAttribute('fieldset');
+	fieldsetName = fieldsetName || element.getAttribute('fieldset');
 	if (fieldsetName)
 	{
 		var fieldset = Appcelerator.Compiler.fieldSets[fieldsetName];
@@ -11364,7 +14468,7 @@ Appcelerator.Compiler.addFieldSet = function(element,excludeSelf)
 		}
 		if (false == excludeSelf)
 		{
-			$D('adding = '+element.id+' to field = '+fieldsetName+', values='+Object.toJSON(fieldset));
+			$D('adding = ',element.id,' to field = ',fieldsetName,', values=',fieldset);
 			fieldset.push(element.id);
 		}
 		return fieldset;
@@ -11372,7 +14476,211 @@ Appcelerator.Compiler.addFieldSet = function(element,excludeSelf)
 	return null;
 };
 
-Appcelerator.Compiler.CSSAttributes = 
+Appcelerator.Compiler.removeFieldSet = function(element)
+{
+	var fieldsetName = element.getAttribute('fieldset');
+	if (fieldsetName)
+	{
+		var fieldset = Appcelerator.Compiler.fieldSets[fieldsetName];
+		if (fieldset)
+		{
+			fieldset.remove(element.id);
+		}
+	}
+};
+
+Appcelerator.Compiler.updateFieldsetValues = function(fieldset, values, key)
+{
+	var data = Object.getNestedProperty(values, key, null);
+	if (!data)
+	{
+		data = values;
+	}
+
+	if (fieldset)
+	{
+		var fields = Appcelerator.Compiler.fieldSets[fieldset];
+		if (fields && fields.length > 0)
+		{
+			for (var c=0,len=fields.length;c<len;c++)
+			{
+				var fieldid = fields[c];
+				var field = $(fieldid);
+				var name = field.name || field.getAttribute('name') || fieldid;
+				var val = Object.getNestedProperty(data, name, null);
+				if (val != null)
+				{
+					Appcelerator.Compiler.setElementValue(field, val);
+				}
+			}
+		}
+	}
+}
+
+Appcelerator.Compiler.setElementValue = function (element, value)
+{
+    var revalidate = false;
+    var fireChange = false;
+
+    if (element && value != null)
+    {
+        var widget = element.widget;
+        if (widget)
+        {
+            if (widget.setValue)
+            {
+                try
+                {
+                    widget.setValue(element.id, element.widgetParameters, value);
+                }
+                catch(e)
+                {
+                    $E(e);
+                }
+            }
+        }
+        else
+        {
+            switch (Appcelerator.Compiler.getTagname(element))
+            {
+                case 'input':
+                {
+                    var type = element.getAttribute('type') || 'text';
+                    switch (type)
+                    {
+                        case 'password':
+                        case 'hidden':
+                        case 'text':
+                        {
+                            revalidate = true;
+                            element.value = value;
+                            break;
+                        }
+                        case 'button':
+                        case 'submit':
+                        {
+                            element.value = value;
+                            break;
+                        }
+                        case 'checkbox':
+                        {
+                            revalidate = true;
+                            if (value == true || value == 'true')
+                            {
+                                element.checked = true;
+                            }
+                            else
+                            {
+                                element.checked = false;
+                            }
+                            break;
+                        }
+                        case 'radio':
+                        {
+                            revalidate = true;
+                            if (value == element.getAttribute('value'))
+                            {
+                                element.checked = true;
+                            }
+                            else
+                            {
+                                element.checked = false;
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case 'textarea':
+                {
+                    revalidate = true;
+                    element.value = value;
+                    break;
+                }
+                case 'select':
+                {
+                    if(element.hasAttribute('multiple'))
+                    {
+                        var values = Appcelerator.Util.makeSet(value)
+                        var options = element.options;
+                        for (var i = 0; i < options.length; i++)
+                        {
+                            var option = options[i];
+                            if (values[option.value])
+                            {
+                                if(!option.selected)
+                                {
+                                    option.selected = true;
+                                    fireChange = true;
+                                    revalidate = true;
+                                }
+                                // else ignore, already selected
+                            }
+                            else
+                            {
+                                if(option.selected)
+                                {
+                                    option.selected = false;
+                                    fireChange = true;
+                                    revalidate = true;
+                                }
+                                // else ignore, already un-selected
+                            }
+                        }                        
+                    }
+                    else
+                    {
+                        var options = element.options;
+
+                        for (var i = 0; i < options.length; i++)
+                        {
+                            if (options[i].value == value)
+                            {
+                                element.selectedIndex = i;
+                                fireChange = true;
+                                revalidate = true;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
+                case 'a':
+                {
+                    element.href = value;
+                    break;
+                }
+                case 'img':
+                case 'iframe':
+                {
+                    element.src = value;
+                    break;
+                }
+                default:
+                {
+                    element.innerHTML = value;
+                    break;
+                }
+            }
+        }
+    }
+
+    if(fireChange)
+    {
+        try {
+            Event.cache[element._eventID]['change'][0]({});
+        } catch(e) {
+            $D('failed to fire change listener for element: '+element.id);
+        }
+    }
+
+    if (revalidate)
+    {
+        Appcelerator.Compiler.executeFunction(element, "revalidate");
+    }
+}
+
+Appcelerator.Compiler.CSSAttributes =
 [
 	'color',
 	'cursor',
@@ -11418,14 +14726,14 @@ Appcelerator.Compiler.CSSAttributes =
 Appcelerator.Compiler.isCSSAttribute = function (name)
 {
 	if (name == 'style') return true;
-	
+
 	for (var c=0,len=Appcelerator.Compiler.CSSAttributes.length;c<len;c++)
 	{
 		if (Appcelerator.Compiler.CSSAttributes[c] == name)
 		{
 			return true;
 		}
-		
+
 		var css = Appcelerator.Compiler.CSSAttributes[c];
 		var index = css.indexOf('-');
 		if (index > 0)
@@ -11459,7 +14767,7 @@ Appcelerator.Compiler.convertCSSAttribute = function (css)
 Appcelerator.Util.ServerConfig.addConfigListener(function()
 {
     if (Appcelerator.Compiler.compileOnLoad)
-	{		
+	{
         var outputHandler = Prototype.K;
         Appcelerator.Compiler.compileDocument(outputHandler);
 	}
@@ -11468,19 +14776,18 @@ Appcelerator.Util.ServerConfig.addConfigListener(function()
 
 Appcelerator.Compiler.setHTML = function(element,html)
 {
-	$(element).update(html);
-	if (Appcelerator.Browser.isIE6) Appcelerator.Browser.fixImageIssues.defer();
+	$(element).innerHTML = html;
 };
 
 
 /**
  * attach a method which can dynamically compile an expression passed in
  * for a given element. this allows a more unobstrutive or standards based
- * approach for purists such as 
+ * approach for purists such as
  *
  * $('myelement').on('click then l:foo')
  */
-var AppceleratorCompilerMethods = 
+var AppceleratorCompilerMethods =
 {
     on: function(re,webexpr,parameters)
     {
@@ -11526,12 +14833,70 @@ Object.extend(Array.prototype,
         }
         return this;
     },
-	
+
 	withoutAll:function(vals)
 	{
 		return this.without.apply(this, vals);
 	}
 });
+
+
+Appcelerator.Compiler.macros = {};
+Appcelerator.Compiler.macroRE = /(#[A-Za-z0-9_-]+(\[(.*)?\])?)/;
+
+Appcelerator.Compiler.processMacros = function(expression,id,scope)
+{
+	return expression.gsub(Appcelerator.Compiler.macroRE,function(match)
+	{
+		var expr = match[0].substring(1);
+		var key = expr;
+		var idx1 = key.indexOf('[');
+		var idx2 = idx1 > 0 ? key.lastIndexOf(']') : -1;
+		if (idx1>0 && idx2>0)
+		{
+			key = key.substring(0,idx1);
+		}
+		var template = Appcelerator.Compiler.macros[key];
+		if (template)
+		{
+			scope = scope || {};
+
+			if (idx1>0 && idx2>0)
+			{
+				var options = expr.substring(idx1+1,idx2);
+				options.split(',').each(function(p)
+				{
+					var tok = p.split('=');
+					scope[tok[0].trim()]=tok[1].trim();
+				});
+			}
+			if (id)
+			{
+				var idvalue = scope['id'];
+				if (Object.isUndefined(idvalue))
+				{
+					scope['id'] = id;
+				}
+			}
+			// recursive in case you reference a macro in a macro
+			return Appcelerator.Compiler.processMacros(template(scope),id,scope);
+		}
+		return match[0];
+	});
+};
+
+function $WEM(config)
+{
+	for (var name in config)
+	{
+		var value = config[name];
+		if (Object.isString(value))
+		{
+			Appcelerator.Compiler.macros[name]=Appcelerator.Compiler.compileTemplate(value);
+		}
+	}
+};
+
 
 
 /**
@@ -11808,6 +15173,10 @@ Appcelerator.Util.Dom =
                     }
                     
                     var attr = String.escapeXML(item.value);
+					if (Object.isUndefined(attr) || (!attr && nodeName=='input' && item.name == 'value'))
+					{
+						attr = '';
+					}
                     xml.push(" " + item.name + "=\"" + attr + "\"");
                     x++;
                 }
@@ -12055,38 +15424,45 @@ Appcelerator.Util.Cookie =
     }
 };    
 
-if (window.location.protocol!='file:')
+Appcelerator.Core.onload(function()
 {
-	(function()
-	{
-		if (Appcelerator.Config['cookie_check'])
-		{
-			Appcelerator.Util.Cookie.SetCookie('CookieCheck','1');
-			var cookie = Appcelerator.Util.Cookie.GetCookie('CookieCheck');
-			if (!cookie)
-			{
-			   // cookies not working
-			   window.location = Appcelerator.DocumentPath + 'upgrade_cookies.html';
-			}
-			else
-			{
-			   // just delete it
-			   Appcelerator.Util.Cookie.DeleteCookie('CookieCheck');
-			}
-		}
-	})();
-}	
-Appcelerator.Util.ServiceBroker = 
+    Appcelerator.Util.ServerConfig.addConfigListener(function()
+    {
+        if (window.location.protocol!='file:')
+        {
+        	(function()
+        	{
+        		if (Appcelerator.Config['cookie_check'])
+        		{
+        			Appcelerator.Util.Cookie.SetCookie('CookieCheck','1');
+        			var cookie = Appcelerator.Util.Cookie.GetCookie('CookieCheck');
+        			if (!cookie)
+        			{
+        			   // cookies not working
+        			   window.location = Appcelerator.DocumentPath + 'upgrade_cookies.html';
+        			}
+        			else
+        			{
+        			   // just delete it
+        			   Appcelerator.Util.Cookie.DeleteCookie('CookieCheck');
+        			}
+        		}
+        	})();
+        }
+    });
+});Appcelerator.Util.ServiceBroker = 
 {
     DEBUG:false,
     init:false,
-    instanceid:Appcelerator.instanceid,
+    // this is a randomly generated id used to identify all messages from a page
+    instanceid: Appcelerator.instanceid,
+    // this default location is overwritten by values in appcelerator.xml
     serverPath: Appcelerator.DocumentPath + "servicebroker",
     interceptors: [],
     messageQueue: [],
-	localMessageQueue: [],
-	localTimer: null,
-	localTimerPoll: 10,
+    localMessageQueue: [],
+    localTimer: null,
+    localTimerPoll: 10,
     initQueue:[],
     timer: null,
     time: null,
@@ -12098,11 +15474,11 @@ Appcelerator.Util.ServiceBroker =
     localPatternListeners: [],
     remotePatternListeners: [],
     devmode: (window.location.href.indexOf('devmode=1') > 0),
-    disabled: this.devmode || (window.location.href.indexOf('file:/') == 0) || Appcelerator.Parameters.get('mbDisabled')=='1',
-	remoteDisabled: this.disabled || Appcelerator.Parameters.get('remoteDisabled')=='1',
-	marshaller:'xml/json',
-	transport:'appcelerator',
-	multiplex:true,
+    disabled: this.devmode || (window.location.href.indexOf('file:/') != -1) || Appcelerator.Parameters.get('mbDisabled')=='1',
+    remoteDisabled: this.disabled || Appcelerator.Parameters.get('remoteDisabled')=='1',
+    marshaller:'xml/json',
+    transport:'appcelerator',
+    multiplex:true,
 
     toString: function ()
     {
@@ -12111,7 +15487,7 @@ Appcelerator.Util.ServiceBroker =
 
     addInterceptor: function (interceptor)
     {
-     	$D(this.toString() + ' Adding interceptor: ' + interceptor);
+         $D(this.toString() + ' Adding interceptor: ' + interceptor);
         this.interceptors.push(interceptor);
     },
 
@@ -12121,12 +15497,13 @@ Appcelerator.Util.ServiceBroker =
         this.interceptors.remove(interceptor);
     },
 
-	convertType: function (t)
-	{
-		if (t.startsWith('l:')) return t.replace(/^l:/,'local:');
-		if (t.startsWith('r:')) return t.replace(/^r:/,'remote:');
-		return t;
-	},
+    convertType: function (t)
+    {
+        if (t.startsWith('l:')) return 'local:'+t.substring(2);
+        if (t.startsWith('r:')) return 'remote:'+t.substring(2);
+        if (t.startsWith('*:')) return 'both:'+t.substring(2);
+        return t;
+    },
 
     addListenerByType: function (t, callback)
     {
@@ -12265,149 +15642,152 @@ Appcelerator.Util.ServiceBroker =
     },
     triggerComplete:function()
     {
-    	this.compileComplete = true;
-    	this.runInitQueue();
-		this.startLocalTimer();
+        this.compileComplete = true;
+        this.runInitQueue();
+        this.startLocalTimer();
     },
     triggerConfig:function()
     {
-    	this.configComplete = true;
-    	this.runInitQueue();
+        this.configComplete = true;
+        this.runInitQueue();
     },
     runInitQueue:function()
     {
-    	// we need both of these conditions to be true before we can complete initialization
-    	if (this.compileComplete && this.configComplete)
-    	{
-    		this.init = true;
-	    	if (this.initQueue && this.initQueue.length > 0)
-	    	{
-	    		for (var c=0;c<this.initQueue.length;c++)
-	    		{
-	    			this.queue(this.initQueue[c][0],this.initQueue[c][1]);
-	    		}
-	    		this.initQueue = null;
-	    	}
-    	}
+        // we need both of these conditions to be true before we can complete initialization
+        if (this.compileComplete && this.configComplete)
+        {
+            this.init = true;
+            if (this.initQueue && this.initQueue.length > 0)
+            {
+                for (var c=0;c<this.initQueue.length;c++)
+                {
+                    this.queue(this.initQueue[c][0],this.initQueue[c][1]);
+                }
+                this.initQueue = null;
+            }
+        }
     },
-	/**
-	 * enqueue an event into the broker
-	 *
-	 * the msg must contain a 'type' property
-	 * which is in the format:
-	 *
-	 * [destination:message_type]
-	 *
-	 * where destination is either:
-	 *
-	 * local - deliver the message to client listeners (don't go to the server)
-	 * remote - deliver the message to the server
-	 *
-	 *
-	 * callback is an optional method to be called if the server responds with
-	 * the same requestid
-	 */
-	queue: function (msg, callback)
+    /**
+     * enqueue an event into the broker
+     *
+     * the msg must contain a 'type' property
+     * which is in the format:
+     *
+     * [destination:message_type]
+     *
+     * where destination is either:
+     *
+     * local - deliver the message to client listeners (don't go to the server)
+     * remote - deliver the message to the server
+     *
+     *
+     */
+    queue: function (msg, callback)
+    {
+        if (!Appcelerator.Util.ServiceBroker.init)
+        {
+            $D(msg.type+' will be queued, not yet initialized');
+            this.initQueue.push([msg,callback]);
+            return;
+        }
+
+        var type = msg['type'];
+
+        if (!type)
+        {
+            throw "type must be specified on the message";
+        }
+
+        type = this.convertType(type);
+
+        var scope = msg['scope'] || 'appcelerator';
+        var version = msg['version'] || '1.0';
+
+        // let the interceptors have at it
+        if (this.interceptors.length > 0)
+        {
+            var send = true;
+            for (var c = 0, len = this.interceptors.length; c < len; c++)
+            {
+                var interceptor = this.interceptors[c];
+                var func = interceptor['interceptQueue'];
+                if (func)
+                {
+                    var result = func.apply(interceptor, [msg,callback,type,scope,version]);
+                    if (this.DEBUG) $D(self.toString() + ' Invoked interceptor: ' + interceptor + ', returned: ' + result + ' for message: ' + type);
+                    if (result != null && !result)
+                    {
+                        send = false;
+                        break;
+                    }
+                }
+            }
+
+            if (!send)
+            {
+                // allow the interceptor the ability to squash it
+                $D(this + ' interceptor squashed event: ' + msg['type']);
+                return;
+            }
+        }
+
+        var a = type.indexOf(':');
+
+        var dest = a != -1 ? type.substring(0, a) : 'local';
+        var name = a != -1 ? type.substring(a + 1) : type;
+
+        // replace the destination
+        msg['type'] = name;
+
+        var data = (msg['data']) ? msg['data'] : {};
+
+        if(Logger.debugEnabled)
+        {
+            var json = null;
+            switch (typeof(data))
+            {
+                case 'object':
+                case 'array':
+                json = Object.toJSON(data);
+                break;
+                default:
+                json = data.toString();
+                break;
+            }
+            $D(this + ' message queued: ' + name + ', data: ' + json+', version: '+version+', scope: '+scope);
+        }
+
+        this.localMessageQueue.push([name,data,dest,scope,version]);
+
+        if(dest == 'remote')
+        {
+            // send remote
+            if (this.messageQueue)
+            {
+                // in devmode, we don't actually send remote events
+                if (!this.devmode && !this.remoteDisabled)
+                {
+					this.queueRemote(msg,callback,scope,version);
+                }
+            }
+            else
+            {
+                $E(this + ' message:' + name + " ignored since we don't have a messageQueue!");
+            }
+        }
+    },
+    queueRemote:function(msg,callback,scope,version)
 	{
-		if (!Appcelerator.Util.ServiceBroker.init)
-		{
-			$D(msg.type+' will be queued, not yet initialized');
-			this.initQueue.push([msg,callback]);
-			return;
-		}
+        // place in the outbound message queue for delivery
+        this.messageQueue.push([msg,callback,scope,version]);
 
-		var type = msg['type'];
-
-		if (!type)
-		{
-			throw "type must be specified on the message";
-		}
-
-		type = this.convertType(type);
-
-		var scope = msg['scope'] || 'appcelerator';
-		var version = msg['version'] || '1.0';
-
-		// let the interceptors have at it
-		if (this.interceptors.length > 0)
-		{
-			var send = true;
-			for (var c = 0, len = this.interceptors.length; c < len; c++)
-			{
-				var interceptor = this.interceptors[c];
-				var func = interceptor['interceptQueue'];
-				if (func)
-				{
-					var result = func.apply(interceptor, [msg,callback,type,scope,version]);
-					if (this.DEBUG) $D(self.toString() + ' Invoked interceptor: ' + interceptor + ', returned: ' + result + ' for message: ' + type);
-					if (result != null && !result)
-					{
-						send = false;
-						break;
-					}
-				}
-			}
-
-			if (!send)
-			{
-				// allow the interceptor the ability to squash it
-				$D(this + ' interceptor squashed event: ' + msg['type']);
-				return;
-			}
-		}
-
-		var a = type.indexOf(':');
-
-		var dest = a != -1 ? type.substring(0, a) : 'local';
-		var name = a != -1 ? type.substring(a + 1) : type;
-
-		// replace the destination
-		msg['type'] = name;
-
-		var data = (msg['data']) ? msg['data'] : {};
-
-		if(Logger.debugEnabled)
-		{
-			var json = null;
-			switch (typeof(data))
-			{
-				case 'object':
-				case 'array':
-				json = Object.toJSON(data);
-				break;
-				default:
-				json = data.toString();
-				break;
-			}
-			$D(this + ' message queued: ' + name + ', data: ' + json+', version: '+version+', scope: '+scope);
-		}
-
-		if(dest == 'remote')
-		{
-			// send remote
-			if (this.messageQueue)
-			{
-				// in devmode, we don't actually send remote events
-				if (!this.devmode && !this.remoteDisabled)
-				{
-					// place in the outbound message queue for delivery
-					this.messageQueue.push([msg,callback,scope,version]);
-
-					// the remote message can be forced to be sent immediate
-					// by setting this property, otherwise, it will be queued
-					this.startTimer(msg['immediate'] || false);
-				}
-			}
-			else
-			{
-				$E(this + ' message:' + name + " ignored since we don't have a messageQueue!");
-			}
-		}
-		this.localMessageQueue.push([name,data,dest,scope,version]);
+        // the remote message can be forced to be sent immediate
+        // by setting this property, otherwise, it will be queued
+        this.startTimer(msg['immediate'] || false);
 	},
     dispatch: function (msg)
     {
-		var requestid = msg.requestid;
+        var requestid = msg.requestid;
         var type = msg.type;
         var datatype = msg.datatype;
         var scope = msg.scope;
@@ -12438,7 +15818,7 @@ Appcelerator.Util.ServiceBroker =
                 return;
             }
         }
-		var stat = Appcelerator.Util.Performance.createStat();
+        var stat = Appcelerator.Util.Performance.logStats ? Appcelerator.Util.Performance.createStat() : null;
 
         var array = this.remoteDirectListeners[type];
         if (array && array.length > 0)
@@ -12461,8 +15841,7 @@ Appcelerator.Util.ServiceBroker =
                 }
             }
         }
-		Appcelerator.Util.Performance.endStat(stat,type,"remote");
-
+		if (Appcelerator.Util.Performance.logStats) Appcelerator.Util.Performance.endStat(stat,type,"remote");
     },
     sendToListener: function (listener, type, msg, datatype, from, scope)
     {
@@ -12473,7 +15852,7 @@ Appcelerator.Util.ServiceBroker =
             for (var c = 0, len = this.interceptors.length; c < len; c++)
             {
                 var interceptor = this.interceptors[c];
-                var func = interceptor['interceptSendToListener'];
+                var func = interceptor.interceptSendToListener;
                 if (func)
                 {
                     var result = func.apply(interceptor, [listener,type,msg,datatype,from,scope]);
@@ -12495,32 +15874,33 @@ Appcelerator.Util.ServiceBroker =
         //
         // check the scope function before we continue
         //
-        var scopeCheckFunc = listener['acceptScope'];
+        var scopeCheckFunc = listener.acceptScope;
         if (scopeCheckFunc)
         {
-        	if (!scopeCheckFunc(scope))
-        	{
-        		return;
-        	}
+            if (!scopeCheckFunc(scope))
+            {
+                return;
+            }
         }
         
         $D(this.toString() + ' forwarding ' + type + ' to ' + listener + ', direction:' + from + ', datatype:' + datatype + ', data: ' + msg);
-		var stat = Appcelerator.Util.Performance.createStat();
         try
         {
-            listener['onMessage'].apply(listener, [type,msg,datatype,from,scope]);
+            listener.onMessage.apply(listener, [type,msg,datatype,from,scope]);
         }
         catch (e)
         {
             $E("Unhandled Exception dispatching:" + type + ", " + msg + ", to listener:" + listener + ", " + Object.getExceptionDetail(e));
         }
-		Appcelerator.Util.Performance.endStat(stat,type,from);
         return true;
     },
 
-    XML_REGEXP: /^<(.*)>$/,
+    flush: function()
+    {
+        this.deliver(false,true);
+    },
 
-    deliver: function (initialrequest)
+    deliver: function (initialrequest, synchronous)
     {
         if (this.messageQueue == null)
         {
@@ -12529,79 +15909,80 @@ Appcelerator.Util.ServiceBroker =
             $E(this.toString()+', deliver called but no message queue');
             return;
         }
-		if (this.remoteDisabled)
-		{
-			// remote disabled
+        if (this.remoteDisabled)
+        {
+            // remote disabled
             return;
-		}
+        }
 
-		// get the marshaller to use
-		var marshaller = Appcelerator.Util.ServiceBrokerMarshaller[this.marshaller];
-		if (!marshaller)
-		{
-			$E(this+' - no marshaller defined, will not send message to remote endpoint');
-			this.remoteDisabled = true;
-			return;
-		}
-		var transportHandler = Appcelerator.Util.ServiceBrokerTransportHandler[this.transport];
-		if (!transportHandler)
-		{
-			$E(this+' - no transport handler defined, will not send message to remote endpoint');
-			this.remoteDisabled = true;
-			return;
-		}
-		
-		this.fetching = true;
-		
-		var payloadObj = marshaller.serialize(this.messageQueue,this.multiplex);
-		var payload = payloadObj.postBody;
-		var contentType = payloadObj.contentType;
-	
-		var instructions = transportHandler.prepare(this,initialrequest,payload,contentType);
+        // get the marshaller to use
+        var marshaller = Appcelerator.Util.ServiceBrokerMarshaller[this.marshaller];
+        if (!marshaller)
+        {
+            $E(this+' - no marshaller defined, will not send message to remote endpoint');
+            this.remoteDisabled = true;
+            return;
+        }
+        var transportHandler = Appcelerator.Util.ServiceBrokerTransportHandler[this.transport];
+        if (!transportHandler)
+        {
+            $E(this+' - no transport handler defined, will not send message to remote endpoint');
+            this.remoteDisabled = true;
+            return;
+        }
+        
+        this.fetching = true;
+        
+        var payloadObj = marshaller.serialize(this.messageQueue,this.multiplex);
+        var payload = payloadObj.postBody;
+        var contentType = payloadObj.contentType;
+    
+        var instructions = transportHandler.prepare(this,initialrequest,payload,contentType);
 
-		if (this.multiplex)
-		{
-			this.messageQueue.clear();
-		}
-		else
-		{
-			if (this.messageQueue.length > 0)
-			{
-				this.messageQueue.removeAt(0);
-			}
-		}
+        if (this.multiplex)
+        {
+            this.messageQueue.clear();
+        }
+        else
+        {
+            if (this.messageQueue.length > 0)
+            {
+                this.messageQueue.removeAt(0);
+            }
+        }
 
-		var url = instructions.url;
-		var method = instructions.method;
-		var postBody = instructions.postBody;
-		var contentType = instructions.contentType;
+        var url = instructions.url;
+        var method = instructions.method;
+        var postBody = instructions.postBody;
+        var contentType = instructions.contentType;
 
-		this.sendRequest(url,method,postBody,contentType,marshaller);
-		
-		if (!this.multiplex && this.messageQueue.length > 0)
-		{
-			this.deliver.defer();
-		}
-	},
-	sendRequest: function(url,method,body,contentType,marshaller,count)
-	{
-	    count = (count || 0) + 1;
-	    
-		if (count > 3)
-		{
-		  $E('failed to send request too many times to '+url);
-		  return;
-		}
+        this.sendRequest(url,method,postBody,contentType,marshaller,transportHandler,synchronous);
+        
+        if (!this.multiplex && this.messageQueue.length > 0)
+        {
+            this.deliver.defer();
+        }
+    },
+    sendRequest: function(url,method,body,contentType,marshaller,transportHandler,count,synchronous)
+    {
+        count = (count || 0) + 1;
+        
+        if (count > 3)
+        {
+          $E('failed to send request too many times to '+url);
+          return;
+        }
         var self = this;
-		
+        var pending = false;
+        
         new Ajax.Request(url,
         {
-            asynchronous: true,
+            asynchronous: !synchronous,
             method: method,
             postBody: body,
             contentType: contentType,
-			evalJSON:false,
-			evalJS:false,
+            evalJSON:false,
+            evalJS:false,
             onComplete: function()
             {
                 self.fetching = false;
@@ -12610,52 +15991,71 @@ Appcelerator.Util.ServiceBroker =
             {
                 (function()
                 {
-	                self.fetching = false;
-	                self.startTimer(false);
-	
-					if (result && result.status && result.status >= 200 && result.status < 300)
-					{
-	                    if (self.serverDown)
-	                    {
-	                        self.serverDown = false;
-	                        var downtime = new Date().getTime() - self.serverDownStarted;
-	                        if (Logger.infoEnabled) Logger.info('[' + Appcelerator.Util.DateTime.get12HourTime(new Date(), true, true) + '] ' + self.toString() + ' Server is UP at ' + self.serverPath);
-	                        self.queue({type:'local:appcelerator.servicebroker.server.up',data:{path:this.serverPath,downtime:downtime}});
-	                    }
+                    self.fetching = false;
+                    self.startTimer(false);
+    
+                    if (result && result.status && result.status >= 200 && result.status < 300)
+                    {
+                        if (self.serverDown)
+                        {
+                            self.serverDown = false;
+                            var downtime = new Date().getTime() - self.serverDownStarted;
+                            if (Logger.infoEnabled) Logger.info('[' + Appcelerator.Util.DateTime.get12HourTime(new Date(), true, true) + '] ' + self.toString() + ' Server is UP at ' + self.serverPath);
+                            self.queue({type:'local:appcelerator.servicebroker.server.up',data:{path:this.serverPath,downtime:downtime}});
+                        }
 
                         var cl = parseInt(result.getResponseHeader("Content-Length") || '1');
-						var contentType = result.getResponseHeader('Content-Type') || 'unknown';
-						
+                        var contentType = result.getResponseHeader('Content-Type') || 'unknown';
+                        
                         if (cl > 0)
                         {
-							var msgs = marshaller.deserialize(result,parseInt(cl),contentType);
-							if (msgs && msgs.length > 0)
-							{
-								for (var c=0;c<msgs.length;c++)
-								{
-		                            self.dispatch(msgs[c]);
-								}
-							}
-						}
-					}
+                            var msgs = marshaller.deserialize(result,parseInt(cl),contentType);
+                            if (msgs && msgs.length > 0)
+                            {
+                                for (var c=0;c<msgs.length;c++)
+                                {
+                                  self.localMessageQueue.push([msgs[c].type,msgs[c].data,'remote',msgs[c].scope,msgs[c].version||'1.0']);
+                                }
+                            }
+                        }
+                    }
                 }).defer();
             },
             onFailure: function (transport, json)
             {
-            	if (transport.status == 400)
-            	{
-                    var cl = transport.getResponseHeader("X-Failed-Retry");
-                    if (!cl)
+                //
+                // 400 in this case means security check failed
+                //
+                if (transport.status == 400)
+                {
+                    if (pending)
                     {
+                        self.queue({type:'l:appcelerator.servicebroker.failed',data:{}});
                         Logger.warn("Failed authentication");
-			  			return;
+                          return;
                     }
-            	}
-				if (transport.status == 406)
-				{
-			  		self.sendRequest(url,method,body,contentType,marshaller,count);
-					return;
-				}
+                    else
+                    {
+                        // we're going to retry on a 400 (authentication error) to resend
+                        // the request - in this case, we need to re-serialize/prepare the 
+                        // request again since most likely our cookie has changed and we need
+                        // to re-calculate the security token
+                        
+                        pending=true;
+                        
+                        var instructions = transportHandler.prepare(self,false,body,contentType);
+                        var newURL = instructions.url;
+
+                        // increment count as a failsafe guard to prevent this from happening too many times
+                        self.sendRequest(newURL,method,body,contentType,marshaller,transportHandler,count+1);
+                        return;
+                    }
+                }
+                if (transport.status == 406)
+                {
+                      self.sendRequest(url,method,body,contentType,marshaller,count);
+                    return;
+                }
                 self.fetching = false;
                 if (transport.status >= 500 || transport.status == 404)
                 {
@@ -12709,7 +16109,7 @@ Appcelerator.Util.ServiceBroker =
     destroy: function ()
     {
         this.cancelTimer();
-		this.cancelLocalTimer();
+        this.cancelLocalTimer();
         if (this.messageQueue) this.messageQueue.clear();
         if (this.localMessageQueue) this.localMessageQueue.clear();
         this.messageQueue = null;
@@ -12777,94 +16177,98 @@ Appcelerator.Util.ServiceBroker =
     },
 
     startLocalTimer: function ()
-    {		
-		this.localTimer = setInterval(function()
+    {        
+        this.localTimer = setInterval(function()
         {
-			var queue = this.localMessageQueue; 
-			if (queue && queue.length)
-			{
-				var message = queue[queue.length-1];
-				var name = message[0];
-				var data = message[1];
-				var dest = message[2];
-				var scope = message[3];
-				var version = message[4];
-				
-				switch (dest)
-				{
-					case 'remote':
-					{
-						var arraydirect = this.remoteDirectListeners[name];
-						var arraypattern = this.remotePatternListeners;
-						if (arraydirect)
-						{
-						    for (var c = 0, len = arraydirect.length; c < len; c++)
-						    {
-						        this.sendToListener(arraydirect[c], name, data, 'JSON', dest, scope, version);
-						    }
-						}
-						if (arraypattern)
-						{
-						    for (var c = 0, len = arraypattern.length; c < len; c++)
-						    {
-						        var entry = arraypattern[c];
-						        var listener = entry[0];
-						        var pattern = entry[1];
-						        if (pattern.test(name))
-						        {
-						            this.sendToListener(listener, name, data, 'JSON', dest, scope, version);
-						        }
-						    }
-						}
-						break;
-					}
-					case 'local':
-					{
-						arraydirect = this.localDirectListeners[name];
-						arraypattern = this.localPatternListeners;
-						if (arraydirect)
-						{
-						    for (var c = 0, len = arraydirect.length; c < len; c++)
-						    {
-						        this.sendToListener(arraydirect[c], name, data, 'JSON', dest, scope, version);
-						    }
-						}
-						if (arraypattern)
-						{
-						    for (var c = 0, len = arraypattern.length; c < len; c++)
-						    {
-						        var entry = arraypattern[c];
-						        var listener = entry[0];
-						        var pattern = entry[1];
-						        if (pattern.test(name))
-						        {
-						            this.sendToListener(listener, name, data, 'JSON', dest, scope, version);
-						        }
-						    }
-						}
-						break;
-					}
-				}
-				
-				queue.remove(message);
-			}
+            var queue = this.localMessageQueue; 
+            if (queue && queue.length > 0)
+            {
+                var message = queue[0];
+                var name = message[0];
+                var data = message[1];
+                var dest = message[2];
+                var scope = message[3];
+                var version = message[4];
+                var stat = Appcelerator.Util.Performance.logStats ? Appcelerator.Util.Performance.createStat() : null;
+
+                switch (dest)
+                {
+                    case 'remote':
+                    {
+                        var arraydirect = this.remoteDirectListeners[name];
+                        var arraypattern = this.remotePatternListeners;
+                        if (arraydirect)
+                        {
+                            for (var c = 0, len = arraydirect.length; c < len; c++)
+                            {
+                                this.sendToListener(arraydirect[c], name, data, 'JSON', dest, scope, version);
+                            }
+                        }
+                        if (arraypattern)
+                        {
+                            for (var c = 0, len = arraypattern.length; c < len; c++)
+                            {
+                                var entry = arraypattern[c];
+                                var listener = entry[0];
+                                var pattern = entry[1];
+                                if (pattern.test(name))
+                                {
+                                    this.sendToListener(listener, name, data, 'JSON', dest, scope, version);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    case 'local':
+                    {
+                        arraydirect = this.localDirectListeners[name];
+                        arraypattern = this.localPatternListeners;
+
+                        if (arraydirect)
+                        {
+                            for (var c = 0, len = arraydirect.length; c < len; c++)
+                            {
+                                this.sendToListener(arraydirect[c], name, data, 'JSON', dest, scope, version);
+                            }
+                        }
+                        if (arraypattern)
+                        {
+                            for (var c = 0, len = arraypattern.length; c < len; c++)
+                            {
+                                var entry = arraypattern[c];
+                                var listener = entry[0];
+                                var pattern = entry[1];
+                                if (pattern.test(name))
+                                {
+                                    this.sendToListener(listener, name, data, 'JSON', dest, scope, version);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                if (Appcelerator.Util.Performance.logStats) Appcelerator.Util.Performance.endStat(stat,name,dest);
+                
+                queue.remove(message);
+            }
         }.bind(this), this.localTimerPoll);
-	},
-	
+    },
+    
     startTimer: function (force)
     {
-    	if (!this.init)
-    	{
-    	  	// make sure we've initialized
-    	  	$D(this.toString()+' - startTimer called but not running yet');
-    		return;
-    	}
-    	
-    	if (this.disabled)
-    	{
-    		return;
-    	}
-    	
+        if (!this.init)
+        {
+              // make sure we've initialized
+              $D(this.toString()+' - startTimer called but not running yet');
+            return;
+        }
+        
+        if (this.disabled)
+        {
+            return;
+        }
+        
         // stop the existing timer
         this.cancelTimer();
 
@@ -12943,7 +16347,7 @@ Appcelerator.Util.ServiceBroker =
         }
         else
         {
-        	$E(toString() + ' startTimer called and we have no message queue');
+            $E(toString() + ' startTimer called and we have no message queue');
         }
     },
     maxWaitPollTime: 200,   /*how long to poll the message queue on the server */
@@ -12963,12 +16367,12 @@ Appcelerator.Util.ServiceBroker =
 //
 function $MQ (type,data,scope,version)
 {
-	Appcelerator.Util.ServiceBroker.queue({
-		type: type,
-		data: data || {},
-		scope: scope,
-		version: version || '1.0'
-	});
+    Appcelerator.Util.ServiceBroker.queue({
+        type: type,
+        data: data || {},
+        scope: scope,
+        version: version || '1.0'
+    });
 }
 
 //
@@ -12976,57 +16380,66 @@ function $MQ (type,data,scope,version)
 //
 function $MQL (type,f,myscope,element)
 {
-	var listener = 
-	{
-		accept: function ()
-		{
-			if (Object.isArray(type))
-			{
-				return type;
-			}
-			return [type];
-		},
-		acceptScope: function (scope)
-		{
-			if (myscope)
-			{
-				return myscope == '*' || scope == myscope;
-			}
-			return true;
-		},
-		onMessage: function (type,msg,datatype,from,scope)
-		{
-			try
-			{
-				f.apply(f,[type,msg,datatype,from,scope]);
-			}
+    var listener = 
+    {
+        accept: function ()
+        {
+            if (Object.isArray(type))
+            {
+                return type;
+            }
+            return [type];
+        },
+        acceptScope: function (scope)
+        {
+            if (myscope)
+            {
+                return myscope == '*' || scope == myscope;
+            }
+            return true;
+        },
+        onMessage: function (type,msg,datatype,from,scope)
+        {
+            try
+            {
+                f.apply(f,[type,msg,datatype,from,scope]);
+            }
             catch(e)
             {
-                Appcelerator.Compiler.handleElementException(element,e);
+                Appcelerator.Compiler.handleElementException(element,e,'service broker handling => '+from+':'+type+' ('+Object.toJSON(msg)+'), tried invoking function:'+f);
             }
-		}
-	};
-	
-	Appcelerator.Util.ServiceBroker.addListener(listener);
+        }
+    };
+    
+    Appcelerator.Util.ServiceBroker.addListener(listener);
 
-	if (element)
+    if (element)
+    {
+        Appcelerator.Compiler.addTrash(element,function()
+        {
+            Appcelerator.Util.ServiceBroker.removeListener(listener);
+        });
+    }
+
+    return listener;
+}
+
+if (APPCELERATOR_DEBUG_LEVEL == '2')
+{
+	//Can do w/ 1 $MQ but we need to know whether it's remote or local..so we do two..
+	$MQL('*:~.*',function(type,msg,datatype,from,scope)
 	{
-		Appcelerator.Compiler.addTrash(element,function()
-		{
-			Appcelerator.Util.ServiceBroker.removeListener(listener);
-		});
-	}
-
-	return listener;
+	    Logger.info('Message Type: '+from+':' + type + '\nMessage Data: ' + Object.toJSON(msg));
+	});
 }
 
 
 Appcelerator.Util.ServiceBrokerMarshaller={};
 Appcelerator.Util.ServiceBrokerMarshaller['xml/json'] = 
 {
-	currentRequestId:1,
-	jsonify:function(msg)
-	{
+    currentRequestId:1,
+    jsonify:function(msg)
+    {
         var requestid = this.currentRequestId++;
         var scope = msg[2];
         var version = msg[3];
@@ -13035,59 +16448,59 @@ Appcelerator.Util.ServiceBrokerMarshaller['xml/json'] =
         var xml = "<message requestid='" + requestid + "' type='" + msg[0]['type'] + "' datatype='" + datatype + "' scope='"+scope+"' version='"+version+"'>";
         xml += '<![CDATA[' + Object.toJSON(data) + ']]>';
         xml += "</message>";
-		return xml;
-	},
-	serialize: function(messageQueue,multiplex)
-	{
-		var xml = null;
+        return xml;
+    },
+    serialize: function(messageQueue,multiplex)
+    {
+        var xml = null;
         if (messageQueue.length > 0)
         {
-			xml = '';
-	        var time = new Date();
-	        var timestamp = time.getTime();
+            xml = '';
+            var time = new Date();
+            var timestamp = time.getTime();
             xml = "<?xml version='1.0' encoding='UTF-8'?>\n";
-			var tz = time.getTimezoneOffset()/60;
+            var tz = time.getTimezoneOffset()/60;
             var idleMs = Appcelerator.Util.IdleManager.getIdleTimeInMS();
             xml += "<request version='1.0' idle='" + idleMs + "' timestamp='"+timestamp+"' tz='"+tz+"'>\n";
-			if (multiplex)
-			{
-	            for (var c = 0,len = messageQueue.length; c < len; c++)
-	            {
-					xml+=this.jsonify(messageQueue[c]);
-	            }
-			}
-			else
-			{
-				xml+=this.jsonify(messageQueue[0]);
-			}
+            if (multiplex)
+            {
+                for (var c = 0,len = messageQueue.length; c < len; c++)
+                {
+                    xml+=this.jsonify(messageQueue[c]);
+                }
+            }
+            else
+            {
+                xml+=this.jsonify(messageQueue[0]);
+            }
             xml += "</request>";
         }
-		return {
-			'postBody': xml,
-			'contentType':'text/xml;charset=UTF-8'
-		};
-	},
-	deserialize: function(response,length,contentType)
-	{
-		if (response.status == 202)
-		{
-			return null;
-		}
-		if (contentType.indexOf('text/xml')==-1)
-		{
-			$E(this+', invalid content type: '+contentType+', expected: text/xml');
-			return null;
-		}
-		var xml = response.responseXML;
-		if (!xml)
-		{
-			return null;
-		}
+        return {
+            'postBody': xml,
+            'contentType':'text/xml'
+        };
+    },
+    deserialize: function(response,length,contentType)
+    {
+        if (response.status == 202)
+        {
+            return null;
+        }
+        if (contentType.indexOf('text/xml')==-1 && contentType.indexOf('application/xml')==-1)
+        {
+            $E(this+', invalid content type: '+contentType+', expected: text/xml or application/xml');
+            return null;
+        }
+        var xml = response.responseXML;
+        if (!xml)
+        {
+            return null;
+        }
         var children = xml.documentElement.childNodes;
-		var msgs = null;
+        var msgs = null;
         if (children && children.length > 0)
         {
-			msgs = [];
+            msgs = [];
             for (var c = 0; c < children.length; c++)
             {
                 var child = children.item(c);
@@ -13096,23 +16509,23 @@ Appcelerator.Util.ServiceBrokerMarshaller['xml/json'] =
                     var requestid = child.getAttribute("requestid");
                     try
                     {
-				        var type = child.getAttribute("type");
-				        var datatype = child.getAttribute("datatype");
-				        var scope = child.getAttribute("scope") || 'appcelerator';
-			            var data, text;
-			            try
-			            {
-			                text = Appcelerator.Util.Dom.getText(child);
-			                data = text.evalJSON();
-			                data.toString = function () { return Object.toJSON(this); };
-			            }
-			            catch (e)
-			            {
-			                $E('Error received evaluating: ' + text + ' for type: ' + type + ", error: " + Object.getExceptionDetail(e));
-			                return;
-			            }
-		                $D(this.toString() + ' received remote message, type:' + type + ',data:' + data);
-						msgs.push({type:type,data:data,datatype:datatype,scope:scope,requestid:requestid});
+                        var type = child.getAttribute("type");
+                        var datatype = child.getAttribute("datatype");
+                        var scope = child.getAttribute("scope") || 'appcelerator';
+                        var data, text;
+                        try
+                        {
+                            text = Appcelerator.Util.Dom.getText(child);
+                            data = text.evalJSON();
+                            data.toString = function () { return Object.toJSON(this); };
+                        }
+                        catch (e)
+                        {
+                            $E('Error received evaluating: ' + text + ' for type: ' + type + ", error: " + Object.getExceptionDetail(e));
+                            return;
+                        }
+                        $D(this.toString() + ' received remote message, type:' + type + ',data:' + data);
+                        msgs.push({type:type,data:data,datatype:datatype,scope:scope,requestid:requestid});
                     }
                     catch (e)
                     {
@@ -13121,148 +16534,142 @@ Appcelerator.Util.ServiceBrokerMarshaller['xml/json'] =
                 }
             }
         }
-		return msgs;
-	}
+        return msgs;
+    }
 };
 
 Appcelerator.Util.ServiceBrokerMarshaller['application/json'] = 
 {
-	currentRequestId:1,
-	prepareMsg: function(msg)
-	{
-		var result = {};
-		result['requestid'] = this.currentRequestId++;
-		result['type'] = msg[0]['type'];
-		result['scope'] = msg[2];
-		result['version'] = msg[3];
-		result['datatype'] = 'JSON';
-		result['data'] = msg[0]['data'];
-		return result;
-	},
-	serialize: function(messageQueue,multiplex)
-	{
-		var json = {};
+    prepareMsg: function(msg)
+    {
+        var result = {};
+        result['type'] = msg[0]['type'];
+        result['scope'] = msg[2];
+        result['version'] = msg[3];
+        result['data'] = msg[0]['data'];
+        return result;
+    },
+    serialize: function(messageQueue,multiplex)
+    {
+        var json = {};
         if (messageQueue.length > 0)
         {
-			var request = {};
+            var request = {};
 
-	        var time = new Date();
-	        var timestamp = time.getTime();
-			var tz = time.getTimezoneOffset()/60;
-            var idleMs = Appcelerator.Util.IdleManager.getIdleTimeInMS();
-			request['idle'] = idleMs;
-			request['timestamp'] = timestamp;
-			request['tz'] = tz;
-			request['version'] = '1.0';
+            var time = new Date();
+            json['timestamp'] = time.getTime()  + (time.getTimezoneOffset()*60*1000);
+            json['version'] = '1.0';
+            json['messages'] = [];
 
-			request['messages'] = [];
-			if (multiplex)
-			{
-	            for (var c = 0,len = messageQueue.length; c < len; c++)
-	            {
-					request['messages'].push(this.prepareMsg(messageQueue[c]));
-	            }
-			}
-			else
-			{
-				request['messages'].push(this.prepareMsg(messageQueue[0]));
-			}
-			json['request'] = request;
+            if (multiplex)
+            {
+                for (var c = 0,len = messageQueue.length; c < len; c++)
+                {
+                    json['messages'].push(this.prepareMsg(messageQueue[c]));
+                }
+            }
+            else
+            {
+                json['messages'].push(this.prepareMsg(messageQueue[0]));
+            }
         }
-		return {
-			'postBody': Object.toJSON(json),
-			'contentType':'application/json'
-		};
-	},
-	deserialize: function(response,length,contentType)
-	{
-		if (response.status == 202)
-		{
-			return null;
-		}
-		if (contentType.indexOf('application/json')==-1)
-		{
-			$E(this+', invalid content type: '+contentType+', expected: application/json');
-			return null;
-		}
-		var msgs = [];
-		var result = response.responseText.evalJSON();
-        for (var c = 0; c < result['messages'].length; c++)
+        return {
+            'postBody': Object.toJSON(json),
+            'contentType':'application/json'
+        };
+    },
+    deserialize: function(response,length,contentType)
+    {
+        if (response.status == 202)
         {
-			try
-			{
-				message = result['messages'][c];
-				var requestid = message['requestid'];
-				var type = message['type'];
-				var datatype = message['datatype'];
-				var scope = message['scope'] || 'appcelerator';
-				var data = message['data'];
-				$D(this.toString() + ' received remote message, type:' + type + ',data:' + data);
-				msgs.push({type:type,data:data,datatype:datatype,scope:scope,requestid:requestid});
-			}
-			catch (e)
-			{
-			   $E(this + ' - Error in dispatch of message. ' + Object.getExceptionDetail(e));
-			}
+            return null;
         }
-		return msgs;
-	}
+        if (contentType.indexOf('application/json')==-1)
+        {
+            $E(this+', invalid content type: '+contentType+', expected: application/json');
+            return null;
+        }
+        
+        var result = response.responseText.evalJSON();
+        var messages = result['messages'];
+        var msgs = [];
+        for (var c = 0; c < messages.length; c++)
+        {
+            try
+            {
+                var message = messages[c];
+
+                var type = message['type'];
+                var datatype = message['datatype'];
+                var scope = message['scope'] || 'appcelerator';
+                var data = message['data'];
+                message['datatype'] = "JSON"; // always JSON
+                $D(this.toString() + ' received remote message, type:' + type + ',data:' + data);
+                msgs.push({type:type,data:data,datatype:datatype,scope:scope});
+            }
+            catch (e)
+            {
+                $E(this + ' - Error in dispatch of message. ' + Object.getExceptionDetail(e));
+            }
+        }
+        return msgs;
+    }
 };
 
 function jsonParameterEncode (key, value, array)
 {
-	switch(typeof(value))
-	{
-		case 'string':
-		case 'number':
-		case 'boolean':
-		{
-			array.push(key+'='+encodeURIComponent(value));
-			break;
-		}
-		case 'array':
-		case 'object':
-		{
-			// check to see if the object is an array
-			if (Object.isArray(value))
-			{
-				for (var c=0;c<value.length;c++)
-				{
-					jsonParameterEncode(key+'.'+c,value[c],array);
-				}
-			}
-			else
-			{
-				for (var p in value)
-				{
-					jsonParameterEncode(key+'.'+p,value[p],array);
-				}
-			}
-			break;
-		}
-		case 'function':
-		{
-			break;
-		}
-		default:
-		{
-			array.push(encodeURIComponent(key)+'=');
-			break;
-		}
-	}
+    switch(typeof(value))
+    {
+        case 'string':
+        case 'number':
+        case 'boolean':
+        {
+            array.push(key+'='+encodeURIComponent(value));
+            break;
+        }
+        case 'array':
+        case 'object':
+        {
+            // check to see if the object is an array
+            if (Object.isArray(value))
+            {
+                for (var c=0;c<value.length;c++)
+                {
+                    jsonParameterEncode(key+'.'+c,value[c],array);
+                }
+            }
+            else
+            {
+                for (var p in value)
+                {
+                    jsonParameterEncode(key+'.'+p,value[p],array);
+                }
+            }
+            break;
+        }
+        case 'function':
+        {
+            break;
+        }
+        default:
+        {
+            array.push(encodeURIComponent(key)+'=');
+            break;
+        }
+    }
 }
 
 function jsonToQueryParams(json)
 {
-	var parameters = [];
+    var parameters = [];
 
-	for (var key in json)
-	{
-		var value = json[key];
-		jsonParameterEncode(key,value,parameters);
-	}
-	
-	return parameters.join('&');
+    for (var key in json)
+    {
+        var value = json[key];
+        jsonParameterEncode(key,value,parameters);
+    }
+    
+    return parameters.join('&');
 };
 
 /**
@@ -13312,59 +16719,59 @@ function json_encode_xml (node,json)
  */
 Appcelerator.Util.ServiceBrokerMarshaller['application/x-www-form-urlencoded'] = 
 {
-	currentRequestId:1,
-	parameterize: function(msg)
-	{
+    currentRequestId:1,
+    parameterize: function(msg)
+    {
         var requestid = this.currentRequestId++;
         var scope = msg[2];
         var version = msg[3];
         var datatype = 'JSON';
         var data = msg[0]['data'];
 
-		var str = '$messagetype='+msg[0]['type']+'&$requestid='+requestid+'&$datatype='+datatype+'&$scope='+scope+'&$version='+version;
-		
-		if (data)
-		{
-			str+='&' + jsonToQueryParams(data);
-		}
-		return str;
-	},
-	serialize: function(messageQueue,multiplex)
-	{
-		var xml = null;
+        var str = '$messagetype='+msg[0]['type']+'&$requestid='+requestid+'&$datatype='+datatype+'&$scope='+scope+'&$version='+version;
+        
+        if (data)
+        {
+            str+='&' + jsonToQueryParams(data);
+        }
+        return str;
+    },
+    serialize: function(messageQueue,multiplex)
+    {
+        var xml = null;
         if (messageQueue.length > 0)
         {
-			xml = '';
-			if (multiplex)
-			{
-	            for (var c = 0,len = messageQueue.length; c < len; c++)
-	            {
-					xml+=this.parameterize(messageQueue[c]);
-	            }
-			}
-			else
-			{
-				xml+=this.parameterize(messageQueue[0]);
-			}
+            xml = '';
+            if (multiplex)
+            {
+                for (var c = 0,len = messageQueue.length; c < len; c++)
+                {
+                    xml+=this.parameterize(messageQueue[c]);
+                }
+            }
+            else
+            {
+                xml+=this.parameterize(messageQueue[0]);
+            }
         }
-		return {
-			'postBody': xml,
-			'contentType':'application/x-www-form-urlencoded;charset=UTF-8'
-		};
-	},
-	deserialize: function(response,length,contentType)
-	{
-		if (response.status == 202)
-		{
-			return null;
-		}
-		if (contentType.indexOf('/json')==-1)
-		{
-			$E(this+', invalid content type: '+contentType+', expected json mimetype');
-			return null;
-		}
-		return response.responseText.evalJSON(true);
-	}
+        return {
+            'postBody': xml,
+            'contentType':'application/x-www-form-urlencoded'
+        };
+    },
+    deserialize: function(response,length,contentType)
+    {
+        if (response.status == 202)
+        {
+            return null;
+        }
+        if (contentType.indexOf('/json')==-1)
+        {
+            $E(this+', invalid content type: '+contentType+', expected json mimetype');
+            return null;
+        }
+        return response.responseText.evalJSON(true);
+    }
 };
 
 Appcelerator.Util.ServiceBrokerTransportHandler = {};
@@ -13374,27 +16781,27 @@ Appcelerator.Util.ServiceBrokerTransportHandler = {};
  */
 Appcelerator.Util.ServiceBrokerTransportHandler['appcelerator'] = 
 {
-	prepare: function(serviceBroker,initialrequest,payload,contentType)
-	{
-		// get the auth token
-		var cookieName = Appcelerator.ServerConfig['sessionid'].value||'JSESSIONID';
-		var authToken = Appcelerator.Util.Cookie.GetCookie(cookieName);
-		
-		// calculate the token we send back to the server
-		var token = (authToken) ? Appcelerator.Util.MD5.hex_md5(authToken+serviceBroker.instanceid) : '';
-		
-		// create parameters for URL
+    prepare: function(serviceBroker,initialrequest,payload,contentType)
+    {
+        // get the auth token
+        var cookieName = Appcelerator.ServerConfig['sessionid'].value||'JSESSIONID';
+        var authToken = Appcelerator.Util.Cookie.GetCookie(cookieName);
+        
+        // calculate the token we send back to the server
+        var token = (authToken) ? Appcelerator.Util.MD5.hex_md5(authToken+serviceBroker.instanceid) : '';
+        
+        // create parameters for URL
         var parameters = "?maxwait=" + ((!initialrequest && payload) ? serviceBroker.maxWaitPollTime : serviceBroker.maxWaitPollTimeWhenSending)+"&instanceid="+serviceBroker.instanceid+'&auth='+token+'&ts='+new Date().getTime();
-		var url = serviceBroker.serverPath + parameters;
-		var method = payload ? 'post' : 'get';
-		
-		return { 
-			'url':url, 
-			'method': method, 
-			'postBody': payload||'', 
-			'contentType':contentType 
-		};
-	}
+        var url = serviceBroker.serverPath + parameters;
+        var method = payload ? 'post' : 'get';
+        
+        return { 
+            'url':url, 
+            'method': method, 
+            'postBody': payload||'', 
+            'contentType':contentType 
+        };
+    }
 };
 
 
@@ -13431,149 +16838,112 @@ Object.extend(Appcelerator.Util.ServiceBrokerInterceptor.prototype, {
 
 if (Appcelerator.Util.ServiceBroker.disabled || Appcelerator.Util.ServiceBroker.remoteDisabled)
 {
-	Appcelerator.Util.ServiceBroker.triggerConfig();
-	Logger.warn('[ServiceBroker] remote delivery of messages is disabled');
+    Appcelerator.Util.ServiceBroker.triggerConfig();
+    Logger.warn('[ServiceBroker] remote delivery of messages is disabled');
 }
 else
 {
-	Appcelerator.Util.ServerConfig.addConfigListener(function()
-	{
-		var config = Appcelerator.ServerConfig['servicebroker'];
-		if (!config || config['disabled']=='true')
-		{
-			Appcelerator.Util.ServiceBroker.disabled = true;
-			Appcelerator.Util.ServiceBroker.remoteDisabled = true;
-			Appcelerator.Util.ServiceBroker.triggerConfig();
-			Logger.warn('[ServiceBroker] remote delivery of messages is disabled');
-			return;
-		}
-		Appcelerator.Util.ServiceBroker.serverPath = config.value;
-		Appcelerator.Util.ServiceBroker.poll = (config.poll == 'true');
-		Appcelerator.Util.ServiceBroker.multiplex = config.multiplex ? (config.multiplex == 'true') : true;
-		Appcelerator.Util.ServiceBroker.transport = config.transport || Appcelerator.Util.ServiceBroker.transport;
-		Appcelerator.Util.ServiceBroker.marshaller = config.marshaller || Appcelerator.Util.ServiceBroker.marshaller;
-		
-		var cookieName = Appcelerator.ServerConfig['sessionid'].value || 'unknown_cookie_name';
+    Appcelerator.Util.ServerConfig.addConfigListener(function()
+    {
+        var config = Appcelerator.ServerConfig['servicebroker'];
+        if (!config || config['disabled']=='true')
+        {
+            Appcelerator.Util.ServiceBroker.disabled = true;
+            Appcelerator.Util.ServiceBroker.remoteDisabled = true;
+            Appcelerator.Util.ServiceBroker.triggerConfig();
+            Logger.warn('[ServiceBroker] remote delivery of messages is disabled');
+            return;
+        }
+        Appcelerator.Util.ServiceBroker.serverPath = config.value;
+        Appcelerator.Util.ServiceBroker.poll = (config.poll == 'true');
+        Appcelerator.Util.ServiceBroker.multiplex = config.multiplex ? (config.multiplex == 'true') : true;
+        Appcelerator.Util.ServiceBroker.transport = config.transport || Appcelerator.Util.ServiceBroker.transport;
+        Appcelerator.Util.ServiceBroker.marshaller = config.marshaller || Appcelerator.Util.ServiceBroker.marshaller;
+        
+        var cookieName = Appcelerator.ServerConfig['sessionid'].value || 'unknown_cookie_name';
         var cookieValue = Appcelerator.Util.Cookie.GetCookie(cookieName);
         
         if (!cookieValue)
         {
-	        new Ajax.Request(Appcelerator.Util.ServiceBroker.serverPath+'?initial=1',
-	        {
-	            asynchronous: true,
-	            method: 'get',
-	            evalJSON:false,
-	            evalJS:false,
-	            onSuccess:function(r)
-	            {
-			        Appcelerator.Util.ServiceBroker.triggerConfig();
-			        Appcelerator.Util.ServiceBroker.startTimer();
-			        Logger.info('ServiceBroker ready');
-	            }
-	        });
+            new Ajax.Request(Appcelerator.Util.ServiceBroker.serverPath+'?initial=1',
+            {
+                asynchronous: true,
+                method: 'get',
+                evalJSON:false,
+                evalJS:false,
+                onSuccess:function(r)
+                {
+                    Appcelerator.Util.ServiceBroker.triggerConfig();
+                    Appcelerator.Util.ServiceBroker.startTimer();
+                    Logger.info('ServiceBroker ready');
+                }
+            });
             return;
         }
-		
-		
+        
+        
         Appcelerator.Util.ServiceBroker.triggerConfig();
         Appcelerator.Util.ServiceBroker.startTimer();
         Logger.info('ServiceBroker ready');
-	});
-	
-	//
-	// if being loaded from an IFrame - don't do the report
-	//
-	if (window.parent == null || window.parent == window)
-	{
-		var screenHeight = screen.height;
-		var screenWidth = screen.width;
-		var colorDepth = screen.colorDepth || -1;
-
-		/**
-		 * if autoReportStats is set (default), we are going to send a status 
-		 * message to the server with our capabilities and some statistics info
-		 */
-		Appcelerator.Core.onload(function()
-		{
-			if (Appcelerator.Browser.autoReportStats)
-			{
-				var platform = Appcelerator.Browser.isWindows ? 'win' : Appcelerator.Browser.isMac ? 'mac' : Appcelerator.Browser.isLinux ? 'linux' : Appcelerator.Browser.isSunOS ? 'sunos' : 'unknown';
-				var data = 
-				{
-					'userAgent': navigator.userAgent,
-					'flash': Appcelerator.Browser.isFlash,
-					'flashver': Appcelerator.Browser.flashVersion,
-					'screen': {
-						'height':screenHeight,
-						'width':screenWidth,
-						'color':colorDepth
-					 },
-					'os': platform,
-					'referrer': document.referrer,
-					'path': window.location.href,
-					'cookies' : (document.cookie||'').split(';').collect(function(f){ var t = f.split('='); return t && t.length > 0 ? {name:t[0],value:t[1]} : {name:null,value:null}})
-				};
-				$MQ('remote:appcelerator.status.report',data);
-			}
-		});
-	}
+    });
 }
 
 
 Appcelerator.Core.onunload(Appcelerator.Util.ServiceBroker.destroy.bind(Appcelerator.Util.ServiceBroker));
 Appcelerator.Compiler.afterDocumentCompile(function()
 {
-	Appcelerator.Util.ServiceBroker.triggerComplete();
+    Appcelerator.Util.ServiceBroker.triggerComplete();
 });
+
 
 Appcelerator.Util.Performance = Class.create();
 Appcelerator.Util.Performance = 
 {
-	logStats: (window.location.href.indexOf('logStats=1') > 0),
-	stats: $H({}),
-	createStat: function ()
+    logStats: (window.location.href.indexOf('logStats=1') > 0),
+    stats: $H({}),
+    createStat: function ()
     {
-		if (this.logStats)
-			return new Date();
-	},
-	endStat: function (start,type,category,data)
+        if (this.logStats)
+            return new Date();
+    },
+    endStat: function (start,type,category,data)
     {
-		if (this.logStats)
-		{
-			var id = type;
-			if (category)
-				id = id+'.'+category
-			else
-				category='';
-			var end = new Date();
-			var stat = this.stats.get(id);
-        	var diff = (end.getTime() - start.getTime());
-			if (!stat)
-			{
-				var stat = {'type':type,'category':category,'hits':0,'mean':0,'min':diff,'max':diff,'total':0};
-				this.stats.set(id,stat);
-			}
-			stat.hits++;
-			stat.last = diff;
-			stat.total +=diff;
-			stat.mean = stat.total/stat.hits;
-			stat.max = (stat.last > stat.max ? stat.last : stat.max); 
-			stat.min = (stat.last < stat.min ? stat.last : stat.min); 
-			Logger.info('stats: ' + type + ' last:' + stat.last + 'ms mean:'+stat.mean+'ms hits:'+stat.hits + ' min:'+stat.min+'ms max:'+stat.max+'ms total:' + stat.total+'ms');
-		}
-	},
-	reset: function (start,type,data)
+        if (this.logStats)
+        {
+            var id = type;
+            if (category)
+                id = id+'.'+category
+            else
+                category='';
+            var end = new Date();
+            var stat = this.stats.get(id);
+            var diff = (end.getTime() - start.getTime());
+            if (!stat)
+            {
+                var stat = {'type':type,'category':category,'hits':0,'mean':0,'min':diff,'max':diff,'total':0};
+                this.stats.set(id,stat);
+            }
+            stat.hits++;
+            stat.last = diff;
+            stat.total +=diff;
+            stat.mean = stat.total/stat.hits;
+            stat.max = (stat.last > stat.max ? stat.last : stat.max); 
+            stat.min = (stat.last < stat.min ? stat.last : stat.min); 
+            Logger.info('stats: ' + type + ' last:' + stat.last + 'ms mean:'+stat.mean+'ms hits:'+stat.hits + ' min:'+stat.min+'ms max:'+stat.max+'ms total:' + stat.total+'ms');
+        }
+    },
+    reset: function (start,type,data)
     {
-		this.stats = $H({});
-	}
+        this.stats = $H({});
+    }
 };
 $MQL('l:get.performance.request',function(type,msg,datatype,from)
 {
-	$MQ('l:get.performance.response',{'stats':Appcelerator.Util.Performance.stats.values()});
+    $MQ('l:get.performance.response',{'stats':Appcelerator.Util.Performance.stats.values()});
 });
 $MQL('l:reset.performance.request',function(type,msg,datatype,from)
 {
-	Appcelerator.Util.Performance.reset();
+    Appcelerator.Util.Performance.reset();
 });
 
 
@@ -13700,82 +17070,141 @@ Appcelerator.Types.getTypeId = function(type) {
 };
 Appcelerator.Compiler.registerCustomAction('show',
 {
-	build: function(id,action,params)
+	execute: function(id, action, params)
 	{
 		if (params && params.length > 0)
 		{
 			var obj = params[0];
 			var key = obj.key;
-			return "Element.show('" + key + "')";
+			Element.show(key);
 		}
 		else
 		{
-			return "Element.show('" + id + "')";
+		    Element.show(id);
 		}
 	}
 });
 
 Appcelerator.Compiler.registerCustomAction('hide',
 {
-	build: function(id,action,params)
+	execute: function(id,action,params)
 	{
 		if (params && params.length > 0)
 		{
-			var obj = params[0];
-			var key = obj.key;
-			return "Element.hide('" + key + "')";
+			var optional = false;
+			var key = null;
+			for (var c=0;c<params.length;c++)
+			{
+				if (params[c].key=='optional')
+				{
+					optional = params[c].value;
+					continue;
+				}
+				if (params[c].key=='id')
+				{
+					key = params[c].value;
+					continue;
+				}
+				if (!key)
+				{
+					key = params[c].key;
+				}
+			}
+			if (!key && !optional)
+			{
+				throw "no key specified for hide action";
+			}
+			var el = $(key);
+			if (!el && !optional)
+			{
+				throw "no element with id: "+key+" found for hide action";
+			}
+			if (el) Element.hide(el);
 		}
 		else
 		{
-			return "Element.hide('" + id + "')";
-		}	
+		    Element.hide(id);
+		}
 	}
 });
 
 Appcelerator.Compiler.registerCustomAction('visible',
 {
-	build: function(id,action,params)
+	execute: function(id,action,params)
 	{
 		if (params && params.length > 0)
 		{
 			var obj = params[0];
 			var key = obj.key;
-			return "Element.setStyle('" + key + "',{visibility:'visible'})";
+			Element.setStyle(key, {visibility:'visible'});
 		}
 		else
 		{
-			return "Element.setStyle('" + id + "',{visibility:'visible'})";
+			Element.setStyle(id, {visibility:'visible'});
 		}
 	}
 });
 
 Appcelerator.Compiler.registerCustomAction('hidden',
 {
-	build: function(id,action,params)
+	execute: function(id,action,params)
 	{
 		if (params && params.length > 0)
 		{
 			var obj = params[0];
 			var key = obj.key;
-			return "Element.setStyle('" + key + "',{visibility:'hidden'})";
+			Element.setStyle(key, {visibility:'hidden'});
 		}
 		else
 		{
-			return "Element.setStyle('" + id + "',{visibility:'hidden'})";
+			Element.setStyle(id, {visibility:'hidden'});
 		}
 	}
 });
 
-/** TODO: for effect extensibility, we need to provide a method like
- 		 Appcelerator.Compiler.addEffect(function(element,options) {
- 		 	// your code here
- 		 });
- 		 that also adds to this list and to the 'Effect' and 'Effect.Methods' objects
-*/
-Appcelerator.Compiler.effects = $w(
-	'fade appear grow shrink fold blindUp blindDown slideUp slideDown '+
-	'pulsate shake puff squish switchOff dropOut morph highlight'
-);
+// get the effects
+Appcelerator.Compiler.effects = $H(Effect).select(function(kv) {
+    var name = kv[0];
+    var val = kv[1];
+    var lowerName = name.charAt(0).toLowerCase() + name.substring(1);
+    return Effect.Methods[lowerName] || val.superclass == Effect.Base;
+}).pluck('0');
+
+// push ScrollTo since it's valid but doesn't extend Effect.Base
+Appcelerator.Compiler.effects.push('ScrollTo');
+
+
+
+Appcelerator.Compiler.customEffects = {};
+
+Appcelerator.Compiler.registerCustomEffect = function(effect,callback)
+{
+	Appcelerator.Compiler.customEffects[effect] = callback;
+};
+
+Appcelerator.Compiler.getMoveByOpts = function(params)
+{
+	var x = Appcelerator.Compiler.findParameter(params,'x');
+	x  = (x==null)?0:x;
+	var y = Appcelerator.Compiler.findParameter(params,'y');
+	y  = (y==null)?0:y;
+	var duration = Appcelerator.Compiler.findParameter(params,'duration');
+	duration  = (duration==null)?2:duration;
+	return {'x':x,'y':y,'duration':duration};
+}
+
+Appcelerator.Compiler.registerCustomEffect('Bounce', function(id,params)
+{
+	opts = Appcelerator.Compiler.getMoveByOpts(params)
+	new Effect.MoveBy( $(id), opts['x'], opts['y'], {duration: opts['duration'], transition: Effect.Transitions.SwingTo});
+});
+
+Appcelerator.Compiler.registerCustomEffect('Bang', function(id,params)
+{
+	opts = Appcelerator.Compiler.getMoveByOpts(params)
+	new Effect.MoveBy( $(id), opts['x'], opts['y'], {duration: opts['duration'], transition: Effect.Transitions.Bounce});
+		
+});
 
 Appcelerator.Compiler.registerCustomAction('effect',
 {
@@ -13784,36 +17213,22 @@ Appcelerator.Compiler.registerCustomAction('effect',
 		requiresParameters: true,
 		shorthandParameters: true,
 		optionalParameterKeys: Appcelerator.Compiler.effects,
-	    description: "Invokes a Scriptaculous visual effect on this element"
+	    description: "Invokes a visual effect on this element"
 	},
-	
-	build: function(id,action,params)
+
+	execute: function(id,action,params)
 	{
 		if (params && params.length > 0)
 		{
-			var options = '';
-			var target=id
-
 			// split first param to get effect name
 			var arg1= params[0].key.split(",");
 			var effectName = arg1[0];
-			
-			// get first option if exists
-			if (arg1.length>1)
-			{
-				// if option is id, set target element for effect
-				if (arg1[1] == "id")
-				{
-					target = params[0].value;
-				}
-				// otherwise, its an effect option
-				else
-				{
-					options += arg1[1] + ":'" + params[0].value + "'";
-					options += (params.length>1)?',':'';
-				}
-			}
-			
+			effectName = effectName.dasherize().camelize();
+		  	effectName = effectName.charAt(0).toUpperCase() + effectName.substring(1);
+
+			var options = {};
+			var target=id
+
 			// get remaining options
 			if (params.length > 1)
 			{
@@ -13823,29 +17238,67 @@ Appcelerator.Compiler.registerCustomAction('effect',
 					if (params[c].key=="id")
 					{
 						target = params[c].value;
+						options['id']=target;
+					}
+					// is it a transition
+					else if (params[c].key == "transition")
+					{
+						var t = params[c].value;
+						if (!t.startsWith('Effect.Transitions.'))
+						{
+							// this will simply first see if the effect is standalong (outside of effects package)
+							// and if not, attempt to add the package and try again... this allows us to use 
+							// shorthand transitions for core such as SwingTo
+							var error = false;
+							var x = 0;
+							while (x < 1)
+							{
+								x=1;
+								// we first check to see if this is a valid object
+								eval("try { " + t + "; error = false;} catch(e) { error = true; }");
+								if (error)
+								{
+									t = 'Effect.Transitions.' + t;
+								}
+								else
+								{
+									break;
+								}
+							}
+						}
+						var f = Object.evalWithinScope(t,{});
+						if (Object.isFunction(f))
+						{
+						    options[params[c].key] = f;
+						}
 					}
 					// otherwise, its an effect option
 					else
-					{						
-						options += params[c].key + ":'" + params[c].value + "'";
-						options += (c!=params.length-1)?',':'';
+					{
+					    options[params[c].key] = params[c].value;
 					}
 				}
 			}
-		  	
-			// format/validate effect name
-			effectName = effectName.dasherize().camelize();
-		  	effectName = effectName.charAt(0).toUpperCase() + effectName.substring(1);
-			if (!Effect[effectName])
+
+			// first allow overriden built-in effects 
+			if (Appcelerator.Compiler.customEffects[effectName])
 			{
-				throw "syntax error: unsupported effect type: "+effectName;
+				var f = Appcelerator.Compiler.customEffects[effectName];
+				f(id,options);
 			}
-			
-			return "Element.visualEffect('"+target+"','"+effectName+"',{"+options+"})";
+			// and now check for standard effects
+			else if (Appcelerator.Compiler.effects.indexOf(effectName) != -1)
+			{
+				Element.visualEffect(target,effectName,options);
+			}
+			else
+			{
+				throw "syntax error: unsupported effect type: "+effectName;				
+			}
 		}
 		else
 		{
-			throw "syntax error: effect action must have parameters";
+			throw "syntax error: effect action must have parameters.";
 		}
 	}
 });
@@ -13856,9 +17309,9 @@ Appcelerator.Compiler.registerCustomAction('toggle',
 	metadata:
 	{
 		requiresParameters: true,
-		description: "Toggles a CSS property, or boolean attribute on this element"
+		description: "Toggles a CSS property, CSS Class, or boolean attribute on this element"
 	},
-	build: function(id,action,params)
+	execute: function(id,action,params)
 	{
 		if (params && params.length > 0)
 		{
@@ -13868,7 +17321,14 @@ Appcelerator.Compiler.registerCustomAction('toggle',
 			var code = null;
 			if (key == 'class')
 			{
-				code = 'if (Element.hasClassName("'+id+'","'+val+'")) Element.removeClassName("'+id+'","'+val+'"); else Element.addClassName("'+id+'","'+val+'")';
+			    if (Element.hasClassName(id,val))
+			    {
+			        Element.removeClassName(id,val);
+			    }
+			    else
+			    {
+			        Element.addClassName(id,val);
+		        }
 			}
 			else
 			{
@@ -13895,22 +17355,54 @@ Appcelerator.Compiler.registerCustomAction('toggle',
 								case 'visible':
 									opposite='hidden'; break;
 							}
-							code = 'var a = Element.getStyle("'+id+'","'+key+'"); if (a!="'+opposite+'") Element.setStyle("'+id+'",{"'+key+'":"'+opposite+'"}); else Element.setStyle("'+id+'",{"'+key+'":"'+val+'"})';
+							var a = Element.getStyle(id,key);
+						    var params = {};
+							if (a!=opposite)
+							{
+							    params[key] = opposite;
+							}
+							else
+							{
+							    params[key] = val;
+						    }
+						    Element.setStyle(id,params);
 							break;
 						}
 						default:
 						{
-							code = 'var a = Element.getStyle("'+id+'","'+key+'"); if (a) Element.setStyle("'+id+'",{"'+key+'":""}); else Element.setStyle("'+id+'",{"'+key+'":"'+val+'"})';
+							var a = Element.getStyle(id, key);
+						    var params = {};
+							if (a)
+							{
+							    params[key] = '';
+							}
+							else
+							{
+							    params[key] = val;
+						    }
+						    Element.setStyle(id,params);
 							break;
 						}
 					}
 				}
 				else
 				{
-					code = 'var a = $("'+id+'"); if (!a) throw "no element with ID: '+id+'"; var v = a.getAttribute("'+key+'"); if (v) a.removeAttribute("'+key+'"); else a.setAttribute("'+key+'","'+val+'")';
+					var a = $(id);
+					if (!a)
+					{
+					    throw "no element with ID: "+id;
+					}
+					var v = a.getAttribute(key);
+					if (v)
+					{
+					    a.removeAttribute(key);
+					}
+					else
+					{
+					    a.setAttribute(key,val);
+				    }
 				}
 			}
-			return code;
 		}
 		else
 		{
@@ -13919,76 +17411,144 @@ Appcelerator.Compiler.registerCustomAction('toggle',
 	}
 });
 
-Appcelerator.Compiler.generateSetter = function(value)
+Appcelerator.Compiler.generateSetter = function(value,scope)
 {
-	return 'Appcelerator.Compiler.getEvaluatedValue("'+value+'",this.data||{})';
+    if (scope)
+    {
+    	return Appcelerator.Compiler.getEvaluatedValue(value,scope.data||{});
+    }
+    else
+    {
+    	return Appcelerator.Compiler.getEvaluatedValue(value,{});
+    }
+};
+
+Appcelerator.Compiler.findTargetFromParams = function(id,params)
+{
+	var target = id;
+	if (params && params.length > 0)
+	{
+		for (var c=0;c<params.length;c++)
+		{
+			var entry = params[c];
+			if (entry.key == 'id')
+			{
+				target = entry.value;
+				break;
+			}
+		}
+	}
+	return $(target);
 };
 
 (function()
 {
-	var addsetBuildFunction = function(id,action,params)
+	var addsetBuildFunction = function(id,action,params,scope)
 	{
 		if (params.length == 0)
 		{
 			throw "syntax error: expected parameter key:value for action: "+action;
 		}
-		var obj = params[0];
-		var key = obj.key;
-		var value = obj.value;
-		if (Appcelerator.Compiler.isCSSAttribute(key))
+		
+		var setStyles = null;
+		var target = Appcelerator.Compiler.findTargetFromParams(id,params);
+		
+		for (var c=0;c<params.length;c++)
 		{
-			key = Appcelerator.Compiler.convertCSSAttribute(key);
-			return "Element.setStyle('" + id + "',{'" + key + "':" + Appcelerator.Compiler.generateSetter(value) + "})";				
-		}
-		else if (key == 'class')
-		{
-			if (action=='set')
+			var obj = params[c];
+			var key = obj.key;
+			if (!Object.isString(key)) continue;
+			var value = obj.value;
+			if (Appcelerator.Compiler.isCSSAttribute(key))
 			{
-				return "$('" + id + "').className = " + Appcelerator.Compiler.generateSetter(value);
+				key = Appcelerator.Compiler.convertCSSAttribute(key);
+				if (!setStyles) setStyles = {};
+				setStyles[key] = Appcelerator.Compiler.generateSetter(value,scope);
+				continue;
 			}
-			return "Element.addClassName('" + id + "'," + Appcelerator.Compiler.generateSetter(value)+")";
-		}
-		else
-		{
-			if (key.startsWith("style"))
+			else if (key == 'class')
 			{
-				return "$('"+id+"')."+key+ "=" + Appcelerator.Compiler.generateSetter(value);
+				if (action=='set')
+				{
+					$(target).className = Appcelerator.Compiler.generateSetter(value,scope);
+				}
+				Element.addClassName(id, Appcelerator.Compiler.generateSetter(value,scope));
 			}
-			
-			var code = 'var e = $("'+id+'"); if (!e) throw "syntax error: element with ID: '+id+' doesn\'t exist";'
-			code+= "var isOperaSetIframe =  " + Appcelerator.Browser.isOpera + " && e.nodeName=='IFRAME' && '"+key+"'=='src';";
-            code+="if (e.nodeName=='IFRAME' && '"+key+"'=='src'){";
-            code+="var onload=e.getAttribute('onloaded');";
-            code+="if (onload){";
-            code+="Appcelerator.Util.IFrame.monitor(e,function(){$MQ(onload,{},e.scope);});";
-            code+="}";
-            code+="}";
-			code+='if (e["'+key+'"]!=null){';
-			switch(key)
-			{	
-				case 'checked':
-				case 'selected':
-				case 'disabled':
-					code+='e.'+key + " = ('true' == ''+" + Appcelerator.Compiler.generateSetter(value) + ')';
-					break;
-				default:
-					code+='if(isOperaSetIframe) {e.location.href='+ Appcelerator.Compiler.generateSetter(value) + '; }';
-					code+='else { e.' + key + " = " + Appcelerator.Compiler.generateSetter(value) + '; }'; 
+			else if (key.startsWith('style'))
+			{
+			    $(target)[key] = Appcelerator.Compiler.generateSetter(value,scope);
+		    }
+		    else
+		    {
+				var e = $(target);
+				if (!e)
+				{
+				    throw "syntax error: element with ID: "+target+" doesn't exist";
+				}
+				if (e.nodeName=='IFRAME' && key=='src')
+				{
+				    var onload = e.getAttribute('onloaded');
+				    if (onload)
+				    {
+				        Appcelerator.Util.IFrame.monitor(e, function()
+				        {
+				            $MQ(onload,{},e.scope);
+				        });
+			        }
+			    }
+				if (e[key]!=null)
+				{
+	    			switch(key)
+	    			{
+	    				case 'checked':
+	    				case 'selected':
+	    				case 'disabled':
+						case 'defaultChecked':
+	    				{
+							var value = Appcelerator.Compiler.generateSetter(value,scope);
+							if (value)
+							{
+								e.setAttribute(key,value);
+							}
+							else
+							{
+								e.removeAttribute(key);
+							}
+	    					break;
+						}
+	    				default:
+	    				{
+	            			var isOperaSetIframe = Appcelerator.Browser.isOpera && e.nodeName=='IFRAME' && key=='src';
+	    				    if (isOperaSetIframe)
+	    				    {
+	    				        e.location.href = Appcelerator.Compiler.generateSetter(value,scope);
+	    				    }
+	    				    else
+	    				    {
+	    				        e[key] = Appcelerator.Compiler.generateSetter(value,scope);
+	    				    }
+						}
+	    			}
+			    }
+			    else
+			    {
+			        e.setAttribute(key, Appcelerator.Compiler.generateSetter(value,scope));
+			    }
 			}
-			code+='} else {';
-			code+="e.setAttribute('"+key+"'," + Appcelerator.Compiler.generateSetter(value) + ")";
-			code+='}';
-			return code;
-		}		
+		}
+		if (setStyles)
+		{
+			Element.setStyle(target, setStyles);
+		}
 	}
-	
+
     Appcelerator.Compiler.registerCustomAction('add',
 	{
 		metadata:
 		{
 			description: "Add a CSS property or attribute on this element"
 		},
-		build: addsetBuildFunction
+		execute: addsetBuildFunction
 	});
     Appcelerator.Compiler.registerCustomAction('set',
     {
@@ -13996,27 +17556,50 @@ Appcelerator.Compiler.generateSetter = function(value)
         {
             description: "Set a CSS property or attribute on this element"
         },
-        build: addsetBuildFunction
+        execute: addsetBuildFunction
     });
 })();
 
 Appcelerator.Compiler.registerCustomAction('remove',
 {
-	build: function(id,action,params)
+	execute: function(id,action,params)
 	{
 		if (params.length == 0)
 		{
-			throw "syntax error: expected parameter key:value for action: "+action;
+			throw "syntax error: expected parameter for action: "+action;
 		}
-		var obj = params[0];
-		var key = obj.key;
-		var value = obj.value;
-		switch (key)
+		var target = Appcelerator.Compiler.findTargetFromParams(id,params);
+		var key = null;
+		var value = null;
+		var optional = false;
+		for (var c=0;c<params.length;c++)
 		{
-			case 'class':
-				return "Element.removeClassName('" + id + "'," + Appcelerator.Compiler.formatValue(value)+")";
-			default:
-				return "$('" + id + "').removeAttribute('"+key+"')";
+			if (params[c].key == 'id') continue;
+			if (params[c].key == 'optional') 
+			{
+				optional = params[c].value;
+				continue;
+			}
+			if (!key)
+			{
+				key = params[c].key;
+				value = params[c].value;
+			}
+		}
+		if (!key && !optional)
+		{
+			throw "couldn't find key to remove";
+		}
+		if (key)
+		{
+			switch (key)
+			{
+				case 'class':
+				    Element.removeClassName(target,Appcelerator.Compiler.formatValue(value,false));
+				    break;
+				default:
+	    			target.removeAttribute(key);
+			}
 		}
 	}
 });
@@ -14027,26 +17610,25 @@ Appcelerator.Compiler.registerCustomAction('statechange',
 	{
 		requiresParameters: true
 	},
-	build: function(id,action,params)
+	execute: function(id,action,params)
 	{
 		if (params.length == 0)
 		{
 			throw "syntax error: expected parameters in format 'statechange[statemachine=state]'";
 		}
-		
+
 		var changes = params.map(function(obj)
 		{
 			var statemachine = obj.key;
 			var state = obj.value;
-			return 'Appcelerator.Compiler.StateMachine.fireStateMachineChange("'+statemachine+'","'+state+'",true,true,false)';
+			Appcelerator.Compiler.StateMachine.fireStateMachineChange(statemachine,state,true,true,false);
 		});
-		return changes.join(';');
 	}
 });
 
 (function()
 {
-	var scriptBuilderAction = 
+	var scriptBuilderAction =
 	{
 		metadata:
         {
@@ -14062,13 +17644,14 @@ Appcelerator.Compiler.registerCustomAction('statechange',
 	    {
 	        return params;
 	    },
-	    build: function (id,action,params)
-	    {
-	        return params;
+	    execute: function (id,action,params,scope)
+	    {   
+	        var f = function() { eval(params); }.bind(scope);
+	        f();
 	    }
 	};
-	
-	
+
+
 	Appcelerator.Compiler.registerCustomAction('javascript',scriptBuilderAction);
 	Appcelerator.Compiler.registerCustomAction('function',scriptBuilderAction);
 	Appcelerator.Compiler.registerCustomAction('script',scriptBuilderAction);
@@ -14101,34 +17684,19 @@ Appcelerator.Compiler.findParameter = function(params,key)
 	return null;
 }
 
-Appcelerator.Compiler.buildActionFunction = function(id,method,params,checkenabled)
-{
-	var target = Appcelerator.Compiler.findParameter(params,'id') || id;
-	var prefix = '';
-	var suffix = '';
-	var customActionParams = Object.toJSON(params);
-	if (checkenabled)
-	{
-		prefix='try{ var e=$("'+target+'"); if (e && !e.disabled && Element.showing(e)) ';
-		suffix='}catch(xxx_){}';
-	}
-
-	return prefix + 'Appcelerator.Compiler.executeFunction("'+target+'","'+method+'",["'+target+'","'+method+'",this.data,this.scope,this.version,'+customActionParams+',this.direction,this.type])' + suffix;
-};
-
 Appcelerator.Compiler.registerCustomAction('selectOption',
 {
-	build: function(id,action,params)
+	execute: function(id,action,params,scope)
 	{
 		if (params.length == 0)
 		{
 			throw "syntax error: expected parameter property for action: "+action;
 		}
-		var select = $(id);		
-		
+		var select = $(id);
+
 		if (!select.options)
 		{
-			throw "syntax error: selectOption must apply to a select tag";	
+			throw "syntax error: selectOption must apply to a select tag";
 		}
 
 		var key = params[0].key;
@@ -14138,85 +17706,89 @@ Appcelerator.Compiler.registerCustomAction('selectOption',
 			def = '';
 		}
 
-		var code = 'var selectedValue = Object.getNestedProperty(this.data, "'+ key + '","'+def+'");';
-		code += ' var targetSelect = $("'+id+'");';
-		
-		code += ' for (var j=0;j<targetSelect.options.length;j++)';
-		code += ' {';
-		code += '   if (targetSelect.options[j].value == selectedValue)';
-		code += '   {';
-		code += '      targetSelect.selectedIndex = j;';
-		code += '      break;';
-		code += '    }';
-		code += '  }';
-        code += 'Appcelerator.Compiler.executeFunction(targetSelect,"revalidate");';
-        return code;		
+		var selectedValue = Object.getNestedProperty(scope.data, key, def);
+		var targetSelect = $(id);
+		var isArray = Object.isArray(selectedValue);
+
+        targetSelect.selectedIndex = -1;
+
+		for (var j=0;j<targetSelect.options.length;j++)
+		{
+			if (isArray)
+			{
+				targetSelect.options[j].selected = selectedValue.include(targetSelect.options[j].value);
+			}
+			else
+			{
+			    if (targetSelect.options[j].value == selectedValue)
+			    {
+			        targetSelect.selectedIndex = j;
+			        break;
+			    }
+			}
+		}
+		Appcelerator.Compiler.executeFunction(targetSelect,'revalidate');
 	}
 });
 
 var ResetAction =
 {
-	build: function(id,action,params)
+	execute: function(id,action,params)
 	{
 		var target = Appcelerator.Compiler.findParameter(params,'id') || id;
 		var element = $(target);
 		var revalidate = false;
 		var code = null;
-		
-		var elementHtml = '$("'+target+'")';
+
+		var element = $(target);
 		var variable = '';
-		var value = '""';
-		
+		var value = '';
+
 		switch (Appcelerator.Compiler.getTagname(element))
 		{
 			case 'input':
 			case 'textarea':
 			{
-				variable = 'value';
+			    element.value = value;
 				revalidate=true;
 				break;
 			}
 			case 'select':
 			{
-				variable = 'selectedIndex';
-				value = '0'; 
+			    element.selectedIndex = 0;
 				revalidate=true;
 				break;
 			}
 			case 'img':
 			{
-				variable = 'src';
+			    element.src = '';
 				break;
 			}
 			case 'a':
 			{
-				variable = 'href';
-				value = '#';
+			    element.href = '#';
 				break;
 			}
 			case 'form':
 			{
-				return 'Form.reset("'+target+'"); Form.Methods.getInputs("'+target+'").each(function(i){Appcelerator.Compiler.executeFunction(i,"revalidate");});';
+				Form.reset(target);
+				Form.Methods.getInputs(target).each(function(i)
+				{
+				    Appcelerator.Compiler.executeFunction(i,'revalidate');
+				});
+                return;
 			}
 			default:
 			{
-				variable='innerHTML';
-				code = elementHtml+".update(" + value + ")";
-				break;
+				element.update(value);
+				return;
 			}
 		}
-		
-		if (!code)
-		{
-		    code = elementHtml + '.' + variable + '=' + value;
-		}
-		
+
 		if (revalidate)
 		{
-			code+='; Appcelerator.Compiler.executeFunction(' + elementHtml +',"revalidate");'
+		    Appcelerator.Compiler.executeFunction(element,revalidate);
 		}
-		
-		return code;
 	}
 };
 Appcelerator.Compiler.registerCustomAction('clear',ResetAction);
@@ -14224,18 +17796,18 @@ Appcelerator.Compiler.registerCustomAction('reset',ResetAction);
 
 var ResetFormAction =
 {
-	build: function(id,action,params)
+	execute: function(id,action,params)
 	{
 		var target = Appcelerator.Compiler.findParameter(params,'id') || id;
 		var element = $(target);
 		var code = null;
 		var form = null;
-		
+
 		switch (Appcelerator.Compiler.getTagname(element))
 		{
 			case 'form':
 			{
-				form='$("'+target+'")';
+			    $(target).reset();
 				break;
 			}
 			case 'input':
@@ -14243,102 +17815,13 @@ var ResetFormAction =
 			case 'textarea':
 			default:
 			{
-				form='$("'+target+'").form';
+			    $(target).form.reset();
 				break;
 			}
 		}
-		code = form+'.reset()';
-		return code;
 	}
 };
 Appcelerator.Compiler.registerCustomAction('clearform',ResetFormAction);
-
-Appcelerator.Compiler.registerCustomAction('popup',
-{
-	re: /([+|-]{0,1})([0-9])+/,
-	
-	getPosition: function (value)
-	{
-		var obj = {value:"0",relative:true};
-		var match = this.re.exec(value);
-		if (match)
-		{
-			obj.relative=(match[1]=='+'||match[1]=='-');
-			obj.value=value;
-		}
-		return obj;
-	},
-	build: function(id,action,params)
-	{
-		var target = id;
-		
-		var xOffset = "0", yOffset = "0";
-		var xRelative = true, yRelative = true;
-		var effect = "appear";
-		
-		if (params && params.length > 0)
-		{
-			var obj = params[0];
-			
-			if (params.length == 1)
-			{
-				if (obj.key == 'id')
-				{
-					target = obj.value;
-				}
-				else
-				{
-					target = obj.key;
-				}
-			}
-			else
-			{
-				for (var c=0;c<params.length;c++)
-				{
-					var obj = params[c];
-					switch (obj.key)
-					{
-						case 'id':
-						{
-							target = obj.value;
-							break;
-						}
-						case 'x':
-						{
-							var pos = this.getPosition(obj.value);
-							xOffset=pos.value;
-							xRelative=pos.relative;
-							break;
-						}
-						case 'y':
-						{
-							var pos = this.getPosition(obj.value);
-							yOffset=pos.value;
-							yRelative=pos.relative;
-							break;
-						}
-						case 'effect':
-						{
-							effect = obj.value;
-							break;
-						}
-					}
-				}
-			}
-		}
-		
-		var code = 'var event = args[0]; var x = Event.pointerX(event); var y = Event.pointerY(event);'+
-				   ((xRelative) ? "x+=" + xOffset : "x=" + xOffset) + ";" +
-				   ((xRelative) ? "y+=" + yOffset : "y=" + yOffset) + ";" +
-				   'Element.setStyle("'+target+'",{top:(y||0)+"px",left:(x||0)+"px"}); ' +
-				   'setTimeout(function(){ Element.ensureVisible("'+target+'"); },50); ' +
-				   ((!effect || effect=='') ? 'Element.show("'+target+'"); ' :  
-				   'Element.visualEffect("'+target+'","'+effect+'"); ') ;
-				
-		return code;
-	}
-});
-
 
 Appcelerator.Compiler.registerCustomAction('value',
 {
@@ -14349,117 +17832,84 @@ Appcelerator.Compiler.registerCustomAction('value',
 		optionalParameterKeys: ['text','append','id','property'],
 		description: "Sets the value of the current element with data from the message payload"
     },
-	parseParameters: function (id,action,params)
+	execute: function(id,action,params,scope)
 	{
-		return params;
-	},
-	build: function(id,action,parameters)
-	{
-		var targetId = id;
-		var idFound = false;
+		var element = Appcelerator.Compiler.findTargetFromParams(id,params);
 		var valueHtml = null;
-		var params = parameters;
 		var append = false;
-		var valueExpr = parameters;
+		var form = false;
+		var key = null;
+		var value = null;
 		
-		if (parameters.charAt(0)=='"' || parameters.charAt(0)=="'")
+		if (params)
 		{
-			valueHtml = parameters;
-		}
-		else
-		{
-			params = Appcelerator.Compiler.getParameters(parameters,false);
-
 			for (var c=0,len=params.length;c<len;c++)
 			{
 				var param = params[c];
-				if (params.length == 1 && null==param.value && param.key.charAt(0)=='$')
+				switch(param.key)
 				{
-					targetId = param.key;
-					idFound=true;
-				}
-				else if (param.key == 'id')
-				{
-					if (param.value!=null)
+					case 'append':
 					{
-						targetId = param.value;
-						idFound=true;
+						append=true;
+						break;
 					}
-					else
+					case 'value':
 					{
-						idFound=false;
+						valueHtml = param.value;
+						break;
 					}
-				}
-				else if (param.key == 'append')
-				{
-					append = param.value==true || param.value=='true';
-				}
-				else if (param.key == 'value')
-				{
-					// this is a hack to allow multiple parameters and an expression
-					if (param.value=='expr(')
+					default:
 					{
-						var i = parameters.indexOf('expr(');
-						var l = parameters.lastIndexOf(')');
-						valueExpr = parameters.substring(i,l+1);
-					}
-					else
-					{
-						valueExpr = param.value;
+						key = param.key;
+						value = param.value;
+						if (param.empty)
+						{
+							if (key.startsWith("'") && key.endsWith("'"))
+							{
+								value = Appcelerator.Compiler.dequote(param.key);
+								value = null;
+							}
+						}
 					}
 				}
-			}
-			var expressionMatch = Appcelerator.Compiler.expressionRE.exec(valueExpr);
-			
-			if (expressionMatch)
-			{
-				// allow them to specify exact javascript expression to run
-				// that will set the value (analogous to onBindMessageExpr in 1.x)
-				valueHtml = '(function(){ return ' + expressionMatch[1] + ' }).call(this);';
-			}
-			else if (params[0].key.charAt(0)=='$')
-			{
-				valueHtml = 'Appcelerator.Compiler.getElementValue($("'+params[0].key.substring(1)+'"))';
-			}
-			else
-			{
-				// assume its a property
-				var key = params[0].key;
-				// see if we have a default value in case key isn't found
-				var def = params[0].value || key;
-				if (def=='$null')
-				{
-					// default $null string is a special keyword to mean empty value
-					def = '';
-				}
-				valueHtml = 'Object.getNestedProperty(this.data, "'+ key + '","'+def+'")';
-			}
-			if (valueHtml==null)
-			{
-				if (targetId.charAt(0)=='$')
-				{
-					targetId = targetId.substring(1);
-				}
-				var target = $(targetId);
-
-				if (!target)
-				{
-					throw "syntax error: couldn't find target with ID: "+targetId+" for value action";
-				}
-
-				valueHtml = 'Appcelerator.Compiler.getElementValue($("'+targetId+'"))';
 			}
 		}
 		
-		var element = $(id);
+		if (!key && !valueHtml)
+		{
+			key = params[0].key;
+			value = params[0].value;
+		}
+		
+		if (!valueHtml)
+		{
+			if (!value && key && key.startsWith("'") && key.endsWith("'"))
+			{
+				valueHtml = Appcelerator.Compiler.dequote(key);
+			}
+			else if (!value)
+			{
+				valueHtml = Object.getNestedProperty(scope,key);
+			}
+			else if (value)
+			{
+				if (typeof(value)=='object')
+				{
+					valueHtml = Object.getNestedProperty(value,key);
+				}
+				else
+				{
+					valueHtml = value;
+				}
+			}
+		}
+
 		var html = '';
-		var elementHtml = '$("'+id+'")';
 		var variable = '';
 		var expression = '';
-		
-		//TODO: select
+
 		var revalidate = false;
-		
+
 		switch (Appcelerator.Compiler.getTagname(element))
 		{
 			case 'input':
@@ -14509,29 +17959,31 @@ Appcelerator.Compiler.registerCustomAction('value',
 				if (!property) throw "required parameter named 'property' not found in value parameter list";
 				if (!value) throw "required parameter named 'value' not found in value parameter list";
 				if (!text) text = value;
-				code = 'var ar = ' + Appcelerator.Compiler.generateSetter(property) + '; ';
-				code+= 'var s = ' + elementHtml + ';';
 				if (!append)
 				{
-					code+= 's.options.length = 0;';
+				    element.options.length = 0;
 				}
-				code+= 'if (ar) {';
-				code+= 'for (var c=0;c<ar.length;c++){';
-				if (row)
+				var ar = Appcelerator.Compiler.generateSetter(property,scope);
+				if (ar)
 				{
-					code+= ' var row = Object.getNestedProperty(ar[c],"'+row+'");';
+				    for (var c=0;c<ar.length;c++)
+				    {
+				        if (row)
+				        {
+				            var rowData = Object.getNestedProperty(ar[c],row);
+				        }
+				        else
+				        {
+				            var rowData = ar[c];
+				        }
+				        if (rowData)
+				        {
+				            element.options[element.options.length] = new Option(Object.getNestedProperty(rowData, text), Object.getNestedProperty(rowData, value));
+				        }
+				    }
 				}
-				else
-				{
-					code+= ' var row = ar[c];';
-				}
-				code+= ' if (row){';
-				code+= '  s.options[s.options.length] = new Option(Object.getNestedProperty(row,"'+text+'"),Object.getNestedProperty(row,"'+value+'"));';
-				code+= ' }';
-				code+= '}';
-				code+= '}';
-				code+= revalidate ? '; Appcelerator.Compiler.executeFunction(s,"revalidate");' : '';
-				return code;
+                Appcelerator.Compiler.executeFunction(element,'revalidate');
+				return;
 			}
 			case 'div':
 			case 'span':
@@ -14551,9 +18003,71 @@ Appcelerator.Compiler.registerCustomAction('value',
 				break;
 			}
 			case 'img':
+			case 'iframe':
 			{
 				append=false;
 				variable = 'src';
+				break;
+			}
+			case 'form':
+			{
+				//Guarantee that the form will not auto-submit when someone hits enter by adding 1 display:none text field
+				var new_input_id = id+'_no_submit';
+				if (!$(new_input_id)) 
+				{
+					var new_input = document.createElement('input');
+					new_input.id = new_input_id;
+					new_input.type = 'text';
+					new_input.style.display = 'none';
+					new_input.name = 'no_submit_guarantee';
+					element.appendChild(new_input);
+				}
+
+				//Set form to true so we clear html var below -- we delegate to subsequent calls to handleCondition
+				form = true;
+
+				//e.g. value[bar]
+				var elementAction = 'value['+key+']';
+				//find the matching clause (in case the form has several actions in its on expression); e.g. r:foo
+				var clause = this.findMatchingFormClause(element,elementAction);
+
+				var descendants = element.descendants();
+				
+				for (var c = 0; c < descendants.length; c++)
+				{
+					var child = descendants[c];
+					
+					//need an id to handle the condition later and probably need one anyway so make sure it's there
+					Appcelerator.Compiler.getAndEnsureId(child);
+					var child_parameter;
+					switch(Appcelerator.Compiler.getTagname(child))
+					{
+						 case 'select':
+						 case 'textarea':
+						 case 'input':
+						 {
+							  child_parameter = child.getAttribute('name') || child.id || ''
+							  break;
+						 }
+						 default:
+						 {
+							  /**
+							   * We don't look for an id as the value to read out on normal elements since divs, spans, etc.
+							   * may have ids for styling, etc. but we do not want to overwrite text for labels etc.
+							   * For divs, spans, etc. we require the name attribute if they are to be populated with data
+							   * without their own explicit on expression (that is when the on expression is on a form tag).
+							   */
+							   child_parameter = child.getAttribute('name') || '';
+						 }
+					}
+					
+					if (child_parameter)
+					{
+						//e.g. value[bar.idx]
+						var action = 'value['+ key + '.' + child_parameter+']';
+						Appcelerator.Compiler.handleCondition.call(this, [child,true,action,scope,null,null]);
+					}
+				}
 				break;
 			}
 			default:
@@ -14561,25 +18075,92 @@ Appcelerator.Compiler.registerCustomAction('value',
 				throw "syntax error: " + element.nodeName+' not supported for value action';
 			}
 		}
-		
-		var suffix = revalidate ? '; Appcelerator.Compiler.executeFunction(' + elementHtml +',"revalidate");' : '';
-		
-		$D('built expression=> '+ elementHtml + '.' + variable + '=' + valueHtml + expression + suffix);
 
-		var html = '';
-		if (append)
+		if (!form)
 		{
-			html = 'var value_' + element.id+' = ' + elementHtml + '.' + variable + ';'
-			html += elementHtml + '.' + variable + ' = value_'+element.id+' + ' + valueHtml + expression;
+			if (append)
+			{
+			    var val = element[variable];
+			    element[variable] = val + valueHtml + expression;
+			}
+			else
+			{
+			    element[variable] = valueHtml + expression;
+			}
+			if (revalidate)
+			{
+			    Appcelerator.Compiler.executeFunction(element, 'revalidate');
+			}
 		}
-		else
+	},
+	findMatchingFormClause: function(element, params)
+	{
+		//iterate over the clauses and find the appropriate clause to return
+		//(the one with the appropriate action being handled by the cal for registerCustomAction('value'))
+		var clauses = Appcelerator.Compiler.parseExpression(element.getAttribute('on'));
+
+		for (var i = 0; i < clauses.length; i++)
 		{
-			html = elementHtml + '.' + variable + '=' + valueHtml + expression;
+			var condition = clauses[i][2];
+			if (condition == params)
+			{
+				return clauses[i];
+			}
 		}
-		html += suffix;
-		return html;
+		return [];
 	}
 });
+
+Appcelerator.Compiler.registerCustomAction('bind',
+{
+	metadata:
+    {
+        requiresParameters: false,
+		description: "Sets the value to all elements with the same fieldset to the data from the payload"
+    },
+	parseParameters: function (id,action,params,scope)
+	{
+		return params;
+	},
+	execute: function(id,action,parameters,scope)
+	{
+		var element = $(id);
+		var fieldset = element.getAttribute('fieldset');
+
+		if (!fieldset || fieldset == '')
+		{
+			throw "syntax error: element has no field set attribute "  + element;
+		}
+
+		var key = parameters;
+
+		Appcelerator.Compiler.updateFieldsetValues(fieldset, scope.data, key);
+	}
+});
+
+Appcelerator.Compiler.executeActionFunction = function(id,method,params,checkenabled,scope)
+{
+	var target = Appcelerator.Compiler.findParameter(params,'id') || id;
+	if (checkenabled)
+	{
+	    try
+	    {
+	        var e = $(target);
+	        if (e && !e.disabled && Element.showing(e))
+	        {
+	            Appcelerator.Compiler.executeFunction(target, method, [target, method, scope.data, scope.scope, scope.version, params, scope.direction, scope.type]);
+	        }
+	    }
+	    catch (xxx_)
+	    {
+        }
+	}
+	else
+	{
+		scope = (!scope) ? {} : scope;
+        Appcelerator.Compiler.executeFunction(target, method, [target, method, scope.data, scope.scope, scope.version, params, scope.direction, scope.type]);
+	}
+};
 
 var GenericActionFunction = Class.create();
 Object.extend(GenericActionFunction.prototype,
@@ -14589,9 +18170,9 @@ Object.extend(GenericActionFunction.prototype,
 		this.checkenabled = check;
 		this.widgetAction = !!widgetAction;
 	},
-	build: function(id,action,params)
+	execute: function(id,action,params,scope)
 	{
-		return Appcelerator.Compiler.buildActionFunction(id,action,params,this.checkenabled);
+        Appcelerator.Compiler.executeActionFunction(id,action,params,this.checkenabled,scope);
 	}
 });
 
@@ -14619,21 +18200,29 @@ for (var c=0,len=Appcelerator.Compiler.GenericFunctions.length;c<len;c++)
 Appcelerator.Compiler.buildCustomAction = function (name)
 {
 	var action = Appcelerator.Compiler.customActions[name];
-	
+
 	if (!action)
 	{
 		var f = new GenericActionFunction(false, true);
 		Appcelerator.Compiler.registerCustomAction(name,f);
 	}
-};Appcelerator.Compiler.registerCustomAction('history',
+};
+
+Appcelerator.Compiler.buildCustomElementAction = function (name, element, callback)
 {
-	build: function(id,action,params)
+    var f = new GenericActionFunction(false, true);
+    Appcelerator.Compiler.registerCustomAction(name, f, element);
+    Appcelerator.Compiler.attachFunction(element.id, name, callback);
+};
+Appcelerator.Compiler.registerCustomAction('history',
+{
+	execute: function(id,action,params)
 	{
 		if (params && params.length > 0)
 		{
 			var obj = params[0];
 			var key = obj.key;
-			return 'Appcelerator.History.go("'+key+'");';
+			Appcelerator.History.go(key);
 		}
 		else
 		{
@@ -14809,9 +18398,6 @@ function(element,condition,action,elseAction,delay,ifCond)
 	'mousemove',
 	'change',
 	'scroll',
-	'keyup',
-	'keypress',
-	'keydown',
 	'contextmenu',
 	'mousewheel',
 	'input',
@@ -14842,6 +18428,11 @@ Appcelerator.Compiler.actionId = 0;
 
 Appcelerator.Compiler.isEventSelector = function (token)
 {
+    if (token.indexOf(':')!=-1)
+    {
+        return false;
+    }
+    
 	if (token.charAt(token.length-1)=='!')
 	{
 		token = token.substring(0,token.length-1);
@@ -14852,15 +18443,59 @@ Appcelerator.Compiler.isEventSelector = function (token)
 		{
 			return true;
 		}
-		if (token.indexOf(Appcelerator.Compiler.Events[c]) != -1)
+		
+		var i = token.indexOf('.');
+		realtoken = token.substring(i+1);
+		realtoken = Appcelerator.Compiler.parseEventConditionName(realtoken);
+		if (realtoken==Appcelerator.Compiler.Events[c])
 		{
-			// make sure it's not another action
-			return token.indexOf(':')==-1 && token.indexOf('[')==-1;
+			return true;
 		}
 	}
 	return false;
 };
-
+Appcelerator.Compiler.filteredEvent = function(event, filters) 
+{
+	if (filters!=null) {
+		for(var i=0;i<filters.length;i++) 
+		{
+			filter = filters[i];
+			var expected = filter.value;
+			var actual = "" + event[filter.name];
+			if (actual != expected)
+				return true;
+		}
+	}
+	return false;
+};
+Appcelerator.Compiler.parseEventConditionName = function(condition) 
+{
+	if (condition.indexOf('[')==-1)
+		return condition;
+	else
+		return condition.substring(0,condition.indexOf('['));
+};
+Appcelerator.Compiler.parseEventConditionFilters = function(condition) 
+{
+	if (condition.indexOf('[')!=-1) 
+	{
+		filters = new Array();
+		var start = (condition.indexOf('[')+1);
+		var end = (condition.indexOf(']'));
+		var namevalue = condition.substring(start,end);
+		var pairs = (namevalue.split(','));
+		for (var i=0;i<pairs.length;i++)
+		{
+			var pair = pairs[i].split('=');
+			filters.push({name:pair[0],value:pair[1]});
+		}
+		return filters;
+	}
+	else
+	{
+		return null;
+	}
+};
 Appcelerator.Compiler.registerCustomCondition(
 {
 	conditionPrefixes: Appcelerator.Compiler.EventTargets.map(function(targetName){ return targetName+'.'}),
@@ -14886,6 +18521,9 @@ function(element,condition,action,elseAction,delay,ifCond)
 		stopEvent = true;
 		condition = condition.substring(0,condition.length-1);
 	}
+
+	var filters = Appcelerator.Compiler.parseEventConditionFilters(condition);
+	condition = Appcelerator.Compiler.parseEventConditionName(condition);
 
 	var i = condition.indexOf('.');
 	var event = condition, target = element.id, children = false;
@@ -14956,6 +18594,8 @@ function(element,condition,action,elseAction,delay,ifCond)
 	{
 		var f = function(e)
 		{
+			if (Appcelerator.Compiler.filteredEvent(e,filters))
+				return;
 			var child = element.options[element.selectedIndex||0];
 			var me = child;
 			if (Element.isDisabled(me) || Element.isDisabled(me.parentNode)) return;
@@ -14996,6 +18636,8 @@ function(element,condition,action,elseAction,delay,ifCond)
 						$D('adding listener to '+child.id+' for event: '+event);
 						var cf = function(event)
 						{
+							if (Appcelerator.Compiler.filteredEvent(event,filters))
+								return;
 							var me = child;
 							if (Element.isDisabled(me) || Element.isDisabled(me.parentNode)) return;
 							var actionFunc = Appcelerator.Compiler.makeConditionalAction(Appcelerator.Compiler.getAndEnsureId(child),action,ifCond);
@@ -15007,6 +18649,8 @@ function(element,condition,action,elseAction,delay,ifCond)
 						{
 							f = function(e)
 							{
+								if (Appcelerator.Compiler.filteredEvent(e,filters))
+									return;
 								cf(e);
 								Event.stop(e);
 								return false;
@@ -15035,6 +18679,8 @@ function(element,condition,action,elseAction,delay,ifCond)
 			var scope = {id:target.id};
 			var cf = function(event)
 			{
+				if (Appcelerator.Compiler.filteredEvent(event,filters))
+					return;
 				var me = $(scope.id);
 				if (Element.isDisabled(me) || Element.isDisabled(me.parentNode)) return;
 			    var __method = actionFunc, args = $A(arguments);
@@ -15045,6 +18691,8 @@ function(element,condition,action,elseAction,delay,ifCond)
 			{
 				f = function(e)
 				{
+					if (Appcelerator.Compiler.filteredEvent(e,filters))
+						return;
 					cf(e);
 					Event.stop(e);
 					return false;
@@ -15062,6 +18710,21 @@ if (Appcelerator.Browser.isIPhone)
 {
 	window.onorientationchange = function() 
 	{
+		if (!Element.hasClassName('orientation_'+window.orientation))
+		{
+			var cn = Element.classNames(document.body);
+			if (cn)
+			{
+				cn._each(function(name)
+				{
+					if (name.startsWith('orientation_'))
+					{
+						cn.remove(name);
+					}
+				});
+			}
+			Element.addClassName(document.body,'orientation_'+window.orientation);
+		}
 		var evt = document.createEvent("Events");
 		evt.initEvent('orientationchange', true, true); //true for can bubble, true for cancelable
 		document.body.dispatchEvent(evt);
@@ -15077,68 +18740,332 @@ Appcelerator.Compiler.registerCustomCondition(
 },
 function(element,condition,action,elseAction,delay,ifCond)
 {
-	if (condition.startsWith('history:'))
+    if (!condition.startsWith('history:') && !condition.startsWith('history['))
 	{
-		var id = element.id;
-		var token = condition.substring(8);
-		var actionFunc = Appcelerator.Compiler.makeConditionalAction(id,action,ifCond);
-		var elseActionFunc = elseAction ? Appcelerator.Compiler.makeConditionalAction(id,elseAction,null) : null;
-		var operator = '==';
-
-		if (token.charAt(0)=='!')
-		{
-			token = token.substring(1);
-			operator = '!=';
-		}
-		
-		// support a null (no history) history
-		token = token.length == 0 || token=='_none_' || token==='null' ? null : token;
-		
-		Appcelerator.History.onChange(function(newLocation,data,scope)
-		{
-			switch (operator)
-			{
-				case '==':
-				{
-					if (newLocation == token)
-					{
-						Appcelerator.Compiler.executeAfter(actionFunc,delay,{data:data});
-					}
-					else if (elseActionFunc)
-					{
-						Appcelerator.Compiler.executeAfter(elseActionFunc,delay,{data:data});
-					}
-					break;
-				}
-				case '!=':
-				{
-					if (newLocation != token)
-					{
-						Appcelerator.Compiler.executeAfter(actionFunc,delay,{data:data});
-					}
-					else if (elseActionFunc)
-					{
-						Appcelerator.Compiler.executeAfter(elseActionFunc,delay,{data:data});
-					}
-					break;
-				}
-			}
-		});
-		return true;
+		return false;
 	}
-	return false;
+
+    var token = null;
+
+    if (condition.startsWith('history:'))
+    {
+        token = condition.substring(8);
+    }
+    
+    if (condition.startsWith('history['))
+    {
+        token = condition.substring(8,condition.indexOf(']'));
+    }
+
+	// allow token to be empty string which is essentially wildcard
+    token = token || '';
+
+	var id = element.id;
+	var actionFunc = Appcelerator.Compiler.makeConditionalAction(id,action,ifCond);
+	var elseActionFunc = elseAction ? Appcelerator.Compiler.makeConditionalAction(id,elseAction,null) : null;
+	var operator = '==';
+	var regex = null;
+
+	if (token.charAt(0)=='!')
+	{
+		token = token.substring(1);
+		operator = '!=';
+	}
+	else if (token == '*')
+	{
+	    operator = '*';
+	}
+	else if (token.charAt(0)=='~')
+	{
+		operator = 'regex';
+		token = token.substring(1);
+	}
+	else if (token.indexOf('*') > -1)
+	{
+		operator = 'regex';
+		token = token.gsub(/\*/,'(.*)?');
+	}
+	
+	if (operator == 'regex')
+	{
+		regex = new RegExp(token);
+	}
+	
+	// support a null (no history) history
+	token = token.length == 0 || token=='_none_' || token==='null' ? null : token;
+	
+	Appcelerator.History.onChange(function(newLocation,data,scope)
+	{
+		var fire = false;
+		switch (operator)
+		{
+			case 'regex':
+			{
+				fire = regex.test(newLocation);
+				break;
+			}
+			case '==':
+			{
+				fire = (newLocation == token);
+				break;
+			}
+			case '!=':
+			{
+				fire = (newLocation != token);
+				break;
+			}
+			case '*':
+			{
+				fire = !Object.isUndefined(newLocation);
+				break;
+			}
+		}
+		if (fire)
+		{
+			Appcelerator.Compiler.executeAfter(actionFunc,delay,{data:data});
+		}
+		else if (elseActionFunc)
+		{
+			Appcelerator.Compiler.executeAfter(elseActionFunc,delay,{data:data});
+		}
+	});
+	return true;
 });
 
 
 
+Appcelerator.Compiler.registerCustomCondition(
+{
+	conditionNames: ['keypress', 'keyup', 'keydown'],
+	description: "Respond to key events on the element"
+},
+function(element,condition,action,elseAction,delay,ifCond)
+{
+    if (condition.indexOf('keypress')==-1 && condition.indexOf('keyup')==-1 && condition.indexOf('keydown')==-1)
+    {
+        return false;
+    }
+    
+    if (elseAction)
+	{
+		throw "syntax error: 'else' action not supported on event conditions for: "+condition;
+	}
+	
+    var token = condition;
+	var stopEvent = false;
 
+	if (condition.charAt(token.length-1)=='!')
+	{
+		condition = condition.substring(0,condition.length-1);
+		stopEvent = true;
+	}
+	
+	var i = condition.indexOf('.');
+	var event = condition, target = element.id, children = false;
+	if (i > 0)
+	{
+		var tid = condition.substring(0,i);
+		switch (tid)
+		{
+			case 'this':
+			{
+				target = element.id;
+				break;
+			}
+			case 'parent':
+			{
+				target = element.parentNode.id;
+				break;
+			}
+			case 'down':
+			case 'after':
+			case 'next':
+			case 'sibling':
+			case 'next-sibling':
+			{
+				target = element.nextSibling.id;
+				break;
+			}
+			case 'before':
+			case 'up':
+			case 'prev-sibling':
+			case 'previous-sibling':
+			{
+				target = element.previousSibling.id;
+				break;
+			}
+			case 'child':
+			case 'children':
+			{
+				children = true;
+				break;
+			}
+			case 'window':
+			{
+				target = 'window';
+				break;
+			}
+			case 'body':
+			{
+				target = document.body.id;
+				break;
+			}
+			default:
+			{
+				target = tid;
+			}
+		}
+		event = condition.substring(i+1);
+	}
+	
+	var i = condition.indexOf('[');
+	var attribute = null;
+	if (i > 0)
+	{
+	    attribute = condition.substring(i+1,condition.indexOf(']'));
+	    event = event.substring(0,i);
+	}
+
+	if (event == 'keypress' || event == 'keydown' || event == 'keyup')
+	{
+        if (Object.isString(target))
+        {
+            target = target == 'window' ? window : $(target);
+        }
+        
+        if (!target)
+        {
+            throw "syntax error: target not found for "+condition;
+        }
+        
+        $D('adding listener to '+target+', name: '+target.nodeName+', id: '+target.id+' for event: '+event);
+        var actionFunc = Appcelerator.Compiler.makeConditionalAction(target.id,action,ifCond);
+
+        var scope = {id:target.id};
+        var cf = function(e)
+        {
+            var me = $(scope.id);
+            if (Element.isDisabled(me) || Element.isDisabled(me.parentNode)) return;
+            var key = e.keyCode;
+            var data = {key: key, event: e};
+
+            if (attribute)
+            {
+                var mods = attribute.split('+');
+                var code = mods[mods.length-1];
+                
+                switch (code)
+                {
+                    case 'enter':
+                    {
+                        if (key != Event.KEY_RETURN) return;
+                        break;
+                    }
+                    case 'esc':
+                    {
+                        if (key != Event.KEY_ESC) return;
+                        break;
+                    }
+                    case 'left':
+                    {
+                        if (key != Event.KEY_LEFT) return;
+                        break;
+                    }
+                    case 'right':
+                    {
+                        if (key != Event.KEY_RIGHT) return;
+                        break;
+                    }
+                    case 'up':
+                    {
+                        if (key != Event.KEY_UP) return;
+                        break;
+                    }
+                    case 'down':
+                    {
+                        if (key != Event.KEY_DOWN) return;
+                        break;
+                    }
+                    case 'tab':
+                    {
+                        if (key != Event.KEY_TAB) return;
+                        break;
+                    }
+                    case 'delete':
+                    {
+                        if (key != Event.KEY_DELETE) return;
+                        break;
+                    }
+                    case 'backspace':
+                    {
+                        if (key != Event.KEY_BACKSPACE) return;
+                        break;
+                    }
+                    default:
+                    {
+                        if (key != code) return;
+                        break;
+                    }
+                }
+                
+                if (mods.length > 1)
+                {
+                    for (var i=0; i<(mods.length-1); i++)
+                    {
+                        var mod = mods[i];
+                        switch (mod)
+                        {
+                            case 'ctrl':
+                            {
+                                if (!e.ctrlKey) return;
+                                break;
+                            }
+                            case 'alt':
+                            {
+                                if (!e.altKey) return;
+                                break;
+                            }
+                            case 'shift':
+                            {
+                                if (!e.shiftKey) return;
+                                break;
+                            }
+                            case 'meta':
+                            {
+                                if (!e.metaKey) return;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+			Appcelerator.Compiler.executeAfter(actionFunc,0,data);
+        };
+        var f = cf;
+        if (stopEvent)
+        {
+            f = function(e)
+            {
+                cf(e);
+                Event.stop(e);
+                return false;
+            };
+        }
+
+        Appcelerator.Compiler.addEventListener(target,event,f,delay);
+        
+        return true;
+	}
+	return false;
+});
 
 //
 // this is a custom condition for handling executing actions based on a message condition
 //
 Appcelerator.Compiler.registerCustomCondition(
 {
-	conditionPrefixes: ['local:', 'remote:', 'l:', 'r:'],
+	conditionPrefixes: ['local:', 'remote:', 'l:', 'r:', 'both:', '*:'],
 	freeformSuffix: true,
 	description: "Respond to a local or remote message"
 },
@@ -15147,7 +19074,9 @@ function(element,condition,action,elseAction,delay,ifCond)
 	if (condition.startsWith('local:') ||
 	       condition.startsWith('l:') || 
 	       condition.startsWith('remote:') ||
-	       condition.startsWith('r:'))
+	       condition.startsWith('r:') ||
+		   condition.startsWith('both:') ||
+		   condition.startsWith('*:') )
 	{
 		var id = element.id;
 		var actionParams = Appcelerator.Compiler.parameterRE.exec(condition);
@@ -15164,34 +19093,8 @@ Appcelerator.Compiler.MessageAction = {};
 
 Appcelerator.Compiler.MessageAction.onMessage = function(type,data,datatype,direction,scope,actionParamsStr,action,delay,elseaction)
 {
-	var ok = true;
-	var actionParams = actionParamsStr ? actionParamsStr.evalJSON() : null;
-	if (actionParams)
-	{
-		for (var c=0,len=actionParams.length;c<len;c++)
-		{
-			var p = actionParams[c];
-			var not_cond = p.key.charAt(p.key.length-1) == '!';
-			var k = not_cond ? p.key.substring(0,p.key.length-1) : p.key;
-			var v = Appcelerator.Compiler.getEvaluatedValue(k,data);
-			
-			// added x to eval $args
-			var x = Appcelerator.Compiler.getEvaluatedValue(p.value,data);
-			if (not_cond)
-			{
-				if (v == x)
-				{
-					ok = false;
-					break;
-				}
-			}
-			else if (null == v || v != x)
-			{
-				ok = false;
-				break;
-			}
-		}
-	}
+	var ok = Appcelerator.Compiler.parseConditionCondition(actionParamsStr, data);
+
 	var obj = {type:type,datatype:datatype,direction:direction,data:data,scope:scope};
 	if (ok)
 	{
@@ -15213,7 +19116,6 @@ Appcelerator.Compiler.MessageAction.makeMBListener = function(element,type,actio
 	}
 	
 	var paramsStr = (actionParams) ? Object.toJSON(actionParams) : null;
-	
 	$MQL(type,function(type,data,datatype,direction,scope)
 	{
 		Appcelerator.Compiler.MessageAction.onMessage(type,data,datatype,direction,scope,paramsStr,action,delay,elseaction);
@@ -15322,6 +19224,65 @@ function(element,condition,action,elseAction,delay,ifCond)
 		}
 	}
 	return true;
+});Appcelerator.Compiler.registerCustomCondition(
+{
+	conditionNames: ['sortupdate', 'sortchange'],
+	description: "Respond to sortable events on the element"
+},
+function(element,condition,action,elseAction,delay,ifCond)
+{
+	var eventName = null;
+	
+	switch (condition)
+	{
+		case 'sortupdate':
+		{
+			if (!element.getAttribute('sortable'))
+			{
+				throw "sortupdate condition only applies to elements that have sortable attribute";
+			}
+			
+			if (!element.updateListeners)
+			{
+				element.updateListeners = [];
+			}
+			
+			var actionFunc = Appcelerator.Compiler.makeConditionalAction(element.id,action,ifCond);
+			element.updateListeners.push(
+			{
+				onUpdate: function(e)
+				{
+					Appcelerator.Compiler.executeAfter(actionFunc,delay,{id:e.id});
+				}
+			});
+			return true;
+		}
+		case 'sortchange':
+		{
+			if (!element.getAttribute('sortable'))
+			{
+				throw "sortchange condition only applies to elements that have sortable attribute";
+			}
+			
+			if (!element.changeListeners)
+			{
+				element.changeListeners = [];
+			}
+			
+			
+			var actionFunc = Appcelerator.Compiler.makeConditionalAction(element.id,action,ifCond);
+			element.changeListeners.push(
+			{
+				onChange: function(e)
+				{
+					Appcelerator.Compiler.executeAfter(actionFunc,delay,{id:e.id});
+				}
+			});
+			return true;
+		}
+	}
+	
+	return false;
 });
 Appcelerator.Compiler.StateMachine = {};
 Appcelerator.Compiler.StateMachine.APP_STATES = {};
@@ -15330,6 +19291,22 @@ Appcelerator.Compiler.StateMachine.CompiledStateConditionCache = {};
 Appcelerator.Compiler.StateMachine.isStateCondition = function (token)
 {
 	return Appcelerator.Compiler.parameterRE.test(token);
+};
+Appcelerator.Compiler.getTransitionSource = function(moniker) {
+	if (moniker.indexOf(':')==-1)
+		return '';
+	else {
+		value =  moniker.split(':')[0];
+		return ''+value;
+	}
+};
+Appcelerator.Compiler.getTransitionTarget = function(moniker) {
+	if (moniker.indexOf(':')==-1)
+		return moniker;
+	else {
+		value =  moniker.split(':')[1];
+		return ''+value;
+	}
 };
 
 Appcelerator.Compiler.registerCustomCondition(
@@ -15389,10 +19366,11 @@ function(element,condition,action,elseAction,delay,ifCond)
 		
 		var actionParams = Appcelerator.Compiler.parameterRE.exec(token);
 		var statemachine = actionParams[1];
-		var state = actionParams[2];
-		
-		statemachines.push([statemachine,state]);
-		condition += cond + 'Appcelerator.Compiler.StateMachine.isStateValid("'+statemachine+'","'+state+'")';
+		var state = Appcelerator.Compiler.getTransitionTarget(actionParams[2]);
+		var oldstate = Appcelerator.Compiler.getTransitionSource(actionParams[2]);
+		statemachines.push([statemachine,state,oldstate]);
+		if (state !='' && state)
+			condition += cond + 'Appcelerator.Compiler.StateMachine.isStateValid("'+statemachine+'","'+state+'")';
 	}
 	
 	// pre-compile conditions
@@ -15411,15 +19389,21 @@ function(element,condition,action,elseAction,delay,ifCond)
 	for (var c=0,len=statemachines.length;c<len;c++)
 	{
 		var statemachine = statemachines[c][0];
-		var state = statemachines[c][1];
-
-		$D('adding state change listener for '+statemachine+'['+state+']');
+		var curstate = statemachines[c][1];
+		var curoldstate = statemachines[c][2];
+		$D('adding state change listener for '+statemachine+'['+curstate+']');
 	
-		Appcelerator.Compiler.StateMachine.registerStateListener(statemachine,function(statemachine,statechange,valid)
+		Appcelerator.Compiler.StateMachine.registerStateListener(statemachine,function(statemachinein,statechange,valid, old_state)
 		{
-			var result = compiledCondition();
-			$D('statemachine: '+statemachine+'['+statechange+'] logic returned => '+result);
-
+			var result=false;
+			if (curoldstate!='') {
+				var validold = curoldstate == (''+old_state) || curoldstate=='';
+				var validnew = curstate == (''+statechange) || curstate=='';
+				result = validold && validnew;
+			} else {
+				result = compiledCondition();
+				$D('statemachine: '+statemachinein+'['+statechange+'] logic returned => '+result);
+			}
 			if (result)
 			{
 				Appcelerator.Compiler.executeAfter(actionFunc,delay);
@@ -15592,7 +19576,9 @@ Appcelerator.Compiler.StateMachine.fireStateMachineChange = function (statemachi
 	if (m)
 	{
 		var different = false;
-		
+		var old_state = 'state_'+m.activeState;
+		var old_state_simple = m.activeState;
+				
 		for (var s in m.states)
 		{
 			if (s.startsWith('state_'))
@@ -15605,16 +19591,13 @@ Appcelerator.Compiler.StateMachine.fireStateMachineChange = function (statemachi
 					{
 						m.states[s] = on_off;
 						m.activeState = on_off ? s.substring(6) : null;
-						different = true;
-						$D('setting '+statemachine+'['+state+']=>'+on_off+', current='+old+',m.activeState='+m.activeState);
+						different = old_state == s ? false : true;
 					}
 				}
 				else if (on_off!=null && on_off==true)
 				{
 					// you can only have one state active
 					m.states[s]=false;
-					different=true;
-					$D('setting '+statemachine+'['+s.substring(6)+']=>false');
 				}
 			}
 		}
@@ -15634,7 +19617,7 @@ Appcelerator.Compiler.StateMachine.fireStateMachineChange = function (statemachi
 			for (var c=0,len=m.listeners.length;c<len;c++)
 			{
 				var listener = m.listeners[c];
-				listener.apply(listener,[statemachine,state,on_off]);
+				listener.apply(listener,[statemachine,state,on_off, old_state_simple]);
 			}
 		}
 	}
@@ -15940,6 +19923,19 @@ Object.extend(Appcelerator.Decorator,
         this.checkInvalid(element, valid, decId, 'required');
     });
 
+    addDecorator('zipcode_5', function(element, valid, decId)
+    {
+        this.checkInvalid(element, valid, decId, '5 digit zipcode required');
+    });
+    addDecorator('phone_us', function(element, valid, decId)
+    {
+        this.checkInvalid(element, valid, decId, '10 digit phone number required (###-###-####)');
+    });
+    addDecorator('ssn', function(element, valid, decId)
+    {
+        this.checkInvalid(element, valid, decId, '9 digit ssn required (###-##-####)');
+    });
+
     addDecorator('email', function(element, valid, decId)
     {
         this.checkInvalid(element, valid, decId, 'enter a valid email address');
@@ -16020,8 +20016,8 @@ This work is subject to the terms in http://www.robertpenner.com/easing_terms_of
 
 Adapted for Scriptaculous by Ken Snyder (kendsnyder ~at~ gmail ~dot~ com) June 2006
 */
-
-Object.extend(Effect.Transitions, {
+Object.extend(Effect.Transitions, 
+{
   elastic: function(pos) {
     return -1 * Math.pow(4,-8*pos) * Math.sin((pos*6-1)*(2*Math.PI)/2) + 1;
   },
@@ -16079,6 +20075,15 @@ Object.extend(Effect.Transitions, {
     return Math.pow(pos,0.25);
   }
 });
+
+for (var p in Effect.Transitions)
+{
+	var v = Effect.Transitions[p];
+	if (Object.isFunction(v))
+	{
+		Effect.Transitions[String(p.charAt(0)).toUpperCase()+p.substring(1)] = v;
+	}
+}
 
 
 // taken from http://www.huddletogether.com/projects/lightbox2
@@ -16399,6 +20404,117 @@ Object.extend(Event, {
 });
 
 
+// Copyright 2007, Google Inc.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+//  1. Redistributions of source code must retain the above copyright notice,
+//     this list of conditions and the following disclaimer.
+//  2. Redistributions in binary form must reproduce the above copyright notice,
+//     this list of conditions and the following disclaimer in the documentation
+//     and/or other materials provided with the distribution.
+//  3. Neither the name of Google Inc. nor the names of its contributors may be
+//     used to endorse or promote products derived from this software without
+//     specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+// EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+// PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+// OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+// WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+// OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+// ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+//
+// Sets up google.gears.*, which is *the only* supported way to access Gears.
+//
+// Circumvent this file at your own risk!
+//
+// In the future, Gears may automatically define google.gears.* without this
+// file. Gears may use these objects to transparently fix bugs and compatibility
+// issues. Applications that use the code below will continue to work seamlessly
+// when that happens.
+
+(function() {
+	
+  //
+  // APPCELERATOR CODE TO CHECK TO SEE IF WE'RE CONFIGURED BEFORE DOING GOOGLE INIT
+  // 	
+  if (!Appcelerator.Config['usegears'])
+  {
+	return;
+  }	
+	
+  // We are already defined. Hooray!
+  if (window.google && google.gears) {
+    return;
+  }
+
+  var factory = null;
+
+  // Firefox
+  if (typeof GearsFactory != 'undefined') {
+    factory = new GearsFactory();
+  } else {
+    // IE
+    try {
+      factory = new ActiveXObject('Gears.Factory');
+      // privateSetGlobalObject is only required and supported on WinCE.
+      if (factory.getBuildInfo().indexOf('ie_mobile') != -1) {
+        factory.privateSetGlobalObject(this);
+      }
+    } catch (e) {
+      // Safari
+      if ((typeof navigator.mimeTypes != 'undefined')
+           && navigator.mimeTypes["application/x-googlegears"]) {
+        factory = document.createElement("object");
+        factory.style.display = "none";
+        factory.width = 0;
+        factory.height = 0;
+        factory.type = "application/x-googlegears";
+        document.documentElement.appendChild(factory);
+      }
+    }
+  }
+
+  // *Do not* define any objects if Gears is not installed. This mimics the
+  // behavior of Gears defining the objects in the future.
+  if (!factory) {
+    return;
+  }
+
+  // Now set up the objects, being careful not to overwrite anything.
+  //
+  // Note: In Internet Explorer for Windows Mobile, you can't add properties to
+  // the window object. However, global objects are automatically added as
+  // properties of the window object in all browsers.
+  if (!window.google) {
+    google = {};
+  }
+
+  if (!google.gears) {
+    google.gears = {factory: factory};
+  }
+
+
+  // APPCELERATOR BOOTSTRAP CODE START
+  google.gears.appcelerator = {};
+  google.gears.appcelerator.workerPool = google.gears.factory.create('beta.workerpool');	
+
+  google.gears.appcelerator.workerPool.onmessage = function(a, b, message) 
+  {
+	Appcelerator.Util.ServiceBroker.gearsDispatch(message.text);
+  };
+
+  var baseScriptPath = (Appcelerator.WidgetPath + 'common/js/gears/').replace(window.location,'');
+  google.gears.appcelerator.serviceBrokerId = google.gears.appcelerator.workerPool.createWorkerFromUrl(baseScriptPath + 'servicebroker_remote.js');
+
+  Appcelerator.Core.requireCommonJS('gears/servicebroker_local.js');
+})();
+
 Appcelerator.History = {};
 
 Appcelerator.History.changeListeners = [];
@@ -16544,10 +20660,10 @@ Appcelerator.Compiler.afterDocumentCompile(function()
         // because the hash thing will be fixed in the next major
         // version of Safari. So even if they fix the history.length
         // bug, all this will still work!
-        counter = history.length;
+        var counter = history.length;
         
         // On Gecko and Opera, we just need to watch the hash...
-        hash = null; // set it to null so we can start off in a null state to check for first change
+        var hash = null; // set it to null so we can start off in a null state to check for first change
         
         setInterval( function () 
         {
@@ -16556,6 +20672,7 @@ Appcelerator.Compiler.afterDocumentCompile(function()
 
             newHash = document.location.hash;
             newCounter = history.length;
+
             if ( newHash !== hash ) 
             {
                 hash = newHash;
@@ -16716,33 +20833,6 @@ Appcelerator.Util.IdleManager =
 //modified to work with delayed loading for Appcelerator by JHaynie
 if (Appcelerator.Browser.isIE6)
 {
-	try
-	{
-		// remove CSS background image flicker and cache images if
-		// the server says so
-		// http://evil.che.lu/2006/9/25/no-more-ie6-background-flicker
-   		document.execCommand("BackgroundImageCache", false, true);
-    }
-	catch(e){}
-	
-	
-	Appcelerator.Browser.buildIEImage = function (img,width,height,src)
-	{
-        var imgID = (img.id) ? "id='" + img.id + "' " : "";
-        var imgClass = (img.className) ? "class='" + img.className + "' " : "";
-        var imgTitle = (img.title) ? "title='" + img.title + "' " : "title='" + img.alt + "' ";
-        var imgStyle = "display:inline-block;" + img.style.cssText ;
-        if (img.align == "left") imgStyle = "float:left;" + imgStyle;
-        if (img.align == "right") imgStyle = "float:right;" + imgStyle;
-        if (img.parentElement && img.parentElement.href) imgStyle = "cursor:hand;" + imgStyle;
-        var strNewHTML = "<img " + imgID + imgClass + imgTitle;
-		var sizing = "width:" + width + "px; height:" + height + "px;";
-        strNewHTML+= " style=\"" + sizing + imgStyle + ";"
-        + "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader"
-        + "(src=\'" + (src||img.src) + "\', sizingMethod='image');\" src='"+Appcelerator.ImagePath+"blank_1x1.gif' />" ;
-		return strNewHTML;
-	};
-
 	document.getElementsByTagNameNS = function(xmlns, tag)
 	{
 		var ar = $A(document.getElementsByTagName('*'));
@@ -16762,91 +20852,15 @@ if (Appcelerator.Browser.isIE6)
 		}
 		return found;
 	};
-	
-	Appcelerator.Browser.fixBackgroundPNG = function(obj) 
-	{
-		if (obj.style.backgroundImage.indexOf('blank_1x1.gif') > 0)
-		{
-			obj.style.backgroundImage = '';
-		}
-		obj.style.filter = '';
-		var bg	= obj.currentStyle.backgroundImage;
-		var src = bg.substring(5,bg.length-2);
-		var scale = obj.currentStyle.backgroundRepeat == 'no-repeat' ? 'image' : 'scale';
-		obj.style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + src + "', sizingMethod='"+scale+"')";
-		obj.style.backgroundImage = "url("+Appcelerator.ImagePath+"blank_1x1.gif)";
-	};
 
-	Appcelerator.Browser.fixImage = function(element,value)
+	try
 	{
-		element = $(element);
-		value = value || element.src;
-		if (Appcelerator.Browser.isIE6 && value)
-		{
-	     	var imgName = value.toUpperCase();
-	      	if (imgName.substring(imgName.length-3, imgName.length) == "PNG")
-	      	{
-	      		var height = element.height, width = element.width;
-			 	if (!height || !width)
-			 	{
-					// in this case, we're not visible so IE won't load the image in some cases
-					// so we are going to force a pre-load of the image to calculate the size and then
-					// replace it once the image is loaded instead
-		      		var tempImage = new Image();
-		      		tempImage.onload = function()
-		      		{
-		      			element.outerHTML = Appcelerator.Browser.buildIEImage(element,tempImage.width,tempImage.height,value.trim());
-		      		};
-		      		tempImage.src = value;
-			 	}
-			 	else
-			 	{
-		      		element.outerHTML = Appcelerator.Browser.buildIEImage(element,width,height,value.trim());
-			 	}
-	      	}
-		}
-	};
-	
-	Appcelerator.Browser.fixImageIssues = function()
-	{
-		if (Appcelerator.Browser.isIE6)
-		{
-			/*
-			function fnPropertyChanged() 
-			{
-				if (window.event.propertyName == "style.backgroundImage") 
-				{
-					var el = window.event.srcElement;
-					if (!el.currentStyle.backgroundImage.match(/blank_1x1\.gif/i)) 
-					{
-						var bg	= el.currentStyle.backgroundImage;
-						var src = bg.substring(5,bg.length-2);
-						el.filters.item(0).src = src;
-						el.style.backgroundImage = "url("+Appcelerator.ImagePath+"blank_1x1.gif)";
-					}
-				}
-			}*/
-	
-			for (var i = document.all.length - 1, obj = null; (obj = document.all[i]); i--) 
-			{
-				if (obj.currentStyle.backgroundImage.match(/(\.png)|(blank_1x1\.gif)/i) != null) 
-				{
-					Appcelerator.Browser.fixBackgroundPNG(obj);
-					//obj.attachEvent("onpropertychange", fnPropertyChanged);
-				}
-				else if (obj.nodeName == 'IMG')
-				{
-					Appcelerator.Browser.fixImage(obj);
-				}
-			}
-		}
-	};
-
-    Appcelerator.Core.onload(Appcelerator.Browser.fixImageIssues);
-}
-else
-{
-    Appcelerator.Browser.fixImageIssues = Prototype.K;
+		// remove CSS background image flicker and cache images if
+		// the server says so
+		// http://evil.che.lu/2006/9/25/no-more-ie6-background-flicker
+   		document.execCommand("BackgroundImageCache", false, true);
+    }
+	catch(e){}
 }/**
  * this is a simple utility for dynamically loading iframes and returning the 
  * content from the iframe's <body> in the callback
@@ -16855,6 +20869,8 @@ Appcelerator.Util.IFrame =
 {
 	fetch: function(src,onload,removeOnLoad,copyContent)
 	{
+		src = Appcelerator.URI.absolutizeURI(src,Appcelerator.DocumentPath);
+		
 	    setTimeout(function()
 	    {
 	        copyContent = (copyContent==null) ? false : copyContent;
@@ -16866,12 +20882,7 @@ Appcelerator.Util.IFrame =
 	        {
 	            frame.setAttribute('name', frameid);
 	        }
-            if(src.indexOf('/') == 0)
-            {
-                frame.setAttribute('src', src);
-            } else {
-                frame.setAttribute('src',Appcelerator.DocumentPath+src);
-            }
+            frame.setAttribute('src', src);
 	        frame.style.position = 'absolute';
 	        frame.style.width = frame.style.height = frame.borderWidth = '1px';
 	        // in Opera and Safari you'll need to actually show it or the frame won't load
@@ -17245,7 +21256,15 @@ Object.extend(Appcelerator.Util.KeyManager,
 });
 
 Appcelerator.Core.onload(Appcelerator.Util.KeyManager.install.bind(Appcelerator.Util.KeyManager));
-Appcelerator.Localization.currentLanguage = 'en';
+if (window.navigator.language != undefined)
+{
+	Appcelerator.Localization.currentLanguage = window.navigator.language;
+}
+else
+{
+    Appcelerator.Localization.currentLanguage = 'en-US';
+}
+
 Appcelerator.Localization.LanguageMap = {};
 
 //
@@ -17255,7 +21274,22 @@ Appcelerator.Localization.LanguageMap = {};
 Appcelerator.Localization.addLanguageBundle = function(lang,displayName,map)
 {
     map = map==null ? $H() : typeof(map.get)=='function' ? map : $H(map);
-	Appcelerator.Localization.LanguageMap['language_'+lang] = {'map':map,'display':displayName};
+	if (Object.isArray(lang))
+	{
+		for (var c=0;c<lang.length;c++)
+		{
+			Appcelerator.Localization.addLanguageBundle(lang[c],displayName,map);
+		}
+	}
+	else
+	{
+		Appcelerator.Localization.LanguageMap['language_'+lang] = {'map':map,'display':displayName,'lang':lang};
+		var idx = lang.indexOf('-');
+		if (idx > 0)
+		{
+			Appcelerator.Localization.LanguageMap['language_'+lang.substring(0,idx)] = {'map':map,'display':displayName,'lang':lang.substring(0,idx)};
+		}
+	}
 };
 
 //
@@ -17264,8 +21298,7 @@ Appcelerator.Localization.addLanguageBundle = function(lang,displayName,map)
 //
 Appcelerator.Localization.updateLanguageBundle = function(lang,displayName,map)
 {
-    map = map==null ? $H() : typeof(map.get)=='function' ? map : $H(map);
-    var bundle = Appcelerator.Localization.LanguageMap['language_'+lang];
+	var bundle = Appcelerator.Localization.getBundle(lang);
     if (!bundle)
     {
         Appcelerator.Localization.addLanguageBundle(lang,displayName,map);
@@ -17274,6 +21307,11 @@ Appcelerator.Localization.updateLanguageBundle = function(lang,displayName,map)
     {
         bundle.map = bundle.map.merge(map);
     }
+	var idx = lang.indexOf('-');
+	if (idx > 0)
+	{
+		Appcelerator.Localization.updateLanguageBundle(lang.substring(0,idx),displayName,map);
+	}
 };
 
 //
@@ -17301,19 +21339,36 @@ Appcelerator.Localization.getLanguages = function()
 	return langs;
 };
 
+Appcelerator.Localization.getBundle = function(lang)
+{
+	lang = (lang==null) ? Appcelerator.Localization.currentLanguage : lang;
+	var map = Appcelerator.Localization.LanguageMap['language_'+lang];
+
+	if (!map)
+	{
+		// we don't have a specific language bundle like en-US so we now
+		// just look for en part
+		var idx = lang.indexOf('-');
+		if (idx > 0)
+		{
+			return Appcelerator.Localization.getBundle(lang.substring(0,idx));
+		}
+	}
+	return map;
+}
+
 //
 // set a language bundle key for a given language - the language
 // bundle must have already been registered or an exception will be raised
 //
 Appcelerator.Localization.set = function(key,value,lang)
 {
-	lang = (lang==null) ? Appcelerator.Localization.currentLanguage : lang;
-	var map = Appcelerator.Localization.LanguageMap['language_'+lang];
-	if (!map)
+	var bundle = Appcelerator.Localization.getBundle(lang);
+	if (!bundle || !bundle.map)
 	{
 		throw "language bundle not found for language: "+lang;
 	}
-	map.set(key,value);
+	bundle.map.set(key,value);
 }
 
 //
@@ -17321,13 +21376,18 @@ Appcelerator.Localization.set = function(key,value,lang)
 //
 Appcelerator.Localization.get = function(key,defValue,lang)
 {
-	lang = (lang==null) ? Appcelerator.Localization.currentLanguage : lang;
-	
-	var bundle = Appcelerator.Localization.LanguageMap['language_'+lang];
-	
+	var bundle = Appcelerator.Localization.getBundle(lang);
 	if (bundle && bundle.map)
 	{
 		var value = bundle.map.get(key);
+		if (!value)
+		{
+			var idx = bundle.lang.indexOf('-');
+			if (idx > 0)
+			{
+				return Appcelerator.Localization.get(key,defValue,bundle.lang.substring(0,idx));
+			}
+		}
 		return value || defValue;
 	}
 	return defValue;
@@ -17347,6 +21407,10 @@ Appcelerator.Localization.getWithFormat = function (key, defValue, lang, args)
 	if (!cachedCopy)
 	{
 		var template = Appcelerator.Localization.get(key,defValue,lang);
+		if (!template)
+		{
+			return defValue;
+		}
 		cachedCopy = Appcelerator.Compiler.compileTemplate(template);
 		Appcelerator.Localization.compiledTemplates[cacheKey]=cachedCopy;
 	}
@@ -17372,7 +21436,8 @@ Appcelerator.Localization.supportedTags =
 	'h3',
 	'h4',
 	'ol',
-	'legend'
+	'legend',
+    'img'
 ];
 
 //
@@ -17402,7 +21467,7 @@ Appcelerator.Localization.unregisterTag = function(tag)
 // 
 // create the default english bundle and make it empty
 //
-Appcelerator.Localization.addLanguageBundle('en','English',{});
+Appcelerator.Localization.addLanguageBundle(['en','en-US'],'English',{});
 
 
 
@@ -17782,7 +21847,28 @@ Appcelerator.Compiler.registerAttributeProcessor(['div','input','button'],'activ
 		""
 		)
 	}
-});//
+});
+Appcelerator.Compiler.registerAttributeProcessor('form','disablesubmit',
+{
+	handle: function(element,attribute,value)
+	{
+		if (value == "true")
+		{
+			var input = document.createElement('input');
+			input.type = 'text';
+			input.style.display = 'none';
+			input.name = 'disablesubmit';
+			element.appendChild(input);
+		}
+	},
+	metadata:
+	{
+		description: (
+		"When set to true, then it will disable the form from auto-submit when a user hits enter."
+		)
+	}
+});
+//
 // register our drag-n-drop Draggable attribute listener
 //
 Appcelerator.Compiler.registerAttributeProcessor('div','draggable',
@@ -17862,7 +21948,7 @@ Appcelerator.Compiler.registerAttributeProcessor('div','droppable',
 // 
 // register our fieldsets
 // 
-Appcelerator.Compiler.registerAttributeProcessor(['textarea','input','select'],'fieldset',
+Appcelerator.Compiler.registerAttributeProcessor('*','fieldset',
 {
 	handle: function(element,attribute,value)
 	{
@@ -17872,7 +21958,12 @@ Appcelerator.Compiler.registerAttributeProcessor(['textarea','input','select'],'
 			// our reference
 			//
 			Appcelerator.Compiler.addFieldSet(element,false);
-		}		
+
+			Appcelerator.Compiler.addTrash(element, function()
+			{
+			    Appcelerator.Compiler.removeFieldSet(element);
+			});
+		}
 	},
 	metadata:
 	{
@@ -17890,31 +21981,27 @@ Appcelerator.Compiler.registerAttributeProcessor(['textarea','input','select'],'
 
 Appcelerator.Compiler.Image = {};
 
-if (Appcelerator.Browser.isIE6)
-{
-	Appcelerator.Compiler.registerAttributeProcessor('img','src',
-	{
-		handle: function(img,attribute,value)
-		{
-			if (value)
-			{
-	    		Appcelerator.Browser.fixImage(img,value);
-			}
-		}
-	});
-}
-
 Appcelerator.Compiler.registerAttributeProcessor('img','srcexpr',
 {
 	handle: function(img,attribute,value)
 	{
 		if (value)
 		{
-			img.src = eval(String.unescapeXML(value));
-			
-			if (Appcelerator.Browser.isIE6)
+			try
 			{
-				Appcelerator.Browser.fixImage(img,img.src);
+				var srcvalue = eval(String.unescapeXML(value));
+				if (Appcelerator.Browser.isIE6)
+				{
+					img.onload = function()
+					{
+						img.addBehavior(Appcelerator.Core.getModuleCommonDirectory() + '/images/appcelerator/iepngfix.htc');
+					};
+				}
+				img.src = srcvalue;
+			}
+			catch(e)
+			{
+				Appcelerator.Compiler.handleElementException(img, e, 'setting img srcexpr using expression = ' + value);
 			}
 		}
 	}
@@ -17965,6 +22052,12 @@ Appcelerator.Localization.AttributeProcessor =
 					element.value = v;
 					break;
 				}
+				case 'img':
+				{
+					element.setAttribute("title", v);
+					element.setAttribute("alt", v);
+					break;
+				}
 				default:
 				{
 					element.innerHTML = v;
@@ -17981,12 +22074,19 @@ Appcelerator.Localization.AttributeProcessor =
 	}
 };
 
-Appcelerator.Compiler.registerAttributeProcessor(Appcelerator.Localization.supportedTags,'langid',Appcelerator.Localization.AttributeProcessor);Appcelerator.Compiler.registerAttributeProcessor('*','on',
+Appcelerator.Compiler.registerAttributeProcessor(Appcelerator.Localization.supportedTags,'langid',Appcelerator.Localization.AttributeProcessor);
+Appcelerator.Compiler.registerAttributeProcessor('*','on',
 {
 	handle: function(element,attribute,value)
 	{
 		if (value)
 		{
+			var value = element.getAttribute('set');
+			if (value)
+			{
+				// set calls parse after its done, let it win
+				return;
+			}
 			Appcelerator.Compiler.parseOnAttribute(element);
 		}
 	},
@@ -18195,17 +22295,7 @@ Appcelerator.Compiler.registerAttributeProcessor(['div','img', 'table'],'resizab
 //
 Appcelerator.Compiler.SelectableGroups = {};
 
-Appcelerator.Compiler.addContainerProcessor(
-{
-	process: function(element,container)
-	{
-		var v = element.getAttribute('selectable');
-		if (v)
-		{
-			container.setAttribute('selectable',v);
-		}
-	}
-});
+Appcelerator.Compiler.retainedWidgetAttributes.push('selectable');
 
 Appcelerator.Compiler.wireSelectable = function(element,value)
 {
@@ -18419,6 +22509,33 @@ Appcelerator.Compiler.registerAttributeProcessor(['div','ul','ol'],'sortable',
 					options.tag = Appcelerator.Compiler.getTagname(child);
 				}
 			}
+			
+			options.onUpdate = function(e)
+			{
+				var listeners = element.updateListeners;
+				if (listeners && listeners.length > 0)
+				{
+					for (var c=0;c<listeners.length;c++)
+					{
+						var cb = listeners[c];
+						cb.onUpdate(e);
+					}
+				}
+			};
+			
+			options.onChange = function(e)
+			{
+				var listeners = element.changeListeners;
+				if (listeners && listeners.length > 0)
+				{
+					for (var c=0;c<listeners.length;c++)
+					{
+						var cb = listeners[c];
+						cb.onChange(e);
+					}
+				}
+			};
+			
 			Sortable.create(element.id,options);
 
 			Appcelerator.Compiler.addTrash(element,function()
@@ -18509,6 +22626,26 @@ Appcelerator.Compiler.registerAttributeProcessor(['textarea','input','select'],'
 				{
 					decorator.apply(Appcelerator.Decorator,[element,element.validatorValid,decoratorId]);
 				}
+				if (!value)
+				{
+					Element.addClassName(element,'validator_empty');
+					Element.removeClassName(element,'validator_value');
+				}
+				else
+				{
+					Element.addClassName(element,'validator_value');
+					Element.removeClassName(element,'validator_empty');
+				}
+				if (valid)
+				{
+					Element.removeClassName(element,'validator_invalid');
+					Element.addClassName(element,'validator_valid');
+				}
+				else
+				{
+					Element.removeClassName(element,'validator_valid');
+					Element.addClassName(element,'validator_invalid');
+				}
 				if (same)
 				{
 					// if the same, don't refire events
@@ -18541,6 +22678,7 @@ Appcelerator.Compiler.registerAttributeProcessor(['textarea','input','select'],'
 			
 			Appcelerator.Compiler.addTrash(element, function()
 			{
+			    Appcelerator.Compiler.removeChangeListener(element);
 				validationListeners = null;
 			});
 			
@@ -18548,21 +22686,892 @@ Appcelerator.Compiler.registerAttributeProcessor(['textarea','input','select'],'
 		}
 	}
 });
+Appcelerator.UI = Class.create();
+Appcelerator.UI.UIManager = {managers:{}};
+Appcelerator.UI.UIComponents = {};
+Appcelerator.UI.UIListeners = {};
+
+Appcelerator.UI.registerListener = function(type,name,event,callback)
+{
+	var f = function()
+	{
+		if (this.name == name || name == '*')
+		{
+			if (this.event == event || event == '*')
+			{
+				var scope = this.data || {};
+				scope.type = this.type;
+				scope.name = this.name;
+				scope.event = this.event;
+				callback.call(scope);
+			}
+		}
+	};
+	var listeners = Appcelerator.UI.UIListeners[type];
+	if (!listeners)
+	{
+		listeners=[];
+		Appcelerator.UI.UIListeners[type] = listeners;
+	}
+	listeners.push(f);
+};
+
+Appcelerator.UI.fireEvent = function(type,name,event,data)
+{
+	var listeners = Appcelerator.UI.UIListeners[type];
+	if (listeners && listeners.length > 0)
+	{
+		var scope = {type:type,name:name,event:event,data:data};
+		for (var c=0;c<listeners.length;c++)
+		{
+			listeners[c].call(scope);
+		}
+	}
+};
+
+/**
+ * called by an UI manager implementation to register itself by type
+ */
+Appcelerator.UI.registerUIManager = function(ui,impl)
+{
+	Appcelerator.UI.UIManager.managers[ui] = impl;
+};
+
+/**
+ * called by UI manager to register itself
+ */
+Appcelerator.UI.registerUIComponent = function(type,name,impl)
+{
+	try
+	{
+		var f = Appcelerator.UI.UIComponents[type+':'+name];
+
+		if (!f)
+		{
+			f = {};
+			Appcelerator.UI.UIComponents[type+':'+name]=f;
+		}
+
+		f.impl = impl;
+		f.loaded = true;
+
+		if (impl.setPath)
+		{
+			impl.setPath.call(impl,f.dir);
+		}
+
+		if (f.elements)
+		{
+			for (var c=0;c<f.elements.length;c++)
+			{
+				var obj = f.elements[c];
+				Appcelerator.UI.activateUIComponent(f.impl,f.dir,obj.type,obj.name,obj.element,obj.options,obj.callback);
+			}
+
+			f.elements = null;
+		}
+	}
+	catch(e)
+	{
+		Appcelerator.Compiler.handleElementException(null,e,'registerUIComponent for '+type+':'+name);
+	}
+};
+
+Appcelerator.UI.activateUIComponent = function(impl,setdir,type,name,element,options,callback)
+{
+	var formattedOptions = Appcelerator.UI.UIManager.parseAttributes(element,impl,options);
+	if (formattedOptions!=false)
+	{
+		try
+		{
+			impl.build(element,formattedOptions);
+
+			// keep track of elements and their UI attributes
+			Appcelerator.UI.addElementUI(element,type,name);
+		}
+		catch (e)
+		{
+			Appcelerator.Compiler.handleElementException(element,e,'activateUIComponent for '+type+':'+name);
+		}
+	}
+	if (impl.getActions)
+	{
+		var actions = impl.getActions();
+		var id = element.id;
+		for (var c=0;c<actions.length;c++)
+		{
+			(function()
+			{
+				var actionName = actions[c];
+				var action = impl[actionName];
+				if (action)
+				{
+					var xf = function(id,m,data,scope,version,customActionArguments,direction,type)
+					{
+						try
+						{
+							action.apply(impl,[id,formattedOptions,data,scope,version,customActionArguments,direction,type]);
+						}
+						catch (e)
+						{
+							$E('Error executing '+actionName+' in container type: '+type+'. Error '+Object.getExceptionDetail(e)+', stack='+e.stack);
+						}
+					};
+					Appcelerator.Compiler.buildCustomElementAction(actionName, element, xf);
+				}
+			})();
+		}
+	}
+
+	if (impl.getConditions)
+	{
+        Appcelerator.Compiler.customConditionObservers[element.id] = {};
+        var customConditions = impl.getConditions();
+        for (var i = 0; i < customConditions.length; i++)
+        {
+            var custCond = customConditions[i];
+            var condFunct = Appcelerator.Compiler.customConditionFunctionCallback(custCond);
+            Appcelerator.Compiler.registerCustomCondition({conditionNames: [custCond]}, 
+                condFunct, element.id);
+        }
+	}
+	
+	Appcelerator.Compiler.parseOnAttribute(element);
+	
+	if (callback)
+	{
+		callback();
+	}
+};
+
+/**
+ * called to load UI component by UI manager
+ */ 
+Appcelerator.UI.loadUIComponent = function(type,name,element,options,callback)
+{
+	var f = Appcelerator.UI.UIComponents[type+':'+name];
+	if (f)
+	{
+		if (f.loaded)
+		{
+			Appcelerator.UI.activateUIComponent(f.impl,f.dir,type,name,element,options,callback);
+		}
+		else
+		{
+			f.elements.push({type:type,name:name,element:element,options:options,callback:callback});
+		}
+	}
+	else
+	{
+		// added for API calls
+		if (!element.state)element.state = {pending:0};
+		
+		element.state.pending+=1;
+		var dir = Appcelerator.DocumentPath + '/components/'+type+'s/'+name;
+		var path = dir+'/'+name+'.js';
+		Appcelerator.UI.UIComponents[type+':'+name] = {dir:dir,loaded:false,elements:[{type:type,name:name,element:element,options:options,callback:callback}]};
+
+		Appcelerator.Core.remoteLoadScript(path,function()
+		{
+			element.state.pending-=1;
+			Appcelerator.Compiler.checkLoadState(element);
+		},function()
+		{
+			Appcelerator.UI.UIManager.handleLoadError(element,type,name,null,path);
+			element.state.pending-=1;
+			Appcelerator.Compiler.checkLoadState(element);
+		});
+	}
+};
+
+/**
+ * called to handle load error
+ */
+Appcelerator.UI.UIManager.handleLoadError = function(element,type,name,subtype,path)
+{
+	$E("error loading - type:"+type+",name:"+name+",subtype:"+subtype+"\nfor "+element.id+' from url='+path);
+	Appcelerator.Compiler.handleElementException(element,null,"couldn't load "+type+":"+name+" for : "+path);
+
+	//TODO: determine if we're online or offline to determine action here
+	//FIXME: add widget error handling
+	//top.document.location.href = Appcelerator.DocumentPath + 'component_notfound.html?type='+encodeURIComponent(type)+'&name='+encodeURIComponent(name)+'&url='+encodeURIComponent(top.document.location.href)+'&'+(subtype ? ('&subtype='+encodeURIComponent(subtype)) : '');
+};
+
+/************************************
+ *  API FUNCTIONS
+ ***********************************/
+Appcelerator.UI.createControl = function (element,type,args,callback)
+{
+	Appcelerator.loadUIManager('control',type,element,args||{},callback);
+};
+Appcelerator.UI.addBehavior = function(element,type,args,callback)
+{
+	Appcelerator.loadUIManager('behavior',type,element,args||{},callback);
+};
+Appcelerator.UI.createLayout = function(element,type,args,callback)
+{
+	Appcelerator.loadUIManager('layout',type,element,args||{},callback);
+};
+
+/****************************************************
+  HANDLE CROSS-CONTROL/BEHAVIOR/LAYOUT DEPENDENCIES
+*****************************************************/
+Appcelerator.UI.dependencyMap = [];
+Appcelerator.UI.elementMap = {};
+
+//
+// allow components to register their dependencies for an element
+//
+Appcelerator.UI.addElementUIDependency = function(element,ui,type,dependencyUI, dependencyType, callback)
+{
+
+	// see if element already has UI attribute that is a dependency
+	if (Appcelerator.UI.elementMap[element.id + "_" + dependencyUI +"_" + dependencyType])
+	{
+		callback(element);
+	}
+	
+	// otherwise store it for later
+	else
+	{
+		Appcelerator.UI.dependencyMap.push({element:element,ui:ui,type:type,dependencyUI:dependencyUI,dependencyType:dependencyType,callback:callback});	
+	}
+};
+
+// 
+// Keep track of an element's UI attributes (controls, behaviors, layouts, etc)
+// 
+Appcelerator.UI.addElementUI = function(element, ui, type)
+{
+	// is UI attribute combo part of an existing dependency
+	var map = Appcelerator.UI.dependencyMap;
+	for (var i=0;i<map.length;i++)
+	{
+		if (map[i].element.id == element.id)
+		{
+			// new UI + TYPE has a dependency for this element
+			if ((map[i].dependencyUI == ui) && (map[i].dependencyType == type))
+			{
+				// see if element already has UI + TYPE 
+				if (Appcelerator.UI.elementMap[element.id + "_" + map[i].ui + "_" + map[i].type])
+				{
+					map[i].callback(element);
+				}
+			}
+		}
+	}
+	Appcelerator.UI.elementMap[element.id + "_" + ui + "_" + type] = {element:element};
+	
+};
+
+/**
+ * called by a UI to load a UI manager
+ */
+Appcelerator.loadUIManager=function(ui,type,element,args,failIfNotFound,callback)
+{
+	var f = Appcelerator.UI.UIManager.managers[ui];
+	if (f)
+	{
+		var data = {element:element,args:args};
+		Appcelerator.UI.fireEvent(ui,type,'beforeBuild',data);
+		var afterBuild = function()
+		{
+			Appcelerator.UI.fireEvent(ui,type,'afterBuild',data);
+			if (callback) callback();
+		};
+		f(type,element,args,afterBuild);
+	} 
+	else
+	{
+		if (failIfNotFound==true)
+		{
+			$E('UI not found for '+ui+', type: '+type);
+		}
+		else
+		{
+			element.state.pending+=1;
+			Appcelerator.Core.requireCommonJS('appcelerator/'+ui+'s/'+ui+'s.js',function()
+			{
+				Appcelerator.UI.fireEvent(ui,type,'register');
+				Appcelerator.loadUIManager(ui,type,element,args,true,callback);
+				element.state.pending-=1;
+				Appcelerator.Compiler.checkLoadState(element.state);
+			},function()
+			{
+				Appcelerator.Compiler.handleElementException(element,null,'error loading '+type+'['+name+']');
+				element.state.pending-=1;
+				Appcelerator.Compiler.checkLoadState(element.state);
+			});
+		}
+	}
+};
+
+Appcelerator.Compiler.registerAttributeProcessor('*','set',
+{
+	queue:[],
+	handle: function(element,attribute,value)
+	{
+		Element.addClassName(element,'container');
+
+		// parse value
+		var expressions = Appcelerator.Compiler.smartSplit(value,' and ');
+		var count = 0;
+		var compiler = function()
+		{
+			count++;
+			if (count == expressions.length)
+			{
+				Appcelerator.Compiler.compileElementChildren(element);
+			}
+		};
+		for (var i=0;i<expressions.length;i++)
+		{
+			// turn into comma-delimited string
+			var delimitedString = expressions[i].replace("[",",").replace("]","");
+			var a = delimitedString.split(",");
+			
+			// syntax: attribute[attributeType,arg1=val1,arg2=val2]
+			var ui;
+			var type;
+			var args = {};
+
+			for (var j=0;j<a.length;j++)
+			{
+				if (j==0)ui = a[0].trim();
+				else if (j==1)type = a[1].trim();
+				else
+				{
+					var pair = a[j].split("=");
+					args[pair[0].trim()] = pair[1].trim();
+				} 
+			}
+			if (i == 0) element.stopCompile=true;
+			Appcelerator.loadUIManager(ui,type,element,args,false,compiler);
+		}
+	},
+	metadata:
+	{
+		description: (
+			"set visual properties for an element"
+		)
+	}
+});
+
+Appcelerator.UI.UIManager.defaultThemes = 
+{
+	'panel':'basic',
+	'shadow':'basic',
+	'button':'white_gradient',
+	'input':'white_gradient',
+	'textarea':'white_gradient',
+	'select':'thinline',
+	'tabpanel':'white',
+	'accordion':'basic'
+};
+
+Appcelerator.UI.UIManager.getDefaultTheme = function(type)
+{
+	return Appcelerator.UI.UIManager.defaultThemes[type];
+};
+
+Appcelerator.UI.UIManager.setDefaultThemes = function(type,theme)
+{
+	Appcelerator.UI.UIManager.defaultThemes[type] = theme;
+};
+
+Appcelerator.UI.UIManager.attrToJSON = function(attrs)
+{
+	var a = attrs.split(",");
+	
+	var args = {};
+
+	for (var j=0;j<a.length;j++)
+	{
+		var pair = a[j].split("=");
+		args[pair[0].trim()] = pair[1].trim();
+	}
+
+	return args;
+};
+
+Appcelerator.UI.UIManager.parseAttributes = function(element,f,options)
+{
+	var moduleAttributes = f.getAttributes();
+	for (var i = 0; i < moduleAttributes.length; i++)
+	{
+		var error = false;
+		var modAttr = moduleAttributes[i];
+		var value =  options[modAttr.name] || element.style[modAttr.name] || modAttr.defaultValue;
+		// check and make sure the value isn't a function as what will happen in certain
+		// situations because of prototype's fun feature of attaching crap on to the Object prototype
+		if (Object.isFunction(value))
+		{
+			value = modAttr.defaultValue;
+		}
+		if (!value && !modAttr.optional)
+		{
+			Appcelerator.Compiler.handleElementException(element, null, 'required attribute "' + modAttr.name + '" not defined for ' + element.id);
+			error = true;
+		}
+		options[modAttr.name] = value;
+		if (error == true)
+		{
+			$E('error parsing attributes for '+element);
+			return false;
+		}
+	}
+	return options;
+};
+
+Appcelerator.UI.themes = {};
+
+Appcelerator.Core.registerTheme = function(type,container,theme,impl)
+{
+	var key = Appcelerator.Core.getThemeKey(type,container,theme);
+	var themeImpl = Appcelerator.UI.themes[key];
+	if (!themeImpl)
+	{
+		themeImpl = {};
+		Appcelerator.UI.themes[key] = themeImpl;
+	}
+	themeImpl.impl = impl;
+	themeImpl.loaded = true;
+	// trigger on registration any pending guys
+	Appcelerator.Core.loadTheme(type,container,theme,null,null);
+};
+
+Appcelerator.Core.getThemeKey = function(pkg,container,theme)
+{
+	return pkg + ':' + container + ':' + theme;
+};
+
+Appcelerator.Core.loadTheme = function(pkg,container,theme,element,options)
+{
+	theme = theme || Appcelerator.UI.UIManager.getDefaultTheme(container);
+	var key = Appcelerator.Core.getThemeKey(pkg,container,theme);
+	var themeImpl = Appcelerator.UI.themes[key];
+	var fetch = false;
+	var path = Appcelerator.DocumentPath + '/components/' + pkg + 's/' + container + '/themes/' +theme;
+
+	if (!themeImpl)
+	{
+		themeImpl = { callbacks: [], impl: null, loaded: false, path: path };
+		Appcelerator.UI.themes[key] = themeImpl;
+		fetch = true;
+	}
+	
+	if (themeImpl.loaded)
+	{
+		if (themeImpl.callbacks && themeImpl.callbacks.length > 0 && themeImpl.impl && themeImpl.impl.build)
+		{
+			for (var c=0;c<themeImpl.callbacks.length;c++)
+			{
+				var callback = themeImpl.callbacks[c];
+				themeImpl.impl.build(callback.element,callback.options);
+			}
+		}
+		if (element!=null && options!=null && themeImpl.impl && themeImpl.impl.build)
+		{
+			if (themeImpl.impl.setPath)
+			{
+				themeImpl.impl.setPath.call(themeImpl.impl,path);
+			}
+			themeImpl.impl.build(element,options);
+		}
+		themeImpl.callbacks = null;
+	}
+	else
+	{
+		themeImpl.callbacks.push({element:element,options:options});
+	}
+	
+	if (fetch)
+	{
+		var css_path =  path + '/' +theme+  '.css';
+		Appcelerator.Core.remoteLoadCSS(css_path);
+
+		var js_path = path + '/' +theme+  '.js';
+		Appcelerator.Core.remoteLoadScript(js_path,null,function()
+		{
+			Appcelerator.UI.UIManager.handleLoadError(element,pkg,theme,container,js_path);
+		});
+	}
+};
+
+//
+// this is a special type of UI manager always available
+//
+Appcelerator.UI.registerUIManager('theme', function(theme,element,options,callback)
+{
+	// is this a default setting
+	if (theme == 'defaults')
+	{
+		for (var key in options)
+		{
+			Appcelerator.UI.UIManager.setDefaultThemes(key,options[key])
+		}
+		Appcelerator.Compiler.compileElementChildren(element);
+	}
+	else
+	{
+		Element.addClassName(element,'themed');
+		var type = element.nodeName.toLowerCase();
+		options['theme']=theme;
+		Appcelerator.UI.loadUIComponent('control',type,element,options,callback);		
+	}
+});
+
+Appcelerator.UI.ContainerManager = {};
+Appcelerator.UI.widgetRegex = /^app:/
+
+Appcelerator.UI.registerUIManager('control',function(type,element,options,callback)
+{
+	// check for backwards-porting of widgets
+	// this will eventually be deprecated
+	if (Appcelerator.UI.widgetRegex.test(type))
+	{
+	    var state = Appcelerator.Compiler.createCompilerState();
+		state.pending+=1;
+		state.scanned = true;
+		Appcelerator.Core.requireModule(type,function()
+		{
+			var widgetJS = Appcelerator.Compiler.compileWidget(element,state,type);
+			state.pending -= 1;
+			Appcelerator.Compiler.checkLoadState(state);
+			Element.fire(element,'element:compiled:'+element.id,{id:element.id});
+		});
+		return;
+	}
+    Element.addClassName(element,type);
+    Appcelerator.UI.loadUIComponent('control',type,element,options,callback);
+});
+
+Appcelerator.UI.LayoutManager = {};
+Appcelerator.UI.LayoutManager._formatTable = function(options)
+{
+   return '<table width="'+options['width']+'" cellspacing="'+(options['cellspacing'] || '') +'" cellpadding="'+ (options['cellpadding'] || '0') + '">';
+};
+
+Appcelerator.UI.LayoutManager._buildForm = function(options)
+{
+	var childNodes = options['childNodes'];
+	var html = options['html'];
+	var align = options['align'];
+	var colspan = options['colspan'];
+	var hintPos = options['hintPos'];
+	var errorPos = options['errorPos'];
+	var buttonPos = options['buttonPos'];
+	var labelWidth = options['labelWidth'];
+	var formElement = options['element'];
+	
+	var defaultFieldset = formElement.getAttribute('fieldset') || formElement.id+'_fieldset';
+	
+	var inputHTML = [];
+	var labelHTML = [];
+	var buttonHTML = [];
+	var hintHTML = [];
+	var errorHTML = [];
+	for (var c=0,len=childNodes.length;c<len;c++)
+	{
+		var node = childNodes[c];
+		if (node.nodeType == 1)
+		{
+			switch (node.tagName.toLowerCase())
+			{
+				case 'input':
+				case 'select':
+				case 'textarea':
+				{
+					if (node.getAttribute('type') == 'button')
+					{
+						if (Appcelerator.Browser.isIE)
+						{
+							buttonHTML.push(node.outerHTML);
+						}
+						else
+						{
+							buttonHTML.push(Appcelerator.Util.Dom.toXML(node,true,Appcelerator.Compiler.getTagname(node)));	
+						}
+					}
+					else
+					{
+						var fs = node.getAttribute('fieldset');
+						if (!fs)
+						{
+							node.setAttribute('fieldset',defaultFieldset);
+						}
+						inputHTML.push({'element':node});
+					}
+					break;
+				}
+				case 'label':
+				{
+					if (Appcelerator.Browser.isIE)
+					{
+						if (node.getAttribute("type") == "hint")
+						{
+							hintHTML.push({'id':node.htmlFor,'element':node,'html':node.outerHTML});
+						}
+						else if (node.getAttribute("type") == "error")
+						{
+							errorHTML.push({'id':node.htmlFor,'element':node,'html':node.outerHTML});
+						}
+						else
+						{
+							labelHTML.push({'id':node.htmlFor,'element':node,'html':node.outerHTML});						
+						}
+					}
+					else
+					{
+						if (node.getAttribute("type") == "hint")
+						{
+							hintHTML.push({'id':node.getAttribute('for'),'element':node,'html':Appcelerator.Util.Dom.toXML(node,true,Appcelerator.Compiler.getTagname(node))});
+						}
+						else if (node.getAttribute("type") == "error")
+						{
+							errorHTML.push({'id':node.getAttribute('for'),'element':node,'html':Appcelerator.Util.Dom.toXML(node,true,Appcelerator.Compiler.getTagname(node))});
+						}
+						else
+						{
+							labelHTML.push({'id':node.getAttribute('for'),'element':node,'html':Appcelerator.Util.Dom.toXML(node,true,Appcelerator.Compiler.getTagname(node))});						
+						}
+					}
+					break;
+				}
+				case 'button':
+				{
+					if (Appcelerator.Browser.isIE)
+					{
+						buttonHTML.push(node.outerHTML);
+					}
+					else
+					{
+						buttonHTML.push(Appcelerator.Util.Dom.toXML(node,true,Appcelerator.Compiler.getTagname(node)));	
+					}
+					break;
+				}
+			}
+		}	
+	}
+	// 
+	// horizontal: hint (top, right, bottom, input), error (top, right, bottom)
+	// vertical: hint (top, right, bottom, input), error (top, right, bottom)
+	// 
+	for (var x=0;x<inputHTML.length;x++)
+	{
+		(function()
+		{
+			var label = '';
+			var error = ''
+			var hint = '';
+			var input = '';
+			input = inputHTML[x].element;
+
+			// define label for this input
+			label = '';
+			for (var i=0;i<labelHTML.length;i++)
+			{
+				if (labelHTML[i].id == input.id)
+				{
+					label = labelHTML[i].html;
+					break;
+				}
+			}
+
+			// define error for this input
+			error = ''
+			for (var i=0;i<errorHTML.length;i++)
+			{
+				if (errorHTML[i].id == input.id)
+				{
+					error = errorHTML[i].html;
+					break;
+				}
+			}
+
+			// define hint for this input
+			hint = '';
+			for (var i=0;i<hintHTML.length;i++)
+			{
+				if (hintHTML[i].id == input.id)
+				{
+					hint = (hintPos == 'input')?hintHTML[i].element.innerHTML:hintHTML[i].html;
+					break;
+				}
+			}
+
+			if (align=='horizontal')
+			{
+				var valign = 'middle';
+				var labelPadding = "5px";
+				var inputPadding = "5px";
+				var topPadding = "0px";
+				if ((errorPos == 'top' || errorPos == 'bottom')&&((hintPos == 'top' || hintPos == 'bottom')))
+				{
+					valign = "middle";				
+					labelPadding = "15px"
+				}
+				
+				else if (errorPos == 'top' || hintPos == 'top')
+				{
+					valign = "bottom";
+				}
+				else if (errorPos=='bottom' || hintPos=='bottom')
+				{
+					valign = "top";
+					topPadding = "4px"
+				}
+				// create form
+				if ((labelPadding == "5px")  && (hintPos != 'bottom') && (errorPos != 'bottom'))
+				{
+					labelPadding = "9px";
+				}
+				
+				html += '<tr><td align="left" valign="'+valign+'" width="'+labelWidth+'" style="padding-bottom:'+labelPadding+';padding-top:'+topPadding+'" >' + label + '</td>';
+				html += '<td align="left" style="padding-bottom:'+inputPadding+'">';
+				html += (hintPos == "top")?'<div>'+hint+'</div>':'';
+				html += (errorPos == "top")?'<div>'+error+'</div>':'';
+				html += Appcelerator.Util.Dom.toXML(input,true,Appcelerator.Compiler.getTagname(input));
+				html += (hintPos == "right")?'<span style="padding-left:5px">'+hint+'</span>':'';
+				html += (errorPos == "right")?'<span style="padding-left:5px">'+error+'</span>':'';
+				html += (hintPos == 'bottom')?'<div style="margin-bottom:10px;position:relative;top:-1px">'+hint + '</div>':'';				
+				html += (errorPos == 'bottom')?'<div style="margin-bottom:10px;position:relative;top:-1px">'+error + '</div>':'';
+				html += '</td></tr>';
+			}
+			else
+			{
+				// create form
+				html += '<tr><td align="left">' + label;
+				html += (hintPos == "top")?'<span style="padding-left:5px">'+hint+'</span>':'';
+				html += (errorPos == "top")?'<span style="padding-left:5px">'+error+'</span>':'';
+				html += '</td></tr><tr>';
+				html += (errorPos != 'bottom' && hintPos != 'bottom')?'<td align="left" style="padding-bottom:5px">':'<td align="left">';
+				html += Appcelerator.Util.Dom.toXML(input,true,Appcelerator.Compiler.getTagname(input));
+				html += (hintPos == "right")?'<span style="padding-left:5px">'+hint+'</span>':'';
+				html += (errorPos == "right")?'<span style="padding-left:5px">'+error+'</span>':'';
+				html += (hintPos == 'bottom')?'<div style="margin-bottom:5px;position:relative;top:-1px">'+hint + '</div>':'';				
+				html += (errorPos == 'bottom')?'<div style="margin-bottom:5px;position:relative;top:-1px">'+error + '</div>':'';
+				html += '</td></tr>';
+
+			}
+			if (options['hintPos'] == "input")
+			{
+				formElement.observe('element:compiled:'+formElement.id,function(a)
+				{
+					if (hintPos == "input")
+					{
+						$(input.id).value = hint;
+						Element.addClassName($(input.id),'layout_form_hinttext');
+					}
+
+					Event.observe(input.id,'click',function(e)
+					{
+						if ($(input.id).value == hint)
+						{
+							$(input.id).value = '';
+							Element.removeClassName($(input.id),'layout_form_hinttext');
+						}
+					});
+					Event.observe(input.id,'blur',function(e)
+					{
+						if ($(input.id).value == '')
+						{
+							$(input.id).value = hint;
+							Element.addClassName($(input.id),'layout_form_hinttext');
+
+						}
+					});
+				});
+			}
+		})();
+	}
+	if (buttonHTML.length > 0)
+	{
+		var buttonPadding = (errorPos == 'bottom' || hintPos == 'bottom')?"0px":"5px";
+		var paddingBottom = "5px";
+		if (buttonPos == "right")
+		{
+			html += '<tr><td></td><td align="left" colspan="1" style="padding-top:'+buttonPadding+';padding-bottom:'+paddingBottom+'">';
+		}
+		else
+		{
+			html += '<tr><td align="left" colspan='+colspan+' style="padding-top:'+buttonPadding+';padding-bottom:'+paddingBottom+'">';		
+		}
+		for (var y=0;y<buttonHTML.length;y++)
+		{
+			html += buttonHTML[y] + '<span style="padding-right:10px"></span>';
+		}
+		html += '</td></tr>';
+		
+	}
+	html +="</table>";
+	return html;
+};
+
+Appcelerator.UI.registerUIManager('layout', function(type,element,options,callback)
+{
+   Element.addClassName(element,'layout');
+   Element.addClassName(element,type);
+   Appcelerator.UI.loadUIComponent('layout',type,element,options,callback);
+});
+
+Appcelerator.UI.registerUIManager('behavior', function(type,element,options,callback)
+{
+   Appcelerator.UI.loadUIComponent('behavior',type,element,options,callback);
+});
+
+
 
 /**
  * utility function to generate a semi-random uuid
- * which is good enough as a unique id for portlets
+ * which is good enough as a unique id for what we normally want
  */
 Appcelerator.Util.UUID =
 {
-    dateSeed: new Date().getTime(),
+    dateSeed: (Appcelerator.started || new Date).getTime(),
+	convert: ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
 
+	// Numeric Base Conversion algorithm from irt.org
+	// In base 16: 0=0, 5=5, 10=A, 15=F
+ 	base16: function(number)
+	{
+		//
+		// Copyright 1996-2006 irt.org, All Rights Reserved.	
+		//
+		// Downloaded from: http://www.irt.org/script/146.htm	
+		// slight modifications by Jeff Haynie/Appcelerator
+		// you should be able to use String.toString(16) but 
+		// apparently not reliable on all browsers (hint IE)
+		//
+		var output = null;
+	    if (number < 16)
+		{
+			output = this.convert[number];
+		}
+	    else 
+		{
+	        var MSD = '' + Math.floor(number / 16);
+	        var LSD = number - MSD*16;
+	        if (MSD >= 16)
+			{
+				output = this.base16(MSD) + this.convert[LSD];
+			}
+	        else
+			{
+				output = this.convert[MSD] + this.convert[LSD];
+			}
+	    }
+	    return output;
+	},
     generateNewId: function()
     {
-        var a = Math.round(9999999999 * Math.random());
-        var b = Math.round(9999999999 * Math.random());
-        var c = Math.round(this.dateSeed * Math.random());
-        return a + "-" + b + "-" + c;
+		var dg = new Date(1970, 9, 22, 0, 0, 0, 0);
+		var t = this.base16(this.dateSeed - dg.getTime());
+        var a = this.base16(Math.floor(999999999999 * Math.random()));
+        var _b = String(window.location.pathname).encode64();
+		var b = (_b.length > 10 ? _b.substring(0,10) : _b).gsub(/[^a-zA-Z0-9]/,'0');
+        var c = this.base16(Math.round(this.dateSeed * Math.random()));
+        return t + '-' + a + '-' + b + '-' + c;
     }
 };Object.extend(Appcelerator.Validator,
 {
@@ -18580,10 +23589,12 @@ Appcelerator.Util.UUID =
 		Appcelerator.Validator.names.push(name);
 	},
 
-	URI_REGEX: /(ftp|http|https|file):(\/){1,2}(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/,
+	URI_REGEX: /^((([hH][tT][tT][pP][sS]?|[fF][tT][pP])\:\/\/)?([\w\.\-]+(\:[\w\.\&%\$\-]+)*@)?((([^\s\(\)\<\>\\\"\.\[\]\,@;:]+)(\.[^\s\(\)\<\>\\\"\.\[\]\,@;:]+)*(\.[a-zA-Z]{2,4}))|((([01]?\d{1,2}|2[0-4]\d|25[0-5])\.){3}([01]?\d{1,2}|2[0-4]\d|25[0-5])))(\b\:(6553[0-5]|655[0-2]\d|65[0-4]\d{2}|6[0-4]\d{3}|[1-5]\d{4}|[1-9]\d{0,3}|0)\b)?((\/[^\/][\w\.\,\?\'\\\/\+&%\$#\=~_\-@]*)*[^\.\,\?\"\'\(\)\[\]!;<>{}\s\x7F-\xFF])?)$/,
     ALPHANUM_REGEX: /^[0-9a-zA-Z]+$/,
     DECIMAL_REGEX: /^[-]?([1-9]{1}[0-9]{0,}(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|\.[0-9]{1,2})$/,
  	EMAIL_REGEX: /^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/,
+	PHONE_REGEX: /^(?:\([2-9]\d{2}\)\ ?|[2-9]\d{2}(?:\-?|\ ?))[2-9]\d{2}[- ]?\d{4}$/,
+	SSN_REGEX: /(^|\s)(00[1-9]|0[1-9]0|0[1-9][1-9]|[1-6]\d{2}|7[0-6]\d|77[0-2])(-?|[\. ])([1-9]0|0[1-9]|[1-9][1-9])\3(\d{3}[1-9]|[1-9]\d{3}|\d[1-9]\d{2}|\d{2}[1-9]\d)($|\s|[;:,!\.\?])/,
 
 	//
 	// DATE VALIDATION UTILS
@@ -18646,6 +23657,38 @@ Appcelerator.Util.UUID =
     addValidator('email', function(value)
     {
         return Appcelerator.Validator.EMAIL_REGEX.test(value);
+    });
+
+    addValidator('zipcode_5', function(value)
+    {
+		return (value.length == 5 && Appcelerator.Validator.number(value)==true)?true:false
+    });
+
+    addValidator('zipcode_5_optional', function(value)
+    {
+	 	if (!value || value.trim().length == 0) return true;
+        return Appcelerator.Validator.zipcode_5(value);
+    });
+
+    addValidator('ssn', function(value)
+    {
+        return Appcelerator.Validator.SSN_REGEX.test(value);
+    });
+    addValidator('ssn_optional', function(value)
+    {
+	 	if (!value || value.trim().length == 0) return true;
+        return Appcelerator.Validator.ssn(value);
+    });
+
+    addValidator('phone_us', function(value)
+    {
+        return Appcelerator.Validator.PHONE_REGEX.test(value);
+    });
+
+    addValidator('phone_us_optional', function(value)
+    {
+	 	if (!value || value.trim().length == 0) return true;
+        return Appcelerator.Validator.phone_us(value);
     });
 
     addValidator('fullname_optional', function(value)
@@ -18963,7 +24006,197 @@ Appcelerator.Widget.queueRemoteLoadScriptWithDependencies = function(path, onloa
 Appcelerator.Widget.loadWidgetCSS = function(name,css)
 {
 	Appcelerator.Core.loadModuleCSS(name,css);
+};
+
+/**
+ * fire a custom condition from within the widget.  
+ */
+Appcelerator.Widget.fireWidgetCondition = function(id, name, data)
+{
+    Appcelerator.Compiler.fireCustomCondition(id,name,data);
+};
+Appcelerator.appuid = Appcelerator.Util.Cookie.GetCookie('appuid');
+Appcelerator.StatsURI = (('https:' == document.location.protocol) ? 'https://s3.amazonaws.com/tracker.appcelerator.org/' : 'http://tracker.appcelerator.org/' ) + 'app.gif';
+
+if (!Appcelerator.appuid)
+{
+	Appcelerator.appuid = Appcelerator.Util.UUID.generateNewId();
+	var e = new Date(new Date().getTime() + (Appcelerator.Util.DateTime.ONE_YEAR * 5));
+	Appcelerator.Util.Cookie.SetCookie('appuid',Appcelerator.appuid,e,'/');
 }
+
+Appcelerator.Compiler.beforeDocumentCompile(function()
+{
+	Appcelerator.compileStarted = new Date;
+});
+
+Appcelerator.Compiler.afterDocumentCompile(function()
+{
+	var D = new Date().getTime();
+	Appcelerator.compileTime = D - Appcelerator.compileStarted.getTime();
+	Appcelerator.loadTime = D - Appcelerator.started.getTime(); 
+});
+
+if (window.onerror)
+{
+	Appcelerator._onerror = window.onerror;
+}
+
+Appcelerator.TrackStat = function(evt,extra)
+{
+	if (Appcelerator.Config['track_stats'])
+	{
+		try
+		{
+			var i = new Image;
+			var d = new Date().getTime() - (Appcelerator.started || new Date).getTime();
+			i.src = Appcelerator.StatsURI + '?t='+Number(new Date)+'&dur=' + d + '&evt=' + evt + '&appuid=' + Appcelerator.appuid + '&tid=' + Appcelerator.started.getTime() + '&' + (extra || ''); 
+		}
+		catch(e)
+		{
+		}	
+	}
+};
+
+window.onerror = function(msg,url,line)
+{
+	try
+	{
+		Logger.error('generic uncaught error = '+msg+', url = '+url+', line = '+line);
+		
+		// track app errors to improve common issues
+		var s = 'msg=' + encodeURIComponent(String(msg).encode64()) + '&url='+encodeURIComponent(String(url||'').encode64()) + '&line='+encodeURIComponent(line||-1);
+		
+		(function() { Appcelerator.TrackStat(2,s) }).defer();
+		
+		// call next guy in chain if one exists
+		if (Appcelerator._onerror)
+		{
+			Appcelerator._onerror(msg,url,line);
+		}
+	}
+	catch(e)
+	{
+		return false;
+	}
+};
+
+// install logging handlers that will help track common app problems
+(function()
+{
+	var oldError = Logger.error;
+	var oldFatal = Logger.fatal;
+	Logger.error = function(msg)
+	{
+		var m = (String(Object.isArray(msg) ? msg.join(',') : msg)).encode64();
+		var s = 'x-lvl=e&x-msg=' + encodeURIComponent(m);
+		Appcelerator.TrackStat(3,s);
+		return oldError(msg);
+	};
+	Logger.fatal = function(msg)
+	{
+		var m = (String(Object.isArray(msg) ? msg.join(',') : msg)).encode64();
+		var s = 'x-lvl=f&x-msg=' + encodeURIComponent(m);
+		Appcelerator.TrackStat(3,s);
+		return oldFatal(msg);
+	};
+})();
+
+
+Appcelerator.Core.onload(function()
+{
+	var sendRemote = window.location.href.indexOf('file:/')!=-1;
+    var screenHeight = screen.height;
+    var screenWidth = screen.width;
+    var colorDepth = screen.colorDepth || -1;
+	var tz = Appcelerator.started.getTimezoneOffset()/60;
+    var platform = Appcelerator.Browser.isWindows ? 'win' : Appcelerator.Browser.isMac ? 'mac' : Appcelerator.Browser.isLinux ? 'linux' : Appcelerator.Browser.isSunOS ? 'sunos' : 'unknown';
+    var data = 
+    {
+        'userAgent': navigator.userAgent,
+        'flash': Appcelerator.Browser.isFlash,
+        'flashver': Appcelerator.Browser.flashVersion,
+		'silverlight': Appcelerator.Browser.isSilverlight,
+		'silverlightver': Appcelerator.Browser.silverlightVersion,
+		'gears': Appcelerator.Browser.isGears,
+		'fluid': Appcelerator.Browser.isFluid,
+        'screen': {
+            'height':screenHeight,
+            'width':screenWidth,
+            'color':colorDepth
+         },
+        'os': platform,
+        'referrer': document.referrer,
+        'path': window.location.href,
+        'cookies' : (document.cookie||'').split(';').collect(function(f){ var t = f.split('='); return t && t.length > 0 ? {name:t[0],value:t[1]} : {name:null,value:null}}),
+        'tz' : tz,
+		'uid': Appcelerator.appuid
+    };
+	if (sendRemote)
+	{
+		Appcelerator.Util.ServerConfig.addConfigListener(function()
+		{
+		    //
+		    // if being loaded from an IFrame - don't do the report
+		    //
+		    if (window.parent == null || window.parent == window && Appcelerator.Browser.autoReportStats)
+		    {
+	            $MQ('remote:appcelerator.status.report',data);
+		    }
+		});
+	}
+	setTimeout(function()
+	{
+		var a = 0, s = 0, v = 1, c = null, l = null, svc = null;
+
+		c = Appcelerator.ServerConfig['aid'];
+        if (c) a = c.value;
+
+		c = Appcelerator.ServerConfig['sid'];
+        if (c) s = c.value;
+
+		c = Appcelerator.ServerConfig['language'];
+		if (c) l = c.value;
+
+		c = Appcelerator.ServerConfig['service'];
+		if (c) svc = c.value;
+		
+        var p = Appcelerator.Browser.isWindows ? 'win' : Appcelerator.Browser.isMac ? 'mac' : Appcelerator.Browser.isLinux ? 'linux' : Appcelerator.Browser.isSunOS ? 'sunos' : 'unknown';
+		var f = Appcelerator.Browser.flashVersion;
+		var sic = (Appcelerator.ServerConfig['sessionid']||{}).value;
+        var si = Appcelerator.Util.Cookie.GetCookie(sic);
+		var i = new Image;
+		var qs = $H({
+			'wv': String(Appcelerator.Version),
+			'v': v,
+			'a': a,
+			's': s,
+			'gg': Number(Appcelerator.Browser.isGears),
+			'fd': Number(Appcelerator.Browser.isFluid),
+			'dm': data.screen.width+','+data.screen.height+','+data.screen.color,
+			'p': platform,
+			'tz': tz,
+			'fv': data.flashver,
+			'sv': data.silverlightver,
+			'r': String(document.referrer||'').encode64(),
+			't': String(document.title||'').encode64(),
+			'si': si,
+			'sct': Appcelerator.compileTime,
+			'slt': Appcelerator.loadTime,
+			'bl': window.navigator.language,
+			'lng': l,
+			'svc': svc,
+			'js': String(Appcelerator.jsFileLocation).encode64()
+		}).toQueryString();
+		Appcelerator.TrackStat(1,qs);
+		
+	},2000 + Math.round(1999*Math.random()));
+	Event.observe(window,'unload',function()
+	{
+		Appcelerator.TrackStat(0);
+	});
+});
+
 if (typeof(Appcelerator.Util)!='undefined' && typeof($$AU)=='undefined')
 {
 	$$AU = Appcelerator.Util;
@@ -18972,7 +24205,7 @@ if (typeof(Appcelerator.Util)!='undefined' && typeof($$AU)=='undefined')
 	$$AD = Appcelerator.Decorator;
 	$$AR = Appcelerator.Core;
 	$$AM = Appcelerator.Module;
-	$$AL = Appcelerator.Localizationl;
+	$$AL = Appcelerator.Localization;
 	$$AF = Appcelerator.Config;
 	$$AB = Appcelerator.Browser;
 }

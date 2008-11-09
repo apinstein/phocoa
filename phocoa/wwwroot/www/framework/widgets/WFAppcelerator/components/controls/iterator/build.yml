@@ -1,0 +1,10 @@
+--- 
+:release_notes: initial release
+:type: control
+:licenses: [6]
+
+:description: iterator control
+:name: iterator
+:version: 1.0
+:tags: 
+- control

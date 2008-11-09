@@ -1,0 +1,11 @@
+--- 
+:type: theme
+:description: vertical form theme
+:control: layout
+:version: 1.0
+:name: vertical:form
+:tags: 
+- theme
+:release_notes: initial release
+:licenses: 
+- 6

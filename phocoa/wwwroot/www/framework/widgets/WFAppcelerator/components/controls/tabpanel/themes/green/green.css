@@ -1,0 +1,133 @@
+.tabpanel_green
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_green ul
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_green li
+{
+	margin-left:0px !important;
+	margin-top:0px !important;
+	margin-bottom:-3px !important;
+	margin-top:0px !important;
+	padding:0px;
+}
+
+
+/* TAB */
+.tabpanel_green_tab_container
+{
+	float:left;
+}
+.tabpanel_green_tab_mid
+{
+	height:26px;
+	margin-right:3px !important;
+	padding:3px 3px 0pt 0pt !important;
+	text-align:center;
+	width:88px;
+	background:url(images/tab_normal.png) no-repeat scroll left top;
+	font-size:12px  !important;
+	font-weight:bold;
+	color:#555;
+	line-height:20px;
+	cursor:pointer;
+	border:0px none;
+	float:left;
+	
+}	
+
+body.msie .tabpanel_green_tab_mid
+{
+	line-height:20px;
+}
+
+/* TAB ACTIVE */
+.tabpanel_green_tab_mid_active
+{
+	background:url(images/tab_focus.png) no-repeat scroll left top !important;
+	color:white;
+}
+
+/* TAB HOVER */
+.tabpanel_green_tab_mid:hover
+{
+	background:url(images/tab_focus.png) no-repeat scroll left top !important;
+	color:white;
+}
+
+/* DIVIDER LINE UNDER TABS */
+.tabpanel_green_divider
+{
+	height:2px;
+	background-color:#73d02c;
+	border-top:1px solid #73d02c;
+	clear:both;
+	
+}
+
+body.webkit .tabpanel_green_divider
+{
+	background-color:#15cd00;
+	border-top:1px solid #15cd00;
+	
+}
+body.ie6 .tabpanel_green_divider
+{
+	height:1px;
+	border-bottom:none;
+	border-top:2px solid #73d02c;
+	background-color:transparent;
+	position:relative;
+	top:-2px;
+	
+}
+
+.tabpanel_green_left
+{
+	/* left end of tab panel */
+	width:20px;
+	height:26px;
+	float:left;
+}
+.tabpanel_green_right
+{
+	/* right end of tab panel */
+	float:left;
+}
+.tabpanel_green_tab_left_active
+{
+	/* left end of tab - active */
+	float:left;
+}
+.tabpanel_green_tab_right_active
+{
+	/* right end of tab - active */
+	float:left;
+}
+
+.tabpanel_green_tab_left
+{
+	/* left end of tab  */
+	float:left;
+}
+.tabpanel_green_tab_right
+{
+	/* right end of tab */
+	float:left;
+}
+
+.tabpanel_green_tab_left:hover
+{
+	/* left end of tab - hover */
+}
+.tabpanel_green_tab_right:hover
+{
+	/* right end of tab - hover */
+}
+
+

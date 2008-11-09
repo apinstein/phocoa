@@ -1,0 +1,29 @@
+/*********************************************************
+ * OVERRIDE ANY GLOBAL STYLES ON CONTROL'S BASE ELEMENTS
+ *********************************************************/
+.input_white_gradient_container img
+{
+	padding:0px !important;
+	margin:0px !important;
+}
+.input_white_gradient_container button
+{
+	padding:0px !important;
+	margin:0px !important;
+}
+
+.input_white_gradient_input
+{
+	background:#F3F3F3 url(images/input.gif) scroll left top;
+	border:1px solid #C9C9C9;
+	color:#333;
+	padding:3px;
+	outline:none;
+	vertical-align:middle;
+}
+
+.input_white_gradient_input:focus
+{
+	background-position:0pt -400px;
+	border:1px solid #aaa;
+}

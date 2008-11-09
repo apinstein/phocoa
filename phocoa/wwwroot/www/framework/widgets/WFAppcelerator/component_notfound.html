@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:app="http://www.appcelerator.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Required Appcelerator Component Missing.</title>
+    <script src="javascripts/appcelerator.js" type="text/javascript"></script>
+    <link rel="shortcut icon" href="images/favicon.ico"/>
+	<!--[if IE 6]>
+	       <style>
+	           img
+	           {
+	               behavior: url(images/iepngfix.htc);
+	           }
+	       </style>
+	<![endif]-->
+    <style>
+		img { border: none;}
+		body
+		{
+			font-family:arial,helvetica,sans-serif;
+			font-size:16px;
+			margin:20px;
+			margin-top:40px;
+			background-color:#fff;
+			background-color:#eee;
+		}
+		div.details
+		{
+			margin-top:20px;
+			margin-bottom:20px;
+			font-size:18px;
+		}
+		td
+		{
+			padding:6px;
+		}
+		.label
+		{
+			margin-top:10px;
+			font-weight:bold;
+			padding-right:100px;
+		}
+		#body
+		{
+			margin:20px;
+			padding:30px;
+			border:6px solid #c00;
+			background-color: #fcc;
+		}
+		h1
+		{
+			margin-bottom:40px;
+		}
+		div
+		{
+			margin-top:25px;
+		}
+		a
+		{
+			font-weight:bold;
+			color:#900;
+		}
+		#command
+		{
+			font-weight:bold;
+			font-size:18px;
+		}
+	</style>
+</head>
+<body style="visibility:hidden" on="l:app.compiled then visible">
+	<div id="body">
+		<div style="float:right;margin:5px;margin-top:-5px;"><img src="images/appcelerator_logo.png" alt="" /></div>
+		<h1>Required Appcelerator Component Missing</h1>
+		<div class="details">
+			A required Appcelerator component was referenced in the web page below but not found:
+		</div>
+		<table>
+			<tr>
+				<td class="label">URL</td>
+				<td><tt id="url"></tt></td>
+			</tr>
+			<tr>
+				<td class="label">Type</td>
+				<td><tt id="type"></tt></td>
+			</tr>
+			<tr id="subrow" style="display:none">
+				<td class="label">Subtype</td>
+				<td><tt id="subtype"></tt></td>
+			</tr>
+			<tr>
+				<td class="label">Name</td>
+				<td><tt id="name"></tt></td>
+			</tr>
+		</table>
+		<div>
+			This component might not have been added to your project yet. You can
+			add your project with the following command in your application project directory:
+		</div>
+		<div>
+			<tt id="command"></tt>
+		</div>
+		<div>
+			If you experience problems or need additional information, please visit 
+			<a href="http://www.appcelerator.org" id="link">http://www.appcelerator.org</a>
+		</div>
+			
+		<script>
+			var type = Appcelerator.Parameters.get('type');
+			var subtype = Appcelerator.Parameters.get('subtype');
+			if (subtype!=null)
+			{
+				$('subtype').innerHTML = subtype;
+				Element.show('subrow');
+			}
+			var name = Appcelerator.Parameters.get('name');
+			$('url').innerHTML = Appcelerator.Parameters.get('url');
+			$('type').innerHTML = type;
+			$('name').innerHTML = name;
+			$('command').innerHTML = 'app add:' + type + (subtype ? (' '+subtype) : '') + ' ' + name;
+		</script>
+	</div>
+</body>
+</html>

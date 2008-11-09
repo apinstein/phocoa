@@ -1,0 +1,125 @@
+.shadow_curved
+{
+	padding:0px;
+	margin:0px;
+}
+.shadow_curved div
+{
+	padding:0px;
+	margin:0px;
+}
+
+/** 140 **/
+.shadow_curved_140
+{
+	background-image: url(images/curved_shadow_140.png);
+	background-repeat:no-repeat;
+	height:8px;
+	margin-left:6px;
+}
+body.ie6 .shadow_curved_140
+{
+	background-image: url(images/curved_shadow_140.gif);
+}
+
+/** 160 **/
+.shadow_curved_160
+{
+	background-image: url(images/curved_shadow_160.png);
+	background-repeat:no-repeat;
+	height:8px;
+	margin-left:6px;
+}
+body.ie6 .shadow_curved_160
+{
+	background-image: url(images/curved_shadow_160.gif);
+	position:relative;
+	top:-2px;
+}
+
+/** 220 **/
+.shadow_curved_220
+{
+	background-image: url(images/curved_shadow_220.png);
+	background-repeat:no-repeat;
+	height:9px;
+	margin-left:6px;
+}
+body.ie6 .shadow_curved_220
+{
+	background-image: url(images/curved_shadow_220.gif);
+	position:relative;
+	top:-2px;
+}
+
+/** 460 **/
+.shadow_curved_460
+{
+	background-image: url(images/curved_shadow_460.png);
+	background-repeat:no-repeat;
+	height:13px;
+	margin-left:6px;
+}
+body.ie6 .shadow_curved_460
+{
+	background-image: url(images/curved_shadow_460.gif);
+	position:relative;
+	top:-2px;
+
+}
+
+/** 700 **/
+.shadow_curved_700
+{
+	background-image: url(images/curved_shadow_700.png);
+	background-repeat:no-repeat;
+	height:11px;
+	margin-left:6px;
+}
+body.ie6 .shadow_curved_700
+{
+	background-image: url(images/curved_shadow_700.gif);
+	position:relative;
+	top:-2px;
+
+}
+
+/** 940 **/
+.shadow_curved_940
+{
+	background-image: url(images/curved_shadow_940.png);
+	background-repeat:no-repeat;
+	height:14px;
+}
+
+/** Generic IE6 styles **/
+body.ie6 .shadow_curved_940
+{
+	background-image: url(images/curved_shadow_940.gif);
+	position:relative;
+	top:-2px;
+
+}
+
+body.ie6 .shadow_curved_left
+{
+	background-position:left 0%;
+}
+body.ie6 .shadow_curved_center
+{
+	background-position:center 0%;
+}
+
+/** Generic styles **/
+.shadow_curved_left
+{
+	background-position:left 110%;
+}
+.shadow_curved_center
+{
+	background-position:center 110%;
+}
+.shadow_curved_no_margin
+{
+	margin-bottom:0px !important;
+}

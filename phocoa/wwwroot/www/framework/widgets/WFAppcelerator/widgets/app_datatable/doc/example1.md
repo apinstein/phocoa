@@ -1,6 +1,8 @@
 Title: Simple Example
 
 This is a simple example that uses the `<app:datatable>`.
+
+++example
 	<style>
 	<!--
 	.table_cell
@@ -53,3 +55,4 @@ This is a simple example that uses the `<app:datatable>`.
 		{'col1':'James','col2':'33','col3':'6.1 feet','col4':'No'},
 		{'col1':'Mary','col2':'25','col3':'5.7 feet','col4':'Yes'}]});
 	</app:script>
+--example

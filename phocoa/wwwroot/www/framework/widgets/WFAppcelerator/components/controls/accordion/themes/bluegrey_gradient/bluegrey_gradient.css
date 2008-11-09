@@ -1,0 +1,75 @@
+/********************************************************
+* CONTROL STYLES
+*********************************************************/
+
+/* this is the root element - we need this style
+   in case there are global DIV styles defined */
+.accordion_bluegrey_gradient
+{
+	width: auto !important;
+	padding:0px;
+	margin:0px	
+
+}
+/* this is the newly created container for the accordion */
+.accordion_bluegrey_gradient_container
+{
+	padding:0px;
+	margin:0px;
+}
+.accordion_bluegrey_gradient_row
+{
+	clear:both;
+	height:31px;
+	margin:0px;
+	padding:0px;
+	
+}
+.accordion_bluegrey_gradient_row_left
+{
+	padding:0px;
+	margin:0px;
+	
+}
+.accordion_bluegrey_gradient_row_middle
+{
+	background:#a2a2a2 url(images/bar.gif) no-repeat scroll left top;
+	height:31px;
+	width:221px !important;
+	line-height:31px;
+	color:#000 !important;
+	font-size:12px !important;	
+	margin:0px;
+	padding:0px  !important;
+	padding: 0 0 0 15px !important;
+	cursor:pointer;
+	
+}
+.accordion_bluegrey_gradient_row_right
+{
+	padding:0px;
+	margin:0px;
+	
+}
+.accordion_bluegrey_gradient_row_data
+{
+	clear:both;
+	width:221px;
+	margin:0px;
+	padding:0px;
+}
+
+.accordion_bluegrey_gradient_row_left_active
+{
+	
+}
+.accordion_bluegrey_gradient_row_middle_active
+{
+	background:#a2a2a2 url(images/bar.gif) no-repeat scroll right top;
+	color:#fff !important;
+	
+}
+.accordion_bluegrey_gradient_row_right_active
+{
+}
+.

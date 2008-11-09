@@ -1,0 +1,95 @@
+.tabpanel_simple_stacked
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_simple_stacked ul
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_simple_stacked li
+{
+	margin:0px !important;
+	padding:0px;
+}
+
+
+/* TAB */
+.tabpanel_simple_stacked_tab_mid
+{
+	height:18px;
+	background-color:#7a7a7a;
+	border-bottom:1px solid #fff;
+	font-size:12px  !important;
+	color:#fff;
+	cursor:pointer;
+	height:25px;
+	line-height:24px;
+	padding:5px !important;
+	padding-left:10px !important;
+	width:100px;
+	
+}
+
+/* TAB ACTIVE */
+.tabpanel_simple_stacked_tab_mid_active
+{
+	background:#336699 url(images/triangle.gif) no-repeat center left;
+}
+
+/* TAB HOVER */
+.tabpanel_simple_stacked_tab_mid:hover
+{
+	background-color:#336699;
+}
+
+/* DIVIDER LINE UNDER TABS */
+.tabpanel_simple_stacked_divider
+{
+	clear:both;
+}
+
+/* UNUSED CLASSES */
+.tabpanel_simple_stacked_left
+{
+	/* left end of tab panel */
+	display:none;
+}
+.tabpanel_simple_stacked_right
+{
+	/* right end of tab panel */
+	display:none;
+}
+
+.tabpanel_simple_stacked_tab_left_active
+{
+	/* left end of tab - active */
+	display:none;
+
+}
+.tabpanel_simple_stacked_tab_right_active
+{
+	/* right end of tab - active */
+	display:none;
+}
+
+.tabpanel_simple_stacked_tab_left
+{
+	/* left end of tab  */
+	display:none;
+}
+.tabpanel_simple_stacked_tab_right
+{
+	/* right end of tab */
+	display:none;
+}
+
+.tabpanel_simple_stacked_tab_left:hover
+{
+	/* left end of tab - hover */
+}
+.tabpanel_simple_stacked_tab_right:hover
+{
+	/* right end of tab - hover */
+}

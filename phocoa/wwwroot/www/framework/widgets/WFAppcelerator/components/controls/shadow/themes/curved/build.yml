@@ -1,0 +1,11 @@
+--- 
+:type: theme
+:version: 1.0
+:licenses: [6]
+
+:description: shadow curved theme
+:tags: 
+- theme
+:name: shadow:curved
+:control: control
+:release_notes: initial release

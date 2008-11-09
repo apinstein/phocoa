@@ -1,23 +1,20 @@
+
 /*
- * This file is part of Appcelerator.
- *
- * Copyright (C) 2006-2008 by Appcelerator, Inc. All Rights Reserved.
- * For more information, please visit http://www.appcelerator.org
- *
- * Appcelerator is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Copyright 2006-2008 Appcelerator, Inc.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. 
  */
+
 
 
 Appcelerator.Widget.Datatable =
@@ -37,7 +34,7 @@ Appcelerator.Widget.Datatable =
 	},
 	getVersion: function()
 	{
-		return 1.0;
+		return '1.2.3';
 	},
 	getSpecVersion: function()
 	{
@@ -83,17 +80,33 @@ Appcelerator.Widget.Datatable =
 				 type: T.cssDimension},
                 {name: 'property', optional: true, defaultValue: '', type: T.identifier},
                 {name: 'pagination', optional: true, defaultValue: 'false', type: T.bool},
+                {name: 'compile', optional: true, defaultValue: 'false', type: T.bool},
+                {name: 'module', optional: true, defaultValue: '', type: T.identifier},
                 {name: 'maxRows', optional: true, defaultValue: 0, type: T.naturalNumber},
                 {name: 'sortIndex', optional: true, defaultValue: -1, type: T.naturalNumber},
 				{name: 'stickySort', optional: true, defaultValue: true, type: T.bool}];
     },
+	formatShift1k: function(cell_value,column_property_name, row)
+	{
+		if (!isNaN(cell_value))
+			return parseInt(parseInt(cell_value)/1000);
+		else
+			return cell_value;
+	},
+	formatShift1000k: function(cell_value,column_property_name, row)
+	{
+		if (!isNaN(cell_value))
+			return parseInt(parseInt(cell_value)/1000000);
+		else
+			return cell_value;
+	},
 	createDataTable: function (id, pagination_direction)
 	{		
 		//list of on attributes to be parsed and evaluated at the end of create
 		var on_array = [];
-
-		var parameterMap = $(id).parameterMap;
-		
+		var element = $(id);
+		var parameterMap = element.parameterMap;
+		var needRecompile=parameterMap['compile'];
 		var scope = parameterMap['scope'];
 		
 		//Valid values are 'client', 'server', and 'off'
@@ -142,7 +155,7 @@ Appcelerator.Widget.Datatable =
 		var arrow_up_img = '<img src="'+ Appcelerator.Widget.Datatable.modulePath + 'images/arrow_up.png" title="sort ascending" style="position:relative;top:-1px; left: 2px;" />';
 		var arrow_down_img = '<img src="'+ Appcelerator.Widget.Datatable.modulePath + 'images/arrow_down.png" title="sort ascending" style="position:relative;top:-1px; left: 2px;" />';
 		var spacer_img = '<img src="'+ Appcelerator.Widget.Datatable.modulePath + 'images/arrow_spacer.png" title="sort ascending" style="position:relative;top:-1px; left: 2px;" />';
-	
+		
 		//Add spacers to the header (initially) and clear up any extra icons
 		if (add_spacers_to_header)
 		{
@@ -160,6 +173,13 @@ Appcelerator.Widget.Datatable =
 		{
 			var header_info = header_array[x];
 			var formatterFunction = eval(header_array[x]['formatter']);
+			var onheader = header_array[x]['cellon'];
+			var onTemplate = null;
+			if (onheader)
+			{
+				needRecompile=true;
+				header_info.onTemplate = new Template('on="'+onheader+'"');
+			}
 			if (formatterFunction) {
 				header_info.formatterFunction = formatterFunction;
 			}
@@ -169,6 +189,12 @@ Appcelerator.Widget.Datatable =
 			{
 				hclass='table_cell_header';
 			}
+
+			var style = header_info['style'];
+			if (style != '' && style != null)
+			{
+				style=' style="'+style+'"';
+			}
 			
 			var or = '';
 			if (header_info['on'] != '')
@@ -177,33 +203,32 @@ Appcelerator.Widget.Datatable =
 			}
 					
 			var sort_string = '';
-			if (sort == 'client')
-			{
+			if (header_info['sort']=='false') {
+				sort_string = '';
+			} else if (sort == 'client') {
 				sort_string = 'click then script[Appcelerator.Widget.Datatable.sortDataTableClient(' + x + ',' + '\'' + id + '\'' + ')]';
-			} else if (sort == 'server')
-			{
+			} else if (sort == 'server') {
 				sort_string = 'click then script[Appcelerator.Widget.Datatable.sortDataTableServer(' + x + ',' + '\'' + id + '\'' + ')]';
 				
 				if (parameterMap['current_server_sort_column'] == header_info['property'])
 				{
 					if (!parameterMap['sortBy'][parameterMap['current_server_sort_column']])
 					{
-						header_array[x]['cell'] = header_array[x]['cell'].replace(spacer_img,'');
-						header_array[x]['cell'] += arrow_up_img;
+						header_info['cell'] = header_info['cell'].replace(spacer_img,'');
+						header_info['cell'] += arrow_up_img;
 					} else
 					{
-						header_array[x]['cell'] = header_array[x]['cell'].replace(spacer_img,'');
-						header_array[x]['cell'] += arrow_down_img;
+						header_info['cell'] = header_info['cell'].replace(spacer_img,'');
+						header_info['cell'] += arrow_down_img;
 					}	
 				}
-			} else
-			{
+			} else {
 				sort_string = '';
 			}	
 				
 			// Pass the index of the cell in header array
 			var hw = header_info['width'];
-			var td = '<td id="' + id + '_header_' + x + '" align="' + header_info['align'] + '" ' +(hw?'width="'+hw+'"':'')+' class="' + hclass + '"><span>' + header_info['cell'] + '</span></td>';
+			var td = '<td id="' + id + '_header_' + x + '"'+ style+' align="' + header_info['align'] + '" ' +(hw?'width="'+hw+'"':'')+' class="' + hclass + '"><span>' + header_info['cell'] + '</span></td>';
 			
 			if (sort_string != '')
 			{
@@ -264,14 +289,25 @@ Appcelerator.Widget.Datatable =
 				//Get the column property needed to figure out what column from the current array item we need
 				var column_property_name = header_array[h]['property'];
 				var formatterFunction = header_array[h]['formatterFunction'];
-				
+				var onTemplate = header_array[h]['onTemplate'];
+				cell_on="";
+				if (onTemplate) 
+				{
+					cell_on = onTemplate.evaluate(array[xrun]);
+				}
 				var cell_value = (Object.getNestedProperty(array[xrun],column_property_name)||'');
-				if (formatterFunction) {
-					cell_value = formatterFunction(cell_value,column_property_name, array[xrun]);
+				var dynamicproperty = header_array[h]['dynamicproperty'];
+				if (dynamicproperty) {
+					needRecompile=true;
+					cell_value = dynamicproperty.evaluate(array[xrun]);
+				} else if (formatterFunction) {
+					cell_value = formatterFunction(cell_value,column_property_name, array[xrun],element);
+					cell_value = '<span>'+cell_value+'</span>';
 				} else {
 					cell_value.toString().escapeHTML();
+					cell_value = '<span>'+cell_value+'</span>';
 				}
-				var td ='<td align="' + header_array[h]['align'] + '" class="' + cell_class + '"><span>' + cell_value +'</span></td>';
+				var td ='<td align="' + header_array[h]['align'] +'" '+ cell_on+ ' class="' + cell_class + '">' + cell_value +'</td>';
 				table_data_content += td;
 			}
 			table_data_content += '</tr>';
@@ -296,6 +332,8 @@ Appcelerator.Widget.Datatable =
 		}
 		
 		Appcelerator.Compiler.setHTML(id,html);
+		if (needRecompile)
+			Appcelerator.Compiler.dynamicCompile($(id));
 
 		if (pagination == 'true')
 		{
@@ -308,14 +346,14 @@ Appcelerator.Widget.Datatable =
 			$(myidback).onmouseout = function(){Appcelerator.Widget.Datatable.stopContinuousPagination(id)}.bind(this);
 			$(myidforward).onmouseout = function(){Appcelerator.Widget.Datatable.stopContinuousPagination(id)}.bind(this);
 		}
-		var on_run_array = [];
-		
-		for (var i = 0, len = on_array.length; i < len; i++)
-		{
-			on_run_array.push(Appcelerator.Compiler.compileExpression($(on_array[i]['id']),on_array[i]['on'],false));
+		if (length >0) {
+			var on_run_array = [];
+			for (var i = 0, len = on_array.length; i < len; i++)
+			{
+				on_run_array.push(Appcelerator.Compiler.compileExpression($(on_array[i]['id']),on_array[i]['on'],false));
+			}
+			eval(on_run_array.join(';'));
 		}
-
-		eval(on_run_array.join(';'));
 	},
 	compileWidget: function (parameters, element)
 	{		
@@ -407,9 +445,9 @@ Appcelerator.Widget.Datatable =
 				var astr = Object.getNestedProperty(a,column_property_name);
 				var bstr = Object.getNestedProperty(b,column_property_name);
 				if (bstr)
-					bstr = bstr.toLowerCase();
+					bstr = bstr.toString().toLowerCase();
 				if (astr)
-					astr = astr.toLowerCase();
+					astr = astr.toString().toLowerCase();
 			    return (parameterMap['sortBy'][column_property_name] == true) ? (bstr < astr) - (astr < bstr) : (astr < bstr) - (bstr < astr);
 		  };
 			array.sort(compareString);
@@ -506,10 +544,9 @@ Appcelerator.Widget.Datatable =
 		$D('excuting datatable for '+id);
 		//Data property
 		var params = $(id).parameterMap||parameterMap;
-		var propertyName = parameterMap['property'];
-		var stickySort = parameterMap['stickySort'];
-		var lastSortIndex = params['lastSortIndex'] || parameterMap['sortIndex'];
-		lastSortIndex = parseInt(lastSortIndex);
+		var propertyName = parameterMap.property;
+		var stickySort = parameterMap.stickySort||true;
+		var lastSortIndex = params.lastSortIndex;
 		var array;
 		$(id).position = 0;
 		$(id).initialLoad = true;
@@ -555,30 +592,39 @@ Appcelerator.Widget.Datatable =
 			if (element_children[i].nodeName.toLowerCase() == 'div')
 			{
 				var header_object = {};
-				//Header cell data				
-				header_langid = element_children[i].getAttribute('langid')||'';
-				if (header_langid == '')
-				{
-					header_object['cell'] = Appcelerator.Compiler.getHtml(element_children[i],true);					
-				} else
-				{
-					header_object['cell'] = Appcelerator.Localization.get(header_langid);
+				//Header cell data
+				if (element_children[i].getAttribute('langid')) {
+					header_object['cell'] =  Appcelerator.Localization.get(element_children[i].getAttribute('langid'));
+					var headertext = Appcelerator.Compiler.getHtml(element_children[i],true);
+					if (headertext)
+						header_object['dynamicproperty'] = new Template(headertext);
+				} else if (element_children[i].getAttribute('title')) {
+					header_object['cell'] = element_children[i].getAttribute('title');
+					var headertext = Appcelerator.Compiler.getHtml(element_children[i],true);
+					if (headertext)
+						header_object['dynamicproperty'] = new Template(headertext);
+				} else {
+					header_object['cell'] = Appcelerator.Compiler.getHtml(element_children[i],true);
 				}
+					
 				//Header's 'on' attribute, compile it later
 				header_object['on'] =  element_children[i].getAttribute('on')||''; 
+				header_object['cellon'] =  element_children[i].getAttribute('cellon')||''; 
 				//Header's class attribute
 				header_object['class'] = element_children[i].className||''; 
 				//Header property to let us know what data to get from the array	
-				header_object['property'] = element_children[i].getAttribute('property')||''; 
+				header_object['style'] = element_children[i].getAttribute('style')||'';
+				header_object['property'] = element_children[i].getAttribute('property')||'';
 				//Header's 'align' property to go on all TD's making up this column
 				header_object['align'] = element_children[i].getAttribute('align')||''; 
 
 				//Header's sort function
 				header_object['sorter'] = element_children[i].getAttribute('sorter')||''; 
+				header_object['sort'] = element_children[i].getAttribute('sort')||element_children[i].getAttribute('sortable')||"true"; 
 				
 				//Header's formatter function
 				header_object['formatter'] = element_children[i].getAttribute('formatter')||''; 
-				
+
 				header_array.push(header_object);
 			}
 		}

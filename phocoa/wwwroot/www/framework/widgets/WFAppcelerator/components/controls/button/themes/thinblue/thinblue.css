@@ -1,0 +1,61 @@
+/*********************************************************
+ * OVERRIDE ANY GLOBAL STYLES ON CONTROL'S BASE ELEMENTS
+ *********************************************************/
+.button_thinblue_container img
+{
+	padding:0px !important;
+	margin:0px !important;
+	position:static;
+}
+.button_thinblue_container button
+{
+	padding:0px;
+	margin:0px !important;
+	position:static;
+}
+
+/********************************************************
+* CONTROL STYLES
+*********************************************************/
+
+.button_thinblue_left
+{
+	background:transparent url(images/left.png) no-repeat;
+	height:21px;
+	width:6px;
+	vertical-align:middle;
+}
+
+.button_thinblue_middle
+{
+	background:url(images/middle.png) repeat-x;
+	border:0px none;
+	margin-left:-1px;
+	margin-right:-1px;
+	height:21px;
+	line-height:21px;
+	font-size:12px;
+	cursor:pointer;
+	vertical-align:middle;
+}
+
+.button_thinblue_right
+{
+	background:transparent url(images/right.png) no-repeat;
+	height:21px;
+	width:6px;
+	vertical-align:middle;
+}
+.button_thinblue_left_disabled
+{
+	opacity:0.6;
+}
+
+.button_thinblue_middle_disabled
+{
+	opacity:0.6;
+}
+.button_thinblue_right_disabled
+{
+	opacity:0.6;	
+}

@@ -1,0 +1,10 @@
+--- 
+:release_notes: initial release
+:type: behavior
+:licenses: [6]
+
+:description: draggable behavior
+:name: draggable
+:version: 1.0
+:tags: 
+- behavior

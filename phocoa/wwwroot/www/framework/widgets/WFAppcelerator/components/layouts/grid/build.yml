@@ -1,0 +1,10 @@
+--- 
+:release_notes: initial release
+:type: layout
+:licenses: [6]
+
+:description: horizontal layout
+:name: grid
+:version: 1.1
+:tags: 
+- layout

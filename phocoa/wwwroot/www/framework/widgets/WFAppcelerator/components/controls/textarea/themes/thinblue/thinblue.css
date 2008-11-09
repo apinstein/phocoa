@@ -1,0 +1,12 @@
+.textarea_thinblue
+{
+	background:#FFFFFF url(images/input.gif) repeat-x;
+	border:1px solid #B5B8C8;
+	padding:1px 3px;
+	outline:none;
+}
+
+.textarea_thinblue:focus
+{
+	border:1px solid #7EADD9;
+}

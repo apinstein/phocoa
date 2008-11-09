@@ -1,0 +1,132 @@
+.tabpanel_box
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_box ul
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_box li
+{
+	margin:0px !important;
+	padding:0px;
+}
+
+/* additional class for wire */
+
+.tabpanel_box_wire
+{
+	float:left;
+	height:30px;
+	width:1px;
+	background-color:#ccc;
+	position:relative;
+	left:60px;
+	margin-left:1px;
+}
+body.msie .tabpanel_box_wire
+{
+	top:-2px;
+}
+.tabpanel_box_container
+{
+	height:50px;
+	padding:0px !important;
+	border-top:1px solid #ccc;
+	font-size:0px;
+}
+
+
+/* TAB */
+.tabpanel_box_tab_container
+{
+	float:left;
+}
+.tabpanel_box_tab_mid
+{
+	height:10px;
+	width:100px;
+	color:#666;
+	background-color:#ccc;
+	float:left;
+	margin-left:1px;
+
+	font-size:11px !important;
+	padding:10px !important;
+	vertical-align:bottom;
+	text-align:center;
+	cursor:pointer;
+	position:relative;
+	z-index:2;
+	line-height:10px;
+	
+}
+
+body.msie .tabpanel_box_tab_mid
+{
+	margin-top:-2px !important;
+}
+/* TAB ACTIVE */
+.tabpanel_box_tab_mid_active
+{
+	background-color:#aaa;
+	color:#fff;
+	
+}
+
+/* TAB HOVER */
+.tabpanel_box_tab_mid:hover
+{
+
+}
+
+/* DIVIDER LINE UNDER TABS */
+.tabpanel_box_divider
+{
+	clear:both;
+}
+
+.tabpanel_box_left
+{
+	width:0px;
+}
+.tabpanel_box_right
+{
+	/* right end of tab panel */
+	float:left;
+}
+.tabpanel_box_tab_left_active
+{
+	/* left end of tab - active */
+	float:left;
+}
+.tabpanel_box_tab_right_active
+{
+	/* right end of tab - active */
+	float:left;
+
+}
+
+.tabpanel_box_tab_left
+{
+	/* left end of tab  */
+	float:left;
+
+}
+.tabpanel_box_tab_right
+{
+	/* right end of tab */
+	float:left;
+
+}
+
+.tabpanel_box_tab_left:hover
+{
+	/* left end of tab - hover */
+}
+.tabpanel_box_tab_right:hover
+{
+	/* right end of tab - hover */
+}

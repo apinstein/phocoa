@@ -1,0 +1,112 @@
+
+.select_thinline
+{
+	position:relative;
+	font-size:12px;
+	padding:0px;
+	margin:0px;
+}
+/*********************************************************
+ * OVERRIDE ANY GLOBAL STYLES ON CONTROL'S BASE ELEMENTS
+ *********************************************************/
+.select_thinline img
+{
+	padding:0px;
+	margin:0px;
+}
+.select_thinline input
+{
+	padding:0px;
+	margin:0px;
+}
+.select_thinline div
+{
+	padding:0px;
+	margin:0px;
+}
+
+/********************************************************
+* CONTROL STYLES
+*********************************************************/
+.select_thinline_input
+{
+	background:#ffffff;
+	border:1px solid #bbb;
+	padding:2px !important;
+	padding-left:5px !important;
+	height:20px;
+	line-height:20px;
+	outline:none;
+	font-size:12px !important;
+	margin-bottom:1px;
+}
+
+body.msie .select_thinline_input
+{
+	margin-bottom:0px;
+}
+.select_thinline_input:focus
+{
+}
+
+.select_thinline_arrow
+{
+	background:#fff url(images/arrow.png) no-repeat scroll 0pt;
+	cursor:pointer;
+	height:13px;
+	width:23px;
+	position:relative;
+	top:2px;
+	right:26px;
+
+}
+
+body.ie6 .select_thinline_arrow
+{
+	top:-4px;
+}
+body.ie7 .select_thinline_arrow
+{
+	top:-3px;
+}
+
+.select_thinline_dropdown
+{
+	border:1px solid #bbb;
+	border-top:none;
+	cursor:pointer;
+	overflow-x:hidden;
+	overflow-y:auto;
+	position:absolute;
+	z-index:100;
+	display:block;
+	background-color:#fff;
+	left:0px;
+	height:200px;
+	line-height:normal;
+	margin:0px;
+	top:21px;
+	padding-right:7px !important;
+	
+}
+
+body.msie .select_thinline_dropdown
+{
+	top:27px;
+}
+body.gecko .select_thinline_dropdown
+{
+	top:22px;
+}
+
+.select_thinline_dropdown_item
+{
+	border:1px solid #fff;
+	margin-right:-7px !important;
+}
+
+.select_thinline_dropdown_hover
+{
+	background-color:#ccc;
+	border:1px dotted #aaa;
+}

@@ -1,0 +1,66 @@
+/*********************************************************
+ * OVERRIDE ANY GLOBAL STYLES ON CONTROL'S BASE ELEMENTS
+ *********************************************************/
+.button_iphone_green_container img
+{
+	padding:0px !important;
+	margin:0px !important;
+	position:static;
+}
+.button_iphone_green_container button
+{
+	padding:0px !important;
+	margin:0px !important;	
+	position:static;
+}
+
+/********************************************************
+* CONTROL STYLES
+*********************************************************/
+
+.button_iphone_green_left
+{
+	background:transparent url(images/left.png) no-repeat;
+	height:48px;
+	width:16px;
+	vertical-align:middle;
+}
+
+.button_iphone_green_middle
+{
+	background:transparent url(images/middle.png) repeat-x;
+	cursor:pointer;
+	height:48px;
+	line-height:48px;
+	color:white  !important;
+	font-size:14px  !important;
+	font-weight:bold !important;
+	border:0px none;
+	vertical-align:middle;
+}
+
+.button_iphone_green_right
+{
+	background:transparent url(images/right.png) no-repeat;
+	height:48px;
+	width:16px;
+	vertical-align:middle;
+	
+}
+
+/* Disabled Styles */
+.button_iphone_green_left_disabled
+{
+	background:url(images/left_disabled.png);
+}
+
+.button_iphone_green_middle_disabled
+{
+	background:url(images/middle_disabled.png) repeat-x;
+	color:#888;
+}
+
+.button_iphone_green_right_disabled
+{
+	background:url(images/right_disabled.png);
+}

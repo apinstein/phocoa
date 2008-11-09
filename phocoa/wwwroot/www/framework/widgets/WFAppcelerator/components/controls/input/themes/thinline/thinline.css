@@ -1,0 +1,12 @@
+.input_thinline_input
+{
+	background:#ffffff;
+	border:1px solid #bbb;
+	padding:2px;
+	padding-left:5px;
+	height:20px;
+	line-height:20px;
+	outline:none;
+	vertical-align:middle;
+}
+

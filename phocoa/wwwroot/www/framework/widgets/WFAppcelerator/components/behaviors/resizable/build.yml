@@ -1,0 +1,10 @@
+--- 
+:release_notes: initial release
+:type: behavior
+:licenses: [6]
+
+:description: resizable behavior
+:name: resizable
+:version: 1.0
+:tags: 
+- behavior

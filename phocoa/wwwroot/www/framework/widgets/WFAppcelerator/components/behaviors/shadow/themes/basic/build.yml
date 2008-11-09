@@ -1,0 +1,11 @@
+--- 
+:type: theme
+:description: shadow basic theme
+:control: behavior
+:version: 1.0
+:name: shadow:basic
+:tags: 
+- theme
+:release_notes: initial release
+:licenses: 
+- 6

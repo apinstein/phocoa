@@ -1,23 +1,20 @@
+
 /*
- * This file is part of Appcelerator.
- *
- * Copyright (C) 2006-2008 by Appcelerator, Inc. All Rights Reserved.
- * For more information, please visit http://www.appcelerator.org
- *
- * Appcelerator is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Copyright 2006-2008 Appcelerator, Inc.
  * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. 
  */
+
 
 
 Appcelerator.Widget.Chart =
@@ -35,7 +32,7 @@ Appcelerator.Widget.Chart =
 	},
 	getVersion: function()
 	{
-		return 1.1;
+		return '1.1.1';
 	},
 	getSpecVersion: function()
 	{
@@ -64,41 +61,47 @@ Appcelerator.Widget.Chart =
 	getAttributes: function()
 	{
 		var T = Appcelerator.Types;
-		return [{name: 'on', optional: true, description: "Used to display the chart.",
+		return [{name: 'on', optional: false, description: "Used to display the chart.",
 		         type: T.onExpr},
-				{name: 'type', optional: true, defaultValue: '',
+		         
+				{name: 'type', optional: false, defaultValue: '',
 				 description: "enumerated value, or property on payload to find value",
 				 type: T.openEnumeration('bar', 'pie', 'line')},
-				{name: 'title', optional: true, defaultValue: ''},
-				{name: 'color', optional: true, defaultValue: '#477398'},
-				{name: 'angle', optional: true, defaultValue: '15', type: T.number},
-				{name: 'thickness', optional: true, defaultValue: '15', type: T.number},
-				{name: 'width', optional: true, defaultValue: '400', type: T.number},
-				{name: 'height', optional: true, defaultValue: '360', type: T.number},
+				 
+				{name: 'title', optional: true, defaultValue: '', description: "Title displayed at the top of the chart."},
+				{name: 'color', optional: true, defaultValue: '#477398', 
+				    description: "Specifies the base color of the chart or the color for each bar/slice/line ." + 
+				        " You can provide a single hex color or csv color list"},
+				    
+				{name: 'angle', optional: true, defaultValue: '15', type: T.number, description: 
+				        "Angle for '3D' graphs, bar and pie (in degrees)"},
+				{name: 'thickness', optional: true, defaultValue: '15', type: T.number, description: "Thickness of '3D' graphs (in pixels)"},
+				{name: 'width', optional: true, defaultValue: '400', type: T.number, description: "The width of the chart (in pixels)"},
+				{name: 'height', optional: true, defaultValue: '360', type: T.number, description: "The height of the chart (in pixels)"},
 				{name: 'chartMode', optional: true, defaultValue: 'clustered',
-				 description: "enumerated value, or property on payload to find value",
-				 type: T.openEnumeration('clustered', 'stacked', '100% stacked')},
-				{name: 'barOrientation', optional: true, defaultValue: '400', type: T.number},
-				{name: 'rotateXAxisLabel', optional: true, defaultValue: 'vertical'},
-				{name: 'rotateYAxisLabel', optional: true, defaultValue: 'false'},
-				{name: 'legend', optional: true, defaultValue: 'false', type: T.bool},
-				{name: 'brightness_step', optional: true, defaultValue: '15', type: T.number},
-				{name: 'textSize', optional: true, defaultValue: '11', type: T.number},
-				{name: 'property', optional: true, defaultValue: ''},
-				{name: 'chartTitles', optional: true, defaultValue: ''},
-				{name: 'fillAlpha', optional: true, defaultValue: '30', type: T.number},
-				{name: 'indicator', optional: true, defaultValue: 'false', type: T.bool},
-				{name: 'marginTop', optional: true, defaultValue: '80', type: T.number},
-				{name: 'marginLeft', optional: true, defaultValue: '50', type: T.number},
-				{name: 'marginRight', optional: true, defaultValue: '50', type: T.number},
-				{name: 'marginBottom', optional: true, defaultValue: '50', type: T.number},
-				{name: 'legendHighlight', optional: true, defaultValue: 'true', type: T.bool},
+				 description: "sub type for bar and line charts",
+				 type: T.openEnumeration('line', 'clustered', 'stacked', '100% stacked')},
+				{name: 'barOrientation', optional: true, defaultValue: '400', type: T.number, description: '"vertical" or "horizontal" orientation for a bar chart'},
+				{name: 'rotateXAxisLabel', optional: true, defaultValue: 'false', description: '"true" or "false". If "true" x axis labels are rotated by 90 degrees.'},
+				{name: 'rotateYAxisLabel', optional: true, defaultValue: 'false', description: '"true" or "false". If "true" y axis labels are rotated by 90 degrees.'},
+				{name: 'legend', optional: true, defaultValue: 'false', type: T.bool, description: '"true" or "false". If "true" a legend will be displayed.'},
+				{name: 'brightness_step', optional: true, defaultValue: '15', type: T.number, description: 'How much the brightness of the chart increases'},
+				{name: 'textSize', optional: true, defaultValue: '11', type: T.number, description: 'Font size (in pixels)'},
+				{name: 'property', optional: false, defaultValue: '', type: T.identifier, description: 'The property of the message to use to populate the chart'},
+				{name: 'chartTitles', optional: true, defaultValue: '', description: 'Array property name that contains the titles for the legend and labels composite bar charts.'},
+				{name: 'fillAlpha', optional: true, defaultValue: '30', type: T.number, description: "Specifies the opacity of the shaded area under a line in a line chart (percentage)"},
+				{name: 'indicator', optional: true, defaultValue: 'false', type: T.bool, description: "Enable a mouseover bubble to show the value of every line at a given x value on a line graph"},
+				{name: 'marginTop', optional: true, defaultValue: '80', type: T.number, description: "Specifies the space between the top of the chart and the start of the line or bar chart (pixels)"},
+				{name: 'marginLeft', optional: true, defaultValue: '50', type: T.number, description: "Specifies the space between the left of the chart and the start of the line or bar chart (pixels)"},
+				{name: 'marginRight', optional: true, defaultValue: '50', type: T.number, description: "Specifies the space between the right of the chart and the start of the line or bar chart (pixels)"},
+				{name: 'marginBottom', optional: true, defaultValue: '50', type: T.number, description: "Specifies the space between the bottom of the chart and the start of the line or bar chart (pixels)"},
+				{name: 'legendHighlight', optional: true, defaultValue: 'true', type: T.bool, description: "Specifies whether the lines on the line chart will be 'highlighted' when one mouses over a legend value for that line."},
 				{name: 'backgroundColor', optional: true, defaultValue: '#FFFFFF'},
 				{name: 'radius', optional: true, defaultValue: '90', type: T.number},
 				{name: 'precision', optional: true, defaultValue: '2', type: T.number},
-				{name: 'innerRadius', optional: true, defaultValue: '30', type: T.number},
+				{name: 'innerRadius', optional: true, defaultValue: '30', type: T.number, description: "Specifies the radius of the 'hole' in the center of the pie chart (pixels)"},
 				{name: 'animation', optional: true, defaultValue: 'true', type: T.bool},
-				{name: 'oneBalloon', optional: true, defaultValue: 'false', type: T.bool},
+				{name: 'oneBalloon', optional: true, defaultValue: 'false', type: T.bool, description: "Specifies whether an indicator balloon will be shown for all lines or only the line closest to the mouse pointer on the line graph. Possible values are 'true' or 'false'."},
 				{name: 'xAxisLabel', optional: true, defaultValue: ''},
 				{name: 'xAxisYPosition', optional: true, defaultValue: '0', type: T.number},
 				{name: 'xAxisXPosition', optional: true, defaultValue: '0', type: T.number},

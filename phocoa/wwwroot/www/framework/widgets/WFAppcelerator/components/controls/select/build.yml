@@ -1,0 +1,10 @@
+--- 
+:release_notes: initial release
+:type: control
+:licenses: [6]
+
+:description: select control
+:name: select
+:version: 1.2
+:tags: 
+- control

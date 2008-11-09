@@ -1,0 +1,11 @@
+--- 
+:type: theme
+:description: horizonal form theme
+:control: layout
+:version: 1.0
+:name: horizontal:form
+:tags: 
+- theme
+:release_notes: initial release
+:licenses: 
+- 6

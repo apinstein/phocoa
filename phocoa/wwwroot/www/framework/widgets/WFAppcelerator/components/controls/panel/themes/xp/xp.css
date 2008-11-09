@@ -1,0 +1,113 @@
+.panel_xp
+{
+	position:relative;
+	background:url(images/border_right.gif) no-repeat top right;  
+	padding:0px;
+	margin:0px;
+}
+.panel_xp div
+{
+	padding:0px;
+	margin:0px;
+}
+.panel_xp_hdr
+{
+	padding:0; 
+	border:none; 
+	background:url(images/header.gif) repeat-x; 
+	color:#000; 
+	height:30px; 
+	margin-left:6px !important; 
+	margin-right:6px !important; 
+	text-align:center; 
+	overflow:visible; 
+}
+
+.panel_xp_tl
+{
+	width:8px; 
+	height:29px; 
+	top:1px; 
+	left:0px; 
+	background:url(images/header_left.gif) no-repeat; 
+	position:absolute; 
+}
+
+
+.panel_xp_title
+{
+	vertical-align:middle; 
+	line-height:30px; 
+	font-weight:bold; 
+	color:white;
+}
+
+.panel_xp_tr
+{
+	width:8px; 
+	height:29px; 
+	top:1px; 
+	right:0px; 
+	background:url(images/header_right.gif) no-repeat; 
+	position:absolute;
+}
+
+.panel_xp_btm
+{
+	background:url(images/bottom.gif) repeat-x;
+	height:26px;  
+}
+
+.panel_xp_bl
+{
+	width:8px; 
+	height:26px; 
+	bottom:0px; 
+	left:0px; 
+	background:url(images/bottom_left.gif) no-repeat;  
+	position:absolute;
+}
+
+.panel_xp_br
+{
+	width:8px; 
+	height:26px; 
+	bottom:0px; 
+	right:0px; 
+	background:url(images/bottom_right.gif) no-repeat;  
+	position:absolute;
+}
+
+.panel_xp_btm_text
+{
+	font-size:11px;
+	padding:2px !important;
+	line-height:21px;
+	position:relative;
+	left:7px;
+	text-align:left;
+}
+
+.panel_xp_close 
+{ 
+	position:absolute; 
+	top:4px; 
+	right:8px; 
+	height:21px; 
+	width:21px; 
+	background:url(images/close.gif) no-repeat;  
+	cursor:pointer;
+} 
+
+.panel_xp_close:hover
+{ 
+}
+
+.panel_xp_body
+{
+	margin:0 4px 0 0 !important; 
+	background:#FFF url(images/border_left.gif) repeat-y;  
+	padding:10px !important;
+	
+}
+

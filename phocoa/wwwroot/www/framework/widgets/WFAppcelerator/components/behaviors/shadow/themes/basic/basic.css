@@ -1,0 +1,55 @@
+.shadow_basic
+{
+	padding:0px;
+	margin:0px;
+}
+.shadow_basic div
+{
+	padding:0px;
+	margin:0px;
+	margin-bottom:0px !important;
+}
+
+.shadow_basic_1
+{
+	background:url(images/shadow.png) right bottom repeat-x;
+	position:absolute;
+	top:9px;
+	left:9px;
+	height:100%;
+	width:100%;
+	z-index:1;
+}
+.shadow_basic_2
+{
+	background:url(images/corner_tr.png) no-repeat;
+	position:absolute;
+	top:-15px;
+	height:24px;
+	width:24px;
+	right:-9px;
+	z-index:1;
+	
+}
+.shadow_basic_3
+{
+	background:url(images/corner_bl.png) no-repeat;
+	position:absolute;
+	bottom:-9px;
+	left:-15px;
+	height:24px;
+	width:24px;
+	z-index:1;
+	
+	
+}
+
+
+/**
+ * IE 6 STYLES
+ */
+body.ie6 .shadow_basic_1
+{
+	background:url(images/shadow.gif) no-repeat bottom right;
+	
+}

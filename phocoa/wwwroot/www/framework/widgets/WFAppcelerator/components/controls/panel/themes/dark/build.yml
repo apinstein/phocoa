@@ -1,0 +1,11 @@
+--- 
+:type: theme
+:description: panel dark theme
+:control: control
+:version: 1.0
+:name: panel:dark
+:tags: 
+- theme
+:release_notes: initial release
+:licenses: 
+- 6

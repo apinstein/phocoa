@@ -1,0 +1,120 @@
+.tabpanel_basic
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_basic ul
+{
+	margin:0px;
+	padding:0px;
+}
+.tabpanel_basic li
+{
+	margin-top:0px !important;
+	margin-left:0px !important;
+	margin-right:0px !important;	
+	margin-bottom:-1px !important;
+	padding:0px;
+}
+
+
+/* TAB */
+.tabpanel_basic_tab_container
+{
+	float:left;
+}
+.tabpanel_basic_tab_mid
+{
+	height:18px;
+	background-color:#ddd;
+	border-top:1px solid #bbb;
+	border-right:1px solid #bbb;
+	border-bottom:1px solid #bbb;
+	font-size:12px  !important;
+	font-weight:bold;
+	color:#666;
+	cursor:pointer;
+	padding-left:20px !important;
+	padding-right:20px !important;
+	height:20px;
+	line-height:20px;
+	float:left;
+}
+
+body.msie tabpanel_basic_tab_mid
+{
+	position:relative;
+	z-index:2;
+}
+/* TAB ACTIVE */
+.tabpanel_basic_tab_mid_active
+{
+	background-color:#fff;
+	border-bottom:1px solid #bbb;
+}
+
+/* TAB HOVER */
+.tabpanel_basic_tab_mid:hover
+{
+	background-color:#fff;
+	border-bottom:1px solid #bbb;
+
+}
+
+/* DIVIDER LINE UNDER TABS */
+.tabpanel_basic_divider
+{
+	height:1px;
+	border-top:1px solid #bbb;
+	clear:both;
+		
+
+}
+
+/* UNUSED CLASSES */
+.tabpanel_basic_left
+{
+	/* left end of tab panel */
+	width:20px;
+	height:21px;
+	float:left;
+	border-right:1px solid #bbb ;
+}
+.tabpanel_basic_right
+{
+	/* right end of tab panel */
+	float:left;
+}
+.tabpanel_basic_tab_left_active
+{
+	/* left end of tab - active */
+	float:left;
+}
+.tabpanel_basic_tab_right_active
+{
+	/* right end of tab - active */
+	float:left;
+
+}
+
+.tabpanel_basic_tab_left
+{
+	/* left end of tab  */
+	float:left;
+
+}
+.tabpanel_basic_tab_right
+{
+	/* right end of tab */
+	float:left;
+
+}
+
+.tabpanel_basic_tab_left:hover
+{
+	/* left end of tab - hover */
+}
+.tabpanel_basic_tab_right:hover
+{
+	/* right end of tab - hover */
+}

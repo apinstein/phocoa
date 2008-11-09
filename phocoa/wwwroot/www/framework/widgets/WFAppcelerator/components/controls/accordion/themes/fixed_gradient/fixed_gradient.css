@@ -1,0 +1,74 @@
+
+/********************************************************
+* CONTROL STYLES
+*********************************************************/
+
+/* this is the root element - we need this style
+   in case there are global DIV styles defined */
+.accordion_fixed_gradient
+{
+	width: auto !important;
+	margin:0px;
+	padding:0px;
+
+}
+/* this is the newly created container for the accordion */
+.accordion_fixed_gradient_container
+{
+	padding:0px;
+	margin:0px;
+}
+
+.accordion_fixed_gradient_row
+{
+	clear:both;
+	height:37px;
+	margin:0px;
+	padding:0px;
+
+}
+.accordion_fixed_gradient_row_left
+{
+	padding:0px;
+	margin:0px;
+	
+}
+.accordion_fixed_gradient_row_middle
+{
+	background: url(images/bar.gif) no-repeat;
+	height:37px;
+	width:980px !important;
+	color:#666;
+	line-height:37px;
+	margin:0px;
+	padding:0px !important;
+	padding-left:5px !important;
+	cursor:pointer;
+	
+}
+.accordion_fixed_gradient_row_right
+{
+	padding:0px;
+	margin:0px;
+
+}
+.accordion_fixed_gradient_row_data
+{
+	clear:both;
+	width:980px;
+	margin:0px;
+	padding:0px;
+	
+}
+
+.accordion_fixed_gradient_row_left_active
+{
+	
+}
+.accordion_fixed_gradient_row_middle_active
+{
+}
+.accordion_fixed_gradient_row_right_active
+{
+}
+.

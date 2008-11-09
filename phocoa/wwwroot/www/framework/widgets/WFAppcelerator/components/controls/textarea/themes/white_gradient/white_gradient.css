@@ -1,0 +1,15 @@
+.textarea_white_gradient
+{
+	background:#F3F3F3 url(images/input.gif) scroll left top;
+	border:1px solid #C9C9C9;
+	color:#333;
+	padding:3px;
+	outline:none;
+}
+
+.textarea_white_gradient:focus
+{
+	background-position:0pt -400px;
+	border:1px solid #aaa;
+	
+}

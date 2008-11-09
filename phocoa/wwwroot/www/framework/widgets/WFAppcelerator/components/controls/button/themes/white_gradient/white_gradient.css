@@ -1,0 +1,31 @@
+/*********************************************************
+ * OVERRIDE ANY GLOBAL STYLES ON CONTROL'S BASE ELEMENTS
+ *********************************************************/
+.button_white_gradient_container img
+{
+	margin:0px !important;
+}
+.button_white_gradient_container button
+{
+	margin:0px !important;	
+}
+
+.button_white_gradient_middle
+{
+	background:#F3F3F3 url(images/input.gif) scroll left top;
+	border:1px solid #C9C9C9;
+	color:#333;
+	padding:3px;
+	padding-right:15px;
+	padding-left:15px;
+	outline:none;
+	cursor:pointer;
+	vertical-align:middle;
+	
+}
+
+.button_white_gradient_middle:hover
+{
+	background-position:0pt -400px;
+	border:1px solid #AAA;
+}

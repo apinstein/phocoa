@@ -1,0 +1,113 @@
+.panel_lightblue
+{
+	position:relative;
+	padding:0px;
+	margin:0px;
+}
+.panel_lightblue div
+{
+	padding:0px;
+	margin:0px;
+}
+
+.panel_lightblue_hdr
+{
+	background:#fff url(images/top.png) repeat-x;
+	height:21px;
+	margin-left:7px !important;
+	margin-right:8px !important;
+}
+
+.panel_lightblue_tl
+{
+	background-image:url(images/tl.png);
+	left:0pt;
+	top:0pt;
+	position:absolute;
+	height:21px;
+	width:8px;
+}
+
+.panel_lightblue_title
+{
+	text-align:center; 
+	font-weight:bold; 
+	padding-top:3px !important;
+	overflow:hidden;
+}
+
+.panel_lightblue_tr
+{
+	background-image:url(images/tr.png);
+	right:0pt;
+	top:0pt;
+	position:absolute;
+	height:21px;
+	width:9px;	
+}
+
+.panel_lightblue_btm
+{
+	background:url(images/btm.png) repeat-x;
+	height:22px;
+	margin-left:8px !important;
+	margin-right:8px !important;
+}
+
+.panel_lightblue_bl
+{
+	background-image: url(images/bl.png);
+	left:0pt;
+	bottom:0pt;
+	position:absolute;
+	height:22px;
+	width:9px;
+}
+
+.panel_lightblue_br
+{
+	background-image:url(images/br.png);
+	right:0pt;
+	bottom:0pt;
+	position:absolute;
+	height:22px;
+	width:9px;
+}
+
+.panel_lightblue_btm_text
+{
+	font-size:11px;
+	padding-left:3px !important;
+	text-align:left;
+	overflow:hidden;
+}
+
+.panel_lightblue_close 
+{ 
+	cursor:pointer;
+	background:url(images/close.png);
+	height:16px;
+	position:absolute;
+	right:10px;
+	top:5px;
+	width:16px;
+} 
+
+
+.panel_lightblue_close:hover
+{ 
+}
+
+.panel_lightblue_body
+{
+	background-color:#cee8f7;   
+	padding:7px !important;
+	border-left:1px solid #cdd8f7;
+	border-right:1px solid #cdd8f7;
+}
+
+body.ie6 .panel_lightblue_body
+{
+	margin-bottom:-1px;
+	line-height:16px;
+}

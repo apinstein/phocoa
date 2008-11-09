@@ -1,0 +1,63 @@
+/*********************************************************
+ * OVERRIDE ANY GLOBAL STYLES ON CONTROL'S BASE ELEMENTS
+ *********************************************************/
+.button_aqua_grey_container img
+{
+	padding:0px !important;
+	margin:0px !important;
+	position:static;
+}
+.button_aqua_grey_container button
+{
+	padding:0px;
+	margin:0px !important;
+	position:static;
+}
+
+/********************************************************
+* CONTROL STYLES
+*********************************************************/
+
+.button_aqua_grey_left
+{
+	background:transparent url(images/left.png) no-repeat;
+	height:23px;
+	width:13px;
+	vertical-align:middle;
+}
+
+.button_aqua_grey_middle
+{
+	background:transparent url(images/middle.png) repeat-x;
+    cursor:pointer;	
+	font-size:12px !important;	
+	border:0px none;
+	line-height:23px;
+	height:23px;
+	vertical-align:middle;
+}
+
+
+.button_aqua_grey_right
+{
+	background:transparent url(images/right.png) no-repeat;
+	height:23px;
+	width:13px;
+	vertical-align:middle;
+}
+
+
+/* Disabled styles */
+.button_aqua_grey_left_disabled
+{
+	opacity:0.6;
+}
+
+.button_aqua_grey_middle_disabled
+{
+	opacity:0.6;
+}
+.button_aqua_grey_right_disabled
+{
+	opacity:0.6;	
+}
