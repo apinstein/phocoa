@@ -23,6 +23,13 @@
  * 
  * <b>Optional:</b><br>
  * - {@link WFAppcelerator::$debug debug} boolean True to use the debug version of Appcelerator.
+ *
+ * @internal
+ * To update to the latest appcelerator code, do an app create:project and then rsync the public directory:
+ * rsync  -vvrC --del ~/apptest/public/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/widgets/WFAppcelerator
+ * Then update subversion
+ * svn st | grep '^!' | awk '{ print $2; }' | xargs svn rm
+ * svn st | grep '^?' | awk '{ print $2; }' | xargs svn add
  */
 class WFAppcelerator extends WFWidget
 {
@@ -60,9 +67,7 @@ class WFAppcelerator extends WFWidget
         else
         {
             return '
-                <script src="' . $this->appceleratorDir . '/javascripts/scriptaculous/scriptaculous.js"></script>
                 <script src="' . $this->appceleratorDir . '/javascripts/appcelerator-' . ($this->debug ? 'debug' : 'lite') . '.js"></script>' . $this->jsStartHTML() . '
-                        Appcelerator.DocumentPath = "' . $this->getWidgetWWWDir() . '/";
                         Appcelerator.Browser.autoReportStats = false;
                         Appcelerator.Util.ServerConfig.disableRemoteConfig = true;
                         Appcelerator.Util.ServiceBroker.marshaller = "application/x-www-form-urlencoded";
