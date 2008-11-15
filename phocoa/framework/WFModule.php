@@ -483,11 +483,14 @@ class WFModuleInvocation extends WFObject
             throw( new WFRequestController_NotFoundException("Module 404: invocation path '{$this->invocationPath}' could not be found.") );
         }
 
-        // test - i don't think this can happen. can refactor needsRedirect to if (empty(pageName)) if true...
-        if (empty($this->moduleName)) throw( new WFException("empty moduleName - don't expect that this can even happen.") );
-
         if (empty($this->moduleName) or empty($this->pageName))
         {
+            // test - i don't think !$moduleName can happen. can refactor needsRedirect to if (empty(pageName)) if true...
+            if (empty($this->moduleName)) throw( new WFException("empty moduleName - don't expect that this can even happen.") );
+
+            // also, the only need for needsRedirect I *think* is if the URL is "/<moduleName>/?" and NO extra info. it's basically just a simple shortcut to redirect to "default" page.
+            // it only kicks in if allPages() is not set up. With allPages() defined, then I don't think it can happen.
+            // @todo there may be a better way to handle this case. consider refactoring.
             $needsRedirect = true;
         }
         else
@@ -584,10 +587,19 @@ class WFModuleInvocation extends WFObject
     public static function quickModule($invocationPath, $skinDelegate = NULL)
     {
         try {
-            $modInv = new WFModuleInvocation($invocationPath, NULL, $skinDelegate);
-            $result = $modInv->execute();
+            while (true) {
+                try {
+                    $modInv = new WFModuleInvocation($invocationPath, NULL, $skinDelegate);
+                    $result = $modInv->execute();
+                    break;
+                } catch (WFRequestController_InternalRedirectException $e) {
+                    $invocationPath = $e->getRedirectURL();
+                    $invocationPath = ltrim(substr($invocationPath, strlen(WWW_ROOT)), '/');
+                }
+            }
         } catch (Exception $e) {
-            throw( new WFException("Uncaught Exception with quickModule('{$invocationPath}'): (" . get_class($e) . ") " . $e->getMessage()) );
+            WFLog::log("Uncaught Exception with quickModule('{$invocationPath}'): (" . get_class($e) . ") " . $e->getMessage(), WFLog::WARN_LOG);
+            throw($e);
         }
         return $result;
     }
