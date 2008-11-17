@@ -21,7 +21,7 @@
  * 
  * <b>Optional:</b><br>
  * {@link WFYAHOO_widget_Tab::$cacheData cacheData}
- * {@link WFYAHOO_widget_Tab::$dataSrc cacheData}
+ * {@link WFYAHOO_widget_Tab::$dataSrc dataSrc}
  * {@link WFYAHOO_widget_Tab::$dataTimeout dataTimeout}
  * {@link WFYAHOO_widget_Tab::$disabled disabled}
  * {@link WFYAHOO_widget_Tab::$label label}
@@ -76,6 +76,7 @@ class WFYAHOO_widget_Tab extends WFYAHOO
         $this->disabled = NULL;
         $this->label = $id;
         $this->loadMethod = NULL;
+
         $this->preventAbandondedForm = NULL;
     }
 

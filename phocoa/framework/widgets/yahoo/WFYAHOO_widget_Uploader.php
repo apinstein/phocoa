@@ -77,7 +77,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
         $this->yuiloader()->yuiRequire('uploader,json,element,yahoo,dom,event');
         $this->allowMultiple = false;
         $this->addButtonLabel = "Select Files";
-        $this->uploadButtonLabel = "Upload";
+        $this->uploadButtonLabel = "Upload Files";
         $this->setHasUploadCallback('handleUploadedFile');
         $this->continueURL = NULL;
     }
@@ -190,11 +190,17 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
             // render the tab's content block
             $html = parent::render($blockContent);
             $html .= '
-            <div id="' . $this->id . '" style="width:0px;height:0px"><br />
-              Unable to load Flash content. The YUI Uploader requires Flash Player 9.0.45 or higher. <br />
+            <div id="' . $this->id . '_uiElements" style="display: inline;">
+                <div id="' . $this->id . '_uplaoderContainer">
+                    <div id="' . $this->id . '" style="position: absolute; z-index: 2;">Unable to load Flash content. The YUI Uploader requires Flash Player 9.0.45 or higher.</div>
+                    <div id="' . $this->id . '_selectFilesLink" style="z-index:1">
+                        <a id="' . $this->id . '_browseTrigger" >' . $this->addButtonLabel . '</a>
+                    </div>
+                </div>
+                <div id="' . $this->id . '_uploadFilesLink">
+                    <a id="' . $this->id . '_uploadTrigger" >' . $this->uploadButtonLabel . '</a>
+                </div>
             </div>
-            <input id="' . $this->id . '_browseTrigger" type="button" value="' . $this->addButtonLabel . '" />
-            <input id="' . $this->id . '_uploadTrigger" type="button" value="' . $this->uploadButtonLabel . '" />
             <div id="' . $this->id . '_progress"></div>
             <div id="' . $this->id . '_fileList" style="display: none; border: 1px solid;"></div>
 ';
@@ -214,13 +220,22 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
 
         $html = "
         PHOCOA.widgets.{$this->id}.init = function() {
+            YAHOO.util.Event.onDOMReady(function () { 
+                var uiLayer = YAHOO.util.Dom.getRegion('{$this->id}_browseTrigger');
+                var overlay = YAHOO.util.Dom.get('{$this->id}');
+                YAHOO.util.Dom.setStyle(overlay, 'width', uiLayer.right-uiLayer.left + 'px');
+                YAHOO.util.Dom.setStyle(overlay, 'height', uiLayer.bottom-uiLayer.top + 'px');
+            });
+
             YAHOO.widget.Uploader.SWFURL = '" . $this->yuiPath() . "/uploader/assets/uploader.swf'; 
-            var uploader = new YAHOO.widget.Uploader('{$this->id}'); 
+            var uploader = new YAHOO.widget.Uploader('{$this->id}');
             PHOCOA.runtime.addObject(uploader, '{$this->id}');
 
-            $('{$this->id}_browseTrigger').observe('click', function() {
-                PHOCOA.runtime.getObject('{$this->id}').browse(" . WFJSON::encode($this->addButtonLabel) . ");
+            // can't customize until the SWF is ready
+            uploader.addListener('contentReady', function() {
+                uploader.setAllowMultipleFiles(" . ($this->allowMultiple ? 'true' : 'false')  . ");
             });
+
             $('{$this->id}_uploadTrigger').observe('click', function() {
                 PHOCOA.runtime.getObject('{$this->id}').uploadAll('" . $rpc->url() . "', 'POST', " . WFJSON::encode($rpc->rpcAsParameters()) . ", '{$this->id}');
             });

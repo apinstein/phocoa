@@ -149,7 +149,7 @@ class WFYAHOO_yuiloader
         return "
                      (function() {
                          // on-demand loading of YUILoader started causing bugs with PhocoaDialog, so for now we hard-code includsion of yuiloader in the head tag.
-                         //PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-" . ($this->debug() ? 'debug' : 'min') . ".js', 'YAHOO');
+                         //PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-" . ($this->debug() ? 'debug' : 'min') . ".js', 'YAHOO');
                          var yl = new YAHOO.util.YUILoader();" .
                          $customModules . "
                          " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "

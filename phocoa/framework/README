@@ -29,6 +29,10 @@ Dependencies
 --> To upgrade the YUI, download it from YAHOO, then:
 rsync --dry-run -vvrC --del ~/Desktop/yui/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
 ** when happy, remove --dry-run
+Then update subversion
+cd wwwroot/www/framework/yui
+svn st | grep '^!' | awk '{ print $2; }' | xargs svn rm
+svn st | grep '^?' | awk '{ print $2; }' | xargs svn add
 ** We used to have to edit YUI code, but we've fixed that with our internal sandboxing solution. 
 ** Consider making phocoa use yahoo-hosted-yui-files out of the box, with an alternative to download.
 
@@ -36,6 +40,8 @@ rsync --dry-run -vvrC --del ~/Desktop/yui/build/ ~/dev/sandbox/phocoa/phocoa/www
 TODO
 
 1.0 Milestone:
+- Find a way to add a warning when people use binding options that don't exist? it's really painful to debug "Formatter" vs "formatter"
+- YUILoader solution: instead of inline yuiloader bootstrapping, have a singleton PHOCOAYUILoader that proxies all requests. Turns N widgets on a page into a single YUI require, and that one's callback will call back all of the widgets that requested it
 - Get WFDateTimeFormatter working... object issues with bindings
 - Need to track whether or not a widget was "restored" so we can skip pushbindings if the data wasn't in the request stream. This is important for things like dynamically hidden fields... creationDts, fkId, etc.
 - The "default" class for the WFControllers is WFDictionary... I think maybe we can use ArrayObject, which is an PHP5 SPL class (or at least subclass it). Need more testing...
@@ -60,12 +66,15 @@ TODO
   WFWebApplicationMain();
   // WFModule subclass here
   - this way we could store css, img, etc in the same folder as the module... add {$MODULE_WWW_DIR} to smarty?
+  - this would also make it possible to use phocoa on ONE PAGE on your site, to try it out. would be good for adoption!
 - Add Expires header automatically to skin system? For css and such? Or just add it in code...
+- Routing infrastructure: right now it's all hard-coded. Probably need to add some hooks for URL rewriting. Someone suggested looking at http://dev.horde.org/routes/
 - Finish WFAutoForm - is this really useful? do we really want some kind of "template" system for common list/detail/edit views?
   - Talk to Mark F about his experiences
   - Look at HTML_QuickForm, QCodo, Symfony, CodeIgniter, RoR
   - Re-build "code-gen" things to build WFAutoForm instead
   - Update PHOCOA Builder to allow browsing ( or instantiating ) of PHP Objects, & drag-drop an object onto an interface
+- RESTful infrastructure; TRICKY! See framework/resftul.patch
 - WFModule/Page architecture
   - Can we "cache" the "state" of the page sent before rendering? And then restore it instead of "bootstrapping" again? Would mean that we could then do KVO more cleanly.
     Could even have a "alwaysDoPostback" mode that would postBack to ensure only one UI change made at a time; this would nearly fully replicate desktop environment
@@ -76,6 +85,8 @@ TODO
     - (TBD) handleException - for uncaught exceptions, give the page (and then the module?) a chance to process it.
     - SEE WFPageDelegate Documentation
     - ?? preAction, or maybe validate (so that you can combine field-level KVC with validation done in the "action" callback
+- Should we refactor canPushValueBinding() into OPTION_READ_WRITE_MODE_*? look at canRead* canWrite* in bindings.
+  - also make WFBindingSetup a FLUENT interface
 - Validator Issues
   - DEVELOP TEST CASES!
   - Validators aren't run automatically; only by bindings infrastructure, is that a bad thing?
