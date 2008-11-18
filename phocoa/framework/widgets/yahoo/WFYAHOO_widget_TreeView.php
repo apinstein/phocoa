@@ -17,7 +17,8 @@
  * 
  * <b>Optional:</b><br>
  * - {@link WFWidget::$value value} An array of WFYAHOO_widget_TreeViewNode objects.
- * - {@link WFYAHOO_widget_TreeView::$dynamicDataLoader} A php callback function which the TreeView can use to load data. See {@link WFYAHOO_widget_TreeView::setDynamicDataLoader()}.
+ * - {@link WFYAHOO_widget_TreeView::$dynamicDataLoader}
+ * - {@link WFYAHOO_widget_TreeView::$autoExpandUntilChoices}
  *
  * @todo Add capability for multi-selection of tree items. This one is gonna be tricky! Esp. with dynamic data; need to keep track of checked items even if they never become visisble.
  */
@@ -35,6 +36,10 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
      * @var string The YAHOO! NodeType to use for the tree nodes. Originally I thought this would be user-selectable, but I don't think it needs to be now.
      */
     private $nodeType;
+    /**
+     * @var boolean TRUE to automatically expand any node that has exactly 1 child, FALSE to make everything manual. Default: TRUE
+     */
+    protected $autoExpandUntilChoices;
 
     /**
       * Constructor.
@@ -45,6 +50,7 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         $this->dynamicDataLoader = NULL;
         $this->bcCallback = NULL;
         $this->nodeType = 'HTMLNode';
+        $this->autoExpandUntilChoices = true;
         $this->yuiloader()->yuiRequire('treeview,connection');
     }
 
@@ -89,7 +95,7 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         {
             $callback = array($this->page()->delegate(), $callback);
         }
-        if (!is_callable($callback)) throw( new WFException('Invalid callback.') );
+        if (!is_callable($callback)) throw( new WFException('Invalid callback: ' . print_r($callback,true)) );
 
         $this->dynamicDataLoader = $callback;
     }
@@ -210,14 +216,28 @@ PHOCOA.widgets.{$this->id}.loadDataHandleSuccess = function(o)
         }
     }
 
-    // redraw
+    // complete node loading
     o.argument.loadComplete();
+
+    if (o.argument.node.isRoot() && " . ($this->autoExpandUntilChoices ? 1 : 0) . ") PHOCOA.widgets.{$this->id}.autoExpand(o.argument.node);
 };
 
 PHOCOA.widgets.{$this->id}.loadDataHandleFailure = function(o)
 {
     alert('failed to load data');
 };
+
+// utility functions not included in YUI Tree
+PHOCOA.widgets.{$this->id}.reloadTree = function()
+{
+    var tree = PHOCOA.runtime.getObject('featureBrowser');
+    var rootNode = tree.getRoot();
+    tree.removeChildren(rootNode);
+    rootNode.refresh();
+    PHOCOA.widgets.{$this->id}.loadData(rootNode, function() { rootNode.loadComplete(); });
+};
+PHOCOA.widgets.{$this->id}.autoExpand = function(node) { if (node.children.length === 1) node.children[0].expand(); };
+// end util funcs
 
 PHOCOA.widgets.{$this->id}.init = function()
 {
@@ -298,6 +318,11 @@ PHOCOA.widgets.{$this->id}.init = function()
             {
                 $script .= "{$this->id}.setDynamicLoad(PHOCOA.widgets.{$this->id}.loadData, 1);\n";
                 //throw( new WFException("dynamic loading not yet implemented"));
+            }
+
+            if ($this->autoExpandUntilChoices)
+            {
+                $script .= "{$this->id}.subscribe('expandComplete', PHOCOA.widgets.{$this->id}.autoExpand);";
             }
             
             // finish script init function
