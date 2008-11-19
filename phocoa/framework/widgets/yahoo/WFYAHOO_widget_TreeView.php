@@ -19,8 +19,11 @@
  * - {@link WFWidget::$value value} An array of WFYAHOO_widget_TreeViewNode objects.
  * - {@link WFYAHOO_widget_TreeView::$dynamicDataLoader}
  * - {@link WFYAHOO_widget_TreeView::$autoExpandUntilChoices}
+ * - {@link WFYAHOO_widget_TreeView::$queryFieldId}
  *
  * @todo Add capability for multi-selection of tree items. This one is gonna be tricky! Esp. with dynamic data; need to keep track of checked items even if they never become visisble.
+ * @todo Add "locking" to filter field so you can't send 2 queries at once.
+ * @todo Add loading indicator
  */
 class WFYAHOO_widget_TreeView extends WFYAHOO
 {
@@ -40,6 +43,10 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
      * @var boolean TRUE to automatically expand any node that has exactly 1 child, FALSE to make everything manual. Default: TRUE
      */
     protected $autoExpandUntilChoices;
+    /**
+     * @var string The ID of a WFTextField that can contain a "query" to filter the tree data on.
+     */
+    protected $queryFieldId;
 
     /**
       * Constructor.
@@ -51,6 +58,7 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         $this->bcCallback = NULL;
         $this->nodeType = 'HTMLNode';
         $this->autoExpandUntilChoices = true;
+        $this->queryFieldId = NULL;
         $this->yuiloader()->yuiRequire('treeview,connection');
     }
 
@@ -130,13 +138,16 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
      *
      *  NOTE: must be public or is_callable fails.
      *
-     *  @param array An array of node id's to the node we need child data for.
+     *  @param object WFPage
+     *  @param array Paramter hash.
+     *  @param string The "path" to the node that child data is being requested for
+     *  @param string The "query" that is active on the tree.
      *  @return object WFActionResponseXML.
      *  @throws object WFException On Error.
      */
-    public function ajaxLoadData($page, $params, $path)
+    public function ajaxLoadData($page, $params, $path, $query = NULL)
     {
-        $nodes = call_user_func($this->dynamicDataLoader, $path);
+        $nodes = call_user_func($this->dynamicDataLoader, $path, $query);
         $xml = $this->itemsAsXML($nodes);
         return new WFActionResponseXML($xml);
     }
@@ -179,7 +190,7 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
     rpc.callback.success = PHOCOA.widgets.{$this->id}.loadDataHandleSuccess;
     rpc.callback.failure = PHOCOA.widgets.{$this->id}.loadDataHandleFailure;
     rpc.callback.argument = { loadComplete: fnLoadComplete, node: node };
-    rpc.execute(path);
+    rpc.execute(path" . ($this->queryFieldId ? ", \$F('{$this->queryFieldId}')" : NULL) . ");
     ";
             }
             else
@@ -230,7 +241,7 @@ PHOCOA.widgets.{$this->id}.loadDataHandleFailure = function(o)
 // utility functions not included in YUI Tree
 PHOCOA.widgets.{$this->id}.reloadTree = function()
 {
-    var tree = PHOCOA.runtime.getObject('featureBrowser');
+    var tree = PHOCOA.runtime.getObject('{$this->id}');
     var rootNode = tree.getRoot();
     tree.removeChildren(rootNode);
     rootNode.refresh();
@@ -251,7 +262,7 @@ PHOCOA.widgets.{$this->id}.init = function()
             {
                 if ($this->dynamicDataLoader)
                 {
-                    $this->setValue( call_user_func($this->dynamicDataLoader, NULL) );
+                    $this->setValue( call_user_func($this->dynamicDataLoader, NULL, NULL) );
                 }
                 else
                 {
@@ -329,6 +340,29 @@ PHOCOA.widgets.{$this->id}.init = function()
             $script .= "
     PHOCOA.runtime.addObject({$this->id}, '{$this->id}');
     {$this->id}.draw();
+            ";
+            if ($this->queryFieldId)
+            {
+                $qf = $this->page()->outlet($this->queryFieldId);
+                if (!($qf instanceof WFTextField)) throw( new WFException("queryFieldId must be the ID of a WFTextField.") );
+                $script .= "
+    YAHOO.util.Event.onContentReady('{$this->queryFieldId}', function() {
+        var queryField = $('{$this->queryFieldId}');
+        queryField.observe('keyup', function(e) {
+            switch (e.keyCode) {
+                case Event.KEY_RETURN:
+                    PHOCOA.widgets.{$this->id}.reloadTree();
+                    break;
+                case Event.KEY_ESC:
+                    queryField.value = '';
+                    PHOCOA.widgets.{$this->id}.reloadTree();
+                    break;
+            }
+        }); 
+    });
+                ";
+            }
+            $script .= "
 }
 ";
         return $script;

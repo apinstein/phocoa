@@ -8,6 +8,11 @@ Legend:
 
 Version 0.2.0 - ??
 - [new] Add preventAbandondedForm property to WFYAHOO_widget_Tab. Given the ID of a form element, this will prevent navigation to another tab with "dirty" data.
+- [new] Upgrade YUI to 2.6.0.
+- [new] add argument passing infrastructure for Appcelerator
+- [new] Add WFYAHOO_widget_TreeView option for autoExpandUntilChoices 
+- [new] Add WFYAHOO_widget_TreeView function to allow reloading of entire tree
+- [new] Add WFYAHOO_widget_TreeView property "queryFieldId" to allow linking a WFTextField to the tree for the purpose of making a filterable/searchable tree.
 
 Version 0.1.9 - 9/28/2008
 - [new] Add WFBreadCrumb infrastructure for managing breadcrumbs.
