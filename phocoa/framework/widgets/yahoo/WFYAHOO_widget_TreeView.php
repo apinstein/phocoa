@@ -22,8 +22,9 @@
  * - {@link WFYAHOO_widget_TreeView::$queryFieldId}
  *
  * @todo Add capability for multi-selection of tree items. This one is gonna be tricky! Esp. with dynamic data; need to keep track of checked items even if they never become visisble.
- * @todo Add "locking" to filter field so you can't send 2 queries at once.
  * @todo Add loading indicator
+ * @todo Add indicator in case of NO ITEMS FOUND... need to say something.
+ * @todo Bug; if hit enter then esc quickly, things get fouled up. no idea why. even happens with autoExpandUntilChoices = false. jwatts?
  */
 class WFYAHOO_widget_TreeView extends WFYAHOO
 {
@@ -203,7 +204,7 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
         failure: PHOCOA.widgets.{$this->id}.loadDataHandleFailure,
         argument: { loadComplete: fnLoadComplete, node: node }
     };
-    var transaction = YAHOO.util.Connect.asyncRequest('GET', url, callback);
+    YAHOO.util.Connect.asyncRequest('GET', url, callback);
     ";
             }
             $script .= "
@@ -211,6 +212,12 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
 
 PHOCOA.widgets.{$this->id}.loadDataHandleSuccess = function(o)
 {
+    if (o.argument.node.isRoot())
+    {
+        // always clear all kids on root before adding; this solves the problem of multiple reloadTree() being called before first result rolls in (and thus merges results)
+        PHOCOA.runtime.getObject('{$this->id}').removeChildren(o.argument.node);
+    }
+
     // process XML data - this is the only x-browser way I could find since Safari doesn't support XPath yet
     var xml = o.responseXML.documentElement;
     var items = xml.getElementsByTagName('item');
