@@ -98,7 +98,10 @@
         <property userProperty="true" name="propel.php.dir" value="${phocoa.project.dir}/classes" />
         <property userProperty="true" name="propel.phpconf.dir" value="${phocoa.project.dir}/conf" />
         <property userProperty="true" name="propel.sql.dir" value="${phocoa.propel.dir}/db/sql" />
+        <property userProperty="true" name="propel.addTimeStamp" value="false" />
         <property userProperty="true" name="propel.useDateTimeClass" value="true" />
+        <property userProperty="true" name="propel.dateTimeClass" value="WFDateTime" />
+        <property userProperty="true" name="propel.defaultTimeStampFormat" value="" />
         <property userProperty="true" name="propel.autoloadCoreClasses" value="1" />
         <property userProperty="true" name="propel.autoloadGeneratedClasses" value="1" />
         <writeconffile namespace="propel" file="${phocoa.propel.dir}/build.properties" />
