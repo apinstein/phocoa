@@ -31,6 +31,50 @@ class WFObject implements WFKeyValueCoding
         return array();
     }
 
+    protected static function _valueForStaticKey($key, $target)
+    {
+        if ($key == NULL) throw( new WFUndefinedKeyException("NULL key Exception") );
+
+        $performed = false;
+
+        // try calling getter with naming convention "key"
+        if (method_exists($target, $key))
+        {
+            $result = call_user_func(array($target, $key));
+            $performed = true;
+        }
+
+        // try calling getter with naming convention "getKey"
+        if (!$performed)
+        {
+            $getterMethod = 'get' . ucfirst($key);
+            if (method_exists($target, $getterMethod))
+            {
+                $result = call_user_func(array($target, $getterMethod));
+                $performed = true;
+            }
+        }
+
+        // try accessing property directly
+        if (!$performed)
+        {
+            $vars = get_class_vars($target);
+            if (array_key_exists($key, $vars))
+            {
+                throw( new WFException("No way to support this before PHP 5.3.") );
+                //$result = $target::$$key;
+                $performed = true;
+            }
+        }
+
+        if (!$performed)
+        {
+            $result = self::valueForUndefinedStaticKey($key);
+        }
+
+        return $result;
+    }
+
     function valueForKey($key)
     {
         if ($key == NULL) throw( new WFUndefinedKeyException("NULL key Exception") );
@@ -74,6 +118,40 @@ class WFObject implements WFKeyValueCoding
         return $result;
     }
 
+    function valuesForKeys($keys)
+    {
+        $hash = array();
+        foreach ($keys as $k) {
+            $v = NULL;
+            try {
+                $v = $this->valueForKey($k);
+            } catch (Exception $e) {}
+            $hash[$k] = $v;
+        }
+        return $hash;
+    }
+
+    function valuesForKeyPaths($keysAndKeyPaths)
+    {
+        $hash = array();
+        // fix integer keys into keys... this allows keysAndKeyPaths to return ('myProp', 'myProp2' => 'myKeyPath', 'myProp3')
+        foreach ( array_keys($keysAndKeyPaths) as $k ) {
+            if (gettype($k) == 'integer')
+            {
+                $keysAndKeyPaths[$keysAndKeyPaths[$k]] = $keysAndKeyPaths[$k];
+                unset($keysAndKeyPaths[$k]);
+            }
+        }
+        foreach ($keysAndKeyPaths as $k => $keyPath) {
+            $v = NULL;
+            try {
+                $v = $this->valueForKeyPath($keyPath);
+            } catch (Exception $e) {}
+            $hash[$k] = $v;
+        }
+        return $hash;
+    }
+
     /**
      * Called by valueForKey() if the key cannot be located through normal methods.
      *
@@ -87,9 +165,23 @@ class WFObject implements WFKeyValueCoding
         throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
     }
 
-    function valueForKeyPath($keyPath)
+    /**
+     * Called by valueForStaticKey() if the key cannot be located through normal methods.
+     *
+     * The default implementation raises as WFUndefinedKeyException. Subclasses can override this function to return an alternate value for the undefined key.
+     * @param string The key.
+     * @return mixed The value of the key.
+     * @throws object WFUndefinedKeyException
+     */
+    public static function valueForUndefinedStaticKey($key)
+    {
+        throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . __CLASS__ . "'.") );
+    }
+
+    protected static function valueForTargetAndKeyPath($keyPath, $rootObject = NULL)
     {
         if ($keyPath == NULL) throw( new Exception("NULL keyPath Exception") );
+        $staticMode = ($rootObject === NULL);
 
         // initialize
         $result = NULL;
@@ -102,6 +194,7 @@ class WFObject implements WFKeyValueCoding
             $modelKeyPath = join('.', array_slice($keyParts, 1));
         }
 
+
         // walk keypath
         $keys = explode('.', $keyPath);
         $keyPartsLeft = $keyCount = count($keys);
@@ -113,19 +206,40 @@ class WFObject implements WFKeyValueCoding
             // determine target; use this if on first key, use result otherwise
             if ($keyI == 0)
             {
-                $target = $this;
+                // having "::" in your first key or a rootObject of NULL triggers STATIC mode
+                if ($staticMode && strpos($key, '::') !== false)
+                {
+                    $staticParts = explode('::', $key);
+                    if (count($staticParts) !== 2)
+                    {
+                        throw( new WFException("First part of keypath for static KVC must be 'ClassName::StaticMethodName'; you passed: " . $key) );
+                    }
+                    $target = $staticParts[0];
+                    $key = $staticParts[1];
+                    if (!class_exists($target)) throw( new WFException("First part of a static keypath must be a valid class name, you passed: " . $target) );
+                }
+                else
+                {
+                    $target = $rootObject;
+                }
             }
             else
             {
                 $target = $result;
             }
-            // target must be an object
-            if (!is_object($target))
+
+            // get result of this part of path
+            if ($staticMode && $keyI == 0)
             {
-                throw( new Exception('Target is not an object at keyPath: ' . join('.', array_slice($keys, 0, $keyI))) );
+                if (!is_string($target)) throw( new WFException('Target is not class name at static keyPath: ' . join('.', array_slice($keys, 0, $keyI))) );
+                $result = call_user_func(array($target, '_valueForStaticKey'), $key, $target);
+            }
+            else
+            {
+                if (!is_object($target)) throw( new Exception('Target is not an object at keyPath: ' . join('.', array_slice($keys, 0, $keyI))) );
+                $result = $target->valueForKey($key);
             }
 
-            $result = $target->valueForKey($key);
             if (is_array($result))
             {
                 $arrayMode = true;
@@ -235,6 +349,21 @@ class WFObject implements WFKeyValueCoding
 
         return $result;
     }
+
+    public function valueForKeyPath($keyPath)
+    {
+        return self::valueForTargetAndKeyPath($keyPath, $this);
+    }
+
+    public static function valueForStaticKeyPath($keyPath)
+    {
+        return self::valueForTargetAndKeyPath($keyPath);
+    }
+    public static function valueForStaticKey($key)
+    {
+        return self::valueForStaticKeyPath($key);
+    }
+
 
     function setValueForKey($value, $key)
     {

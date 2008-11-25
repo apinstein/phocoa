@@ -13,6 +13,10 @@ Version 0.2.0 - ??
 - [new] Add WFYAHOO_widget_TreeView option for autoExpandUntilChoices 
 - [new] Add WFYAHOO_widget_TreeView function to allow reloading of entire tree
 - [new] Add WFYAHOO_widget_TreeView property "queryFieldId" to allow linking a WFTextField to the tree for the purpose of making a filterable/searchable tree.
+- [new] Added several new KVC methods. See the docs for details, but here are the new methods.
+          valuesForKeys, valuesForKeyPaths, (static) valueForStaticKey, (static) valueForStaticKeyPath
+        And optional functions for handling undefined keys: valueForUndefinedKey, (static) valueForUndefinedStaticKey.
+
 
 Version 0.1.9 - 9/28/2008
 - [new] Add WFBreadCrumb infrastructure for managing breadcrumbs.

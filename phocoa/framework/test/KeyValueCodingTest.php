@@ -177,6 +177,68 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $valid = $this->parent->validateValueForKey($badvalue, 'firstName', $edited, $errors);
         self::assertTrue($valid === false and count($errors) == 1);
     }
-}
 
-?>
+    function testValuesForKeys()
+    {
+        $keys = array('firstName', 'lastName');
+        $shouldBe = array( 'firstName' => $this->parent->firstName, 'lastName' => $this->parent->lastName );
+        $hash = $this->parent->valuesForKeys($keys);
+        $this->assertEquals($shouldBe, $hash);
+    }
+
+    function testValuesForKeyPaths()
+    {
+        $keys = array('name', 'childrenFirstNames' => 'children.name');
+        $shouldBe = array( 'name' => $this->nodeTree->name, 'childrenFirstNames' => array('Daddy', 'Aunt') );
+        $hash = $this->nodeTree->valuesForKeyPaths($keys);
+        $this->assertEquals($shouldBe, $hash);
+    }
+
+    function testStaticKVCPropertyAccess()
+    {
+        $this->setExpectedException('WFException'); // this can't work until PHP 5.3
+        $shouldBe = array(1,2,3);
+        $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('StaticPerson::staticVarWithNoStaticAccessor'));
+    }
+
+    function testStaticKVCMethodAccess()
+    {
+        $shouldBe = array(1,2,3);
+        $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('StaticPerson::staticVar'));
+        $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('StaticPerson::anotherStaticVar'));
+        $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('StaticPerson::getAnotherStaticVar'));
+    }
+
+    function testStaticKVCPropertyAccessFailsForProtectedMembers()
+    {
+        $shouldBe = array(1,2,3);
+        $this->setExpectedException('WFUndefinedKeyException'); // this can't work until PHP 5.3
+        $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('StaticPerson::kvcInaccessible'));
+    }
+
+    function testStaticKVCKeyPathWithArrayMagic()
+    {
+        $shouldBe = array('John', 'Jane');
+        $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('StaticPerson::people.firstName'));
+        $this->assertEquals('John', StaticPerson::valueForStaticKeyPath('StaticPerson::people.@first.firstName'));
+    }
+
+    function testValueForKeyPathThatBeginsWithStaticAccess()
+    {
+        $this->setExpectedException('WFUndefinedKeyException');
+        $shouldBe = array(1,2,3);
+        $p = new StaticPerson;
+        $this->assertEquals($shouldBe, $p->valueForKeyPath('StaticPerson::staticVar'));
+    }
+    function testValueForStaticKey()
+    {
+        $shouldBe = array(1,2,3);
+        $this->assertEquals($shouldBe, StaticPerson::valueForStaticKey('StaticPerson::staticVar'));
+    }
+    function testValueForStaticKeyPathWithoutStaticKVCKeyPath()
+    {
+        $this->setExpectedException('WFException');
+        $shouldBe = array('John', 'Jane');
+        $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('people.firstName'));
+    }
+}

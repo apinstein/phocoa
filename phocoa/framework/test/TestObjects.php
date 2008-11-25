@@ -92,4 +92,31 @@ class PersonID extends WFObject
     }
 }
 
-?>
+class StaticPerson extends WFObject
+{
+    // KVC only works with public methods
+    public static $staticVar = array(1,2,3);
+    public static $anotherStaticVar = array(1,2,3);
+    
+    public static $staticVarWithNoStaticAccessor = array(1,2,3);
+
+    protected static $kvcInaccessible = array(1,2,3);
+
+    // method with same name as class var
+    public static function staticVar()
+    {
+        return self::$staticVar;
+    }
+    // method with different name as class var (get*)
+    public static function getAnotherStaticVar()
+    {
+        return self::$anotherStaticVar;
+    }
+    public static function people()
+    {
+        return array(
+                new Person('John', 'Doe'),
+                new Person('Jane', 'Doe')
+            );
+    }
+}

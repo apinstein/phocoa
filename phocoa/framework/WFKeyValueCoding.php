@@ -92,11 +92,31 @@ interface WFKeyValueCoding
      *    distinctUnionOfArrays - same as @unionOfArrays but with duplicate objects removed. Duplicates determined by PHP === operator.<br>
      *    distinctUnionOfObjects - same as @unionOfObjects but with duplicate objects removed. Duplicates determined by PHP === operator.<br>
      *
+     * 3. Static Method/Property access<br>
+     *    If the first part of the keypath contains '::', then "static" mode will be enabled, which allows you to use KVC on an instance of an object to access static methods.
+     *    Note that at present all static access must be done with {@link valueForStaticKeyPath()}. This may become more flexible in the future.
+     *
      * @see valueForKey()
      * @param string The keyPath to retrive the value for.
      * @return mixed The value for the given keyPath.
      */
     function valueForKeyPath($keyPath);
+
+    /**
+     * Creates an associative array with the set of passed keys and the corresponding values
+     *
+     * @param array An array of keys.
+     * @return array An associative array of the passed in keys, now with values from valueForKey($theKey). Missing keys will be NULL.
+     */
+    function valuesForKeys($keys);
+
+    /**
+     * Creates an associative array with the set of passed keys and keyPaths and the corresponding values.
+     *
+     * @param array An array of key => keyPath. If a "key" is encountered without a value, uses the "key" as the "keyPath".
+     * @return array An associative array of the passed in keys, now with values from valueForKeyPath($theKeyPath). Missing keys will be NULL.
+     */
+    function valuesForKeyPaths($keys);
 
     /**
      * Set the value for the given keyPath.
@@ -150,5 +170,49 @@ interface WFKeyValueCoding
      * @return boolean TRUE indicates a valid value, FALSE indicates an error.
      */
     function validateValueForKey(&$value, $key, &$edited, &$errors);
+
+    /**
+     * Called by valueForKey() if the key cannot be located through normal methods.
+     *
+     * The default implementation raises as WFUndefinedKeyException. Subclasses can override this function to return an alternate value for the undefined key.
+     * @param string The key.
+     * @return mixed The value of the key.
+     * @throws object WFUndefinedKeyException
+     */
+    function valueForUndefinedKey($key);
+
+    /**
+     * Called by valueForStaticKey() if the key cannot be located through normal methods.
+     *
+     * The default implementation raises as WFUndefinedKeyException. Subclasses can override this function to return an alternate value for the undefined key.
+     *
+     * NOTE: subclass overrides probably won't work so well until PHP 5.3.
+     *
+     * @param string The key.
+     * @return mixed The value of the key.
+     * @throws object WFUndefinedKeyException
+     */
+    static function valueForUndefinedStaticKey($key);
+
+    /**
+     * Get the value of a static keypath. A static keypath is a key called against a CLASS rather than an instance.
+     *
+     * @param string The key (method/property name). Key must be in form "ClassName::MethodName".
+     * @param string The class name to which the key belongs
+     * @return mixed The value of the key.
+     * @throws object WFUndefinedKeyException
+     */
+    static function valueForStaticKey($key);
+
+    /**
+     * This function is a wrapper of valueForKeyPath that allows you to use KVC to access static methods/properties without having an instance to a class.
+     *
+     * MyObject::valueForStaticKeyPath('MyObject::myStaticMethod')
+     *
+     * @see valueForKey()
+     * @param string The keyPath to retrive the value for.
+     * @return mixed The value for the given keyPath.
+     * @throws object WFUndefinedKeyException
+     */
+    static function valueForStaticKeyPath($keyPath);
 }
-?>

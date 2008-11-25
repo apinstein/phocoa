@@ -2424,8 +2424,22 @@ Total time: 2.8443 seconds
     propel/om/BaseObject.php file to make the Propel BaseObject a subclass of
     the PHOCOA WFObject base class:</para>
 
-    <para><screen>abstract class BaseObject<emphasis> extends WFObject </emphasis>{</screen>That's
-    it! Your Propel install is now fully compatible with PHOCOA to act as the
-    data store for your objects.</para>
+    <para><screen>abstract class BaseObject<emphasis> extends WFObject </emphasis>{</screen></para>
+
+    <para>If you also want to use Key-Value Coding methods with the Peer
+    classes, you will need to make 2 additional edits. First, edit the
+    BasePeer object simlarly to BaseObject:</para>
+
+    <para><screen>class BasePeer<emphasis> extends WFObject</emphasis></screen>Next,
+    add the following attribute to the <symbol>database</symbol> tag
+    schema.xml:</para>
+
+    <para><screen>basePeer="BasePeer "</screen>Notice the SPACE at the end of
+    BasePeer. This is a necessary trick with Propel 1.3, as if the basePeer is
+    "BasePeer" the build scripts don't have Base&lt;Object&gt;Peer extend
+    anything.</para>
+
+    <para>That's it! Your Propel install is now fully compatible with PHOCOA
+    to act as the data store for your objects.</para>
   </appendix>
 </book>
