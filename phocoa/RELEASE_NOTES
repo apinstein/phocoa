@@ -16,6 +16,7 @@ Version 0.2.0 - ??
 - [new] Added several new KVC methods. See the docs for details, but here are the new methods.
           valuesForKeys, valuesForKeyPaths, (static) valueForStaticKey, (static) valueForStaticKeyPath
         And optional functions for handling undefined keys: valueForUndefinedKey, (static) valueForUndefinedStaticKey.
+- [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
 
 
 Version 0.1.9 - 9/28/2008

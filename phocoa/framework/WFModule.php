@@ -769,8 +769,7 @@ abstract class WFModule extends WFObject
             }
             switch ($e->getCode()) {
                 case WFAuthorizationException::TRY_LOGIN:
-                    // NOTE: we pass the redir-url base64 encoded b/c otherwise Apache picks out the slashes!!!
-                    WFAuthorizationManager::sharedAuthorizationManager()->doLoginRedirect(WWW_ROOT . '/' . $this->invocation->invocationPath());
+                    WFAuthorizationManager::sharedAuthorizationManager()->doLoginRedirect($_SERVER['REQUEST_URI']);
                     break;
                 case WFAuthorizationException::DENY:
                     header("Location: " . WFRequestController::WFURL('login', 'notAuthorized'));
