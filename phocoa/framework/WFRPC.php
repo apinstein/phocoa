@@ -53,9 +53,9 @@ class WFRPC extends WFObject
     /**
      *  @var string A specially formatted string specifying the target object to call the action method on.
      *       This string takes on one of two formats:
-     *       - #page to bind to the page delegate
+     *       - #page# to bind to the page delegate
      *       - #page#keyPath to bind to a page instance
-     *       - #module to bind to the module
+     *       - #module# to bind to the module
      *       - #module#keyPath to bind to a shared instance
      */
     protected $target;

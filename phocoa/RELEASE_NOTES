@@ -17,6 +17,7 @@ Version 0.2.0 - ??
           valuesForKeys, valuesForKeyPaths, (static) valueForStaticKey, (static) valueForStaticKeyPath
         And optional functions for handling undefined keys: valueForUndefinedKey, (static) valueForUndefinedStaticKey.
 - [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
+- [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.
 
 
 Version 0.1.9 - 9/28/2008

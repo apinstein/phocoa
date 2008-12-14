@@ -135,7 +135,7 @@ PHOCOA.runtime.getObject = function(id)
 // RPC
 PHOCOA.namespace('WFRPC');
 PHOCOA.WFRPC = function(url, target, action) {
-    this.target = '#page#delegate';
+    this.target = '#page#';
     this.action = null;
     this.form = null;   // id of form
     this.runsIfInvalid = false;
@@ -233,7 +233,7 @@ PHOCOA.WFRPC.prototype = {
             else /* ajax form submit */
             {
                 // see Prototype.Form.request()
-                $(this.form).request(   {
+                this.transaction = $(this.form).request(   {
                                             method: 'GET',
                                             parameters: this.phocoaRPCParameters(this.execute.arguments),
                                             onSuccess: this.callback.success.bind(this.callback.scope),
@@ -271,6 +271,7 @@ PHOCOA.WFRPC.prototype = {
                 document.location = url;
             }
         }
+        return this.transaction;
     }
 };
 
@@ -430,5 +431,39 @@ PHOCOA.WFAction.prototype = {
             cbArgs.splice(0, 0, theResponse);
             PHOCOA.widgets[this.elId].events[this.eventName].ajaxSuccess.apply(null, cbArgs);
         }
+    }
+};
+
+/**
+ * YUILoader proxy.
+ * @todo Finish this... it isn't used presently
+ */
+PHOCOA.namespace('yuiloader');
+PHOCOA.yuiloaderO = {
+    callbacks: [],
+    register: function(callback)
+    {
+        this.callbacks.push(callback);
+    },
+    doneLoading: function()
+    {
+        this.callbacks.each(function(cb) { cb(); } );
+    },
+    doLoading: function()
+    {
+        PHOCOA.yuiloader = new PHOCOA.yuiloaderO;
+
+        // on-demand loading of YUILoader started causing bugs with PhocoaDialog, so for now we hard-code includsion of yuiloader in the head tag.
+        //PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-" . ($this->debug() ? 'debug' : 'min') . ".js', 'YAHOO');
+        var yl = new YAHOO.util.YUILoader();
+        // @todo add customModules support back
+        /*
+        " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
+        yl.require(" . join(',', $this->quotedRequired()) . ");
+        yl.allowRollup = " . ($this->allowRollup() ? 'true' : 'false') . ";
+        yl.loadOptional = " . ($this->loadOptional() ? 'true' : 'false') . ";
+        yl.onSuccess = PHOCOA.yuiloader.doneLoading;
+        yl.insert( { " . ($this->debug() ? 'filter: "DEBUG"' : NULL) . " } );
+        */
     }
 };
