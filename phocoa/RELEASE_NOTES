@@ -7,6 +7,7 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.2.0 - ??
+********** BUMP bootstrap.php VERSION # ****************
 - [new] Add preventAbandondedForm property to WFYAHOO_widget_Tab. Given the ID of a form element, this will prevent navigation to another tab with "dirty" data.
 - [new] Upgrade YUI to 2.6.0.
 - [new] add argument passing infrastructure for Appcelerator
@@ -18,6 +19,7 @@ Version 0.2.0 - ??
         And optional functions for handling undefined keys: valueForUndefinedKey, (static) valueForUndefinedStaticKey.
 - [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
 - [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.
+- [bugfix] PHOCOA.WFRPC was sending arguments with null Javascript values as (string) null to the backend; this has been fixed.
 
 
 Version 0.1.9 - 9/28/2008
@@ -85,3 +87,11 @@ Version 0.1.1
              due to the new avoidsEmptySelection property, which is true by default. To fix this, either convert your array controllers
              to use ids, or set avoidsEmptySelection to false.
 - [new] Ajax infrastructure has been added to PHOCOA. Refer to docs for details, as it is a big system.
+
+======================================================
+MINIFY JS:
+======================================================
+cd phocoa
+java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/phocoa.js > wwwroot/www/framework/js/phocoa-min.js
+java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/yahoo-phocoa.js > wwwroot/www/framework/js/yahoo-phocoa-min.js
+java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/prototype.js > wwwroot/www/framework/js/prototype-min.js

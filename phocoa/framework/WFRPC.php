@@ -369,7 +369,7 @@ class WFRPC extends WFObject
         for ($i = 0; $i < $_REQUEST[self::PARAM_ARGC]; $i++) {
             $reqVarName = self::PARAM_ARGV_PREFIX . $i;
             if (!isset($_REQUEST[$reqVarName])) throw( new WFException("Missing action argument {$i}") );
-            $args[$i] = $_REQUEST[$reqVarName];
+            $args[$i] = ($_REQUEST[$reqVarName] === WFModuleInvocation::PARAMETER_NULL_VALUE ? NULL : $_REQUEST[$reqVarName]);
         }
         $rpc->setArguments($args);
         return $rpc;

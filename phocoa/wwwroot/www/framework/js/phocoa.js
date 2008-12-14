@@ -180,7 +180,7 @@ PHOCOA.WFRPC.prototype = {
         {
             for (var i = 0; i < args.length; i++) {
                 var argvName = '__phocoa_rpc_argv_' + i;
-                url += '&' + argvName + '=' + args[i];
+                url += '&' + argvName + '=' + (args[i] === null ? 'WFNull' : args[i]);
             }
         }
         url += '&__phocoa_rpc_argc=' + args.length;
@@ -204,7 +204,7 @@ PHOCOA.WFRPC.prototype = {
         {
             for (var i = 0; i < args.length; i++) {
                 var argvName = '__phocoa_rpc_argv_' + i;
-                params[argvName] = args[i];
+                params[argvName] = (args[i] === null ? 'WFNull' : args[i]);
             }
         }
         params.__phocoa_rpc_argc = args.length;
