@@ -45,7 +45,7 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
      */
     protected $autoExpandUntilChoices;
     /**
-     * @var string The ID of a WFTextField that can contain a "query" to filter the tree data on.
+     * @var string The ID of a WFSearchField that can contain a "query" to filter the tree data on.
      */
     protected $queryFieldId;
 
@@ -358,21 +358,12 @@ PHOCOA.widgets.{$this->id}.init = function()
             if ($this->queryFieldId)
             {
                 $qf = $this->page()->outlet($this->queryFieldId);
-                if (!($qf instanceof WFTextField)) throw( new WFException("queryFieldId must be the ID of a WFTextField.") );
+                if (!($qf instanceof WFSearchField)) throw( new WFException("queryFieldId must be the ID of a WFSearchField.") );
                 $script .= "
     YAHOO.util.Event.onContentReady('{$this->queryFieldId}', function() {
         var queryField = $('{$this->queryFieldId}');
-        queryField.observe('keyup', function(e) {
-            switch (e.keyCode) {
-                case Event.KEY_RETURN:
-                    PHOCOA.widgets.{$this->id}.reloadTree();
-                    break;
-                case Event.KEY_ESC:
-                    queryField.value = '';
-                    PHOCOA.widgets.{$this->id}.reloadTree();
-                    break;
-            }
-        }); 
+        queryField.observe('phocoa:WFSearchField:search', PHOCOA.widgets.{$this->id}.reloadTree);
+        queryField.observe('phocoa:WFSearchField:clear', PHOCOA.widgets.{$this->id}.reloadTree);
     });
                 ";
             }

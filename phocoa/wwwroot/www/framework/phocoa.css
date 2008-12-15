@@ -98,3 +98,9 @@ div.phocoaWFDieselNav_Popup {
     background: white;
     z-index: 10000;
 }
+
+/* WFSearchField */
+input.phocoaPlaceholderText {
+    text-decoration: italic;
+    color: #999999;
+}

@@ -18,6 +18,7 @@ Version 0.2.0 - ??
           valuesForKeys, valuesForKeyPaths, (static) valueForStaticKey, (static) valueForStaticKeyPath
         And optional functions for handling undefined keys: valueForUndefinedKey, (static) valueForUndefinedStaticKey.
 - [new] Add smarty JSON block plugin to make it easy to create JSON in templates with nice formatting and still pass it safely into a JS var.
+- [new] Add WFSearchField widget. This is a text box with an "X" clear and "GO" buttons. Integrate with WFYAHOO_widget_TreeView.
 - [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
 - [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.
 - [bugfix] PHOCOA.WFRPC was sending arguments with null Javascript values as (string) null to the backend; this has been fixed.

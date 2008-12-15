@@ -115,6 +115,7 @@ class WFIncluding
                 'WFMessageBox' => 'framework/widgets/WFMessageBox.php',
                 'WFPassword' => 'framework/widgets/WFPassword.php',
                 'WFTextField' => 'framework/widgets/WFTextField.php',
+                'WFSearchField' => 'framework/widgets/WFSearchField.php',
                 'WFTextArea' => 'framework/widgets/WFTextArea.php',
                 'WFHTMLArea' => 'framework/widgets/WFHTMLArea.php',
                 'WFSubmit' => 'framework/widgets/WFSubmit.php',
