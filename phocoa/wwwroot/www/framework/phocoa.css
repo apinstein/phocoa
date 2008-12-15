@@ -101,7 +101,7 @@ div.phocoaWFDieselNav_Popup {
 
 /* WFSearchField */
 .phocoaWFSearchField_PlaceholderText {
-    text-decoration: italic;
+    font-style: italic;
     color: #999999;
 }
 .phocoaWFSearchField_Container {
