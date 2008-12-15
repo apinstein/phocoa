@@ -100,7 +100,18 @@ div.phocoaWFDieselNav_Popup {
 }
 
 /* WFSearchField */
-input.phocoaPlaceholderText {
+.phocoaWFSearchField_PlaceholderText {
     text-decoration: italic;
     color: #999999;
+}
+.phocoaWFSearchField_Container {
+    white-space: nowrap;
+}
+.phocoaWFSearchField_Clear {
+    position: relative;
+    left: -15px;
+}
+.phocoaWFSearchField_Search {
+    position: relative;
+    left: -10px;
 }

@@ -14,10 +14,28 @@
  * Javascript events:
  * - phocoa:WFSearchField:clear Fires when either ESC or the X are used, to clear the search query field.
  * - phocoa:WFSearchField:search Fires when either RET or the GO link are used, to perform the search.
+ *
+ * Javascript Public Functions:
+ * PHOCOA.widgets.<id>.getValue() Gets the "real" value of the search field (ie, will still return NULL if the "placeholder" is showing).
+ *
+ * CSS classes:
+ * phocoaWFSearchField_Container The div that contains the widget.
+ * phocoaWFSearchField_Clear The span that contains the X button.
+ * phocoaWFSearchField_Search The span that contains the GO button.
+ * phocoaWFSearchField_PlaceholderText The class added to the input when the value is the "nullPlaceholder" value.
+ *
+ * <b>Required:</b><br>
+ * - (none)
+ * 
+ * <b>Optional:</b><br>
+ * - {@link WFSearchField::$nullPlaceholder nullPlaceholder}
  */
 class WFSearchField extends WFTextField
 {
-    protected $placeholder;
+    /**
+     * @var string The "placeholder" value to show in the search box if it is empty. Default NULL.
+     */
+    protected $nullPlaceholder;
 
     /**
       * Constructor.
@@ -25,7 +43,7 @@ class WFSearchField extends WFTextField
     function __construct($id, $page)
     {
         parent::__construct($id, $page);
-        $this->placeholder = NULL;
+        $this->nullPlaceholder = NULL;
     }
 
     function render($blockContent = NULL)
@@ -35,26 +53,27 @@ class WFSearchField extends WFTextField
         $this->setOnEvent('focus do j:PHOCOA.widgets.' . $this->id . '.handleFocus()');
         $this->setOnEvent('blur do j:PHOCOA.widgets.' . $this->id . '.handleBlur()');
 
-        return '<div id="' . $this->id . '_container" style="white-space: nowrap;"><input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . htmlspecialchars($this->value) . '"' .
+        return '<div id="' . $this->id . '_container" class="phocoaWFSearchField_Container"><input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . htmlspecialchars($this->value) . '"' .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->class ? ' class="' . $this->class . '"' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
-            ($this->placeholder ? ' placeholder="' . $this->placeholder . '" ' : NULL) .
+            ($this->nullPlaceholder ? ' placeholder="' . $this->nullPlaceholder . '" ' : NULL) .
             $this->getJSActions() . 
             ' style="padding-right: 15px;" />
-            <span id="' . $this->id . '_clear" style="position: relative; left: -15px;">X</span>
+            <span id="' . $this->id . '_clear" class="phocoaWFSearchField_Clear">X</span>
+            <span id="' . $this->id . '_search" class="phocoaWFSearchField_Search">GO</span>
             </div><script>'
             . $this->getListenerJS() . 
             '
             PHOCOA.widgets.' . $this->id . '.hasFocus = false;
             PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
                 PHOCOA.widgets.' . $this->id . '.hasFocus = true;
-                if ($F(\'' . $this->id . '\') === \'' . $this->placeholder . '\')
+                if ($F(\'' . $this->id . '\') === \'' . $this->nullPlaceholder . '\')
                 {
                     $(\'' . $this->id . '\').value = null;
                 }
-                $(\'' . $this->id . '\').removeClassName("phocoaPlaceholderText");
+                $(\'' . $this->id . '\').removeClassName("phocoaWFSearchField_PlaceholderText");
             };
             PHOCOA.widgets.' . $this->id . '.handleBlur = function(e) {
                 PHOCOA.widgets.' . $this->id . '.hasFocus = false;
@@ -65,8 +84,8 @@ class WFSearchField extends WFTextField
                 {
                     if ($F(\'' . $this->id . '\') === \'\')
                     {
-                        $(\'' . $this->id . '\').value = \'' . $this->placeholder . '\';
-                        $(\'' . $this->id . '\').addClassName("phocoaPlaceholderText");
+                        $(\'' . $this->id . '\').value = \'' . $this->nullPlaceholder . '\';
+                        $(\'' . $this->id . '\').addClassName("phocoaWFSearchField_PlaceholderText");
                     }
                 }
             };
@@ -75,11 +94,23 @@ class WFSearchField extends WFTextField
                 PHOCOA.widgets.' . $this->id . '.handlePlaceholder();
                 $(\'' . $this->id . '\').fire("phocoa:WFSearchField:clear");
             };
+            PHOCOA.widgets.' . $this->id . '.getValue = function() {
+                var qField = $(\'' . $this->id . '\');
+                var qVal = null;
+                if (qField.getAttribute("placeholder") !== $F(qField))
+                {
+                    qVal = $F(qField);
+                }
+                return qVal;
+            };
             // perform initial check on search field value
             PHOCOA.widgets.' . $this->id . '.handlePlaceholder();
             // fire events
             $(\'' . $this->id . '_clear\').observe("click", function(e) {
                 PHOCOA.widgets.' . $this->id . '.handleClear();
+            });
+            $(\'' . $this->id . '_search\').observe("click", function(e) {
+                $(\'' . $this->id . '\').fire("phocoa:WFSearchField:search");
             });
             $(\'' . $this->id . '\').observe("keyup", function(e) {
                 switch (e.keyCode) {
@@ -98,7 +129,7 @@ class WFSearchField extends WFTextField
     {
         $items = parent::exposedProperties();
         return array_merge($items, array(
-            'placeholder'
+            'nullPlaceholder'
             ));
     }
 }
