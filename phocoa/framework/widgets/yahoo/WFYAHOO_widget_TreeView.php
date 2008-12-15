@@ -182,7 +182,7 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
         if (!tNode || tNode.nodeId == null) break;
     }
     pathParts.reverse();
-    path = encodeURIComponent(pathParts.join('|'));
+    var path = encodeURIComponent(pathParts.join('|'));
 ";
             if ($this->dynamicDataLoader)
             {
@@ -191,7 +191,14 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
     rpc.callback.success = PHOCOA.widgets.{$this->id}.loadDataHandleSuccess;
     rpc.callback.failure = PHOCOA.widgets.{$this->id}.loadDataHandleFailure;
     rpc.callback.argument = { loadComplete: fnLoadComplete, node: node };
-    rpc.execute(path" . ($this->queryFieldId ? ", \$F('{$this->queryFieldId}')" : NULL) . ");
+    // allow for placeholders...
+    var qField = \$('{$this->queryFieldId}');
+    var qVal = null;
+    if (qField.getAttribute('placeholder') !== \$F(qField))
+    {
+        qVal = \$F(qField);
+    }
+    rpc.execute(path" . ($this->queryFieldId ? ", qVal" : NULL) . ");
     ";
             }
             else
