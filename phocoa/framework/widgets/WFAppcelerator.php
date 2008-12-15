@@ -17,6 +17,14 @@
  * - request.send => requestSend()
  * - request.send.message => requestSendMessage()
  *
+ * Appcelerator remote messages are passed via standard {@link WFRPC} infrastructure, thus the prototype of your callback functions is:
+ *
+ * (object WFActionResponseAppcelerator) messageHandler($page, $params, $data)
+ * - $page is the WFPage object
+ * - $params is the hash of the current page's options
+ * - $data is a JSON data payload. You'll need to call WFJSON::decode($data)
+ * - return a {@link WFActionResponseAppcelerator} instance with a PHP data structure as the payload. It will be JSON encoded.
+ *
  * NOTE: any arguments to the message are passed into the message handler as a single argument in JSON format.
  *
  * <b>PHOCOA Builder Setup:</b>
@@ -45,7 +53,7 @@ class WFAppcelerator extends WFWidget
     {
         parent::__construct($id, $page);
         $this->appceleratorDir = $this->getWidgetWWWDir();
-        $this->debug = true;
+        $this->debug = false;
     }
 
     public static function exposedProperties()
@@ -68,8 +76,9 @@ class WFAppcelerator extends WFWidget
         }
         else
         {
+            // appcelerator-lite.js is SANS prototype.js (which we already have included), and scriptaculous.js (which we haven't). Can't use -lite until we figure out how to deal with scriptaculous
             return '
-                <script src="' . $this->appceleratorDir . '/javascripts/appcelerator-' . ($this->debug ? 'debug' : 'lite') . '.js"></script>' . $this->jsStartHTML() . '
+                <script src="' . $this->appceleratorDir . '/javascripts/appcelerator' . ($this->debug ? '-debug' : '') . '.js"></script>' . $this->jsStartHTML() . '
                         Appcelerator.Browser.autoReportStats = false;
                         Appcelerator.Util.ServerConfig.disableRemoteConfig = true;
                         Appcelerator.Util.ServiceBroker.marshaller = "application/x-www-form-urlencoded";
