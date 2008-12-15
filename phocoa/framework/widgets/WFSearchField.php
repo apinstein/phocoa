@@ -14,6 +14,7 @@
  * Javascript events:
  * - phocoa:WFSearchField:clear Fires when either ESC or the X are used, to clear the search query field.
  * - phocoa:WFSearchField:search Fires when either RET or the GO link are used, to perform the search.
+ * NOTE: these events fire on $('searchFieldId'). So, $('mySearchField').observe('phocoa:WFSearchField:search', function(e) {});
  *
  * Javascript Public Functions:
  * PHOCOA.widgets.<id>.getValue() Gets the "real" value of the search field (ie, will still return NULL if the "placeholder" is showing).
