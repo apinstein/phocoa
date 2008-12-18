@@ -186,12 +186,28 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($shouldBe, $hash);
     }
 
+    function testValuesForKeysMissingKey()
+    {
+        $this->setExpectedException('WFUndefinedKeyException');
+        $keys = array('firstName', 'lastName', 'undefinedKey');
+        $shouldBe = array( 'firstName' => $this->parent->firstName, 'lastName' => $this->parent->lastName );
+        $hash = $this->parent->valuesForKeys($keys);
+    }
+
     function testValuesForKeyPaths()
     {
         $keys = array('name', 'childrenFirstNames' => 'children.name');
         $shouldBe = array( 'name' => $this->nodeTree->name, 'childrenFirstNames' => array('Daddy', 'Aunt') );
         $hash = $this->nodeTree->valuesForKeyPaths($keys);
         $this->assertEquals($shouldBe, $hash);
+    }
+
+    function testValuesForKeyPathsMissingKey()
+    {
+        $this->setExpectedException('WFUndefinedKeyException');
+        $keys = array('name', 'childrenFirstNames' => 'children.name', 'undefinedKeyPath');
+        $shouldBe = array( 'name' => $this->nodeTree->name, 'childrenFirstNames' => array('Daddy', 'Aunt') );
+        $hash = $this->nodeTree->valuesForKeyPaths($keys);
     }
 
     function testStaticKVCPropertyAccess()

@@ -122,10 +122,7 @@ class WFObject implements WFKeyValueCoding
     {
         $hash = array();
         foreach ($keys as $k) {
-            $v = NULL;
-            try {
-                $v = $this->valueForKey($k);
-            } catch (Exception $e) {}
+            $v = $this->valueForKey($k);
             $hash[$k] = $v;
         }
         return $hash;
@@ -143,10 +140,7 @@ class WFObject implements WFKeyValueCoding
             }
         }
         foreach ($keysAndKeyPaths as $k => $keyPath) {
-            $v = NULL;
-            try {
-                $v = $this->valueForKeyPath($keyPath);
-            } catch (Exception $e) {}
+            $v = $this->valueForKeyPath($keyPath);
             $hash[$k] = $v;
         }
         return $hash;

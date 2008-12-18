@@ -106,7 +106,8 @@ interface WFKeyValueCoding
      * Creates an associative array with the set of passed keys and the corresponding values
      *
      * @param array An array of keys.
-     * @return array An associative array of the passed in keys, now with values from valueForKey($theKey). Missing keys will be NULL.
+     * @return array An associative array of the passed in keys, now with values from valueForKey($theKey).
+     * @throws object WFUndefinedKeyException
      */
     function valuesForKeys($keys);
 
@@ -114,7 +115,8 @@ interface WFKeyValueCoding
      * Creates an associative array with the set of passed keys and keyPaths and the corresponding values.
      *
      * @param array An array of key => keyPath. If a "key" is encountered without a value, uses the "key" as the "keyPath".
-     * @return array An associative array of the passed in keys, now with values from valueForKeyPath($theKeyPath). Missing keys will be NULL.
+     * @return array An associative array of the passed in keys, now with values from valueForKeyPath($theKeyPath).
+     * @throws object WFUndefinedKeyException
      */
     function valuesForKeyPaths($keys);
 
