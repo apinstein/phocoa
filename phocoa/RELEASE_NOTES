@@ -22,6 +22,7 @@ Version 0.2.0 - ??
 - [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
 - [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.
 - [bugfix] PHOCOA.WFRPC was sending arguments with null Javascript values as (string) null to the backend; this has been fixed.
+- [BC-break] Refactor WFFixture and WFYaml. Look at new API docs if you are using these APIs in your code; the fixes are very easy.
 
 
 Version 0.1.9 - 9/28/2008
