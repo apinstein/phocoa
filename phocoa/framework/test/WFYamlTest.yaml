@@ -1,0 +1,7 @@
+---
+anArray:
+  - arrayVal1
+  - arrayVal2
+aHash:
+  key1: value1
+  key2: value2

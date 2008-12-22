@@ -2,7 +2,7 @@
 
 class WFYaml
 {
-    public static function load($file)
+    public static function loadFile($file)
     {
         if (function_exists('syck_load'))
         {
@@ -27,6 +27,38 @@ class WFYaml
             // php version
             return Horde_Yaml::loadFile($file);
         }
+    }
+
+    /**
+     * NOTE: libsyck extension doesn't have a 'string' loader, so we have to write a tmp file. Kinda slow... in any case though shouldn't really use YAML strings
+     * for anything but testing stuff anyway
+     *
+     * @param 
+     * @return
+     * @throws
+     */
+    public static function loadString($string)
+    {
+        if (function_exists('syck_load'))
+        {
+            // extension version
+            $file = tempnam("/tmp", 'syck_yaml_tmp_');
+            file_put_contents($file, $string);
+            return self::loadFile($file);
+        }
+        else
+        {
+            // php version
+            return Horde_Yaml::load($string);
+        }
+    }
+
+    /**
+     * @deprecated Use loadFile()
+     */
+    public static function load($file)
+    {
+        return self::loadFile($file);
     }
 
     /**

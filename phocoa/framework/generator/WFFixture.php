@@ -41,10 +41,29 @@
  *        myOtherClass: inst1
  * </code>
  *
+ * Usage:
+ *
+ * $rootObjects = WFFixture::WFFixture()->loadFile('myData.yaml');
+ * $rootObjects = WFFixture::WFFixture()->loadFile('myData.yaml', 'save');  // call "save()" method on all created objects (at root level)
  */
 class WFFixture extends WFObject
 {
     protected $objById = array();
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Fluent constructor.
+     *
+     * @return object WFFixture
+     */
+    public static function WFFixture()
+    {
+        return new WFFixture();
+    }
 
     /**
      * Function to load data structures via fixtures. Fixtures are YAML files that specify name-value pairs for objects.
@@ -55,9 +74,8 @@ class WFFixture extends WFObject
      *               they will stomp each other and you aren't guaranteed which one you'll get.
      * @throws object WFException
      */
-    public static function load($files, $saveMethod = NULL)
+    public function loadFiles($files, $saveMethod = NULL)
     {
-        $fixtureLoader = new WFFixture;
         $allCreatedObjects = array();
 
         // load the fixtures data & process
@@ -66,7 +84,7 @@ class WFFixture extends WFObject
             $pathParts = pathinfo($file);
             switch (strtolower($pathParts['extension'])) {
                 case 'yaml':
-                    $newObjs = $fixtureLoader->processObjectList(WFYaml::load($file));
+                    $newObjs = $this->processObjectList(WFYaml::load($file));
                     $allCreatedObjects = array_merge($newObjs, $allCreatedObjects);
                     break;
                 default:
@@ -88,9 +106,28 @@ class WFFixture extends WFObject
         return $allCreatedObjects;
     }
 
-    public static function loadObject($file, $saveMethod = NULL)
+    public function loadFile($file, $saveMethod = NULL)
     {
-        return WFFixture::load(array($file), $saveMethod);
+        return WFFixture::loadFiles(array($file), $saveMethod);
+    }
+
+    public function loadFromYAML($yamlString, $saveMethod = NULL)
+    {
+        // load the fixtures data & process
+        $allCreatedObjects = $this->processObjectList(WFYaml::loadString($file));
+        if ($saveMethod)
+        {
+            foreach ($allCreatedObjects as $o)
+            {
+                try {
+                    $o->$saveMethod();
+                } catch (Exception $e) {
+                    throw (new WFException("Error saving object: " . $o . "\n" . $e->getMessage()) );
+                }
+            }
+        }
+
+        return $allCreatedObjects;
     }
 
     function processObjectList($yaml)
