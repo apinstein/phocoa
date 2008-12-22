@@ -123,7 +123,7 @@ class WFFixture extends WFObject
     public function loadFromYaml($yamlString, $saveMethod = NULL)
     {
         // load the fixtures data & process
-        $allCreatedObjects = $this->processObjectList(WFYaml::loadString($file));
+        $allCreatedObjects = $this->processObjectList(WFYaml::loadString($yamlString));
         if ($saveMethod)
         {
             foreach ($allCreatedObjects as $o)
