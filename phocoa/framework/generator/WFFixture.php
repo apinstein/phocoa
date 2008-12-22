@@ -45,6 +45,7 @@
  *
  * $rootObjects = WFFixture::WFFixture()->loadFile('myData.yaml');
  * $rootObjects = WFFixture::WFFixture()->loadFile('myData.yaml', 'save');  // call "save()" method on all created objects (at root level)
+ * @todo Refactor with Factory pattern instead of just methods on the class for various source structures.
  */
 class WFFixture extends WFObject
 {
@@ -106,12 +107,20 @@ class WFFixture extends WFObject
         return $allCreatedObjects;
     }
 
+    /**
+     * Function to load data structures via fixtures. Fixtures are YAML files that specify name-value pairs for objects.
+     *
+     * @param string The yaml file path.
+     * @param string The method to call on all top-level objects declared in the YAML file. Defaults to NULL (no call). Useful for calling "save" method to persist fixtures to a DB.
+     * @return array An array containing all created objects, as an associative array.
+     * @throws object WFException
+     */
     public function loadFile($file, $saveMethod = NULL)
     {
         return WFFixture::loadFiles(array($file), $saveMethod);
     }
 
-    public function loadFromYAML($yamlString, $saveMethod = NULL)
+    public function loadFromYaml($yamlString, $saveMethod = NULL)
     {
         // load the fixtures data & process
         $allCreatedObjects = $this->processObjectList(WFYaml::loadString($file));
@@ -130,10 +139,17 @@ class WFFixture extends WFObject
         return $allCreatedObjects;
     }
 
-    function processObjectList($yaml)
+    /**
+     * Creates objects from the passed list. The list should be a hash where the keys are class names and the values are arrays of sets of property values.
+     *
+     * @param array
+     * @return array
+     * @throws WFException
+     */
+    protected function processObjectList($list)
     {
         $allCreatedObjects = array();
-        foreach ($yaml as $class_name => $instances)
+        foreach ($list as $class_name => $instances)
         {
             if (!is_array($instances))
             {
@@ -159,7 +175,7 @@ class WFFixture extends WFObject
                 }
                 else
                 {
-                    if (isset($allCreatedObjects[$instanceId])) throw( new WFException("Can't have two objects with the same instance ID in the same YAML file.") );
+                    if (isset($allCreatedObjects[$instanceId])) throw( new WFException("Can't have two objects with the same instance ID in the same object list.") );
                     $allCreatedObjects[$instanceId] = $o;
                 }
             }
@@ -168,7 +184,14 @@ class WFFixture extends WFObject
         return $allCreatedObjects;
     }
 
-    function makeObj($class, $props)
+    /**
+     * Create an object of Class with the passed name/value pairs.
+     *
+     * @param string The class of object to create.
+     * @return object The instance created.
+     * @throws object WFException
+     */
+    protected function makeObj($class, $props)
     {
         if (!is_array($props))
         {
