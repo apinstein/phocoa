@@ -40,6 +40,8 @@ svn st | grep '^?' | awk '{ print $2; }' | xargs svn add
 TODO
 
 1.0 Milestone:
+- Incorporte PHP Speedy or Minify (http://code.google.com/p/minify). Minify looks better.
+- BUILDFile of some kind: rake? phing? This will do things like minify JS, bump version #, etc.
 - Find a way to add a warning when people use binding options that don't exist? it's really painful to debug "Formatter" vs "formatter"
 - YUILoader solution: instead of inline yuiloader bootstrapping, have a singleton PHOCOAYUILoader that proxies all requests. Turns N widgets on a page into a single YUI require, and that one's callback will call back all of the widgets that requested it
 - Get WFDateTimeFormatter working... object issues with bindings
@@ -74,7 +76,7 @@ TODO
   - Look at HTML_QuickForm, QCodo, Symfony, CodeIgniter, RoR
   - Re-build "code-gen" things to build WFAutoForm instead
   - Update PHOCOA Builder to allow browsing ( or instantiating ) of PHP Objects, & drag-drop an object onto an interface
-- RESTful infrastructure; TRICKY! See framework/resftul.patch
+- RESTful infrastructure; TRICKY! See framework/resftul.patch; see http://www.krisjordan.com/2008/12/02/towards-restful-php-5-basic-tips/ for tips
 - WFModule/Page architecture
   - Can we "cache" the "state" of the page sent before rendering? And then restore it instead of "bootstrapping" again? Would mean that we could then do KVO more cleanly.
     Could even have a "alwaysDoPostback" mode that would postBack to ensure only one UI change made at a time; this would nearly fully replicate desktop environment
@@ -300,6 +302,7 @@ FRAMEWORK ARCHITECTURE
 LIST OF DIFFERENCES FROM COCOA, for helping people who know Cocoa.
 1) NSControl / NSCell - These are used heavily in Cocoa to handle the UI. All NSControls are NSView subclasses, which adds lots of overhead. Cocoa also has NSCell classes which handle a lot of the events and drawing. Since we don't have to deal with complex UI event handling (ie mouse tracking, etc), we have only NSControls for the UI.
 2) Bindings - We don't implement KVO (Key-Value Observing) because we aren't a real-time interactive system. HTTP requests and forms essentially "batch" changes and then repaint the entire screen. So instead of having everything real-time, we simply use bindings ONCE on the way in (to restore the WFRequestView) and once on the way out (so the UI controls can "grab" their proper values).
+NOTE: if we ever want to try to do real KVO, see http://weierophinney.net/matthew/archives/199-A-Simple-PHP-Publish-Subscribe-System.html and also consider a PHP extension that implements something like "__willCall" or "__didCall"
 
 Another reason for this is that Obj-C runtime can intercept calls to setXXX() and trigger observing events. We can't do that from PHP. Delaying the "reading" of bound data until after the code has run allows developers to use setXXX() calls and still have the values reflected in the UI.
 NOTE: Examine ArrayAccess interface; this may allow us to detect calls, at least with $obj['propName'] = XXX syntax!
