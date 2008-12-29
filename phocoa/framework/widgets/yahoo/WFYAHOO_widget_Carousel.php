@@ -116,7 +116,7 @@ class WFYAHOO_widget_Carousel extends WFYAHOO
                 $this->yuiloader()->yuiRequire('animation');
             }
             $html = parent::render($blockContent);
-            $html .= "<div id=\"{$this->id}\">{$blockContent}</div>";
+            $html .= "<div id=\"{$this->id}\" style=\"display: none;\">{$blockContent}</div>";
             return $html;
         }
     }
@@ -139,10 +139,17 @@ PHOCOA.widgets.{$this->id}.init = function() {
         $js .= "
     carousel.render();
     carousel.show();
-    PHOCOA.runtime.addObject(carousel, '{$this->id}');";
+    PHOCOA.runtime.addObject(carousel, '{$this->id}');
+    $('{$this->id}').show();
+    // IE doesn't show first item for some reason, so hack fix here. Also, IE seems to think first item is index 1
+    if (Prototype.Browser.IE)
+    {
+        carousel.scrollTo(1);
+    }
+    ";
         if ($this->autoPlay != 0)
         {
-            $js .= "\n    carousel.startAutoPlay();";
+            $js .= "\n    if (!Prototype.Browser.IE) carousel.startAutoPlay();";
         }
         $js .= "
 };
