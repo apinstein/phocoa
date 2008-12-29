@@ -154,7 +154,7 @@ class WFYAHOO_yuiloader
                          $customModules . "
                          " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
                          yl.require(" . join(',', $this->quotedRequired()) . ");
-                         yl.allowRollup = " . ($this->allowRollup() ? 'true' : 'false') . ";
+                         yl.allowRollup = " . ( ($this->allowRollup() && !$this->debug()) ? 'true' : 'false') . ";
                          yl.loadOptional = " . ($this->loadOptional() ? 'true' : 'false') . ";
                          " . ($callback ? "yl.onSuccess = {$callback};" : "") . "
                          yl.insert( { " . ($this->debug() ? 'filter: "DEBUG"' : NULL) . " } );
