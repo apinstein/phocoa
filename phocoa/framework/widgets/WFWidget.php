@@ -349,7 +349,14 @@ abstract class WFWidget extends WFView
     {
         $exposedBindings = $this->exposedBindings();
         // get original value
-        $boundValue = $binding->bindToObject()->valueForKeyPath($binding->bindToKeyPath());
+        if (strpos($binding->bindToKeyPath(), '::') === false)
+        {
+            $boundValue = $binding->bindToObject()->valueForKeyPath($binding->bindToKeyPath());
+        }
+        else
+        {
+            $boundValue = $binding->bindToObject()->valueForStaticKeyPath($binding->bindToKeyPath());
+        }
 
         // Get a list of all options, coalesced with default value from the binding setup for this property.
         // the lack of documenting (ie exposing) a binding setup should simply assume that there are no options.
