@@ -92,7 +92,7 @@ class module_{{$moduleName}}_edit
             $page->addError( new WFError($e->getMessage()) );
         }
     }
-    function delete($page)
+    function deleteObj($page)
     {
         $page->module()->verifyEditingPermission($page);
         $page->module()->setupResponsePage('confirmDelete');
@@ -134,7 +134,7 @@ class module_{{$moduleName}}_confirmDelete
     {
         $page->module()->setupResponsePage('edit');
     }
-    function delete($page)
+    function deleteObj($page)
     {
         $page->module()->verifyEditingPermission($page);
         $myObj = $page->sharedOutlet('{{$sharedEntityId}}')->selection();

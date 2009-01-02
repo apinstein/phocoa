@@ -6,7 +6,7 @@
     {WFView id="confirmMessage"}
 
     <div class="buttonrow">
-        {WFView id="cancel"}{WFView id="delete"}
+        {WFView id="cancel"}{WFView id="deleteObj"}
     </div>
 {/WFViewBlock}
 </div>{* end form-container *}

@@ -631,7 +631,7 @@ class WFModelCodeGenPropel extends WFObject
         }
         // status message
         $editYaml['statusMessage'] = array('class' => 'WFMessageBox');
-        $editYaml[$editFormId]['children']['new'] = array(
+        $editYaml[$editFormId]['children']['saveNew'] = array(
                 'class' => 'WFSubmit',
                 'properties' => array(
                     'label' => 'Create ' . $entity->valueForKey('name'),
@@ -661,7 +661,7 @@ class WFModelCodeGenPropel extends WFObject
                         )
                     )
                 );
-        $editYaml[$editFormId]['children']['delete'] = array(
+        $editYaml[$editFormId]['children']['deleteObj'] = array(
                 'class' => 'WFSubmit',
                 'properties' => array(
                     'label' => 'Delete'
@@ -704,7 +704,7 @@ class WFModelCodeGenPropel extends WFObject
                             'label' => 'Cancel'
                             )
                         ),
-                    'delete' => array(
+                    'deleteObj' => array(
                         'class' => 'WFSubmit',
                         'properties' => array(
                             'label' => 'Delete'

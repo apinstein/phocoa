@@ -18,6 +18,7 @@ Version 0.2.0 - ??
 - [new] Added several new KVC methods. See the docs for details, but here are the new methods.
           valuesForKeys, valuesForKeyPaths, (static) valueForStaticKey, (static) valueForStaticKeyPath
         And optional functions for handling undefined keys: valueForUndefinedKey, (static) valueForUndefinedStaticKey.
+        To use static KVC with YAML files, just set the instanceID to any valid instance, empty controllerKey, and modelKeyPath of "YourObject::staticKeyPath.key"
 - [new] Add smarty JSON block plugin to make it easy to create JSON in templates with nice formatting and still pass it safely into a JS var.
 - [new] Add WFSearchField widget. This is a text box with an "X" clear and "GO" buttons. Integrate with WFYAHOO_widget_TreeView.
 - [new] Add WFYAHOO_widget_Carousel control.
@@ -25,6 +26,7 @@ Version 0.2.0 - ??
 - [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
 - [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.
 - [bugfix] PHOCOA.WFRPC was sending arguments with null Javascript values as (string) null to the backend; this has been fixed.
+- [bugfix] Updated generator to no longer create widgets with id's "new" or "delete" which cause problems for javascript in IE.
 - [BC-break] Refactor WFFixture and WFYaml. Look at new API docs if you are using these APIs in your code; the fixes are very easy.
 
 

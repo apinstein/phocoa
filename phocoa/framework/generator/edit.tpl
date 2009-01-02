@@ -19,7 +19,7 @@
         {{/if}}
     {{/foreach}}
     <div class="buttonrow">
-        {WFView id="new"}{WFView id="save"}{WFView id="delete"}
+        {WFView id="saveNew"}{WFView id="save"}{WFView id="deleteObj"}
     </div>
     </fieldset>
 {/WFViewBlock}
