@@ -33,7 +33,7 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
      */
     private $context;
     /**
-     * @var boolean TRUE to make the overlay stay "fixed" in the center of the viewport. DEFAULT: false
+     * @var boolean TRUE to make the overlay stay "fixed" in the center of the viewport. For this to work properly, be sure to set an explicit width/height.  DEFAULT: false
      */
     protected $fixedcenter;
     /**
