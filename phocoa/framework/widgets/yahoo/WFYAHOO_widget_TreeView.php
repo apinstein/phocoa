@@ -19,6 +19,7 @@
  * - {@link WFWidget::$value value} An array of WFYAHOO_widget_TreeViewNode objects.
  * - {@link WFYAHOO_widget_TreeView::$dynamicDataLoader}
  * - {@link WFYAHOO_widget_TreeView::$autoExpandUntilChoices}
+ * - {@link WFYAHOO_widget_TreeView::$expandOnClick}
  * - {@link WFYAHOO_widget_TreeView::$queryFieldId}
  *
  * @todo Add capability for multi-selection of tree items. This one is gonna be tricky! Esp. with dynamic data; need to keep track of checked items even if they never become visisble.
@@ -44,6 +45,10 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
      * @var boolean TRUE to automatically expand any node that has exactly 1 child, FALSE to make everything manual. Default: TRUE
      */
     protected $autoExpandUntilChoices;
+    /**
+     * @var boolean TRUE to automatically expand any node when the label is clicked. Default: TRUE
+     */
+    protected $expandOnClick;
     /**
      * @var string The ID of a WFSearchField that can contain a "query" to filter the tree data on.
      */
@@ -342,6 +347,10 @@ PHOCOA.widgets.{$this->id}.init = function()
             if ($this->autoExpandUntilChoices)
             {
                 $script .= "{$this->id}.subscribe('expandComplete', PHOCOA.widgets.{$this->id}.autoExpand);";
+            }
+            if ($this->expandOnClick === false)
+            {
+                $script .= "{$this->id}.subscribe('clickEvent', function(e) { return false; });";
             }
             
             // finish script init function
