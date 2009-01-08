@@ -260,6 +260,13 @@ PHOCOA.widgets.{$this->id}.reloadTree = function()
     rootNode.refresh();
     PHOCOA.widgets.{$this->id}.loadData(rootNode, function() { rootNode.loadComplete(); });
 };
+PHOCOA.widgets.{$this->id}.reloadNode = function(node)
+{
+    var tree = PHOCOA.runtime.getObject('{$this->id}');
+    tree.removeChildren(node);
+    node.refresh();
+    PHOCOA.widgets.{$this->id}.loadData(node, function() { node.loadComplete(); });
+};
 PHOCOA.widgets.{$this->id}.autoExpand = function(node) { if (node.children.length === 1) node.children[0].expand(); };
 // end util funcs
 
