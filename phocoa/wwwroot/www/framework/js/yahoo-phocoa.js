@@ -200,6 +200,7 @@ YAHOO.widget.PhocoaDialog.prototype.init = function(el, userConfig) {
     this.changeBodyEvent.subscribe(function() {
                                     this.registerForms();
                                     this.focusFirst();
+                                    this.doCenterOnDOMEvent();
                                 }, this, true);
 };
 

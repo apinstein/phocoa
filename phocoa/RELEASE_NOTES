@@ -28,6 +28,7 @@ Version 0.2.0 - ??
 - [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.
 - [bugfix] PHOCOA.WFRPC was sending arguments with null Javascript values as (string) null to the backend; this has been fixed.
 - [bugfix] Updated generator to no longer create widgets with id's "new" or "delete" which cause problems for javascript in IE.
+- [bugfix] YUI PhocoaDialog now correctly handles fixedcenter.
 - [BC-break] Refactor WFFixture and WFYaml. Look at new API docs if you are using these APIs in your code; the fixes are very easy.
 
 
