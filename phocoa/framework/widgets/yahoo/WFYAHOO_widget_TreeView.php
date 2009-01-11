@@ -53,6 +53,10 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
      * @var string The ID of a WFSearchField that can contain a "query" to filter the tree data on.
      */
     protected $queryFieldId;
+    /**
+     * @var boolean TRUE to enable drag & drop of tree items among the tree. Use document.observe('yuitreeview:drop', function(o) {}) to handle; o.memo.itemId and o.memo.droppedOnId provide access to the relevant nodes. Use tree.getNodeByElement(YAHOO.util.Dom.get(o.memo.itemId)) to get the actual content element for the node.
+     */
+    protected $enableDragDropTree;
 
     /**
       * Constructor.
@@ -65,7 +69,22 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         $this->nodeType = 'HTMLNode';
         $this->autoExpandUntilChoices = true;
         $this->queryFieldId = NULL;
+        $this->enableDragDropTree = true;
+
         $this->yuiloader()->yuiRequire('treeview,connection');
+        if ($this->enableDragDropTree)
+        {
+            $this->yuiloader()->addModule('treeviewdd',
+                                            'js',
+                                            NULL,
+                                            WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/yahoo-treeviewdd.js',
+                                            array('treeview','dragdrop'),
+                                            NULL,
+                                            NULL,
+                                            NULL
+                                        );
+            $this->yuiloader()->yuiRequire('treeviewdd');
+        }
     }
 
     public static function exposedProperties()
@@ -238,6 +257,7 @@ PHOCOA.widgets.{$this->id}.loadDataHandleSuccess = function(o)
         {
             newNode.dynamicLoadComplete = true;
         }
+        " . ($this->enableDragDropTree ? "new DDSend(newNode.contentElId);" : NULL) . "
     }
 
     // complete node loading
@@ -333,6 +353,7 @@ PHOCOA.widgets.{$this->id}.init = function()
                 {
                     $script .= "    nodes['{$labelPath}'].dynamicLoadComplete = true;\n";
                 }
+                $script .= ($this->enableDragDropTree ? "new DDSend(nodes['{$labelPath}'].contentElId);" : NULL);
 
                 if ($currentItem->hasChildren())
                 {

@@ -23,6 +23,7 @@ Version 0.2.0 - ??
 - [new] Add WFSearchField widget. This is a text box with an "X" clear and "GO" buttons. Integrate with WFYAHOO_widget_TreeView.
 - [new] Add WFYAHOO_widget_Carousel control.
 - [new] Add expandOnClick property to WFYAHOO_widget_TreeView to make it easy to turn off the default behavior of expanding nodes when the label is clicked.
+- [new] Add drag & drop feature to WFYAHOO_widget_TreeView.
 - [bugfix] With PHOCOA_DEBUG mode enabled, YUI still used yahoo-dom-event.js, since "allowRollup" seemed to override the debug setting. Now these are not rolled up and debug versions are used.
 - [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
 - [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.
@@ -104,4 +105,5 @@ MINIFY JS:
 cd phocoa
 java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/phocoa.js > wwwroot/www/framework/js/phocoa-min.js
 java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/yahoo-phocoa.js > wwwroot/www/framework/js/yahoo-phocoa-min.js
+java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/yahoo-treeviewdd.js > wwwroot/www/framework/js/yahoo-treeviewdd-min.js
 java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/prototype.js > wwwroot/www/framework/js/prototype-min.js
