@@ -30,6 +30,7 @@ Version 0.2.0 - ??
 - [bugfix] PHOCOA.WFRPC was sending arguments with null Javascript values as (string) null to the backend; this has been fixed.
 - [bugfix] Updated generator to no longer create widgets with id's "new" or "delete" which cause problems for javascript in IE.
 - [bugfix] YUI PhocoaDialog now correctly handles fixedcenter.
+- [bugfix] When a non-ajax form is submitted by PhocoaDialog, and there is an error, phocoa now properly returns an HTML response rather than an AJAX response. Essentially there was a bug in the action response handler that assumed being submitted via XHR meant you were an AJAX form submit, which isn't always true.
 - [BC-break] Refactor WFFixture and WFYaml. Look at new API docs if you are using these APIs in your code; the fixes are very easy.
 
 

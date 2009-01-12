@@ -1262,7 +1262,7 @@ class WFPage extends WFObject
                     {
                         $shouldRun = true;
                     }
-                    else if (WFRequestController::sharedRequestController()->isAjax())
+                    else if ($rpc->isAjax())
                     {
                         // Collect all errors and send them back in a WFActionResponsePhocoaUIUpdater
                         $errorSmarty = new WFSmarty;
