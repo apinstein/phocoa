@@ -15,6 +15,9 @@
  *
  * WFYAHOO_widget_Tab is a block element. Use WFViewBlock to use a tab in your template. The block content is the default content for the tab.
  *
+ * HINT: If you have want to keep the current tab active when a form is submitted, add a hidden field to that form whose "name" is the ID of the WFYAHOO_widget_TabView
+ * and whose value is the ID of the WFYAHOO_widget_Tab that the form is on.
+ *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
@@ -59,7 +62,8 @@ class WFYAHOO_widget_Tab extends WFYAHOO
     // phocoa features
     /**
      * @var string The ID of a form appearing on this tab that you want to prevent people from accidentally leaving without saving. Default: NULL
-     *             If you put an id in here, 
+     *             If you put an id in here, a modal dialog will be displayed if the form is dirty and someone tries to switch to another tab.
+     *             They will be allowed to save, discard changes, or cancel.
      */
     protected $preventAbandondedForm;
 
