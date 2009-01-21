@@ -1262,29 +1262,9 @@ class WFPage extends WFObject
                     {
                         $shouldRun = true;
                     }
-                    else if ($rpc->isAjax())
+                    else if ($rpc->isAjax())        // form data not valid (pre-action) and runsIfInvalid is false
                     {
-                        // Collect all errors and send them back in a WFActionResponsePhocoaUIUpdater
-                        $errorSmarty = new WFSmarty;
-                        $errorSmarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/form_error.tpl');
-
-                        $uiUpdates = new WFActionResponsePhocoaUIUpdater();
-                        foreach ($this->widgets() as $id => $obj) {
-                            $errors = $obj->errors();
-                            if (count($errors))
-                            {
-                                $errorSmarty->assign('errorList', $errors);
-                                $errorSmarty->assign('id', $id);
-                                $errId = "phocoaWFFormError_{$id}";
-                                $uiUpdates->addReplaceHTML($errId, $errorSmarty->render(false));
-                            }
-                        }
-                        // put "all errors" in the submitted form err handler
-                        $errorSmarty->assign('errorList', $this->errors());
-                        $errorSmarty->assign('id', $this->submittedFormName());
-                        $errId = "phocoaWFFormError_" . $this->submittedFormName();
-                        $uiUpdates->addReplaceHTML($errId, $errorSmarty->render(false));
-                        $uiUpdates->send();
+                        $this->sendPageErrorsOverAjax();
                     }
                 }
                 else
@@ -1294,6 +1274,10 @@ class WFPage extends WFObject
                 if ($shouldRun)
                 {
                     $rpc->execute($this);
+                    if ($rpc->isAjax() and count($this->errors()))  // errors can also occur in the action method
+                    {
+                        $this->sendPageErrorsOverAjax();
+                    }
                 }
             }
             else
@@ -1304,6 +1288,31 @@ class WFPage extends WFObject
             // action/noAction may have affecting the arrayControllers
             $this->createDynamicWidgets();
         }
+    }
+
+    private function sendPageErrorsOverAjax()
+    {
+        // Collect all errors and send them back in a WFActionResponsePhocoaUIUpdater
+        $errorSmarty = new WFSmarty;
+        $errorSmarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/form_error.tpl');
+
+        $uiUpdates = new WFActionResponsePhocoaUIUpdater();
+        foreach ($this->widgets() as $id => $obj) {
+            $errors = $obj->errors();
+            if (count($errors))
+            {
+                $errorSmarty->assign('errorList', $errors);
+                $errorSmarty->assign('id', $id);
+                $errId = "phocoaWFFormError_{$id}";
+                $uiUpdates->addReplaceHTML($errId, $errorSmarty->render(false));
+            }
+        }
+        // put "all errors" in the submitted form err handler
+        $errorSmarty->assign('errorList', $this->errors());
+        $errorSmarty->assign('id', $this->submittedFormName());
+        $errId = "phocoaWFFormError_" . $this->submittedFormName();
+        $uiUpdates->addReplaceHTML($errId, $errorSmarty->render(false));
+        $uiUpdates->send();
     }
 
     /**

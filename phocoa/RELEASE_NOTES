@@ -6,8 +6,10 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.2.0 - ??
 ********** BUMP bootstrap.php VERSION # ****************
+Version 0.2.1 - ??
+
+Version 0.2.0 - 1/21/2009
 - [new] Add preventAbandondedForm property to WFYAHOO_widget_Tab. Given the ID of a form element, this will prevent navigation to another tab with "dirty" data.
 - [new] Upgrade YUI to 2.6.0.
 - [new] Upgrade Prototype to 1.6.0.3
@@ -24,6 +26,7 @@ Version 0.2.0 - ??
 - [new] Add WFYAHOO_widget_Carousel control.
 - [new] Add expandOnClick property to WFYAHOO_widget_TreeView to make it easy to turn off the default behavior of expanding nodes when the label is clicked.
 - [new] Add drag & drop feature to WFYAHOO_widget_TreeView.
+- [new] Refactor WFRPC/WFAction javascript; move WFActionResponsePhocoaUIUpdater handling from WFAction to WFRPC so that it's available more broadly.
 - [bugfix] With PHOCOA_DEBUG mode enabled, YUI still used yahoo-dom-event.js, since "allowRollup" seemed to override the debug setting. Now these are not rolled up and debug versions are used.
 - [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
 - [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.
@@ -36,8 +39,6 @@ Version 0.2.0 - ??
 
 Version 0.1.9 - 9/28/2008
 - [new] Add WFBreadCrumb infrastructure for managing breadcrumbs.
-
-Version 0.1.9 - 9/28/2008
 - [bugfix] WFYAHOO_widget_ColorPicker only worked if its ID was "colorpicker" due to a hard-coded reference. It's been fixed.
 - [bugfix] WFYAHOO_widget_ColorPicker didn't work if used inside a form on IE due to a nested forms issue. This has been fixed.
 - [new] WFYAHOO_widget_ColorPicker now has a color sample display which automatically updates if the associated text field id is changed.

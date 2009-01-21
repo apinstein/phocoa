@@ -6,44 +6,45 @@ require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
 class AJAXTest extends PHPUnit_Extensions_SeleniumTestCase
 {
     public static $browsers = array(
-      array(
-        'name'    => 'Internet Explorer 7 on Windows XP',
-        'browser' => '*iexplore',
-        'host'    => '10.0.1.204',
-        'port'    => 4444,
-        'timeout' => 30000,
-      ),
+//      array(
+//        'name'    => 'Internet Explorer 7 on Windows XP',
+//        'browser' => '*iexplore',
+//        'host'    => '10.0.1.204',
+//        'port'    => 4444,
+//        'timeout' => 30000,
+//      ),
       array(
         'name'    => 'Firefox on Mac',
-        'browser' => '*firefox',
+        'browser' => '*firefox3',
         'host'    => 'localhost',
         'port'    => 4444,
         'timeout' => 30000,
       ),
-      array(
-        'name'    => 'Safari on MacOS X',
-        'browser' => '*safari',
-        'host'    => 'localhost',
-        'port'    => 4444,
-        'timeout' => 30000,
-      ),
+//      array(
+//        'name'    => 'Safari on MacOS X',
+//        'browser' => '*safari',
+//        'host'    => 'localhost',
+//        'port'    => 4444,
+//        'timeout' => 30000,
+//      ),
     );
+    public static $baseURL = 'http://phocoa.dev:8080/webapp';
 
     protected function setUp()
     {
-        $this->setBrowserUrl('http://jwatts.dev.tourbuzz.net:8080');   // needed to load the first page; required for SC setup.
+        $this->setBrowserUrl(self::$baseURL);   // needed to load the first page; required for SC setup.
     }
  
     public function testLocalJavascriptAction()
     {
-        $this->open('http://jwatts.dev.tourbuzz.net:8080/examples/ajax/general/general');
+        $this->open(self::$baseURL . '/examples/ajax/general/general');
         $this->click('id=localAction');
         $this->assertTrue($this->isAlertPresent());
     }
 
     public function testServerJavascriptAction()
     {
-        $this->open('http://jwatts.dev.tourbuzz.net:8080/examples/ajax/general/general');
+        $this->open(self::$baseURL . '/examples/ajax/general/general');
         $this->click('id=rpcPageDelegateServer');
         $this->waitForPageToLoad();
         $this->assertTextPresent('ajaxTarget', 'I am the server and this is my random number');
@@ -51,7 +52,7 @@ class AJAXTest extends PHPUnit_Extensions_SeleniumTestCase
 
     public function testAJAXJavascriptAction()
     {
-        $this->open('http://jwatts.dev.tourbuzz.net:8080/examples/ajax/general/general');
+        $this->open(self::$baseURL . '/examples/ajax/general/general');
         $this->click('id=rpcPageDelegate');
         sleep(1);
         $this->assertTextPresent('ajaxTarget', 'I am the server and this is my random number');
@@ -59,7 +60,7 @@ class AJAXTest extends PHPUnit_Extensions_SeleniumTestCase
 
     public function testAjaxFormNormalMode()
     {
-        $this->open('http://jwatts.dev.tourbuzz.net:8080/examples/ajax/general/general');
+        $this->open(self::$baseURL . '/examples/ajax/general/general');
         $this->assertTextNotPresent('Text cannot be blank');
         $this->assertTextNotPresent('Other text cannot be blank');
         $this->assertElementPresent('id=ajaxFormSubmitAjax', "Couldn't find submit button");
@@ -70,7 +71,7 @@ class AJAXTest extends PHPUnit_Extensions_SeleniumTestCase
     }
     public function testAjaxFormAjaxMode()
     {
-        $this->open('http://jwatts.dev.tourbuzz.net:8080/examples/ajax/general/general');
+        $this->open(self::$baseURL . '/examples/ajax/general/general');
         $this->click('id=ajaxFormSubmitAjax');
         sleep(2); // wait for ajax to finish
         $this->assertTextPresent('Text cannot be blank');

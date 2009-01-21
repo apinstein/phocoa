@@ -43,6 +43,16 @@ class InvocationTest extends PHPUnit_Framework_TestCase
     {
         $this->executeAndAssert('test/invocation/display/1', array('HTML:1:','display.tpl'));
     }
+    function testInvocationWith1ParameterWithSpecialChars()
+    {
+        $stringWithLotsOfSpecialChars = 'This.is&a:test';
+        $this->executeAndAssert('test/invocation/display/' . $stringWithLotsOfSpecialChars, array('HTML:' . $stringWithLotsOfSpecialChars  . ':','display.tpl'));
+    }
+    function testInvocationWith1ParameterWithFilePlusExtensionAsParameter()
+    {
+        $stringWithLotsOfSpecialChars = 'testfile.xml';
+        $this->executeAndAssert('test/invocation/display/' . $stringWithLotsOfSpecialChars, array('HTML:' . $stringWithLotsOfSpecialChars  . ':','display.tpl'));
+    }
     function testInvocationWith2Parameters()
     {
         $this->executeAndAssert('test/invocation/display/1/2', array('HTML:1:','display.tpl'));

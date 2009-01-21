@@ -316,8 +316,6 @@ class WFRPC extends WFObject
             {
                 // new school
                 throw( new WFException("WFRPC Invocation is not callable: " . $this->target . "->" . $this->action . "(). Please ensure that there is a method of that name on the specified object.") );
-
-
             }
         }
         $result = call_user_func_array($rpcCall, array_merge( array($page, $page->parameters()), $this->args ));

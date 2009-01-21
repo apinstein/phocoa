@@ -145,8 +145,10 @@ PHOCOA.WFRPC = function(url, target, action) {
     this.submitButton = null;
     // yui-style callback
     this.callback = {
-            success: this.ajaxCallbackSuccess,
-            failure: this.ajaxCallbackFailure
+            success: null,
+            failure: null,
+            scope: null,
+            argument: null
         };
 
     if (url) this.invocationPath = url;
@@ -156,12 +158,24 @@ PHOCOA.WFRPC = function(url, target, action) {
 };
 
 PHOCOA.WFRPC.prototype = {
-    ajaxCallbackSuccess: function() {
-        alert('ajax callback succeeded (not yet implemented).');
+    successCallbackWrapper: function(o) {
+        o.argument = this.callback.argument;
+        if (o.getResponseHeader('Content-Type').strip() === 'application/x-json-phocoa-ui-updates')
+        {
+            this.doPhocoaUIUpdatesJSON(eval('(' + o.responseText + ')'));
+        }
+        if (typeof this.callback.success === 'function')
+        {
+            this.callback.success.bind(this.callback.scope);
+        }
     },
 
-    ajaxCallbackFailure: function() {
-        alert('ajax callback failed.');
+    failureCallbackWrapper: function(o) {
+        o.argument = this.callback.argument;
+        if (typeof this.callback.failure === 'function')
+        {
+            this.callback.failure.bind(this.callback.scope);
+        }
     },
 
     actionURL: function() {
@@ -236,9 +250,9 @@ PHOCOA.WFRPC.prototype = {
                 this.transaction = $(this.form).request(   {
                                             method: 'GET',
                                             parameters: this.phocoaRPCParameters(this.execute.arguments),
-                                            onSuccess: this.callback.success.bind(this.callback.scope),
-                                            onFailure: this.callback.failure.bind(this.callback.scope),
-                                            onException: this.callback.failure.bind(this.callback.scope)
+                                            onSuccess: this.successCallbackWrapper.bind(this),
+                                            onFailure: this.failureCallbackWrapper.bind(this),
+                                            onException: this.failureCallbackWrapper.bind(this)
                                         });
             }
         }
@@ -248,21 +262,13 @@ PHOCOA.WFRPC.prototype = {
             if (this.isAjax)
             {
                 // set up XHR request & callback
-                var successCallbackFixer = function(o) {
-                    o.argument = this.callback.argument;
-                    this.callback.success.apply(this.callback.scope, [o]);
-                };
-                var failureCallbackFixer = function(o) {
-                    o.argument = this.callback.argument;
-                    this.callback.failure.apply(this.callback.scope, [o]);
-                };
 				this.transaction = new Ajax.Request(url,
                                                         {
-                                                            method : 'get',
-                                                            asynchronous : true,
-                                                            onSuccess : successCallbackFixer.bind(this),
-                                                            onFailure: failureCallbackFixer.bind(this),
-                                                            onException: failureCallbackFixer.bind(this)
+                                                            method: 'get',
+                                                            asynchronous: true,
+                                                            onSuccess: this.successCallbackWrapper.bind(this),
+                                                            onFailure: this.failureCallbackWrapper.bind(this),
+                                                            onException: this.failureCallbackWrapper.bind(this)
                                                         }
                                                     );
             }
@@ -272,10 +278,47 @@ PHOCOA.WFRPC.prototype = {
             }
         }
         return this.transaction;
+    },
+
+    runScriptsInElement: function(el) {
+        var scriptEls = el.getElementsByTagName('script');
+        for (idx = 0; idx < scriptEls.length; idx++) {
+            var node = scriptEls[idx];
+            window.eval(node.innerHTML);
+        }
+    },
+
+    doPhocoaUIUpdatesJSON: function(updateList) {
+        var id, el;
+        if (updateList.update)
+        {
+            for (id in updateList.update) {
+                el = $(id);
+                el.update(updateList.update[id]);
+                this.runScriptsInElement(el);
+                // need to add code to process style blocks
+            }
+        }
+        if (updateList.replace)
+        {
+            for (id in updateList.replace) {
+                el = $(id);
+                el.replace(updateList.replace[id]);
+                this.runScriptsInElement(el);
+                // need to add code to process style blocks
+            }
+        }
+        if (updateList.run)
+        {
+            for (id = 0; id < updateList.run.length; id++) {
+                window.eval(updateList.run[id]);
+            }
+        }
     }
 };
 
 // JS Actions - potentially kill this object
+// @todo factor out yuiTrigger into closure. don't use yui anymore
 PHOCOA.namespace('WFAction');
 PHOCOA.WFAction = function(elId, eventName) {
     this.elId = elId;
@@ -351,70 +394,18 @@ PHOCOA.WFAction.prototype = {
         }
     },
 
-    runScriptsInElement: function(el) {
-        var scriptEls = el.getElementsByTagName('script');
-        for (idx = 0; idx < scriptEls.length; idx++) {
-            var node = scriptEls[idx];
-            window.eval(node.innerHTML);
-        }
-    },
-
-    doPhocoaUIUpdatesJSON: function(updateList) {
-        var id, el;
-        if (updateList.update)
-        {
-            for (id in updateList.update) {
-                el = $(id);
-                el.update(updateList.update[id]);
-                this.runScriptsInElement(el);
-                // need to add code to process style blocks
-            }
-        }
-        if (updateList.replace)
-        {
-            for (id in updateList.replace) {
-                el = $(id);
-                el.replace(updateList.replace[id]);
-                this.runScriptsInElement(el);
-                // need to add code to process style blocks
-            }
-        }
-        if (updateList.run)
-        {
-            for (id = 0; id < updateList.run.length; id++) {
-                window.eval(updateList.run[id]);
-            }
-        }
-    },
-
     // should the response parsing be in WFAction or WFRPC?
     rpcCallbackSuccess: function(o) {
         var theResponse;
         // the callback for ajaxSucces in JS is of the prototype: JsFunc(parsedResult, event, [$arg1, $arg2, ..])
         // where parseResult is the text from a text/plain reponse, xml from a text/xml response, and a JS Object from a JSON response.
-        var contentType = null;
-        if (typeof o.getResponseHeader == 'function')
-        {
-            // prototype
-            contentType = o.getResponseHeader('Content-Type');
-        }
-        else
-        {
-            // yui
-            contentType = o.getResponseHeader['Content-Type'];
-        }
-        contentType = contentType.strip();
+        var contentType = o.getResponseHeader('Content-Type').strip();
         switch (contentType) {
             case 'application/x-json':
                 theResponse = eval('(' + o.responseText + ')');
                 break;
             case 'text/xml':
                 theResponse = o.responseXML;
-                break;
-            case 'application/x-json-phocoa-ui-updates':
-                theResponse = eval('(' + o.responseText + ')');
-                this.doPhocoaUIUpdatesJSON(theResponse);
-                return;
                 break;
             case 'text/plain':
                 theResponse = o.responseText;
