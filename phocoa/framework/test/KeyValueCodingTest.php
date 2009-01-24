@@ -257,4 +257,27 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $shouldBe = array('John', 'Jane');
         $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('people.firstName'));
     }
+
+    function testValidatedSetValueForKey()
+    {
+        $p = new Person;
+        $validValue = 'goodfirstname';
+        $invalidValue = 'badfirstname';
+        $this->assertTrue($p->validatedSetValueForKey($validValue, 'firstName', $edited, $errors));
+        $this->assertEquals($p->valueForKey('firstName'), $validValue);
+
+        $this->assertFalse($p->validatedSetValueForKey($invalidValue, 'firstName', $edited, $errors));
+        $this->assertEquals($p->valueForKey('firstName'), $validValue);   // still previous first name
+    }
+    function testValidatedSetValueForKeyPath()
+    {
+        $p = new Person;
+        $validValue = 'goodfirstname';
+        $invalidValue = 'badfirstname';
+        $this->assertTrue($p->validatedSetValueForKeyPath($validValue, 'firstName', $edited, $errors));
+        $this->assertEquals($p->valueForKey('firstName'), $validValue);
+
+        $this->assertFalse($p->validatedSetValueForKeyPath($invalidValue, 'firstName', $edited, $errors));
+        $this->assertEquals($p->valueForKey('firstName'), $validValue);   // still previous first name
+    }
 }

@@ -174,6 +174,20 @@ interface WFKeyValueCoding
     function validateValueForKey(&$value, $key, &$edited, &$errors);
 
     /**
+     * Validate the value, calling the setter if the value is valid.
+     *
+     * @see validateValueForKey()
+     */
+    function validatedSetValueForKey(&$value, $key, &$edited, &$errors);
+
+    /**
+     * Validate the value, calling the setter if the value is valid.
+     *
+     * @see validateValueForKeyPath()
+     */
+    function validatedSetValueForKeyPath(&$value, $keyPath, &$edited, &$errors);
+
+    /**
      * Called by valueForKey() if the key cannot be located through normal methods.
      *
      * The default implementation raises as WFUndefinedKeyException. Subclasses can override this function to return an alternate value for the undefined key.

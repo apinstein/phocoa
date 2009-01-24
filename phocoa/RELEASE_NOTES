@@ -27,6 +27,7 @@ Version 0.2.0 - 1/21/2009
 - [new] Add expandOnClick property to WFYAHOO_widget_TreeView to make it easy to turn off the default behavior of expanding nodes when the label is clicked.
 - [new] Add drag & drop feature to WFYAHOO_widget_TreeView.
 - [new] Refactor WFRPC/WFAction javascript; move WFActionResponsePhocoaUIUpdater handling from WFAction to WFRPC so that it's available more broadly.
+- [new] Add validatedSetValueForKey() and validatedSetValueForKeyPath() to KVC. These are simple wrapper functions that automatically call setters on valid values.
 - [bugfix] With PHOCOA_DEBUG mode enabled, YUI still used yahoo-dom-event.js, since "allowRollup" seemed to override the debug setting. Now these are not rolled up and debug versions are used.
 - [bugfix] Redirects caused by login requests now use the REQUEST_URI instead of just the invocation path; previously querystrings were stripped.
 - [bugfix] PHOCOA.WFRPC Javascript object default target was set incorrectly. Now default target is the page delegate. Also updated docs to reflect proper syntax.

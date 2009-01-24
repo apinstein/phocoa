@@ -458,6 +458,41 @@ class WFObject implements WFKeyValueCoding
     }
 
     /**
+     * Validate, and call setter if valid, a value for a key.
+     *
+     * This is the default implementation for this method. It simply calls validateValueForKey and if there are no errors, calls the setter.
+     *
+     * @see validateValueForKey()
+     */
+    function validatedSetValueForKey(&$value, $key, &$edited, &$errors)
+    {
+        if ($this->validateValueForKey($value, $key, $edited, $errors))
+        {
+            $this->setValueForKey($value, $key);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Validate, and call setter if valid, a value for a keyPath.
+     *
+     * This is the default implementation for this method. It simply calls validateValueForKeyPath and if there are no errors, calls the setter.
+     *
+     * @see validateValueForKeyPath()
+     */
+    function validatedSetValueForKeyPath(&$value, $keyPath, &$edited, &$errors)
+    {
+        if ($this->validateValueForKeyPath($value, $keyPath, $edited, $errors))
+        {
+            $this->setValueForKeyPath($value, $keyPath);
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
      * Validate the given value for the given key.
      *
      * Clients can normalize the value, and also report and error if the value is not valid.
