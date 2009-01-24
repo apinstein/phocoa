@@ -166,7 +166,7 @@ PHOCOA.WFRPC.prototype = {
         }
         if (typeof this.callback.success === 'function')
         {
-            this.callback.success.bind(this.callback.scope);
+            this.callback.success.call(this.callback.scope, o);
         }
     },
 
@@ -174,7 +174,7 @@ PHOCOA.WFRPC.prototype = {
         o.argument = this.callback.argument;
         if (typeof this.callback.failure === 'function')
         {
-            this.callback.failure.bind(this.callback.scope);
+            this.callback.failure.call(this.callback.scope, o);
         }
     },
 
@@ -360,7 +360,7 @@ PHOCOA.WFAction.prototype = {
             // call the handleEvent function first, so that the client can do any cleanup or prep work (such as hiding divs)
             if (this.callback)
             {
-                this.callback.apply(this.jsCallbackArgs);
+                this.callback.apply(this, jsCallbackArgs);
             }
 
             // the event callback for RPC is of the prototype: phpFunc($page, $sender, $event, [$arg1, $arg2, ..])
