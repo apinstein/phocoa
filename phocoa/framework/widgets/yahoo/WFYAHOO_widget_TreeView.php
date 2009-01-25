@@ -72,19 +72,6 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         $this->enableDragDropTree = false;
 
         $this->yuiloader()->yuiRequire('treeview,connection');
-        if ($this->enableDragDropTree)
-        {
-            $this->yuiloader()->addModule('treeviewdd',
-                                            'js',
-                                            NULL,
-                                            WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/yahoo-treeviewdd.js',
-                                            array('treeview','dragdrop'),
-                                            NULL,
-                                            NULL,
-                                            NULL
-                                        );
-            $this->yuiloader()->yuiRequire('treeviewdd');
-        }
     }
 
     public static function exposedProperties()
@@ -185,6 +172,19 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         }
         else
         {
+            if ($this->enableDragDropTree)
+            {
+                $this->yuiloader()->addModule('treeviewdd',
+                                                'js',
+                                                NULL,
+                                                WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/yahoo-treeviewdd.js',
+                                                array('treeview','dragdrop'),
+                                                NULL,
+                                                NULL,
+                                                NULL
+                                            );
+                $this->yuiloader()->yuiRequire('treeviewdd');
+            }
             // set up basic HTML
             $html = parent::render($blockContent);
             $html .= "<div id=\"{$this->id}\"></div>\n";
