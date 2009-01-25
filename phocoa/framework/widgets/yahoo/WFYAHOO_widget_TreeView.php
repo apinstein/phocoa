@@ -69,7 +69,7 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
         $this->nodeType = 'HTMLNode';
         $this->autoExpandUntilChoices = true;
         $this->queryFieldId = NULL;
-        $this->enableDragDropTree = true;
+        $this->enableDragDropTree = false;
 
         $this->yuiloader()->yuiRequire('treeview,connection');
         if ($this->enableDragDropTree)
