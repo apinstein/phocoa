@@ -128,6 +128,13 @@ class WFObject implements WFKeyValueCoding
         return $hash;
     }
 
+    function setValuesForKeys($valuesForKeys)
+    {
+        foreach ($valuesForKeys as $k => $v) {
+            $this->setValueForKey($v, $k);
+        }
+    }
+
     function valuesForKeyPaths($keysAndKeyPaths)
     {
         $hash = array();
@@ -472,6 +479,56 @@ class WFObject implements WFKeyValueCoding
             return true;
         }
         return false;
+    }
+
+    /**
+     * Default implementation for validateObject().
+     *
+     * The default implementation will call all defined Key-Value Validators (any method matching "^validate*") using {@link validatedSetValueForKey()}.
+     * 
+     * Validations are done via {@link validatedSetValueForKey()}, meaning that changes made to values by the validators will be updated via setValueForKey.
+     *
+     * Subclasses needing to do interproperty validation should override the validateObject() method. If subclasses wish to block the default behavior of re-validating 
+     * all properties with validators, then the subclass should not call the super method. Subclasses wishing to preserve this behavior should call parent::validateObject($errors).
+     *
+     * @experimental
+     * @param array An array, passed by reference, which will be populated with any errors encountered. Errors are grouped by key, ie $errors['key'] = array()
+     * @return boolean TRUE if valid; FALSE if not.
+     * @throws object WFExecption
+     * @see WFKeyValueCoding::validateObject()
+     */
+    function validateObject(&$errors)
+    {
+        if ($errors === null)
+        {
+            $errors = array();
+        }
+
+        $allMethods = get_class_methods(get_class($this));
+        foreach ($allMethods as $f) {
+            if (strncasecmp('validate', $f, 8) === 0)
+            {
+                // now, make sure it's a KVV method by reflecting the args; should be 3 args.
+                $methodInfo = new ReflectionMethod(get_class($this), $f);
+                if ($methodInfo->getNumberOfParameters() !== 3) continue;
+                $p = $methodInfo->getParameters();
+                if (!($p[0]->isPassedByReference() and $p[1]->isPassedByReference() and $p[2]->isPassedByReference())) continue;
+
+                // we found a real validator! now, validate the value.
+                $key = strtolower(substr($f, 8, 1)) . substr($f, 9);
+                $keyErrors = array();
+                $val = $this->valueForKey($key);
+                $ok = $this->validatedSetValueForKey($val, $key, $edited, $keyErrors);
+                if (!$ok and count($keyErrors) === 0) throw( new WFException("Validator returned FALSE but didn't provide any errors.") );
+                if ($ok and count($keyErrors)) throw( new WFException("Validator returned TRUE but also returned errors.") );
+                if (!$ok)
+                {
+                    $errors[$key] = $keyErrors;
+                }
+            }
+        }
+
+        return empty($errors);
     }
 
     /**

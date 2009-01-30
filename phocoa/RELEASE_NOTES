@@ -8,6 +8,16 @@ Legend:
 
 ********** BUMP bootstrap.php VERSION # ****************
 Version 0.2.1 - ??
+- [new] Add KVC method setValuesForKeys()
+- [new] Add experimental inter-property validation mechanism, see KVC method validateObject().
+- [new] Add addErrors() convenience methods to WFPage and WFWidget.
+- [new] WFPage now catches WFErrorsException when thrown from action methods and automatically adds all errors to the page.
+        Architecturally this is useful because it allows you to simplify your controllers by no longer having to catch errors
+        and translate them to "page errors". Your models can now just throw WFErrorsException objects and you can let the magic happen.
+- [new] WFErrorsException class. A specialized exception that handles arrays of the structure used by validateObject().
+- [new] WFArray class, or the early beginnings of one. Right now it's just there to make it easy to simulate "prototype pluck" via:
+        WFArray::arrayWithArray($arrayOfErrors)->valueForKeyPath('errorMessage')
+- [BC-break] Changed the default error code for WFError to NULL from 0. I don't think anyone is relying on this.
 
 Version 0.2.0 - 1/21/2009
 - [new] Add preventAbandondedForm property to WFYAHOO_widget_Tab. Given the ID of a form element, this will prevent navigation to another tab with "dirty" data.

@@ -558,6 +558,13 @@ abstract class WFWidget extends WFView
         $this->page->addError($theError);
     }
 
+    function addErrors($arr)
+    {
+        foreach ($arr as $err) {
+            $this->addError($err);
+        }
+    }
+
     /**
       * Retrieve all errors for this widget.
       *
@@ -714,9 +721,7 @@ abstract class WFWidget extends WFView
             WFLog::log("propagateValueToBinding() WILL NOT (did not validate) push value '$value' for bound object '" . get_class($this) . "' for widget id '{$this->id}' binding: '{$bindingName}'", WFLog::TRACE_LOG);
 
             // keep all returned errors
-            foreach ($errors as $err) {
-                $this->addError($err);
-            }
+            $this->addErrors($errors);
         }
 
         // return cleaned-up value so UI can update

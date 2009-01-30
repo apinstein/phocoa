@@ -112,6 +112,14 @@ interface WFKeyValueCoding
     function valuesForKeys($keys);
 
     /**
+     * Set values for multiple keys.
+     *
+     * @param array An array of key => value
+     * @throws object WFUndefinedKeyException
+     */
+    function setValuesForKeys($valuesForKeys);
+
+    /**
      * Creates an associative array with the set of passed keys and keyPaths and the corresponding values.
      *
      * @param array An array of key => keyPath. If a "key" is encountered without a value, uses the "key" as the "keyPath".
@@ -186,6 +194,27 @@ interface WFKeyValueCoding
      * @see validateValueForKeyPath()
      */
     function validatedSetValueForKeyPath(&$value, $keyPath, &$edited, &$errors);
+
+    /**
+     * Run the object-level validation code.
+     *
+     * An object-level validator is used for interproperty validation, for instance validating 'postalCode' depends on 'country'.
+     *
+     * The default implementation will call all defined Key-Value Validators (any method matching "^validate*").
+     * 
+     * Validations are done via {@link validatedSetValueForKey()}, meaning that changes made to values by the validators will be updated via setValueForKey.
+     *
+     * Subclasses needing to do interproperty validation should override the validateObject() method. If subclasses wish to block the default behavior of re-validating 
+     * all properties with validators, then the subclass should not call the super method. Subclasses wishing to preserve this behavior should call parent::validateObject($errors).
+     *
+     * NOTE: It's called validateObject right now instead of validate primarily because Propel already has a validate() method.
+     *
+     * @experimental
+     * @param array An array, passed by reference, which will be populated with any errors encountered. Errors are grouped by key, ie $errors['key'] = array()
+     * @return boolean TRUE if valid; FALSE if not.
+     * @throws object WFExecption
+     */
+    function validateObject(&$errors);
 
     /**
      * Called by valueForKey() if the key cannot be located through normal methods.

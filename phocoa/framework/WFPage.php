@@ -996,6 +996,13 @@ class WFPage extends WFObject
         $this->errors[] = $error;
     }
 
+    function addErrors($arr)
+    {
+        foreach ($arr as $err) {
+            $this->addError($err);
+        }
+    }
+
     /**
      * Get a list of all errors on the page.
      * @return array An array of WFErrors, or an empty array if there are no errors.
@@ -1273,7 +1280,11 @@ class WFPage extends WFObject
                 }
                 if ($shouldRun)
                 {
-                    $rpc->execute($this);
+                    try {
+                        $rpc->execute($this);
+                    } catch (WFErrorsException $e) {
+                        $this->addErrors($e->allErrors());
+                    }
                     if ($rpc->isAjax() and count($this->errors()))  // errors can also occur in the action method
                     {
                         $this->sendPageErrorsOverAjax();
