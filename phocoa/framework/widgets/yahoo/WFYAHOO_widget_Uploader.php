@@ -65,6 +65,10 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
      * @var mixed A valid php callback object that will be called on each uploaded file. The prototype is: void handleUploadedFile($page, $params, object WFYAHOO_widget_Uploader).
      */
     protected $hasUploadCallback;
+    /**
+     * @var int The maximum file size in bytes to allow. A warning will be displayed for any file over that size and no upload will be attempted on that file. Default NULL (no limit).
+     */
+    protected $maxUploadBytes;
 
 
     /**
@@ -79,6 +83,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
         $this->addButtonLabel = "Select Files";
         $this->uploadButtonLabel = "Upload Files";
         $this->setHasUploadCallback('handleUploadedFile');
+        $this->maxUploadBytes = NULL;
         $this->continueURL = NULL;
     }
 
@@ -241,6 +246,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
             });
 
             uploader.addListener('fileSelect', function(e) {
+                // fileSelect sends ALL files tracked by flash, not just the ones added in the most recent file select dialog
                 $('{$this->id}_fileList').show();
 
                 // initialize upload tracking
@@ -250,15 +256,59 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 var files = \$H(e.fileList).values();
                 files.pluck('id').each(function(o) {
                     PHOCOA.widgets.{$this->id}.filesToUploadTracker[o] = {
+                        id: e.fileList[o].id,
                         name: e.fileList[o].name,
                         size: e.fileList[o].size,
                         sizeProgress: 0
                         };
                 });
-                files.pluck('size').each(function(o) {
+
+                var makePrettySize = function(sz, decimals) {
+                    if (typeof decimals === 'undefined')
+                    {
+                        decimals = 2;
+                    }
+                    var suffixes = ['Bytes','KB','MB','GB','TB'];
+                    var i = 0;
+
+                    while (sz >= 1024 && (i < suffixes.length - 1)){
+                        sz /= 1024;
+                        i++;
+                    }
+                    return Math.round(sz*Math.pow(10,decimals))/Math.pow(10,decimals) + ' '  + suffixes[i];
+                };";
+
+            if ($this->maxUploadBytes !== NULL)
+            {
+                $html .= "
+                var tooBig = [];
+                var justRight = {};
+                \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().each(function(o) {
+                    if (o.size > {$this->maxUploadBytes})
+                    {
+                        PHOCOA.runtime.getObject('{$this->id}').removeFile(o.id);
+                        tooBig.push(o);
+                    }
+                    else
+                    {
+                        justRight[o.id] = o;
+                    }
+                });
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker = justRight;
+                if (tooBig.length)
+                {
+                    alert('The following files will be skipped because they are more than ' + makePrettySize({$this->maxUploadBytes}) + \":\\n- \" + tooBig.pluck('name').join(\"\\n- \"));
+                }
+                ";
+            }
+            $html .= "
+                var allFilesToUpload = \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values();
+                allFilesToUpload.pluck('size').each(function(o) {
                     PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes += o;
                 });
-                $('{$this->id}_fileList').update(files.length + ' file(s) selected: <br />' + files.pluck('name').join('<br />'));
+                $('{$this->id}_fileList').update(allFilesToUpload.length + ' file(s) selected: <br />' + allFilesToUpload.collect(function(o) { 
+                                                                                                                            return o.name + ' ' + makePrettySize(o.size);
+                                                                                                                        }).join('<br />'));
             });
             uploader.addListener('uploadStart', function(e) {
                 PHOCOA.widgets.{$this->id}.updateProgress();
@@ -288,7 +338,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
         };
         PHOCOA.widgets.{$this->id}.updateProgress = function() {
             var uploadProgressBytes = 0;
-            \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().pluck('sizeProgress').each( function(o) {
+            \$A(PHOCOA.widgets.{$this->id}.filesToUploadTracker).pluck('sizeProgress').each( function(o) {
                 uploadProgressBytes += o;
             });
             var msg = 'Upload progress: ' + Math.round(uploadProgressBytes*100 / PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes) + '%';
