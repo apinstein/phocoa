@@ -96,7 +96,7 @@ class WFLabel extends WFWidget
         	{
                 $text = substr($text, 0, $this->ellipsisAfterChars) . '...';
 			}
-            return '<span id="' . $this->id . '">' . $text . '</span>' . $this->getListenerJSInScriptTag();
+            return '<span id="' . $this->id . '"' . ($this->class ? ' class="' . $this->class . '"' : NULL) . '>' . $text . '</span>' . $this->getListenerJSInScriptTag();
         }
     }
 
