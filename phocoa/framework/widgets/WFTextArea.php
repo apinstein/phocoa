@@ -42,7 +42,7 @@ class WFTextArea extends WFWidget
         //  must call super
         parent::restoreState();
 
-        if (isset($_REQUEST[$this->name]))
+        if (isset($_REQUEST[$this->name]) and $this->nullPlaceholder !== $_REQUEST[$this->name])
         {
             $this->setValue($_REQUEST[$this->name]);
         }

@@ -45,7 +45,7 @@ class WFTextField extends WFWidget
         parent::restoreState();
 
         // look for the things in the form I need to restore state...
-        if (isset($_REQUEST[$this->name]))
+        if (isset($_REQUEST[$this->name]) and $this->nullPlaceholder !== $_REQUEST[$this->name])
         {
             $this->value = $_REQUEST[$this->name];
         }
