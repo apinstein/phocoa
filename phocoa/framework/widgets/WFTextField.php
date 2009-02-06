@@ -10,11 +10,23 @@
 
 /**
  * A TextField widget for our framework.
+ *
+ * <b>Required:</b><br>
+ * - (none)
+ * 
+ * <b>Optional:</b><br>
+ * - {@link WFTextField::$maxLength maxLength}
+ * - {@link WFTextField::$size size}
+ * - {@link WFTextField::$nullPlaceholder nullPlaceholder}
  */
 class WFTextField extends WFWidget
 {
     protected $maxLength;
     protected $size;
+    /**
+     * @var string The "placeholder" value to show in the search box if it is empty. Default NULL.
+     */
+    protected $nullPlaceholder;
 
     /**
       * Constructor.
@@ -24,6 +36,7 @@ class WFTextField extends WFWidget
         parent::__construct($id, $page);
         $this->maxLength = NULL;
         $this->size = NULL;
+        $this->nullPlaceholder = NULL;
     }
 
     function restoreState()
@@ -42,13 +55,58 @@ class WFTextField extends WFWidget
     {
         if ($this->hidden) return NULL;
 
+        if ($this->nullPlaceholder)
+        {
+            $this->setOnEvent('focus do j:PHOCOA.widgets.' . $this->id . '.handleFocus()');
+            $this->setOnEvent('blur do j:PHOCOA.widgets.' . $this->id . '.handleBlur()');
+        }
         return '<input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . htmlspecialchars($this->value) . '"' .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->class ? ' class="' . $this->class . '"' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
+            ($this->nullPlaceholder ? ' placeholder="' . $this->nullPlaceholder . '" ' : NULL) .
             $this->getJSActions() . 
-            '/>' . $this->getListenerJSInScriptTag();
+            '/>
+            <script>'
+            . $this->getListenerJS() . 
+            '
+            PHOCOA.namespace("widgets.{$this->id}");
+            PHOCOA.widgets.' . $this->id . '.hasFocus = false;
+            PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
+                PHOCOA.widgets.' . $this->id . '.hasFocus = true;
+                if ($F(\'' . $this->id . '\') === \'' . $this->nullPlaceholder . '\')
+                {
+                    $(\'' . $this->id . '\').value = null;
+                }
+                $(\'' . $this->id . '\').removeClassName("phocoaWFSearchField_PlaceholderText");
+            };
+            PHOCOA.widgets.' . $this->id . '.handleBlur = function(e) {
+                PHOCOA.widgets.' . $this->id . '.hasFocus = false;
+                PHOCOA.widgets.' . $this->id . '.handlePlaceholder();
+            };
+            PHOCOA.widgets.' . $this->id . '.handlePlaceholder = function() {
+                if (!PHOCOA.widgets.' . $this->id . '.hasFocus)
+                {
+                    if ($F(\'' . $this->id . '\') === \'\')
+                    {
+                        $(\'' . $this->id . '\').value = \'' . $this->nullPlaceholder . '\';
+                        $(\'' . $this->id . '\').addClassName("phocoaWFSearchField_PlaceholderText");
+                    }
+                }
+            };
+            PHOCOA.widgets.' . $this->id . '.getValue = function() {
+                var qField = $(\'' . $this->id . '\');
+                var qVal = null;
+                if (qField.getAttribute("placeholder") !== $F(qField))
+                {
+                    qVal = $F(qField);
+                }
+                return qVal;
+            };
+            // perform initial check on search field value
+            PHOCOA.widgets.' . $this->id . '.handlePlaceholder();
+            </script>';
     }
 
     public static function exposedProperties()

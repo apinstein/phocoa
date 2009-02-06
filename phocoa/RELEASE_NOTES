@@ -19,6 +19,7 @@ Version 0.2.1 - ??
         WFArray::arrayWithArray($arrayOfErrors)->valueForKeyPath('errorMessage')
 - [new] Add maxUploadBytes parameter to WFYAHOO_widget_Uploader.
 - [new] Add support for 'class' property to WFLabel.
+- [new] Add nullPlaceholder property to WFTextArea and WFLabel.
 - [BC-break] Changed the default error code for WFError to NULL from 0. I don't think anyone is relying on this.
 
 Version 0.2.0 - 1/21/2009
