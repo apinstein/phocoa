@@ -338,7 +338,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
         };
         PHOCOA.widgets.{$this->id}.updateProgress = function() {
             var uploadProgressBytes = 0;
-            \$A(PHOCOA.widgets.{$this->id}.filesToUploadTracker).pluck('sizeProgress').each( function(o) {
+            \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().pluck('sizeProgress').each( function(o) {
                 uploadProgressBytes += o;
             });
             var msg = 'Upload progress: ' + Math.round(uploadProgressBytes*100 / PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes) + '%';
