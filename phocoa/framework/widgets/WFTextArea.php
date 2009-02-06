@@ -67,7 +67,7 @@ class WFTextArea extends WFWidget
             <script>'
             . $this->getListenerJS() . 
             '
-            PHOCOA.namespace("widgets.{$this->id}");
+            PHOCOA.namespace("widgets.' . $this->id . '");
             PHOCOA.widgets.' . $this->id . '.hasFocus = false;
             PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
                 PHOCOA.widgets.' . $this->id . '.hasFocus = true;
