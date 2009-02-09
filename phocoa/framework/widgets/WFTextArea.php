@@ -58,15 +58,17 @@ class WFTextArea extends WFWidget
             $this->setOnEvent('blur do j:PHOCOA.widgets.' . $this->id . '.handleBlur()');
         }
 
-        return '<textarea name="' . $this->name() . '" id="' . $this->id() . '"' . 
+        $html = '<textarea name="' . $this->name() . '" id="' . $this->id() . '"' . 
             ($this->cols ? ' cols="' . $this->cols . '" ' : '') .
             ($this->rows ? ' rows="' . $this->rows . '" ' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled ') .       // used to add readonly here too, but not sure why. may have been a browser compatibility thing, but seems to work now (tested on ie6/ie7/ff2/ff3/safari3)
             ($this->nullPlaceholder ? ' placeholder="' . $this->nullPlaceholder . '" ' : NULL) .
             '>' . $this->value . '</textarea>
             <script>'
-            . $this->getListenerJS() . 
-            '
+            . $this->getListenerJS();
+        if ($this->nullPlaceholder)
+        {
+            $html .= '
             PHOCOA.namespace("widgets.' . $this->id . '");
             PHOCOA.widgets.' . $this->id . '.hasFocus = false;
             PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
@@ -102,7 +104,10 @@ class WFTextArea extends WFWidget
             };
             // perform initial check on search field value
             PHOCOA.widgets.' . $this->id . '.handlePlaceholder();
-            </script>';
+            ';
+        }
+        $html .=  '</script>';
+        return $html;
     }
 
     public static function exposedProperties()
