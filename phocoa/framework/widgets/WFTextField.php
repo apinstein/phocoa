@@ -60,7 +60,7 @@ class WFTextField extends WFWidget
             $this->setOnEvent('focus do j:PHOCOA.widgets.' . $this->id . '.handleFocus()');
             $this->setOnEvent('blur do j:PHOCOA.widgets.' . $this->id . '.handleBlur()');
         }
-        return '<input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . htmlspecialchars($this->value) . '"' .
+        $html = '<input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . htmlspecialchars($this->value) . '"' .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->class ? ' class="' . $this->class . '"' : '') .
@@ -69,8 +69,10 @@ class WFTextField extends WFWidget
             $this->getJSActions() . 
             '/>
             <script>'
-            . $this->getListenerJS() . 
-            '
+            . $this->getListenerJS();
+        if ($this->nullPlaceholder)
+        {
+            $html .= '
             PHOCOA.namespace("widgets.' . $this->id . '");
             PHOCOA.widgets.' . $this->id . '.hasFocus = false;
             PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
@@ -106,7 +108,10 @@ class WFTextField extends WFWidget
             };
             // perform initial check on search field value
             PHOCOA.widgets.' . $this->id . '.handlePlaceholder();
-            </script>';
+            ';
+        }
+        $html .= '</script>';
+        return $html;
     }
 
     public static function exposedProperties()
