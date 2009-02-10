@@ -16,6 +16,8 @@
  *
  * All you need to do to receive the uploaded files is create a single function to handle the uploaded file. When someone uploads file(s) through the bulk uploader, your module's {@link WFYAHOO_widget_Uploader::$hasUploadCallback hasUploadCallback} will be called, once for each file uploaded. From this function you can do as you please with each uploaded file.
  * 
+ * NOTE: If you want to bulid a full ajax uploader with no page refreshes, this widget will fire a 'WFYAHOO_widget_Uploader:allUploadsComplete' event when all uploads have completed. You can register handlers with document.observe('WFYAHOO_widget_Uploader:allUploadsComplete').
+ *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
@@ -224,6 +226,11 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                            ->setIsAjax(true);
 
         $html = "
+        PHOCOA.widgets.{$this->id}.emptyFileListDisplay = function() {
+            PHOCOA.widgets.{$this->id}.filesToUploadTracker = {};
+            PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes = 0;
+            $('{$this->id}_fileList').update('').hide();
+        };
         PHOCOA.widgets.{$this->id}.init = function() {
             YAHOO.util.Event.onDOMReady(function () { 
                 var uiLayer = YAHOO.util.Dom.getRegion('{$this->id}_browseTrigger');
@@ -247,11 +254,8 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
 
             uploader.addListener('fileSelect', function(e) {
                 // fileSelect sends ALL files tracked by flash, not just the ones added in the most recent file select dialog
+                PHOCOA.widgets.{$this->id}.emptyFileListDisplay();
                 $('{$this->id}_fileList').show();
-
-                // initialize upload tracking
-                PHOCOA.widgets.{$this->id}.filesToUploadTracker = {};
-                PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes = 0;
 
                 var files = \$H(e.fileList).values();
                 files.pluck('id').each(function(o) {
@@ -329,6 +333,9 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 if (uploadComplete)
                 {
                     $('{$this->id}_progress').update('Upload complete.');
+                    PHOCOA.runtime.getObject('{$this->id}').clearFileList();    // remove files from flash
+                    PHOCOA.widgets.{$this->id}.emptyFileListDisplay();
+                    document.fire('WFYAHOO_widget_Uploader:allUploadsComplete');
                     if (" . WFJSON::encode( !empty($this->continueURL) ) . ")
                     {
                         window.location = '{$this->continueURL}';
