@@ -310,7 +310,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 allFilesToUpload.pluck('size').each(function(o) {
                     PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes += o;
                 });
-                $('{$this->id}_fileList').update(allFilesToUpload.length + ' file(s) selected: <br />' + allFilesToUpload.collect(function(o) { 
+                $('{$this->id}_fileList').update('<strong>' + allFilesToUpload.length + ' file(s) selected:</strong><br />' + allFilesToUpload.collect(function(o) { 
                                                                                                                             return o.name + ' ' + makePrettySize(o.size);
                                                                                                                         }).join('<br />'));
             });
