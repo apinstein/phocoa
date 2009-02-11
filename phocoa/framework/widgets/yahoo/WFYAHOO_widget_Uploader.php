@@ -198,8 +198,8 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
             $html = parent::render($blockContent);
             $html .= '
             <div id="' . $this->id . '_uiElements" style="display: inline;">
-                <div id="' . $this->id . '_uplaoderContainer">
-                    <div id="' . $this->id . '" style="position: absolute; z-index: 2;">Unable to load Flash content. The YUI Uploader requires Flash Player 9.0.45 or higher.</div>
+                <div id="' . $this->id . '_uploaderContainer">
+                    <div id="' . $this->id . '" style="width: 75px; height: 1.5em; position: absolute; z-index: 2;">Unable to load Flash content. The YUI Uploader requires Flash Player 9.0.45 or higher.</div>
                     <div id="' . $this->id . '_selectFilesLink" style="z-index:1">
                         <a id="' . $this->id . '_browseTrigger" >' . $this->addButtonLabel . '</a>
                     </div>
