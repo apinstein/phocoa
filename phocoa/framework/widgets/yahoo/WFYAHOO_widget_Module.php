@@ -29,6 +29,11 @@ class WFYAHOO_widget_Module extends WFYAHOO
     protected $footer;
 
     /**
+     * @var Raw javascript string of argument passed to container.render(). Defaults to NULL.
+     */
+    protected $renderTo;
+
+    /**
      * @var boolean Whether or not the module is visible. DEFAULT: false
      */
     protected $visible;
@@ -60,6 +65,8 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->header = NULL;
         $this->body = NULL;
         $this->footer = NULL;
+
+        $this->renderTo = NULL;
         
         $this->containerClass = 'Module';
         $this->buildModuleProgrammatically = false;
@@ -72,6 +79,15 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $items = parent::exposedProperties();
         return array_merge($items, array(
             ));
+    }
+
+    public function setBuildModuleProgrammatically($b)
+    {
+        $this->buildModuleProgrammatically = $b;
+        if ($b)
+        {
+            $this->renderTo = 'document.body';
+        }
     }
 
     function addEffect($effectName, $duration = 0.5)
@@ -215,16 +231,10 @@ PHOCOA.widgets.{$this->id}.Module.init = function() {
     module.setFooter(" . WFJSON::json_encode($this->footer) . ");
 ";
             }
-                $script .= "
-    module.render(document.body);
-";
         }
-        else
-        {
-            $script .= "
-    module.render();
+        $script .= "
+    module.render({$this->renderTo});
 ";
-        }
         $script .= 
 ( $addEffectsJS ? "\n    module.cfg.setProperty('effect', {$addEffectsJS});" : NULL ) . 
 // Module visibility controlled by display attr; subclass visibility controlled by visibilty. Non-modules must be display: block so that they'll appear when asked

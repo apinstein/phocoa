@@ -580,16 +580,18 @@ class WFModuleInvocation extends WFObject
      *  If you want to pass data to a WFModuleInvocation before executing, you'll need to instantiate WFModuleInvocation
      *  yourself and call execute() manually.
      *
-     *  @param string The invocation path to use.
+     *  @param string The {@lin invocationPathk WFModule::__construct()} for the module. 
+     *  @param object WFModuleInvocation The parent WFModuleInvocation that is creating this invocation, or NULL if this is the root invocation. Default is NULL (no parent).
+     *  @param string The name of the skin delegate to use. Default is NULL (no skin).
      *  @return string The resulting output of module execution.
      *  @throws object WFException Any exception generated during execution.
      */
-    public static function quickModule($invocationPath, $skinDelegate = NULL)
+    public static function quickModule($invocationPath, $parentInvocation = NULL, $skinDelegate = NULL)
     {
         try {
             while (true) {
                 try {
-                    $modInv = new WFModuleInvocation($invocationPath, NULL, $skinDelegate);
+                    $modInv = new WFModuleInvocation($invocationPath, $parentInvocation, $skinDelegate);
                     $result = $modInv->execute();
                     break;
                 } catch (WFRequestController_InternalRedirectException $e) {

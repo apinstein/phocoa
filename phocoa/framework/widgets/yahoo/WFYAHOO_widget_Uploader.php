@@ -232,6 +232,8 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
             $('{$this->id}_fileList').update('').hide();
         };
         PHOCOA.widgets.{$this->id}.init = function() {
+            PHOCOA.widgets.{$this->id}.emptyFileListDisplay();   // initialize
+
             YAHOO.util.Event.onDOMReady(function () { 
                 var uiLayer = YAHOO.util.Dom.getRegion('{$this->id}_browseTrigger');
                 var overlay = YAHOO.util.Dom.get('{$this->id}');
