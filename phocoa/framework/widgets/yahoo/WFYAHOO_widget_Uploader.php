@@ -226,10 +226,25 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                            ->setIsAjax(true);
 
         $html = "
+        PHOCOA.widgets.{$this->id}.status = { 'READY': 0, 'UPLOADING': 1, 'COMPLETE': 2};
         PHOCOA.widgets.{$this->id}.emptyFileListDisplay = function() {
             PHOCOA.widgets.{$this->id}.filesToUploadTracker = {};
             PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes = 0;
             $('{$this->id}_fileList').update('').hide();
+        };
+        PHOCOA.widgets.{$this->id}.makePrettySize = function(sz, decimals) {
+            if (typeof decimals === 'undefined')
+            {
+                decimals = 2;
+            }
+            var suffixes = ['Bytes','KB','MB','GB','TB'];
+            var i = 0;
+
+            while (sz >= 1024 && (i < suffixes.length - 1)){
+                sz /= 1024;
+                i++;
+            }
+            return Math.round(sz*Math.pow(10,decimals))/Math.pow(10,decimals) + ' '  + suffixes[i];
         };
         PHOCOA.widgets.{$this->id}.init = function() {
             PHOCOA.widgets.{$this->id}.emptyFileListDisplay();   // initialize
@@ -260,29 +275,19 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 $('{$this->id}_fileList').show();
 
                 var files = \$H(e.fileList).values();
+
                 files.pluck('id').each(function(o) {
                     PHOCOA.widgets.{$this->id}.filesToUploadTracker[o] = {
                         id: e.fileList[o].id,
                         name: e.fileList[o].name,
                         size: e.fileList[o].size,
-                        sizeProgress: 0
+                        sizeProgress: 0,
+                        status: PHOCOA.widgets.{$this->id}.status.READY,
+                        error: false,
+                        resultMessage: null
                         };
                 });
-
-                var makePrettySize = function(sz, decimals) {
-                    if (typeof decimals === 'undefined')
-                    {
-                        decimals = 2;
-                    }
-                    var suffixes = ['Bytes','KB','MB','GB','TB'];
-                    var i = 0;
-
-                    while (sz >= 1024 && (i < suffixes.length - 1)){
-                        sz /= 1024;
-                        i++;
-                    }
-                    return Math.round(sz*Math.pow(10,decimals))/Math.pow(10,decimals) + ' '  + suffixes[i];
-                };";
+                ";
 
             if ($this->maxUploadBytes !== NULL)
             {
@@ -303,40 +308,41 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 PHOCOA.widgets.{$this->id}.filesToUploadTracker = justRight;
                 if (tooBig.length)
                 {
-                    alert('The following files will be skipped because they are more than ' + makePrettySize({$this->maxUploadBytes}) + \":\\n- \" + tooBig.pluck('name').join(\"\\n- \"));
+                    alert('The following files will be skipped because they are more than ' + PHOCOA.widgets.{$this->id}.makePrettySize({$this->maxUploadBytes}) + \":\\n- \" + tooBig.pluck('name').join(\"\\n- \"));
                 }
                 ";
             }
             $html .= "
-                var allFilesToUpload = \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values();
-                allFilesToUpload.pluck('size').each(function(o) {
+                \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().pluck('size').each(function(o) {
                     PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes += o;
                 });
-                $('{$this->id}_fileList').update('<strong>' + allFilesToUpload.length + ' file(s) selected:</strong><br />' + allFilesToUpload.collect(function(o) { 
-                                                                                                                            return o.name + ' ' + makePrettySize(o.size);
-                                                                                                                        }).join('<br />'));
+                PHOCOA.widgets.{$this->id}.updateProgress();
             });
             uploader.addListener('uploadStart', function(e) {
                 PHOCOA.widgets.{$this->id}.updateProgress();
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].status = PHOCOA.widgets.{$this->id}.status.UPLOADING;
             });
             uploader.addListener('uploadProgress', function(e) {
                 PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].sizeProgress = e.bytesLoaded;
                 PHOCOA.widgets.{$this->id}.updateProgress();
             });
+            uploader.addListener('uploadError', function(e) {
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].error = true;
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].resultMessage = e.status;
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].status = PHOCOA.widgets.{$this->id}.status.COMPLETE;
+                PHOCOA.widgets.{$this->id}.updateProgress();
+            });
             uploader.addListener('uploadComplete', function(e) {
                 PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].sizeProgress = PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].size;
+                PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].status = PHOCOA.widgets.{$this->id}.status.COMPLETE;
                 PHOCOA.widgets.{$this->id}.updateProgress();
 
                 // are we done with ALL uploads?
-                var uploadComplete = true;
-                \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().each(function(o) {
-                    uploadComplete = uploadComplete && (o.sizeProgress === o.size)
-                });
-                if (uploadComplete)
+                if (\$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().all(function(o) { return o.sizeProgress === o.size; }))
                 {
                     $('{$this->id}_progress').update('Upload complete.');
                     PHOCOA.runtime.getObject('{$this->id}').clearFileList();    // remove files from flash
-                    PHOCOA.widgets.{$this->id}.emptyFileListDisplay();
+                    //PHOCOA.widgets.{$this->id}.emptyFileListDisplay();
                     document.fire('WFYAHOO_widget_Uploader:allUploadsComplete');
                     if (" . WFJSON::encode( !empty($this->continueURL) ) . ")
                     {
@@ -346,12 +352,49 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
             });
         };
         PHOCOA.widgets.{$this->id}.updateProgress = function() {
-            var uploadProgressBytes = 0;
-            \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().pluck('sizeProgress').each( function(o) {
-                uploadProgressBytes += o;
-            });
-            var msg = 'Upload progress: ' + Math.round(uploadProgressBytes*100 / PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes) + '%';
-            $('{$this->id}_progress').update(msg);
+            // update summary progress bar
+            var allFilesToUpload = \$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values();
+
+            if (allFilesToUpload.any(function(o) { return o.status !== PHOCOA.widgets.{$this->id}.status.READY; }))
+            {
+                var uploadProgressBytes = 0;
+                allFilesToUpload.pluck('sizeProgress').each( function(o) {
+                    uploadProgressBytes += o;
+                });
+                var msg = 'Upload progress: ' + Math.round(uploadProgressBytes*100 / PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes) + '%';
+                $('{$this->id}_progress').update(msg);
+            }
+
+            // Update per-file progress
+            // Sort by amount of upload left, descending. makes it easy to spot what's left and problems.
+            allFilesToUpload.sort( function(a,b) { return a.size - a.sizeProgress < b.size - b.sizeProgress } );
+            $('{$this->id}_fileList').update('<strong>' + allFilesToUpload.length + ' file(s) selected:</strong><table><tr><th>Name</th><th>Size</th><th>Status</th></tr>' + allFilesToUpload.collect(function(o) { 
+                                                                                                                            var msg = '<tr>';
+                                                                                                                            msg += '<td>' + o.name + '</td>';
+                                                                                                                            msg += '<td>' + PHOCOA.widgets.{$this->id}.makePrettySize(o.size) + '</td>';
+                                                                                                                            msg += '<td>';
+                                                                                                                            switch (o.status) {
+                                                                                                                                case PHOCOA.widgets.{$this->id}.status.READY:
+                                                                                                                                    break;
+                                                                                                                                case PHOCOA.widgets.{$this->id}.status.UPLOADING:
+                                                                                                                                    var pct = Math.round(100 * o.sizeProgress / o.size);
+                                                                                                                                    msg += ' progress: ' + pct + '%';
+                                                                                                                                    break;
+                                                                                                                                case PHOCOA.widgets.{$this->id}.status.COMPLETE:
+                                                                                                                                    if (o.error)
+                                                                                                                                    {
+                                                                                                                                        msg += ' Error uploading: ' + o.resultMessage;
+                                                                                                                                    }
+                                                                                                                                    else
+                                                                                                                                    {
+                                                                                                                                        msg += ' Uploaded.';
+                                                                                                                                    }
+                                                                                                                                    break;
+                                                                                                                            }
+                                                                                                                            msg += '</td>';
+                                                                                                                            msg += '</tr>';
+                                                                                                                            return msg;
+                                                                                                                        }).join('') + '</table>');
         };
         ";
 

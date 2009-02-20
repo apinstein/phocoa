@@ -17,10 +17,11 @@ Version 0.2.1 - ??
 - [new] WFErrorsException class. A specialized exception that handles arrays of the structure used by validateObject().
 - [new] WFArray class, or the early beginnings of one. Right now it's just there to make it easy to simulate "prototype pluck" via:
         WFArray::arrayWithArray($arrayOfErrors)->valueForKeyPath('errorMessage')
-- [new] Add maxUploadBytes parameter to WFYAHOO_widget_Uploader.
 - [new] Add support for 'class' property to WFLabel.
 - [new] Add nullPlaceholder property to WFTextArea and WFLabel.
 - [new] WFYAHOO_widget_Uploader now fires a 'WFYAHOO_widget_Uploader:allUploadsComplete' event when the upload is completed, allows fully on-page ajax uploading.
+- [new] Add maxUploadBytes parameter to WFYAHOO_widget_Uploader.
+- [new] Improve formatting of upload list for WFYAHOO_widget_Uploader; now reports per-file progress and errors.
 - [BC-break] Changed the default error code for WFError to NULL from 0. I don't think anyone is relying on this.
 - [BC-break] Changed the signature of WFModuleInvocation::quickModule() to mirror that of WFModule constructor. I searched all of my own projects and had no actual uses of quickModule() that would be affected by this change, but I am noting it anyway for others.
 
