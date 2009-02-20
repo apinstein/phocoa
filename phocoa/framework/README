@@ -27,7 +27,7 @@ Dependencies
 5) Smarty
 6) YUI: http://developer.yahoo.com/yui
 --> To upgrade the YUI, download it from YAHOO, then:
-rsync --dry-run -vvrC --del ~/Desktop/yui/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
+rsync --dry-run -vvrC --del ~/Downloads/yui/build/ ~/dev/sandbox/phocoa/phocoa/wwwroot/www/framework/yui
 ** when happy, remove --dry-run
 Then update subversion
 cd wwwroot/www/framework/yui

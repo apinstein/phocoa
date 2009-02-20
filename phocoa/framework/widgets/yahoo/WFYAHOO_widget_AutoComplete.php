@@ -17,6 +17,8 @@
  * none
  * 
  * <b>Optional:</b><br>
+ *
+ * @todo AJAX lookups seem to be failing... JSON is getting returned but no results displayed.
  */
 class WFYAHOO_widget_AutoComplete extends WFYAHOO
 {

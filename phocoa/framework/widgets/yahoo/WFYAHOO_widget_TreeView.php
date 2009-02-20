@@ -215,7 +215,7 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
     rpc.callback.success = PHOCOA.widgets.{$this->id}.loadDataHandleSuccess;
     rpc.callback.failure = PHOCOA.widgets.{$this->id}.loadDataHandleFailure;
     rpc.callback.argument = { loadComplete: fnLoadComplete, node: node };
-    var qVal = PHOCOA.widgets.{$this->queryFieldId}.getValue();
+    " . ($this->queryFieldId ? "var qVal = PHOCOA.widgets.{$this->queryFieldId}.getValue();" : NULL) . "
     rpc.execute(path" . ($this->queryFieldId ? ", qVal" : NULL) . ");
     ";
             }

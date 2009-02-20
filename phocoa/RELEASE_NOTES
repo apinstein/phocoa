@@ -7,7 +7,9 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 ********** BUMP bootstrap.php VERSION # ****************
-Version 0.2.1 - ??
+Version 0.2.2 - ???
+
+Version 0.2.1 - 2/19/2008
 - [new] Add KVC method setValuesForKeys()
 - [new] Add experimental inter-property validation mechanism, see KVC method validateObject().
 - [new] Add addErrors() convenience methods to WFPage and WFWidget.
@@ -22,6 +24,8 @@ Version 0.2.1 - ??
 - [new] WFYAHOO_widget_Uploader now fires a 'WFYAHOO_widget_Uploader:allUploadsComplete' event when the upload is completed, allows fully on-page ajax uploading.
 - [new] Add maxUploadBytes parameter to WFYAHOO_widget_Uploader.
 - [new] Improve formatting of upload list for WFYAHOO_widget_Uploader; now reports per-file progress and errors.
+- [new] Upgrade YUI to 2.7.0.
+- [bugfix] WFYAHOO_widget_PhocoaDialog now works properly with NullPlaceholders in WFTextField and WFTextArea. WFYAHOO_widget_PhocoaDialog now allows the loaded content to execute embedded scripts before munging the focus.
 - [BC-break] Changed the default error code for WFError to NULL from 0. I don't think anyone is relying on this.
 - [BC-break] Changed the signature of WFModuleInvocation::quickModule() to mirror that of WFModule constructor. I searched all of my own projects and had no actual uses of quickModule() that would be affected by this change, but I am noting it anyway for others.
 
