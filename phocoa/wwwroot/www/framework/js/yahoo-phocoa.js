@@ -408,7 +408,8 @@ YAHOO.widget.PhocoaDialog.prototype.focusFirst = function() {
             }
         }
     }
-    firstFormElement.focus();
+    // give HTML a chance to execute scripts before we munge focus; HTML may install focus listeners
+    window.setTimeout(function() { firstFormElement.focus(); }, 1);
 };
 
 /**
