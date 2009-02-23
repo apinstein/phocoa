@@ -22,10 +22,11 @@
  * - {@link WFYAHOO_widget_TreeView::$expandOnClick}
  * - {@link WFYAHOO_widget_TreeView::$queryFieldId}
  *
- * @todo Add capability for multi-selection of tree items. This one is gonna be tricky! Esp. with dynamic data; need to keep track of checked items even if they never become visisble.
+ * @todo Add capability for multi-selection of tree items. This one is gonna be tricky! Esp. with dynamic data; need to keep track of checked items even if they never become visisble. YUI did this in 2.7? Can't tell....
  * @todo Add loading indicator
  * @todo Add indicator in case of NO ITEMS FOUND... need to say something.
  * @todo Bug; if hit enter then esc quickly, things get fouled up. no idea why. even happens with autoExpandUntilChoices = false. jwatts?
+ * @todo Re-implement dragdrop directly correctly; make every node a DDTarget, set up a DDProxy, 
  */
 class WFYAHOO_widget_TreeView extends WFYAHOO
 {
@@ -592,7 +593,7 @@ class WFYAHOO_widget_TreeViewNode extends WFObject
      */
     function toXML()
     {
-        return '<item nodeId="' . $this->id . '" couldHaveChildren="' . ($this->couldHaveChildren ? '1' : '0') . '">' . htmlentities($this->data()) . '</item>';
+        return '<item nodeId="' . htmlentities($this->id) . '" couldHaveChildren="' . ($this->couldHaveChildren ? '1' : '0') . '">' . htmlentities($this->data()) . '</item>';
     }
 }
 

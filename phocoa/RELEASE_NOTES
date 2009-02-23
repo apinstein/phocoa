@@ -26,6 +26,7 @@ Version 0.2.1 - 2/19/2008
 - [new] Improve formatting of upload list for WFYAHOO_widget_Uploader; now reports per-file progress and errors.
 - [new] Upgrade YUI to 2.7.0.
 - [bugfix] WFYAHOO_widget_PhocoaDialog now works properly with NullPlaceholders in WFTextField and WFTextArea. WFYAHOO_widget_PhocoaDialog now allows the loaded content to execute embedded scripts before munging the focus.
+- [bugfix] WFYAHOO_widget_TreeView would fail to load data that had & characters in the ID. Fixed.
 - [BC-break] Changed the default error code for WFError to NULL from 0. I don't think anyone is relying on this.
 - [BC-break] Changed the signature of WFModuleInvocation::quickModule() to mirror that of WFModule constructor. I searched all of my own projects and had no actual uses of quickModule() that would be affected by this change, but I am noting it anyway for others.
 
