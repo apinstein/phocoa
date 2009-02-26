@@ -263,6 +263,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
             // can't customize until the SWF is ready
             uploader.addListener('contentReady', function() {
                 uploader.setAllowMultipleFiles(" . ($this->allowMultiple ? 'true' : 'false')  . ");
+                uploader.setSimUploadLimit(1);
             });
 
             $('{$this->id}_uploadTrigger').observe('click', function() {
