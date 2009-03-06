@@ -23,3 +23,6 @@
         </tr>
     </table>
 {/WFForm}
+<script>
+document.observe('dom:loaded', function() {ldelim} $('username').activate(); {rdelim});
+</script>
