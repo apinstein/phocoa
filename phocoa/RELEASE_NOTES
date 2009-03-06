@@ -7,7 +7,10 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 ********** BUMP bootstrap.php VERSION # ****************
-Version 0.2.2 - ???
+Version 0.2.2 - ??
+
+Version 0.2.2 - 3/5/2009
+- minor tweaks.
 
 Version 0.2.1 - 2/19/2008
 - [new] Add KVC method setValuesForKeys()
