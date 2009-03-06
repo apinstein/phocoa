@@ -163,7 +163,7 @@ abstract class WFView extends WFObject
      * onEvent: click do j:alert("Somthing was clicked")
      *
      * Your code is actually processed inside of an object function callback; "this" will be the WFAction, and it has a parameter "event". By default, the event is NOT stopped
-     * when using "j" events, so if you don't want the default behavior to occur, be sure to use this.stopEvent(event) in your javascript.
+     * when using "j" events, so if you don't want the default behavior to occur, be sure to use this.stopEvent(event) in your j:javascript.
      */
     public function setOnEvent($str)
     {
@@ -188,7 +188,7 @@ abstract class WFView extends WFObject
                     $action = WFAction::JSAction();
                     if ($actionArgument !== NULL)
                     {
-                        $action->setJsEventHandler( "function(event) { " . $actionArgument . " };" );
+                        $action->setJsEventHandler( "function(event) { " . $actionArgument . " }.bind(action)" );
                     }
                 }
                 else if ($actionType === 's')

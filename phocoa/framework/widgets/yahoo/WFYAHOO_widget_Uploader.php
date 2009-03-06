@@ -82,8 +82,8 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
 
         $this->yuiloader()->yuiRequire('uploader,json,element,yahoo,dom,event');
         $this->allowMultiple = false;
-        $this->addButtonLabel = "Select Files";
-        $this->uploadButtonLabel = "Upload Files";
+        $this->addButtonLabel = "1. Select Files";
+        $this->uploadButtonLabel = "2. Upload Files";
         $this->setHasUploadCallback('handleUploadedFile');
         $this->maxUploadBytes = NULL;
         $this->continueURL = NULL;
@@ -227,6 +227,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
 
         $html = "
         PHOCOA.widgets.{$this->id}.status = { 'READY': 0, 'UPLOADING': 1, 'COMPLETE': 2};
+        PHOCOA.widgets.{$this->id}.summaryStatus = PHOCOA.widgets.{$this->id}.status.READY;
         PHOCOA.widgets.{$this->id}.emptyFileListDisplay = function() {
             PHOCOA.widgets.{$this->id}.filesToUploadTracker = {};
             PHOCOA.widgets.{$this->id}.filesToUploadTotalBytes = 0;
@@ -252,8 +253,8 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
             YAHOO.util.Event.onDOMReady(function () { 
                 var uiLayer = YAHOO.util.Dom.getRegion('{$this->id}_browseTrigger');
                 var overlay = YAHOO.util.Dom.get('{$this->id}');
-                YAHOO.util.Dom.setStyle(overlay, 'width', uiLayer.right-uiLayer.left + 'px');
-                YAHOO.util.Dom.setStyle(overlay, 'height', uiLayer.bottom-uiLayer.top + 'px');
+                YAHOO.util.Dom.setStyle(overlay, 'width', uiLayer.width + 'px');
+                YAHOO.util.Dom.setStyle(overlay, 'height', uiLayer.height + 'px');
             });
 
             YAHOO.widget.Uploader.SWFURL = '" . $this->yuiPath() . "/uploader/assets/uploader.swf'; 
@@ -320,6 +321,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 PHOCOA.widgets.{$this->id}.updateProgress();
             });
             uploader.addListener('uploadStart', function(e) {
+                PHOCOA.widgets.{$this->id}.summaryStatus = PHOCOA.widgets.{$this->id}.status.UPLOADING;
                 PHOCOA.widgets.{$this->id}.updateProgress();
                 PHOCOA.widgets.{$this->id}.filesToUploadTracker[e.id].status = PHOCOA.widgets.{$this->id}.status.UPLOADING;
             });
@@ -341,10 +343,11 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 // are we done with ALL uploads?
                 if (\$H(PHOCOA.widgets.{$this->id}.filesToUploadTracker).values().all(function(o) { return o.sizeProgress === o.size; }))
                 {
+                    PHOCOA.widgets.{$this->id}.summaryStatus = PHOCOA.widgets.{$this->id}.status.COMPLETE;
                     $('{$this->id}_progress').update('Upload complete.');
                     PHOCOA.runtime.getObject('{$this->id}').clearFileList();    // remove files from flash
                     //PHOCOA.widgets.{$this->id}.emptyFileListDisplay();
-                    document.fire('WFYAHOO_widget_Uploader:allUploadsComplete');
+                    document.fire('WFYAHOO_widget_Uploader:allUploadsComplete', { uploadId: '{$this->id}' });
                     if (" . WFJSON::encode( !empty($this->continueURL) ) . ")
                     {
                         window.location = '{$this->continueURL}';

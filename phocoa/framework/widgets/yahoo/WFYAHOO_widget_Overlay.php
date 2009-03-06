@@ -183,7 +183,7 @@ PHOCOA.widgets.{$this->id}.Overlay.queueProps = function(o) {
 PHOCOA.widgets.{$this->id}.Overlay.init = function() {
     PHOCOA.widgets.{$this->id}.Module.init();  // init parent
     var overlay = PHOCOA.runtime.getObject('{$this->id}');
-    overlay.cfg.setProperty('fixedcenter', " . ($this->fixedcenter ? 'true' : 'false') . ");
+    overlay.cfg.setProperty('fixedcenter', " . ($this->fixedcenter ? "'contained'" : 'false') . ");
     overlay.cfg.setProperty('iframe', " . ($this->iframe ? 'true' : 'false') . ");
     overlay.cfg.setProperty('constraintoviewport', " . ($this->constraintoviewport ? 'true' : 'false') . ");" . 
     ($this->context ? "\n    overlay.cfg.setProperty('context', [ '{$this->context['id']}', '{$this->context['elementCorner']}', '{$this->context['contextCorner']}' ] );" : NULL ) . 

@@ -368,6 +368,11 @@ class WFSkin extends WFObject
         $this->skinThemeName = $skinThemeName;
     }
 
+    function getskinThemeName()
+    {
+        return $this->skinThemeName;
+    }
+
     /**
      *  Get the current skin name
      *

@@ -98,7 +98,8 @@ PHOCOA.runtime.addObject = function(o, id)
     PHOCOA.runtime.setupObjectCache();
     var oid = id || o.id;
     if (!oid) { throw "No ID could be found."; }
-    if (PHOCOA.runtime.objectList[oid])
+    // allow replacing existing objects; this isn't the best way to stop duplicate IDs and prevents legit AJAX apps that reload chunks with phocoa widgets.
+    if (0 && PHOCOA.runtime.objectList[oid])
     {
         alert('error - cannot add duplicate object: ' + oid);
         return;
