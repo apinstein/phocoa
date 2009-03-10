@@ -31,7 +31,7 @@ class WFIncluding
         if ($autoloadClassmapCache == NULL)
         {
              $autoloadClassmapCache = array(
-                'Smarty' => 'smarty/Smarty.class.php',
+                'Smarty' => 'Smarty/Smarty.class.php',
                 'Horde_Yaml' => 'Horde/Yaml.php',
                 'Horde_Yaml_Dumper' => 'Horde/Yaml/Dumper.php',
                 'Horde_Yaml_Loader' => 'Horde/Yaml/Loader.php',
