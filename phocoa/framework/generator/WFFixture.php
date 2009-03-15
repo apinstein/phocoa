@@ -93,7 +93,7 @@ class WFFixture extends WFObject
             }
             if ($saveMethod)
             {
-                foreach ($allCreatedObjects as $o)
+                foreach ($newObjs as $o)
                 {
                     try {
                         $o->$saveMethod();
@@ -295,7 +295,17 @@ class WFFixture extends WFObject
                     {
                         foreach ($v as $index => $subClassProps) {
                             try {
-                                $subObj = $this->makeObj($k, $v[$index]);
+                                // we expect an object here. this could be either a named object or result of an "inline" object via YAML
+                                // if subClassProps is a string, it's the former.
+                                if (is_string($subClassProps)) // we expect a label to a YAML object elsewhere
+                                {
+                                    if (!isset($this->objById[$k][$subClassProps])) throw( new WFException("Failed to find a named object of class {$k} with label {$subClassProps}.") );
+                                    $subObj = $this->objById[$k][$subClassProps];
+                                }
+                                else
+                                {
+                                    $subObj = $this->makeObj($k, $v[$index]);
+                                }
                             } catch (Exception $e) {
                                 throw( new WFException("Error processing {$index} class={$k}: " . $e->getMessage()) );
                             }

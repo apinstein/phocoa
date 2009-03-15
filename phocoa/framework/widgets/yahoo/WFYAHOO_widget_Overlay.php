@@ -194,9 +194,8 @@ PHOCOA.widgets.{$this->id}.Overlay.init = function() {
     ($this->zIndex ? "\n    overlay.cfg.setProperty('zIndex', '{$this->zIndex}');" : NULL ) . "
     // hopefully this next chunk can be removed when YUI fixes this internally
     // supposedly fixed in 2.3.0: https://sourceforge.net/tracker/?func=detail&atid=836476&aid=1723530&group_id=165715
-    // we'll comment out for a bit to verify -- nope, not fixed... need to report to YAHOO once we get a repro case online
-    // new bug with scrollbars being flaky: see ichat with pieper on 11/13/2007 for js code to fix
-    if (overlay.platform == \"mac\" && overlay.browser == \"gecko\")
+    // we'll comment out for a bit to verify -- seems fixed in 2.7.0. leaving fix off for a bit...
+    if (0 && overlay.platform == \"mac\" && overlay.browser == \"gecko\")
     {
         var overlayEl = YAHOO.util.Dom.get('{$this->id}');
         if (!overlay.cfg.getProperty('visible'))

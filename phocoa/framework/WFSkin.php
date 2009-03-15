@@ -298,6 +298,9 @@ class WFSkin extends WFObject
      *
      *  This function will look for the skin delegate in the appropriate place, instantiate it, and set it up for this skin instance.
      *
+     *  NOTE: Calling this function may overwrite any existing skin settings, since the loadDefaults() function may overwrite title, meta tags, etc.
+     *  For best results, always call setDelegateName() BEFORE making adjustments to the WFSkin object.
+     *
      *  @param string The NAME of the Skin Type.
      *  @throws object Exception if the skin delegate does not exist, or it does not contain the skin delegate class.
      */

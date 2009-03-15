@@ -70,6 +70,7 @@ class WFPassword extends WFWidget
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
+            ($this->class ? ' class="' . $this->class . '"' : '') .
             '/>';
     }
 

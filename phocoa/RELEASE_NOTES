@@ -6,8 +6,11 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-********** BUMP bootstrap.php VERSION # ****************
-Version 0.2.2 - ??
+Version 0.2.3 - ??
+- [new] Automatically activate the username field on the login module.
+- [new] Fixtures improvements: Add support for "named objects" in to-many relationships.
+- [new] Add WFFormatter smarty plugin to allow use of the PHOCOA formatting infrastructure directly in templates.
+- [new] Added "class" support to WFPassword.
 
 Version 0.2.2 - 3/5/2009
 - minor tweaks.
@@ -126,11 +129,16 @@ Version 0.1.1
              to use ids, or set avoidsEmptySelection to false.
 - [new] Ajax infrastructure has been added to PHOCOA. Refer to docs for details, as it is a big system.
 
+
 ======================================================
-MINIFY JS:
+RELEASE INSTRUCTIONS
 ======================================================
+********** BUMP bootstrap.php VERSION # **************
+********** MINIFY JS: ********************************
 cd phocoa
 java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/phocoa.js > wwwroot/www/framework/js/phocoa-min.js
 java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/yahoo-phocoa.js > wwwroot/www/framework/js/yahoo-phocoa-min.js
 java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/yahoo-treeviewdd.js > wwwroot/www/framework/js/yahoo-treeviewdd-min.js
 java -jar /Users/alanpinstein/Downloads/yuicompressor-2.3.5/build/yuicompressor-2.3.5.jar wwwroot/www/framework/js/prototype.js > wwwroot/www/framework/js/prototype-min.js
+********** Commit, then tag release **************
+svn copy file:///Users/Shared/Development/svnroot/phocoa/trunk file:///Users/Shared/Development/svnroot/phocoa/tags/release-0.2.2 -m "Version 0.2.2 release"
