@@ -34,6 +34,22 @@ class module_{$modName} extends WFModule
     }
     $moduleTemplate .= "
 }
+";
+    
+    if ($pageName !== NULL)
+    {
+        $moduleTemplate .= "
+
+class module_{$modName}_{$pageName}
+{
+    public function parameterList()
+    {
+        return array();
+    }
+}
+";
+    }
+    $moduleTemplate .= "
 ?>";
 
     // check and make dir
