@@ -33,6 +33,7 @@
  * - {@link WFCheckbox::$uncheckedValue uncheckedValue}
  * - {@link WFCheckbox::$groupMode groupMode}
  * - {@link WFCheckbox::$label label}
+ * - {@link WFCheckbox::$labelPosition labelPosition}
  */
 class WFCheckbox extends WFWidget
 {
@@ -56,6 +57,10 @@ class WFCheckbox extends WFWidget
      * @var string The label to show next to the checkbox. This will be shown to the RIGHT of the checkbox, and will use the HTML <label> tag to link the checkbox to the label.
      */
     protected $label;
+    /**
+     * @var string The position of the labels in HTML. 'left' will put the <label> first; 'right' will put it after the checkbox.
+     */
+    protected $labelPosition;
 
     /**
       * Constructor.
@@ -68,6 +73,7 @@ class WFCheckbox extends WFWidget
         $this->setChecked(false);
         $this->groupMode = false;
         $this->label = '';
+        $this->labelPosition = 'right';
     }
 
     function setGroupMode($enabled)
@@ -183,6 +189,7 @@ class WFCheckbox extends WFWidget
             'uncheckedValue',
             'groupMode' => array('true', 'false'),
             'label',
+            'labelPosition' => array('left', 'right'),
             ));
     }
 
@@ -208,7 +215,16 @@ class WFCheckbox extends WFWidget
         {
             $checked = ' checked ';
         }
-        return '<input type="checkbox" ' .
+        $labelLeft = $labelRight = ($this->label() !== '' ? " <label for=\"{$this->id}\">{$this->label}</label>" : '');
+        if ($this->labelPosition === 'right')
+        {
+            $labelLeft = NULL;
+        }
+        else
+        {
+            $labelRight = NULL;
+        }
+        return $labelLeft . '<input type="checkbox" ' .
                     'name="' . $this->name() . ($this->groupMode() ? '[]' : '') . '" ' .
                     ($this->class ? ' class="' . $this->class . '" ' : '') .
                     'id="' . $this->id() . '" ' .
@@ -216,8 +232,8 @@ class WFCheckbox extends WFWidget
                     ($this->checked() ? ' checked="checked" ' : '') .
                     ($this->enabled() ? '' : ' disabled readonly ') .
                     ' />' . 
-                    ($this->label() !== '' ? " <label for=\"{$this->id}\">{$this->label}</label>" : '')
-                    . $this->getListenerJSInScriptTag();
+                    $labelRight .
+                    $this->getListenerJSInScriptTag();
      
     }
 

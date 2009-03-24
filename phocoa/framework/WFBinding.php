@@ -71,6 +71,7 @@ interface WFKeyValueObserving
  * These instances are typically created in the {@link setupExposedBindings} callback of the WFKeyValueBindingCreation protocol.
  *
  * @todo Refactor constants to WFBinding.
+ * @todo How to set up a write-only binding if that stuff is only in WFBinding? For example, see WFUpload (value should be write-only)
  */
 class WFBindingSetup extends WFObject
 {

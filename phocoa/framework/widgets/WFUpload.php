@@ -17,6 +17,7 @@ interface WFUploadedFile
 
 /**
  * A Upload widget for our framework.
+ * @todo Consider making the value "writeonly", and canPushValueBinding to true? Passes INPUT FILE PATH to bound property?
  */
 class WFUpload extends WFWidget implements WFUploadedFile
 {

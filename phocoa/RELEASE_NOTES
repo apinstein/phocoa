@@ -11,6 +11,10 @@ Version 0.2.3 - ??
 - [new] Fixtures improvements: Add support for "named objects" in to-many relationships.
 - [new] Add WFFormatter smarty plugin to allow use of the PHOCOA formatting infrastructure directly in templates.
 - [new] Added "class" support to WFPassword.
+- Add comments
+- [new] Add labelPosition property to WFCheckbox for controlling position of <label> in relation to <input>. 'left' or 'right'.
+- [bugfix] Fixed bug where restoreState was getting called even if the current widget isn't on a form that was submitted. This caused side effects such as "restoring" the incorrect (uninitailized) state of WFSelectionCheckbox.
+- [new] Refactor WFKeyValueValidators to take an optional 4th parameter "options" that allows extra info to be passed to built-in validators. BC-safe.
 
 Version 0.2.2 - 3/5/2009
 - minor tweaks.

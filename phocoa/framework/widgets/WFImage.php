@@ -170,7 +170,7 @@ class WFImage extends WFWidget
     {
         $fsPath = $this->filesystemBasePath . $this->filesystemPath;
         $info = getimagesize($fsPath);
-        if ($info === false) throw( new WFException("Can't fitToBox because no image file found at: {$fsPath}") );
+        if ($info === false) throw( new WFException("Can't fitToBox because no image file found at: '{$fsPath}'. Make sure filesystemPath is set.") );
 
         // calculate some useful info; "i" prefix means "original image"
         $iWidth = $info[0];

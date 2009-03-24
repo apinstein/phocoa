@@ -599,12 +599,21 @@ class WFDynamic extends WFWidget
             // now that we've loaded all widget options (config), call the callback so that the widget can set itself up.
             $widget->allConfigFinishedLoading();
 
-            $this->restoreState();
-            // have widget restore state, only if we've posted! otherwise it will grab improper state
-            //if ($parentView and $parentView->page()->submittedFormName())
-            //{
-                //$widget->restoreState();
-            //}
+            // OH BOY. This used to work the first way, and the 2nd way was commented out. But I ran into a bug (calling restoreState when not on proper form would restore incorrect state). No idea why it was the other way...
+            // switching to the 2nd state probably broke something else :( BEWARE!
+            // @todo RESOLVE this issue and leave correct code and remove incorrect code.
+            if (0)
+            {
+                $this->restoreState();
+            }
+            else
+            {
+                // have widget restore state, only if we've posted! otherwise it will grab improper state
+                if ($parentView and $parentView->page()->submittedFormName())
+                {
+                    $widget->restoreState();
+                }
+            }
 
             $currentIndex++;
         }

@@ -13,54 +13,159 @@
  * The WFKeyValueValidators class provides a bunch of commonly used validators.
  *
  * @see WFObject::validateValueForKey() , WFObject::validateValueForKeyPath()
- * @todo Should we standardize the 4th parameter of all of these functions to take in an array of options? For instance ('required' => true, 'country' => 'US')O
- *       This will provide a more consistent interface and make the canned validators ready if we decide to be able to add validation via configuration
+ * @todo WRITE TESTS!
  */
 class WFKeyValueValidators extends WFObject
 {
     /**
      *  Validate email addresses.
      *
+     *  Options:
+     *  required: Whether to make the value required. Default false.
+     *  key: What to display as the "field" title in error messages. Default: "Email".
+     *
      * @param mixed A reference to value to check. Passed by reference so that the implementation can normalize the data.
      * @param boolean A reference to a boolean. This value will always be FALSE when the method is called. If the implementation edits the $value, set to TRUE.
      * @param array An array of WFError objects describing the error. The array is empty by default; you can add new error entries.
+     * @param array An array of options.
      * @return boolean TRUE indicates a valid value, FALSE indicates an error.
      */
-    public static function validateEmail(&$value, &$edited, &$errors)
+    public static function validateEmail(&$value, &$edited, &$errors, $options = array())
     {
+        $options = array_merge(array(
+                                    'required' => true,
+                                    'key' => 'Email',
+                                    ), $options);
+
         //  normalize
-        $value = trim($value);
+        $value = filter_var($value, FILTER_SANITIZE_EMAIL);
         $edited = true;
 
-        if (!preg_match('/^[_A-Za-z0-9-\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$/', $value))
+        if (empty($value))
         {
-            $errors[] = new WFError("That doesn't seem to be a email address. Please try again in the format 'email@domain.com'.");
+            if ($options['required'])
+            {
+                $errors[] = new WFError("{$options['key']} is required.");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        $okFilter = filter_var($value, FILTER_VALIDATE_EMAIL);
+        if (!$okFilter)
+        {
+            $errors[] = new WFError("{$options['key']} doesn't seem to be a email address. Please try again in the format 'email@domain.com'.");
             return false;
         }
         return true;
     }
 
     /**
-     *  Validate a phone number.
+     * Validate URL.
      *
-     *  Pretty flexible; allows any character(s) as separators. Just tries to be sure that there are the right number of digits in the right number of groups.
+     * Uses filter_var($value, FILTER_VALIDATE_URL) to verify a URL. Will also try pre-pending http:// if no scheme is present.
      *
-     *  Doesn't allow extensions.
+     *  Options:
+     *  required: Whether to make the value required. Default false.
+     *  key: What to display as the "field" title in error messages. Default: "Email".
      *
      * @param mixed A reference to value to check. Passed by reference so that the implementation can normalize the data.
      * @param boolean A reference to a boolean. This value will always be FALSE when the method is called. If the implementation edits the $value, set to TRUE.
      * @param array An array of WFError objects describing the error. The array is empty by default; you can add new error entries.
-     * @param string The country code you want to use for validation. Example: "US". Presently only US codes are supported. All other countries will cause the value to be assumed valid.
+     * @param array An array of options.
      * @return boolean TRUE indicates a valid value, FALSE indicates an error.
      */
-    public static function validatePhone(&$value, &$edited, &$errors, $country)
+    public static function validateUrl(&$value, &$edited, &$errors, $options = array())
     {
+        $options = array_merge(array(
+                                    'required' => true,
+                                    'key' => 'URL',
+                                    ), $options);
+        
+        // normalize
+        $value = filter_var($value, FILTER_SANITIZE_URL);
+        $edited = true;
+
+        if (empty($value))
+        {
+            if ($options['required'])
+            {
+                $errors[] = new WFError("{$options['key']} is required.");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        if (strncasecmp('http://', $value, 7) !== 0)
+        {
+            $value = 'http://' . $value;
+        }
+
+        $okFilter = filter_var($value, FILTER_VALIDATE_URL);
+        if (!$okFilter)
+        {
+            $errors[] = new WFError("{$options['key']} is not valid.");
+        }
+        return $okFilter;
+    }
+
+    /**
+     * Validate a phone number.
+     *
+     * Pretty flexible; allows any character(s) as separators. Just tries to be sure that there are the right number of digits in the right number of groups.
+     *
+     * Doesn't allow extensions.
+     *
+     *  Options:
+     *  required: Whether to make the value required. Default false.
+     *  key: What to display as the "field" title in error messages. Default: "Email".
+     *  country: Country Code to use for validation. Default US.
+     *
+     * @param mixed A reference to value to check. Passed by reference so that the implementation can normalize the data.
+     * @param boolean A reference to a boolean. This value will always be FALSE when the method is called. If the implementation edits the $value, set to TRUE.
+     * @param array An array of WFError objects describing the error. The array is empty by default; you can add new error entries.
+     * @param array An array of options.
+     * @return boolean TRUE indicates a valid value, FALSE indicates an error.
+     */
+    public static function validatePhone(&$value, &$edited, &$errors, $options = array())
+    {
+        if (!is_array($options))
+        {
+            $options = array('country' => $options);
+        }
+
+        $options = array_merge(array(
+                                    'required' => true,
+                                    'key' => 'Phone #',
+                                    'country' => 'US',
+                                    ), $options);
+        
+
         //  normalize
         $value = trim($value);
         $edited = true;
 
+        if (empty($value))
+        {
+            if ($options['required'])
+            {
+                $errors[] = new WFError("{$options['key']} is required.");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
         // check format based on country
-        switch ($country) {
+        switch ($options['country']) {
             case 'US':
                 if (!preg_match('/^1?[^\d]*(\d{3}[^\d]*\d{4})|(\d{3}[^\d]*\d{3}[^\d]*\d{4})$/', $value))
                 {
@@ -76,19 +181,49 @@ class WFKeyValueValidators extends WFObject
     }
 
     /**
-     *  Validate a postal code.
+     * Validate a postal code.
+     *
+     *  Options:
+     *  required: Whether to make the value required. Default false.
+     *  key: What to display as the "field" title in error messages. Default: "Email".
+     *  country: Country Code to use for validation. Default US.
      *
      * @param mixed A reference to value to check. Passed by reference so that the implementation can normalize the data.
      * @param boolean A reference to a boolean. This value will always be FALSE when the method is called. If the implementation edits the $value, set to TRUE.
      * @param array An array of WFError objects describing the error. The array is empty by default; you can add new error entries.
-     * @param string The country code you want to use for validation. Example: "US". Presently only US codes are supported. All other countries will cause the value to be assumed valid.
+     * @param array An array of options.
      * @return boolean TRUE indicates a valid value, FALSE indicates an error.
      */
-    public static function validatePostalCode(&$value, &$edited, &$errors, $country)
+    public static function validatePostalCode(&$value, &$edited, &$errors, $options = array())
     {
-        //  normalize
+        if (!is_array($options))
+        {
+            $options = array('country' => $options);
+        }
+
+        $options = array_merge(array(
+                                    'required' => true,
+                                    'key' => 'Postal Code',
+                                    'country' => 'US',
+                                    ), $options);
+        
+
+        // normalize
         $value = str_replace(' ', '', $value);
         $edited = true;
+
+        if (empty($value))
+        {
+            if ($options['required'])
+            {
+                $errors[] = new WFError("{$options['key']} is required.");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
 
         // check format based on country
         switch ($country) {
@@ -105,4 +240,3 @@ class WFKeyValueValidators extends WFObject
         }
     }
 }
-?>
