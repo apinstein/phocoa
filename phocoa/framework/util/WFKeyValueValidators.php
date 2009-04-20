@@ -226,7 +226,7 @@ class WFKeyValueValidators extends WFObject
         }
 
         // check format based on country
-        switch ($country) {
+        switch ($options['country']) {
             case 'US':
                 if (!preg_match('/^(\d{5}-\d{4})|(\d{5})$/', $value))
                 {
