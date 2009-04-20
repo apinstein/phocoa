@@ -884,9 +884,13 @@ class WFActionResponsePlain extends WFActionResponse
  */
 class WFActionResponseJSON extends WFActionResponse
 {
-    public function data()
+    public function __construct($data, $dataNeedsEncoding = true)
     {
-        return WFJSON::json_encode($this->data);
+        if ($dataNeedsEncoding)
+        {
+            $data = WFJSON::json_encode($data);
+        }
+        parent::__construct($data);
     }
     public function contentType()
     {
