@@ -372,7 +372,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
             // Update per-file progress
             // Sort by amount of upload left, descending. makes it easy to spot what's left and problems.
             allFilesToUpload.sort( function(a,b) { return a.size - a.sizeProgress < b.size - b.sizeProgress } );
-            $('{$this->id}_fileList').update('<strong>' + allFilesToUpload.length + ' file(s) selected:</strong><table><tr><th>Name</th><th>Size</th><th>Status</th></tr>' + allFilesToUpload.collect(function(o) { 
+            $('{$this->id}_fileList').update('<strong>' + allFilesToUpload.length + ' file(s) selected:</strong><table><tr><th>Name</th><th nowrap>Size</th><th nowrap>Status</th></tr>' + allFilesToUpload.collect(function(o) { 
                                                                                                                             var msg = '<tr>';
                                                                                                                             msg += '<td>' + o.name + '</td>';
                                                                                                                             msg += '<td>' + PHOCOA.widgets.{$this->id}.makePrettySize(o.size) + '</td>';
