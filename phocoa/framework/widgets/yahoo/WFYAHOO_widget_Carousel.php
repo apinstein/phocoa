@@ -11,7 +11,7 @@
 /**
  * A YAHOO Carousel widget for our framework.
  *
- * WFYAHOO_widget_Carousel is a BLOCK widget that takes in a <ul> and turns it into a carousel.
+ * WFYAHOO_widget_Carousel is a BLOCK widget that takes in a &lt;ul&gt; and turns it into a carousel.
  * 
  * <b>PHOCOA Builder Setup:</b>
  *
