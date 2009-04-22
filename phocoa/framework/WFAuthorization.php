@@ -247,6 +247,7 @@ class WFAuthorizationException extends Exception
   *
   * @todo Remember-me logins not yet implemented.
   * @todo captcha option
+  * @todo Decouple the default WFAuthorizationInfo class from the manager; let applications define this so that if there's no one logged in at least they get back the correct instance type.
   */
 class WFAuthorizationManager extends WFObject
 {
