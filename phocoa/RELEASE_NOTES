@@ -6,7 +6,9 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.2.3 - ??
+Version 0.2.4 - ??
+
+Version 0.2.3 - 4/22/2009
 - [new] Automatically activate the username field on the login module.
 - [new] Fixtures improvements: Add support for "named objects" in to-many relationships.
 - [new] Add WFFormatter smarty plugin to allow use of the PHOCOA formatting infrastructure directly in templates.
