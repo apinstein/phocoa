@@ -248,6 +248,7 @@ class WFAuthorizationException extends Exception
   * @todo Remember-me logins not yet implemented.
   * @todo captcha option
   * @todo Decouple the default WFAuthorizationInfo class from the manager; let applications define this so that if there's no one logged in at least they get back the correct instance type.
+  * @todo Make VERSION accessible externally (maybe through Delegate interface?) so that applications can have phocoa invalidate/re-login automatically when session structures change.
   */
 class WFAuthorizationManager extends WFObject
 {
@@ -602,6 +603,10 @@ class WFAuthorizationManager extends WFObject
         if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for loginFailedMessage.") );
 
         $loginFailedMessage = 'Login failed for ' . $this->usernameLabel() . ' "' . $username . '". Please check your ' . $this->usernameLabel() . ' and password and try again.';
+        if ($this->shouldEnableForgottenPasswordReset())
+        {
+            $loginFailedMessage .= " If you have forgotten your password, <a href=\"" . WFRequestController::WFURL('login', 'doForgotPassword') . '/' . $username . "\">click here</a>.";
+        }
         if (method_exists($this->authorizationDelegate, 'loginFailedMessage'))
         {
             $loginFailedMessage = $this->authorizationDelegate->loginFailedMessage($username);
