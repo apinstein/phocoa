@@ -65,6 +65,11 @@
         <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/script/createPage.php ${page.name}" passthru="true" />
     </target>
 
+    <target name="createTestStub" depends="prepareProject" description="Create a test stub for phocoa classes">
+        <input propertyname="test.name">Name of class to test:</input>
+        <exec dir="${phocoa.pwd}" command="${phocoa.project.php} ${phocoa.dir}/framework/script/createTestStub.php ${test.name}" passthru="true" />
+    </target>
+
     <target name="setConfFile" unless="phocoa.project.confFile">
         <echo>No phocoa.project.confFile was specified, using default of webapp.conf</echo>
         <property name="phocoa.project.confFile" value="webapp.conf" override="true"/>
