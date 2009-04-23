@@ -1,7 +1,8 @@
 RewriteEngine On
 
 # map phocoa framework wwwroot - enabled PHOCOA Versioning
-RewriteRule ^/www/framework(/[0-9\.]*)?/?(.*) /wwwroot/www/framework/$2 [L]
+RewriteRule ^/?www/framework(/[0-9\.]+)/?(.*) /www/framework/$2 [L]
+
 #enable a normal wwwroot
 RewriteRule ^/?www/?(.*) - [L]
 

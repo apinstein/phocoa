@@ -166,7 +166,7 @@
                 <echo message="Setting up symlinks for www accesss" />
                 <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/docs" destination="${phocoa.dir}/docs/phpdocs" />
                 <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/framework" destination="${phocoa.dir}/wwwroot/www/framework" />
-                <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/skins" destination="${phocoa.project.container}/${phocoa.project.name}/${phocoa.project.name}/skins" />
+                <symlink source="${phocoa.project.container}/${phocoa.project.name}/wwwroot/www/skins" destination="${phocoa.project.container}/${phocoa.project.name}/skins" />
             </else>
         </if>
     </target>
