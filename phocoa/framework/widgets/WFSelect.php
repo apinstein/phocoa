@@ -176,7 +176,7 @@ class WFSelect extends WFWidget
                     $defaultLabel = $options[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER];
                     WFLog::log("BEFORE: " . var_export($boundValue, true));
                     $boundValue = array('' => $defaultLabel) + $boundValue;
-                    WFLog::log("AFETR: " . var_export($boundValue, true));
+                    WFLog::log("AFTER: " . var_export($boundValue, true));
                 }
                 break;
         }
@@ -381,6 +381,7 @@ class WFSelect extends WFWidget
                     $multiple .
                     $size .
                     ($this->enabled() ? '' : ' disabled readonly ') .
+                    ($this->class ? ' class="' . $this->class . '"' : '') .
                     ($this->width ? ' style="width: ' . $this->width . ';" ' : '') . 
                     $this->getJSActions() . 
                     '>';
