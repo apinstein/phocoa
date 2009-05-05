@@ -570,7 +570,7 @@ class WFPage extends WFObject
         {
             __autoload($class);
         }
-        if (!is_subclass_of($class, 'WFView')) throw( new Exception("Only WFView objects can be instantiated in the .instances file. Object id '$id' is of class '$class'.") );
+        if (!is_subclass_of($class, 'WFView')) throw( new Exception("Only WFView objects can be instantiated in the .yaml file. Object id '$id' is of class '$class'.") );
 
         // NOTE!! We don't need to call addInstance() for widgets, as the WFWidget constructor does this automatically.
         // instantiate widget
