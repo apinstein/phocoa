@@ -233,8 +233,9 @@ class WFObject implements WFKeyValueCoding
             if ($staticMode && $keyI == 0)
             {
                 if (!is_string($target)) throw( new WFException('Target is not class name at static keyPath: ' . join('.', array_slice($keys, 0, $keyI))) );
-                if (!($target instanceof WFObject)) throw( new WFException('Target class (' . $target . ') does not implement WFObject protocol.') );
-                $result = call_user_func(array($target, '_valueForStaticKey'), $key, $target);
+                $staticF = array($target, '_valueForStaticKey');
+                if (!is_callable($staticF)) throw( new WFException('Target class (' . $target . ') does not implement WFObject protocol.') );
+                $result = call_user_func($staticF, $key, $target);
             }
             else
             {
