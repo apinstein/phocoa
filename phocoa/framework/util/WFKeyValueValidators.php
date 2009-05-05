@@ -187,6 +187,7 @@ class WFKeyValueValidators extends WFObject
      *  required: Whether to make the value required. Default false.
      *  key: What to display as the "field" title in error messages. Default: "Email".
      *  country: Country Code to use for validation. Default US.
+     *  unknownCountryIsAlwaysValid: Whether or not to accept as "valid" postal codes for unknown countries. Default true.
      *
      * @param mixed A reference to value to check. Passed by reference so that the implementation can normalize the data.
      * @param boolean A reference to a boolean. This value will always be FALSE when the method is called. If the implementation edits the $value, set to TRUE.
@@ -205,6 +206,7 @@ class WFKeyValueValidators extends WFObject
                                     'required' => true,
                                     'key' => 'Postal Code',
                                     'country' => 'US',
+                                    'unknownCountryIsAlwaysValid' => true
                                     ), $options);
         
 
@@ -236,7 +238,9 @@ class WFKeyValueValidators extends WFObject
                 return true;
                 break;
             default:
-                return true;
+                if ($options['unknownCountryIsAlwaysValid']) return true;
+                $errors[] = new WFError("Country Code {$options['country']} is not recognized.");
+                return false;
         }
     }
 }
