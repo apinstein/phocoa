@@ -1436,6 +1436,7 @@ class WFPage extends WFObject
         $this->template->assign('__page', $this);
         // stuff a copy of the skin in the template...
         $this->template->assign('__skin', $skin);
+        $this->template->assign('__rootSkin', $this->module()->invocation()->rootSkin());
 
         // pull bound values into all widgets based on bindings.
         $this->pullBindings();

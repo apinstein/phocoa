@@ -7,6 +7,7 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.2.4 - ??
+- [new] Added __rootSkin template variable to all page templates to make it easier to use skin resources in modules that are used with WFModuleView. Without access to __rootSkin you had to add code to willRenderPage() to stuff the skin into the template to achieve this on every module where you needed access to the skin.
 - [new] onEvent: x do s!:noAction now routes to WFPage's noAction handler (so that the page delegate does not *have* to have that function declared).
 - [new] ServerAction now includes all RPC paramaters in the request.
 - [new] Added a modifier to onEvent: x do s!:actionName (the ! means runsIfInvalid=true)
