@@ -178,9 +178,17 @@ abstract class WFView extends WFObject
         // repeat by adding "onEvent:" and another statement
         $pieces = preg_split('/\W\bonEvent\b:\W*/', $str);
         foreach ($pieces as $statement) {
-            if (preg_match('/^\W*([A-z]*)\W*do\W*([jsa]):?((#(page|module)#[^:]*):)?(.*)$/', $statement, $matches))
+            if (preg_match('/^\W*([A-z]*)\W*do\W*([jsa])(!)?:?((#(page|module)#[^:]*):)?(.*)$/', $statement, $matches))
             {
-                list(, $eventName, $actionType, , $target, , $actionArgument) = $matches;
+                list(, $eventName, $actionType, $runsIfInvalid, , $target, , $actionArgument) = $matches;
+                if (empty($runsIfInvalid))
+                {
+                    $runsIfInvalid = false;
+                }
+                else
+                {
+                    $runsIfInvalid = true;
+                }
                 if (empty($actionArgument)) $actionArgument = NULL; // normalize to null
                 if (empty($target)) $target = NULL; // normalize to null
                 if ($actionType === 'j')
@@ -202,6 +210,10 @@ abstract class WFView extends WFObject
                         }
                         $action->setAction($actionArgument);
                     }
+                    if ($runsIfInvalid)
+                    {
+                        $action->rpc()->setRunsIfInvalid(true);
+                    }
                 }
                 else if ($actionType === 'a')
                 {
@@ -213,6 +225,10 @@ abstract class WFView extends WFObject
                             $action->setTarget($target);
                         }
                         $action->setAction($actionArgument);
+                    }
+                    if ($runsIfInvalid)
+                    {
+                        $action->rpc()->setRunsIfInvalid(true);
                     }
                 }
                 $this->setListener( WFEvent::factory($eventName, $action) );

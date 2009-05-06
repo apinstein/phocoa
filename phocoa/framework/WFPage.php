@@ -167,6 +167,7 @@ class WFPage extends WFObject
     protected $errors;      // all validation errors for the current page; errors are managed in real-time. Any errors added to widgets of this page 
                             // are automatically added to our page errors list.
     protected $delegate;    // an object implementing some of WFPageDelegate. OPTIONAL.
+    protected $ignoreErrors;// whether or not the page should ignore errors that were generated during the page life cycle
 
     function __construct(WFModule $module)
     {
@@ -179,7 +180,18 @@ class WFPage extends WFObject
         $this->errors = array();
         $this->parameters = array();
         $this->delegate = NULL;
+        $this->ignoreErrors = false;
         WFLog::log("instantiating a page", WFLog::TRACE_LOG, PEAR_LOG_DEBUG);
+    }
+
+    public function setIgnoreErrors($bIgnoreErrors)
+    {
+        $this->ignoreErrors = $bIgnoreErrors;
+    }
+
+    public function ignoreErrors()
+    {
+        return $this->ignoreErrors;
     }
 
     /**
@@ -1267,6 +1279,10 @@ class WFPage extends WFObject
                             (!$rpc->runsIfInvalid() and $this->formIsValid())
                        )
                     {
+                        if ($rpc->runsIfInvalid())
+                        {
+                            $this->setIgnoreErrors(true);   // runsIfInvalid by default implies ignoreErrors
+                        }
                         $shouldRun = true;
                     }
                     else if ($rpc->isAjax())        // form data not valid (pre-action) and runsIfInvalid is false

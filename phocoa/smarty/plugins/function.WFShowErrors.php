@@ -27,6 +27,9 @@ function smarty_function_WFShowErrors($params, &$smarty)
 {
     static $errorSmarty = NULL;
 
+    $page = $smarty->getPage();
+    if ($page->ignoreErrors()) return;
+
     if (is_null($errorSmarty))
     {
         $errorSmarty = new WFSmarty;
@@ -37,7 +40,7 @@ function smarty_function_WFShowErrors($params, &$smarty)
     $getErrorsForId = NULL;
     if (!empty($params['id']))
     {
-        if ( !($smarty->getPage()->outlet($params['id']) instanceof WFForm) )
+        if ( !($page->outlet($params['id']) instanceof WFForm) )
         {
             $getErrorsForId = $params['id'];
         }
@@ -47,7 +50,6 @@ function smarty_function_WFShowErrors($params, &$smarty)
     if ($getErrorsForId === NULL)
     {
         // get all errors
-        $page = $smarty->getPage();
         $errors = $page->errors();
     }
     else
