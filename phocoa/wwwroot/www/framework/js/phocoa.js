@@ -236,6 +236,11 @@ PHOCOA.WFRPC.prototype = {
             if ( this.isAjax === false /* refreshPage */)
             {
                 var theForm = $(this.form);
+                // insert the RPC info
+                $H(this.phocoaRPCParameters(this.execute.arguments)).each(function(pair) {
+                    var hiddenEl = '<input type="hidden" name="' + pair.key + '" value="' + pair.value + '" />';
+                    Element.insert(theForm, hiddenEl);
+                });
                 // insert phocoa ajax elems, submit button pressed into form and submit the form
                 if (this.submitButton)
                 {
