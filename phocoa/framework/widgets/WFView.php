@@ -164,6 +164,9 @@ abstract class WFView extends WFObject
      *
      * Your code is actually processed inside of an object function callback; "this" will be the WFAction, and it has a parameter "event". By default, the event is NOT stopped
      * when using "j" events, so if you don't want the default behavior to occur, be sure to use this.stopEvent(event) in your j:javascript.
+     *
+     * NOTE: the 's' and 'a' processing options also accept a '!' modifier which turns on runsIfInvalid mode. This is useful in many cases where you need to 
+     * run server-side processing of form data before you even expect the form to be valid (for instance chained WFSelect widgets).
      */
     public function setOnEvent($str)
     {
