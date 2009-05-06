@@ -7,6 +7,7 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.2.4 - ??
+- [new] onEvent: x do s!:noAction now routes to WFPage's noAction handler (so that the page delegate does not *have* to have that function declared).
 - [new] ServerAction now includes all RPC paramaters in the request.
 - [new] Added a modifier to onEvent: x do s!:actionName (the ! means runsIfInvalid=true)
 - [bc-break] If an RPC is detected and runsIfInvalid=true then the page's ignoreErrors() will default to true. This prevents any errors from showing on the page. This is the normative use case for ServerAction, but it could cause a BC problem if anyone is using runsIfInvalid=true and expecting errors to be displayed (doubtful that this affects anyone).

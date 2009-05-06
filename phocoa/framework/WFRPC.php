@@ -294,7 +294,7 @@ class WFRPC extends WFObject
         {
             $targetObj = $targetObj->outlet($outletId);
         }
-        else if ($targetObj instanceof WFPage)
+        else if ($targetObj instanceof WFPage && $this->action !== 'noAction')  // #page# targets the page DELEGATE unless action=noAction; then we piggyback on the page->noAction()
         {
             $targetObj = $targetObj->delegate();
         }
