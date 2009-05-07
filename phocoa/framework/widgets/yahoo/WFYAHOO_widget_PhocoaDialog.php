@@ -23,10 +23,11 @@
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
+ * - (none)
  * 
  * <b>Optional:</b><br>
- * deferModuleViewLoading - boolean - True to defer loading of the WFModuleView content until the module is shown, false to load immediately. Default true.
- * cacheModuleView - boolean - True to locally cache the result of the WFModuleView, false to re-load it every time the module is shown. Default false.
+ * - deferModuleViewLoading - boolean - True to defer loading of the WFModuleView content until the module is shown, false to load immediately. Default true.
+ * - cacheModuleView - boolean - True to locally cache the result of the WFModuleView, false to re-load it every time the module is shown. Default false.
  */
 class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
 {
