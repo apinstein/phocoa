@@ -350,12 +350,12 @@ class WFRPC extends WFObject
     {
         if (!isset($_REQUEST[self::PARAM_ENABLE])) return NULL;
 
-        if (!isset($_REQUEST[self::PARAM_INVOCATION_PATH])) throw( new WFException('action invocationPath missing.') );
-        if (!isset($_REQUEST[self::PARAM_TARGET])) throw( new WFException('action target missing.') );
-        if (!isset($_REQUEST[self::PARAM_ACTION])) throw( new WFException('action method missing.') );
-        if (!isset($_REQUEST[self::PARAM_RUNS_IF_INVALID])) throw( new WFException('action runsIfInvalid missing.') );
-        if (!isset($_REQUEST[self::PARAM_IS_AJAX])) throw( new WFException('action isAjax missing.') );
-        if (!isset($_REQUEST[self::PARAM_ARGC])) throw( new WFException('action argc missing.') );
+        if (!isset($_REQUEST[self::PARAM_INVOCATION_PATH])) throw( new WFException('rpc invocationPath missing.') );
+        if (!isset($_REQUEST[self::PARAM_TARGET])) throw( new WFException('rpc target missing.') );
+        if (!isset($_REQUEST[self::PARAM_ACTION])) throw( new WFException('rpc method missing.') );
+        if (!isset($_REQUEST[self::PARAM_RUNS_IF_INVALID])) throw( new WFException('rpc runsIfInvalid missing.') );
+        if (!isset($_REQUEST[self::PARAM_IS_AJAX])) throw( new WFException('rpc isAjax missing.') );
+        if (!isset($_REQUEST[self::PARAM_ARGC])) throw( new WFException('rpc argc missing.') );
 
         // not sure why this is with WWW_ROOT....
         $invocationPathWithWWW = WWW_ROOT . '/' . $invocationPath;
