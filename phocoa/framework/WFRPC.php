@@ -41,7 +41,8 @@ class WFRPC extends WFObject
     const PARAM_INVOCATION_PATH = '__phocoa_rpc_invocationPath';
     const PARAM_TARGET = '__phocoa_rpc_target';
     const PARAM_ACTION = '__phocoa_rpc_action';
-    const PARAM_RUNS_IF_VALID = '__phocoa_rpc_runsIfInvalid';
+    const PARAM_RUNS_IF_INVALID = '__phocoa_rpc_runsIfInvalid';
+    const PARAM_IS_AJAX = '__phocoa_is_ajax';
     // parameters for actions
     const PARAM_ARGC = '__phocoa_rpc_argc';
     const PARAM_ARGV_PREFIX = '__phocoa_rpc_argv_';
@@ -77,7 +78,9 @@ class WFRPC extends WFObject
      */
     protected $form;
     /**
-     * @var boolean Is this RPC an AJAX RPC or just a wrapper to submit the form?
+     * @var boolean TRUE if the RPC wants the response to be an "ajax" response as opposed to the normal result. 
+     *              An "AJAX Response" is one where json or xml etc is requested by the client. A "Non-AJAX Response" is one where the client wants back a "web page".
+     *              NOTE that this is *not* whether or not the request was made over an AJAX channel. For that, see {@link WFRequestController::isAjax()}
      */
     protected $isAjax;
 
@@ -213,7 +216,8 @@ class WFRPC extends WFObject
         $params[WFRPC::PARAM_INVOCATION_PATH] = $this->url();
         $params[WFRPC::PARAM_TARGET] = $this->target;
         $params[WFRPC::PARAM_ACTION] = $this->action;
-        $params[WFRPC::PARAM_RUNS_IF_VALID] = ($this->runsIfInvalid ? 'true' : 'false');
+        $params[WFRPC::PARAM_RUNS_IF_INVALID] = ($this->runsIfInvalid ? 'true' : 'false');
+        $params[WFRPC::PARAM_IS_AJAX] = ($this->isAjax ? 'true' : 'false');
         $params[WFRPC::PARAM_ARGC] = 0;
         $params[session_name()] = session_id();
         if ($this->form)
@@ -349,6 +353,8 @@ class WFRPC extends WFObject
         if (!isset($_REQUEST[self::PARAM_INVOCATION_PATH])) throw( new WFException('action invocationPath missing.') );
         if (!isset($_REQUEST[self::PARAM_TARGET])) throw( new WFException('action target missing.') );
         if (!isset($_REQUEST[self::PARAM_ACTION])) throw( new WFException('action method missing.') );
+        if (!isset($_REQUEST[self::PARAM_RUNS_IF_INVALID])) throw( new WFException('action runsIfInvalid missing.') );
+        if (!isset($_REQUEST[self::PARAM_IS_AJAX])) throw( new WFException('action isAjax missing.') );
         if (!isset($_REQUEST[self::PARAM_ARGC])) throw( new WFException('action argc missing.') );
 
         // not sure why this is with WWW_ROOT....
@@ -359,8 +365,8 @@ class WFRPC extends WFObject
         $rpc->setInvocationPath($_REQUEST[self::PARAM_INVOCATION_PATH]);
         $rpc->setTarget($_REQUEST[self::PARAM_TARGET]);
         $rpc->setAction($_REQUEST[self::PARAM_ACTION]);
-        $rpc->setRunsIfInvalid($_REQUEST[self::PARAM_RUNS_IF_VALID]);
-        $rpc->setIsAjax(WFRequestController::sharedRequestController()->isAjax());
+        $rpc->setRunsIfInvalid($_REQUEST[self::PARAM_RUNS_IF_INVALID] === 'true');
+        $rpc->setIsAjax($_REQUEST[self::PARAM_IS_AJAX] === 'true');
 
         // assemble arguments
         $args = array();

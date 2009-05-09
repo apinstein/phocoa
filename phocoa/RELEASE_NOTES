@@ -7,6 +7,8 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.2.4 - ??
+- [bugfix, BC-break] You can now successfully submit forms in a WFYAHOO_widget_PhocoaDialog via normal submit now and have a proper result. Previously the result would be to show an AJAX xml response as HTML on page, rather than properly returning the repsonse page.
+    An isAjax property was added to phocoa's RPC mechanism. This variable tracks whether an ajax response (ie json, xml) is requested from the client (as opposed to a full html page). This piece of additional information is critical for WFPage to know whether or not to automatically wrap errors up as AJAX and send them back to the client.
 - [new] Added __rootSkin template variable to all page templates to make it easier to use skin resources in modules that are used with WFModuleView. Without access to __rootSkin you had to add code to willRenderPage() to stuff the skin into the template to achieve this on every module where you needed access to the skin.
 - [new] onEvent: x do s!:noAction now routes to WFPage's noAction handler (so that the page delegate does not *have* to have that function declared).
 - [new] ServerAction now includes all RPC paramaters in the request.

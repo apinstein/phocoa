@@ -191,6 +191,7 @@ PHOCOA.WFRPC.prototype = {
         url += '&__phocoa_rpc_target=' + escape(this.target);
         url += '&__phocoa_rpc_action=' + this.action;
         url += '&__phocoa_rpc_runsIfInvalid=' + this.runsIfInvalid;
+        url += '&__phocoa_is_ajax=' + this.isAjax;
         if (args.length)
         {
             for (var i = 0; i < args.length; i++) {
@@ -215,6 +216,7 @@ PHOCOA.WFRPC.prototype = {
         params.__phocoa_rpc_target = this.target;
         params.__phocoa_rpc_action = this.action;
         params.__phocoa_rpc_runsIfInvalid = this.runsIfInvalid;
+        params.__phocoa_is_ajax = this.isAjax;
         if (args.length)
         {
             for (var i = 0; i < args.length; i++) {

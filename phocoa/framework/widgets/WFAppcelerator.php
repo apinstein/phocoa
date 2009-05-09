@@ -114,7 +114,7 @@ class WFAppcelerator extends WFWidget
                                         . WFRPC::PARAM_INVOCATION_PATH . '=' . WWW_ROOT . '/' . $this->page()->module()->invocation()->invocationPath() . '&'
                                         . WFRPC::PARAM_TARGET . '=#page#&'
                                         . WFRPC::PARAM_ACTION . '=" + action + "&'
-                                        . WFRPC::PARAM_RUNS_IF_VALID . '=true&'
+                                        . WFRPC::PARAM_RUNS_IF_INVALID . '=true&'
                                         . WFRPC::PARAM_ARGC . '=1&'
                                         . WFRPC::PARAM_ARGV_PREFIX . '0=" + $H(msg[0].data).toJSON() + "&'
                                         // form compatibility
