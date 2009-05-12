@@ -230,7 +230,7 @@ class WFKeyValueValidators extends WFObject
         // check format based on country
         switch ($options['country']) {
             case 'US':
-                if (!preg_match('/^(\d{5}-\d{4})|(\d{5})$/', $value))
+                if (!preg_match('/^(\b\d{5}-\d{4}\b)$|^(\b\d{5}\b)$/', $value))
                 {
                     $errors[] = new WFError("US Postal Codes must be in format XXXXX or XXXXX-XXXX.");
                     return false;
