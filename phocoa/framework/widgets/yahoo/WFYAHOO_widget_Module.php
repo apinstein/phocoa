@@ -69,7 +69,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->renderTo = NULL;
         
         $this->containerClass = 'Module';
-        $this->buildModuleProgrammatically = false;
+        $this->setBuildModuleProgrammatically(true);
 
         $this->yuiloader()->yuiRequire('container');
     }
@@ -213,24 +213,11 @@ PHOCOA.widgets.{$this->id}.Module.init = function() {
 
         if ($this->buildModuleProgrammatically)
         {
-            if ($this->header)
-            {
-                $script .= "
-    module.setHeader(" . WFJSON::json_encode($this->header) . ");
+            $script .= "
+    module.setHeader(" . ($this->header === NULL ? '""' : WFJSON::json_encode($this->header)) . ");
+    module.setBody(" . ($bodyHTML === NULL ? '""' : WFJSON::json_encode($bodyHTML)) . ");
+    module.setFooter(" . ($this->footer  === NULL ? '""' : WFJSON::json_encode($this->footer)) . ");
 ";
-            }
-            if ($bodyHTML)
-            {
-                $script .= "
-    module.setBody(" . WFJSON::json_encode($bodyHTML) . ");
-";
-            }
-            if ($this->footer)
-            {
-                $script .= "
-    module.setFooter(" . WFJSON::json_encode($this->footer) . ");
-";
-            }
         }
         $script .= "
     module.render({$this->renderTo});
