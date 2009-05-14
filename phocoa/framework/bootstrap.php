@@ -9,7 +9,7 @@ require('framework/WFLog.php');    // need this for the PEAR_LOG_* constants bel
 
 // This version number should be updated with each release - this version number, among other things, is used to construct version-unique URLs for static resources
 // thus anytime anything in wwwroot/www/framework changes, this should be bumped. This version string should match [0-9\.]*
-define('PHOCOA_VERSION', '0.2.3');
+define('PHOCOA_VERSION', '0.2.4');
 
 if (IS_PRODUCTION)
 {
