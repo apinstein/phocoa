@@ -191,6 +191,8 @@ class WFRequestController extends WFObject
       * It is recommended to use this function to generate all URL's to pages in the application.
       * Of course you may append some PATH_INFO or params afterwards.
       *
+      * Guaranteed to *never* end in a trailing slash. Always add your own if you are addition additional stuff to the URL.
+      *
       * @static
       * @param string The module name (required).
       * @param string The page name (or NULL to use the default page).
@@ -200,7 +202,11 @@ class WFRequestController extends WFObject
     {
         $moduleName = ltrim($moduleName, '/');  // just in case a '/path' path is passed, we normalize it for our needs.
         if (empty($moduleName)) throw( new Exception("Module is required to generate a WFURL.") );
-        $url = WWW_ROOT . '/' . $moduleName . '/' . $pageName;
+        $url = WWW_ROOT . '/' . $moduleName;
+        if ($pageName !== NULL)
+        {
+            $url .= '/' . $pageName;
+        }
         return $url;
     }
 
