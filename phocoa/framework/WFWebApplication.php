@@ -318,6 +318,19 @@ class WFWebApplication extends WFObject
     }
 
     /**
+     *  Hook to call the authorizationInfoClass method fo the web application.
+     *  @see WFWebApplicationDelegate::authorizationInfoClass()
+     */
+    function authorizationInfoClass()
+    {
+        if (method_exists($this->delegate, 'authorizationInfoClass'))
+        {
+            return $this->delegate->authorizationInfoClass();
+        }
+        return 'WFAuthorizationInfo';
+    }
+
+    /**
      *  Helper function for encoding URL's in a fashion suitable for passing around as an invocationPath parameter.
      *
      *  This is just base64 modified for URL.

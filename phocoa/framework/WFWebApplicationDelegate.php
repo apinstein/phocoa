@@ -91,6 +91,11 @@ class WFWebApplicationDelegate
      *  @return boolean TRUE if the exception was handled and stop further processing, FALSE otherwise.
      */
     function handleUncaughtException($e) {}
-}
 
-?>
+    /**
+     * A callback function to allow the application to use a custom {@link WFAuthorizationInfo} subclass.
+     *
+     * @return string The class name to use as the {@link WFAuthorizationManager::$authorizationInfo}. Defaults to {@link WFAuthorizationInfo}.
+     */
+    function authorizationInfoClass() {}
+}

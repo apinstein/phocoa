@@ -7,6 +7,7 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.2.5 - ??
+- [new] Add WFWebApplicationDelegate::authorizationInfoClass() callback to allow use of custom WFAuthorizationInfo subclass throughout the application.
 
 Version 0.2.4 - 5/14/2009
 - [bugfix] Fix some bugs in the Postal Code validator.
