@@ -129,7 +129,8 @@
         <echo message="Propel general setup complete." />
         <echo message="To complete propel integration, complete the following manual tasks:" />
         <echo message="1. Make sure that propel is available in your include_path. If not, edit webapp.conf and munge include_path." />
-        <echo message="2. Edit the propel/runtime/classes/propel/om/BaseObject.php BaseObject declaration to this: 'abstract class BaseObject extends WFObject'." />
+        <echo message="2. Edit Propel's om/BaseObject.php BaseObject declaration to this: 'abstract class BaseObject extends WFObject'." />
+        <echo message="3. Edit Propel's util/BasePeer.php BasePeer declaration to this: 'class BasePeer extends WFObject'." />
         <input propertyname="db.generate" validArgs="yes,no" defaultValue="no">If your database already exists, we can generate a PHP interface to your database objects. Does your database already exist?</input>
         <if>
             <equals arg1="${db.generate}" arg2="1" />
