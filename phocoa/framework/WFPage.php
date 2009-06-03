@@ -93,11 +93,22 @@ interface WFPageDelegate
      *
      *  This is used to set up data default data that is needed should no action be taken. For instance, exeucting a default search query if no SEARCH field and "Search" action was run.
      *  This is common when loading a page for the first time (thus there is no way an action could have been run).
+     *  Note that this is only run if no action is *specified*. If you want to know if a specified action wasn't run due to invalid data, see {@link WFPageDelegate::willNotRunAction}.
      *
      *  @param object WFPage The page.
      *  @param array An array of parameters, with their values passed from the client.
      */
     function noAction($page, $params);
+
+    /**
+     *  Called by PHOCOA when an action is specified, but automatied validation failed (ie during propagation of form values via bindings)
+     *
+     *  If your controller needs to know when an action was invoke by the client but no executed due to invalid data, this is how you find out!
+     *
+     *  @param object WFPage The page.
+     *  @param array An array of parameters, with their values passed from the client.
+     */
+    function willNotRunAction($page, $params);
 
     /**
      *  Called just befored rendering, but after the skin has been initalized. 
@@ -1274,10 +1285,7 @@ class WFPage extends WFObject
                 $shouldRun = false;
                 if ($this->hasSubmittedForm())
                 {
-                    if (
-                            $rpc->runsIfInvalid() or
-                            (!$rpc->runsIfInvalid() and $this->formIsValid())
-                       )
+                    if ( $rpc->runsIfInvalid() or (!$rpc->runsIfInvalid() and $this->formIsValid()))
                     {
                         if ($rpc->runsIfInvalid())
                         {
@@ -1288,6 +1296,10 @@ class WFPage extends WFObject
                     else if ($rpc->isAjax())        // form data not valid (pre-action) and runsIfInvalid is false
                     {
                         $this->sendPageErrorsOverAjax();
+                    }
+                    if ($shouldRun === false)
+                    {
+                        $this->willNotRunAction();
                     }
                 }
                 else
@@ -1560,6 +1572,15 @@ class WFPage extends WFObject
         if ($this->delegate && method_exists($this->delegate, 'noAction'))
         {
             $this->delegate->noAction($this, $this->parameters());
+        }
+    }
+
+    function willNotRunAction()
+    {
+        WFLog::log("Running willNotRunAction...", WFLog::TRACE_LOG);
+        if ($this->delegate && method_exists($this->delegate, 'willNotRunAction'))
+        {
+            $this->delegate->willNotRunAction($this, $this->parameters());
         }
     }
 
