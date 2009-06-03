@@ -9,6 +9,7 @@ Legend:
 Version 0.2.5 - ??
 - [new] Add WFWebApplicationDelegate::authorizationInfoClass() callback to allow use of custom WFAuthorizationInfo subclass throughout the application.
 - [new] Added WFPageDelegate::willNotRunAction($page, $params) callback to allow controller to be notified of the situation where the action method won't be run because validation failed when propagating bindings. Without this callback it was impossible to detect this situation.
+- [new] phocoa commits now broadcast on twitter at @phocoa
 
 Version 0.2.4 - 5/14/2009
 - [bugfix] Fix some bugs in the Postal Code validator.
