@@ -218,7 +218,7 @@ class WFFixture extends WFObject
                     {
                         // is $v a php eval?
                         $matches = array();
-                        if (preg_match('/<\?php (.*)\?>/', $v, $matches))
+                        if (preg_match('/<\?php (.*)\?'.'>/', $v, $matches))    // goofy syntax there to prevent syntax coloring problems in rest of file due to close php tag
                         {
                             $v = eval( "return {$matches[1]};" );
                         }
@@ -248,7 +248,7 @@ class WFFixture extends WFObject
                             try {
                                 // is $v a php eval?
                                 $matches = array();
-                                if (preg_match('/<\?php (.*)\?>/', $v, $matches))
+                                if (preg_match('/<\?php (.*)\?'.'>/', $v, $matches))
                                 {
                                     $v = eval( "return {$matches[1]};" );
                                 }
@@ -260,7 +260,22 @@ class WFFixture extends WFObject
                         }
                     }
                     $rel = $entity->getRelationship($k);
-                    if (!$rel) throw( new WFException("{$k} is not a property or a relationship of {$class}.") );
+                    if (!$rel)
+                    {
+                        // maybe it's an instance variable or just a KVC property?
+                        try {
+                            // is $v a php eval?
+                            $matches = array();
+                            if (preg_match('/<\?php (.*)\?'.'>/', $v, $matches))
+                            {
+                                $v = eval( "return {$matches[1]};" );
+                            }
+                            $o->setValueForKey($v, $k);
+                            continue;
+                        } catch (Exception $e) {
+                            throw( new WFException("{$k} is not a manifested entity relationship or a KVC-compliant property of {$class}.") );
+                        }
+                    }
                     if ($rel->valueForKey('toOne'))
                     {
                         // check for "empty" object
