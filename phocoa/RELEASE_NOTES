@@ -7,20 +7,23 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.2.5 - ??
+- [BC-break] Updated the behavior of WFRequestController::WFURL to be consisent with other fuctions; now never ends in a trailing '/'.
+             The BC-break is that it used to end in a trailing slash if the $page param was null; thus any use of WFURL (smarty plugin too) that doesn't pass in a $page value
+             will need to be updated to add the '/' in the client code.
 - [new] Add WFWebApplicationDelegate::authorizationInfoClass() callback to allow use of custom WFAuthorizationInfo subclass throughout the application.
 - [new] Added WFPageDelegate::willNotRunAction($page, $params) callback to allow controller to be notified of the situation where the action method won't be run because validation failed when propagating bindings. Without this callback it was impossible to detect this situation.
 - [new] phocoa commits now broadcast on twitter at @phocoa
 
 Version 0.2.4 - 5/14/2009
-- [bugfix] Fix some bugs in the Postal Code validator.
-- [bugfix, BC-break] Fixes to YUI Module so that when building YUI module programmatically we always set header, body, and footer. Change buildModuleProgrammatically default to FALSE so that all containers are rendered to the document.body by default. This prevents all kinds of odd clipping problems with CSS and *shouldn't* cause problems for BC. I dont belive anyone was really relying on that behavior; I think it was just our default b/c of the set header/body/footer bug which caused headers to always show even if none was provided.
-- [bugfix, BC-break] You can now successfully submit forms in a WFYAHOO_widget_PhocoaDialog via normal submit now and have a proper result. Previously the result would be to show an AJAX xml response as HTML on page, rather than properly returning the repsonse page.
+- [BC-break] If an RPC is detected and runsIfInvalid=true then the page's ignoreErrors() will default to true. This prevents any errors from showing on the page. This is the normative use case for ServerAction, but it could cause a BC problem if anyone is using runsIfInvalid=true and expecting errors to be displayed (doubtful that this affects anyone).
+- [BC-break, bugfix] You can now successfully submit forms in a WFYAHOO_widget_PhocoaDialog via normal submit now and have a proper result. Previously the result would be to show an AJAX xml response as HTML on page, rather than properly returning the repsonse page.
     An isAjax property was added to phocoa's RPC mechanism. This variable tracks whether an ajax response (ie json, xml) is requested from the client (as opposed to a full html page). This piece of additional information is critical for WFPage to know whether or not to automatically wrap errors up as AJAX and send them back to the client.
+- [bugfix] Fix some bugs in the Postal Code validator.
+- [BC-break, bugfix] Fixes to YUI Module so that when building YUI module programmatically we always set header, body, and footer. Change buildModuleProgrammatically default to FALSE so that all containers are rendered to the document.body by default. This prevents all kinds of odd clipping problems with CSS and *shouldn't* cause problems for BC. I dont belive anyone was really relying on that behavior; I think it was just our default b/c of the set header/body/footer bug which caused headers to always show even if none was provided.
 - [new] Added __rootSkin template variable to all page templates to make it easier to use skin resources in modules that are used with WFModuleView. Without access to __rootSkin you had to add code to willRenderPage() to stuff the skin into the template to achieve this on every module where you needed access to the skin.
 - [new] onEvent: x do s!:noAction now routes to WFPage's noAction handler (so that the page delegate does not *have* to have that function declared).
 - [new] ServerAction now includes all RPC paramaters in the request.
 - [new] Added a modifier to onEvent: x do s!:actionName (the ! means runsIfInvalid=true)
-- [bc-break] If an RPC is detected and runsIfInvalid=true then the page's ignoreErrors() will default to true. This prevents any errors from showing on the page. This is the normative use case for ServerAction, but it could cause a BC problem if anyone is using runsIfInvalid=true and expecting errors to be displayed (doubtful that this affects anyone).
 - [new] Add class attribute support to WFSelect.
 - [new] Add errorCodesForKey() method to WFErrorsException to make looking for certain errors easier for test writing.
 - [new] Add createTestStub phocoa task to create test stubs for PHPUnit.
@@ -41,6 +44,8 @@ Version 0.2.2 - 3/5/2009
 - minor tweaks.
 
 Version 0.2.1 - 2/19/2008
+- [BC-break] Changed the default error code for WFError to NULL from 0. I don't think anyone is relying on this.
+- [BC-break] Changed the signature of WFModuleInvocation::quickModule() to mirror that of WFModule constructor. I searched all of my own projects and had no actual uses of quickModule() that would be affected by this change, but I am noting it anyway for others.
 - [new] Add KVC method setValuesForKeys()
 - [new] Add experimental inter-property validation mechanism, see KVC method validateObject().
 - [new] Add addErrors() convenience methods to WFPage and WFWidget.
@@ -58,10 +63,9 @@ Version 0.2.1 - 2/19/2008
 - [new] Upgrade YUI to 2.7.0.
 - [bugfix] WFYAHOO_widget_PhocoaDialog now works properly with NullPlaceholders in WFTextField and WFTextArea. WFYAHOO_widget_PhocoaDialog now allows the loaded content to execute embedded scripts before munging the focus.
 - [bugfix] WFYAHOO_widget_TreeView would fail to load data that had & characters in the ID. Fixed.
-- [BC-break] Changed the default error code for WFError to NULL from 0. I don't think anyone is relying on this.
-- [BC-break] Changed the signature of WFModuleInvocation::quickModule() to mirror that of WFModule constructor. I searched all of my own projects and had no actual uses of quickModule() that would be affected by this change, but I am noting it anyway for others.
 
 Version 0.2.0 - 1/21/2009
+- [BC-break] Refactor WFFixture and WFYaml. Look at new API docs if you are using these APIs in your code; the fixes are very easy.
 - [new] Add preventAbandondedForm property to WFYAHOO_widget_Tab. Given the ID of a form element, this will prevent navigation to another tab with "dirty" data.
 - [new] Upgrade YUI to 2.6.0.
 - [new] Upgrade Prototype to 1.6.0.3
@@ -87,7 +91,6 @@ Version 0.2.0 - 1/21/2009
 - [bugfix] Updated generator to no longer create widgets with id's "new" or "delete" which cause problems for javascript in IE.
 - [bugfix] YUI PhocoaDialog now correctly handles fixedcenter.
 - [bugfix] When a non-ajax form is submitted by PhocoaDialog, and there is an error, phocoa now properly returns an HTML response rather than an AJAX response. Essentially there was a bug in the action response handler that assumed being submitted via XHR meant you were an AJAX form submit, which isn't always true.
-- [BC-break] Refactor WFFixture and WFYaml. Look at new API docs if you are using these APIs in your code; the fixes are very easy.
 
 
 Version 0.1.9 - 9/28/2008
@@ -122,9 +125,9 @@ Version 0.1.7 - 9/27/2008
 - [new] Complete WFMenuItemBasic; add support for additional parameters in WFYAHOO_widget_Menu. Add support for inline WFMenuItemBasic objects in nestedArrayToMenuTree
 
 Version 0.1.6 - 8/7/2008
-- [bugfix] Custom action methods on WFSubmit widgets now work in conjunction with WFForm.isAjax. Previously the "default" action name was always used even if a custom action was specified.
-- [bc-break] The "onEvent: <event> do j:" syntax was updated so that it no longer stops the javascript event by default. If you want to stop the javascript event now, 
+- [BC-break] The "onEvent: <event> do j:" syntax was updated so that it no longer stops the javascript event by default. If you want to stop the javascript event now, 
   do "this.stopEvent(event);" inside of your "j:" handler.
+- [bugfix] Custom action methods on WFSubmit widgets now work in conjunction with WFForm.isAjax. Previously the "default" action name was always used even if a custom action was specified.
 - [new] Added WFFixture class to handle loading of fixture data via YAML files.
 - [bugfix] WFSelect now treats all values as type string, thus fixing a problem where options "" and "0" were not treated as distinct values.
 
