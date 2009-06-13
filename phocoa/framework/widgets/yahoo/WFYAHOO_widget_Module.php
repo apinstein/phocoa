@@ -207,6 +207,14 @@ PHOCOA.widgets.{$this->id}.Module.queueProps = function(o) {
 };
 PHOCOA.widgets.{$this->id}.Module.init = function() {
     var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\");
+    module.subscribe('changeBody', function(el) { PHOCOA.widgets.{$this->id}.scriptsEvald = false; } );
+    module.showEvent.subscribe(function(el) {
+        if (!PHOCOA.widgets.{$this->id}.scriptsEvald)
+        {
+            PHOCOA.widgets.{$this->id}.scriptsEvald = true;
+            this.body.innerHTML.evalScripts();
+        }
+    }, module);
     module.cfg.queueProperty('visible', " . ($this->visible ? 'true' : 'false') . ");
     module.cfg.queueProperty('monitorresize', " . ($this->monitorresize ? 'true' : 'false') . ");
     PHOCOA.widgets.{$this->id}.{$this->containerClass}.queueProps(module);";
