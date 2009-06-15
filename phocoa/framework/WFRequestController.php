@@ -80,6 +80,14 @@ class WFRequestController extends WFObject
     }
 
     /**
+     * Error handler callback for PHP fatal errors; helps synthesize PHP errors and exceptions into the same handling workflow.
+     */
+    function handleError($errNum, $errString, $file, $line, $contextArray)
+    {
+        $this->handleException( new Exception("FATAL ERROR: {$errNum}, {$errString}\nFile: {$file}:{$line}\n" . print_r($contextArray, true)) );
+    }
+
+    /**
      * Run the web application for the current request.
      *
      * NOTE: Both a module and page must be specified in the URL. If they are not BOTH specified, the server will REDIRECT the request to the full URL.
@@ -111,6 +119,7 @@ class WFRequestController extends WFObject
             $modInvocationPath = substr($modInvocationPath, 0, $paramsPos);
         }
         
+        set_error_handler(array($this, 'handleError'), E_ALL);
         try {
             if ($modInvocationPath == '')
             {

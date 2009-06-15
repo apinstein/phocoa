@@ -14,6 +14,7 @@ Version 0.2.5 - ??
 - [new] Added WFPageDelegate::willNotRunAction($page, $params) callback to allow controller to be notified of the situation where the action method won't be run because validation failed when propagating bindings. Without this callback it was impossible to detect this situation.
 - [new] phocoa commits now broadcast on twitter at @phocoa
 - [new] WFYAHOO_widget_Container subclasses now all automatically eval scripts in the body. This allows for seamless use of <script> blocks in YUI modules.
+- [new] Uncaught Exception handler now also grabs PHP Fatal Catchable errors and routes them into the exception workflow for even more error-handling goodness.
 
 Version 0.2.4 - 5/14/2009
 - [BC-break] If an RPC is detected and runsIfInvalid=true then the page's ignoreErrors() will default to true. This prevents any errors from showing on the page. This is the normative use case for ServerAction, but it could cause a BC problem if anyone is using runsIfInvalid=true and expecting errors to be displayed (doubtful that this affects anyone).
