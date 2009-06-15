@@ -119,7 +119,7 @@ class WFRequestController extends WFObject
             $modInvocationPath = substr($modInvocationPath, 0, $paramsPos);
         }
         
-        set_error_handler(array($this, 'handleError'), E_ALL);
+        set_error_handler(array($this, 'handleError'), E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_RECOVERABLE_ERROR);
         try {
             if ($modInvocationPath == '')
             {
