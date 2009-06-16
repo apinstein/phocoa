@@ -13,6 +13,7 @@ Version 0.2.5 - ??
 - [new] Add WFWebApplicationDelegate::authorizationInfoClass() callback to allow use of custom WFAuthorizationInfo subclass throughout the application.
 - [new] Added WFPageDelegate::willNotRunAction($page, $params) callback to allow controller to be notified of the situation where the action method won't be run because validation failed when propagating bindings. Without this callback it was impossible to detect this situation.
 - [new] phocoa commits now broadcast on twitter at @phocoa
+- [new] The baseDir property of WFImage now supports WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN.
 - [new] WFYAHOO_widget_Container subclasses now all automatically eval scripts in the body. This allows for seamless use of <script> blocks in YUI modules.
 - [new] Uncaught Exception handler now also grabs PHP Fatal Catchable errors and routes them into the exception workflow for even more error-handling goodness.
 

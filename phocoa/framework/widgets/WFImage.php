@@ -145,7 +145,10 @@ class WFImage extends WFWidget
         $newValBinding->setReadOnly(true);
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $myBindings[] = $newValBinding;
-        $myBindings[] = new WFBindingSetup('baseDir', 'The base path to the image. Blank by default.');
+        $newValBinding = new WFBindingSetup('baseDir', 'The base path to the image. Blank by default.'); 
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
         $myBindings[] = new WFBindingSetup('filesystemBasePath', 'The base path to the image. Blank by default.');
         $myBindings[] = new WFBindingSetup('width', 'The width in pixels of the image, or blank.');
         $myBindings[] = new WFBindingSetup('height', 'The height in pixels of the image, or blank.');
