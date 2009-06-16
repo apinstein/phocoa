@@ -91,7 +91,7 @@ class WFShell extends WFObject
             // after the eval, we might have new classes. Only update it if real readline is enabled
             if (!empty($this->autocompleteList)) $this->autocompleteList = array_merge($this->autocompleteList, get_declared_classes());
         } catch (Exception $e) {
-            print "Uncaught exception with command:\n{$e}\n";
+            print "Uncaught exception with command:\n" . $e->getMessage() . "\n";
         }
     }
     
