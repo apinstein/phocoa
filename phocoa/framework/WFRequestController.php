@@ -102,6 +102,7 @@ class WFRequestController extends WFObject
      *       NOTE: Partial solution; use /WFNull/ to indicate NULL param instead of // until we figure something out.
      *       NOTE: Recent change to REQUEST_URI instead of PATH_INFO to solve decoding problem seems to have also solved the // => / conversion problem... test more!
      *       WORRY: That the new PATH_INFO calculation will fail when using aliases other than WWW_ROOT. IE: /products/myProduct might break it...
+     * @todo The set_error_handler doesn't seem to work very well. PHP issue? Or am I doing it wrong? For instance, it doesn't catch $obj->nonExistantMethod().
      */
     function handleHTTPRequest()
     {
