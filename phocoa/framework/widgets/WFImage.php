@@ -144,11 +144,13 @@ class WFImage extends WFWidget
         $newValBinding = new WFBindingSetup('filesystemPath', 'The path to the image on the filesystem. Will be concatenated on filesystemBasePath.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
         $newValBinding->setReadOnly(true);
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+
         $myBindings[] = $newValBinding;
-        $newValBinding = new WFBindingSetup('baseDir', 'The base path to the image. Blank by default.'); 
+        $newValBinding = new WFBindingSetup('baseDir', 'The base path to the image. Blank by default.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE)); 
         $newValBinding->setReadOnly(true);
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $myBindings[] = $newValBinding;
+
         $myBindings[] = new WFBindingSetup('filesystemBasePath', 'The base path to the image. Blank by default.');
         $myBindings[] = new WFBindingSetup('width', 'The width in pixels of the image, or blank.');
         $myBindings[] = new WFBindingSetup('height', 'The height in pixels of the image, or blank.');
