@@ -38,7 +38,10 @@ class WFKeyValueValidators extends WFObject
                                     ), $options);
 
         //  normalize
-        $value = filter_var($value, FILTER_SANITIZE_EMAIL);
+        if (function_exists('filter_var'))
+        {
+            $value = filter_var($value, FILTER_SANITIZE_EMAIL);
+        }
         $edited = true;
 
         if (empty($value))
@@ -54,7 +57,14 @@ class WFKeyValueValidators extends WFObject
             }
         }
 
-        $okFilter = filter_var($value, FILTER_VALIDATE_EMAIL);
+        if (function_exists('filter_var'))
+        {
+            $okFilter = filter_var($value, FILTER_VALIDATE_EMAIL);
+        }
+        else
+        {
+            $okFilter = preg_match('/^[_A-Za-z0-9-\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$/', $value);
+        }
         if (!$okFilter)
         {
             $errors[] = new WFError("{$options['key']} doesn't seem to be a email address. Please try again in the format 'email@domain.com'.");
@@ -86,7 +96,14 @@ class WFKeyValueValidators extends WFObject
                                     ), $options);
         
         // normalize
-        $value = filter_var($value, FILTER_SANITIZE_URL);
+        if (function_exists('filter_var'))
+        {
+            $value = filter_var($value, FILTER_SANITIZE_URL);
+        }
+        else
+        {
+            $value = trim($value);
+        }
         $edited = true;
 
         if (empty($value))
@@ -107,10 +124,17 @@ class WFKeyValueValidators extends WFObject
             $value = 'http://' . $value;
         }
 
-        $okFilter = filter_var($value, FILTER_VALIDATE_URL);
-        if (!$okFilter)
+        if (function_exists('filter_var'))
         {
-            $errors[] = new WFError("{$options['key']} is not valid.");
+            $okFilter = filter_var($value, FILTER_VALIDATE_URL);
+            if (!$okFilter)
+            {
+                $errors[] = new WFError("{$options['key']} is not valid.");
+            }
+        }
+        else
+        {
+            $okFilter = true;
         }
         return $okFilter;
     }
