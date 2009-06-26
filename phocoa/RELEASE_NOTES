@@ -16,6 +16,7 @@ Version 0.2.5 - ??
 - [new] The baseDir property of WFImage now supports WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN.
 - [new] WFYAHOO_widget_Container subclasses now all automatically eval scripts in the body. This allows for seamless use of <script> blocks in YUI modules.
 - [new] Uncaught Exception handler now also grabs PHP Fatal Catchable errors and routes them into the exception workflow for even more error-handling goodness.
+- [bugfix] Fix nullPlaceholder behavior on IE. Bug would cause the text "null" to appear in textfield instead of "" on focus.
 
 Version 0.2.4 - 5/14/2009
 - [BC-break] If an RPC is detected and runsIfInvalid=true then the page's ignoreErrors() will default to true. This prevents any errors from showing on the page. This is the normative use case for ServerAction, but it could cause a BC problem if anyone is using runsIfInvalid=true and expecting errors to be displayed (doubtful that this affects anyone).
