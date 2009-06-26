@@ -2,41 +2,21 @@
 
 <p>WFTextField is a simple text field.</p>
 
-{WFTextField id="name"}
+{WFView id="name"}
+{WFView id="fancyField"}
 
 {literal}
 <hr>
 <h3>.tpl file</h3>
 <pre>
-{WFTextField id="name"}
+{WFView id="name"}
+{WFView id="fancyField"}
 </pre>
 
-<h3>.instances file</h3>
-<pre>
-$__instances = array(
-	'name' => array('class' => 'WFTextField', 'children' => array()),
-);
-</pre>
-
-<h3>.config file</h3>
-
-<pre>
-$__config = array(
-	'name' => array(
-		'bindings' => array(
-			'value' => array(
-				'instanceID' => 'person',
-				'controllerKey' => 'selection',
-				'modelKeyPath' => 'name',
-			),
-		),
-	),
-);
-</pre>
+{/literal}
+<pre>{php}echo htmlentities(file_get_contents(FRAMEWORK_DIR . '/modules/examples/widgets/textField.yaml'));{/php}</pre>
 
 <h3>Module Code</h3>
 <pre>
 none
 </pre>
-{/literal}
-

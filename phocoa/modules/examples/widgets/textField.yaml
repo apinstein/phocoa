@@ -6,3 +6,8 @@ name:
       instanceID   : person
       modelKeyPath : name
   class   : WFTextField
+fancyField: 
+  class   : WFTextField
+  properties:
+    nullPlaceholder: Enter Text Here
+    
