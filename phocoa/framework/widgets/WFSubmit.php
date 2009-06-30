@@ -143,16 +143,16 @@ class WFSubmit extends WFWidget
                     ' value="' . $this->label() . '"' . 
                     $this->getJSActions() . 
                     "/>\n" . 
-                    $this->jsStartHTML() . $this->getListenerJS() . $this->jsEndHTML();
+                    $this->jsStartHTML();
 
         if ($this->duplicateSubmitMessage or $this->postSubmitLabel)
         {
             $duplicateSubmitMessage = ($this->duplicateSubmitMessage ? $this->duplicateSubmitMessage : '');
             $postSubmitLabel = ($this->postSubmitLabel ? $this->postSubmitLabel : '');
-            $html .= $this->jsStartHTML() . "
+            $html .= "
             PHOCOA.namespace('widgets.{$this->id}');
             PHOCOA.widgets.{$this->id}.isSubmitted = false;
-            $('{$this->id}').observe('click', function(e) {
+            var preventFunction = function(e) {
                 var duplicateSubmitMessage = " .  WFJSON::json_encode($duplicateSubmitMessage) . ";
                 var postSubmitLabel = " .  WFJSON::json_encode($postSubmitLabel) . ";
                 if (PHOCOA.widgets.{$this->id}.isSubmitted && duplicateSubmitMessage)
@@ -165,9 +165,16 @@ class WFSubmit extends WFWidget
                     $('{$this->id}').setValue(postSubmitLabel);
                 }
                 PHOCOA.widgets.{$this->id}.isSubmitted = true;
-            });
-            " . $this->jsEndHTML();
+            };
+            $('{$this->id}').observe('click', preventFunction);
+            // define the handleEvent function before the WFAction initializes; it needs it to be defined.
+            PHOCOA.namespace('widgets.{$this->id}.events.click');
+            PHOCOA.widgets['{$this->id}'].events['click'].handleEvent = function(e) {
+                preventFunction(e);
+            };
+            ";
         }
+        $html .= $this->getListenerJS() . $this->jsEndHTML();
 
         return $html;
     }

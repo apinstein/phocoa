@@ -444,6 +444,7 @@ PHOCOA.WFAction.prototype = {
             {
                 this.callback.apply(this, jsCallbackArgs);
             }
+            if (event.stopped) return;
 
             // the event callback for RPC is of the prototype: phpFunc($page, $sender, $event, [$arg1, $arg2, ..])
             // we just pass the senderID to the server; it will convert it to an object.
@@ -465,6 +466,7 @@ PHOCOA.WFAction.prototype = {
             if (this.callback)
             {
                 this.callback.apply(this, jsCallbackArgs);
+                if (event.stopped) return;
             }
             else
             {
