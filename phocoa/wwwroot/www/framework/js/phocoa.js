@@ -1,8 +1,7 @@
 /**
  * The PHOCOA global namespace
- * @constructor
  *
- * The PHOCOA namespace contains JS utility and support functions.
+ * The PHOCOA namespace contains JS utility and support functions. Depends on Prototype.
  */
 window.PHOCOA = window.PHOCOA || {};
 
@@ -68,6 +67,81 @@ PHOCOA.importJS = function(path, globalNamespace, localNamespace) {
 //        head.appendChild(script);
 //        //alert('adding script tag for: ' +script.src);
 //    }
+};
+
+// accepts options: http://developer.yahoo.com/yui/yuiloader/#config
+// ignores options: onSuccess, onFailure, onTimeout, onProgress, scope, data
+PHOCOA.YUI = function(options)
+{
+    this.pendingRequires = [];  // fifo queue
+    this.filter = null;
+    this.currentlyProcessing = undefined;
+
+    this.yuiLoader = new YAHOO.util.YUILoader();
+
+    // enforce singleton
+    if (PHOCOA.YUILoader !== undefined) throw("PHOCOA.YUI is a singleton. Do not instantiate it more than once");
+    PHOCOA.YUILoader = this;
+
+    // configure loader
+    this.yuiLoader.scope = this;
+    this.yuiLoader.onSuccess = this.onSuccess;
+
+    // pass-thru options
+    options = options || {};
+    var notAllowedOptions = ['onSuccess', 'onFailure', 'onTimeout', 'onProgress', 'scope', 'data'];
+    $H(options).each( function(pair) {
+        if (notAllowedOptions.indexOf(pair.key) !== -1) throw("option " + pair.key + " not allowed in PHOCOA.YUI constructur as it will be overridden.");
+        this.yuiLoader[pair.key] = pair.value;
+    }.bind(this));
+};
+PHOCOA.YUI.prototype = {
+    // accepts options: onSuccess, scope, data, [coming soon: onFailure, onTimeout, onProgress]
+    require: function(modulesArray, options) {
+        options = options || {};
+        this.pendingRequires.push( { 'require': modulesArray, 'options': options} );
+        //console.log("Request to load: " + modulesArray.toJSON() + "; load queue length: " + this.pendingRequires.length);
+        this.loadNext();
+    },
+
+    loadNext: function()
+    {
+        if (this.currentlyProcessing)
+        {
+            //console.log('already loading');
+            return;   // skip if already loading
+        }
+
+        this.currentlyProcessing = this.pendingRequires.shift();
+        if (this.currentlyProcessing === undefined)
+        {
+            //console.log('no items neededing requiring');
+            return;
+        }
+
+        //console.log('passing to YUI');
+        this.yuiLoader.require(this.currentlyProcessing.require);
+        this.yuiLoader.insert();
+    },
+
+    onSuccess: function()
+    {
+        //console.log("Just loaded: " + this.currentlyProcessing.require.join(','));
+        if (this.currentlyProcessing.options.onSuccess)
+        {
+            //console.log('calling onSuccess');
+            if (this.currentlyProcessing.options.scope)
+            {
+                this.currentlyProcessing.options.onSuccess.apply(this.currentlyProcessing.options.scope, [ this.currentlyProcessing.data ]);
+            }
+            else
+            {
+                this.currentlyProcessing.options.onSuccess(this.currentlyProcessing.data);
+            }
+        }
+        this.currentlyProcessing = undefined;
+        this.loadNext();
+    }
 };
 
 PHOCOA.sandbox = function(jsCode, globalNamespace, localNamespace) {
@@ -430,39 +504,5 @@ PHOCOA.WFAction.prototype = {
             cbArgs.splice(0, 0, theResponse);
             PHOCOA.widgets[this.elId].events[this.eventName].ajaxSuccess.apply(null, cbArgs);
         }
-    }
-};
-
-/**
- * YUILoader proxy.
- * @todo Finish this... it isn't used presently
- */
-PHOCOA.namespace('yuiloader');
-PHOCOA.yuiloaderO = {
-    callbacks: [],
-    register: function(callback)
-    {
-        this.callbacks.push(callback);
-    },
-    doneLoading: function()
-    {
-        this.callbacks.each(function(cb) { cb(); } );
-    },
-    doLoading: function()
-    {
-        PHOCOA.yuiloader = new PHOCOA.yuiloaderO;
-
-        // on-demand loading of YUILoader started causing bugs with PhocoaDialog, so for now we hard-code includsion of yuiloader in the head tag.
-        //PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-beta-" . ($this->debug() ? 'debug' : 'min') . ".js', 'YAHOO');
-        var yl = new YAHOO.util.YUILoader();
-        // @todo add customModules support back
-        /*
-        " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
-        yl.require(" . join(',', $this->quotedRequired()) . ");
-        yl.allowRollup = " . ($this->allowRollup() ? 'true' : 'false') . ";
-        yl.loadOptional = " . ($this->loadOptional() ? 'true' : 'false') . ";
-        yl.onSuccess = PHOCOA.yuiloader.doneLoading;
-        yl.insert( { " . ($this->debug() ? 'filter: "DEBUG"' : NULL) . " } );
-        */
     }
 };

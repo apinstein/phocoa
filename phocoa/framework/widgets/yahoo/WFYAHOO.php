@@ -30,7 +30,7 @@ class WFYAHOO_yuiloader
 
     private function __construct() 
     {
-        $this->base = WFYAHOO::yuiPath() . '/';
+        $this->base = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/yui/';
     }
 
     public function addModule($name, $type, $path, $fullpath, $requires, $optional, $after, $varName)
@@ -63,6 +63,21 @@ class WFYAHOO_yuiloader
         return self::$_instance;
     }
 
+    public function getSetupJS()
+    {
+        $options = array();
+        foreach (array('base', 'loadOptional', 'allowRollup') as $k) {
+            $options[$k] = $this->$k();
+        }
+        if ($this->debug())
+        {
+            $options['filter'] = "DEBUG";
+        }
+        $optionsJSON = WFJSON::encode($options);
+
+        return "<script>new PHOCOA.YUI({$optionsJSON});</script>"; 
+    }
+
     public function yuiRequire($requires)
     {
         $modules = explode(',', $requires);
@@ -90,11 +105,27 @@ class WFYAHOO_yuiloader
         $this->allowRollup = $b;
     }
 
+    /**
+     * Set the "base" URL for loading YUI assets. Path must end in '/'.
+     *
+     * If you want to override this, the best place is in the WFWebApplicationDelegate::initialize() method.
+     *
+     * NOTE the contrast: most PHOCOA paths end WITHOUT trailing '/', but YAHOO uses the opposite convention so we stick with their convention.
+     *
+     * @param string The Base URL path for YUI assets. Defaults to the local framework version.
+     */
     public function setBase($path)
     {
         $this->base = $path;
     }
 
+    /**
+     * Get the "base" URL for loading YUI assets. Paths end in '/'.
+     *
+     * NOTE the contrast: most PHOCOA paths end WITHOUT trailing '/', but YAHOO uses the opposite convention so we stick with their convention.
+     *
+     * @return string The Base URL path for YUI assets. Defaults to the local framework version.
+     */
     public function base()
     {
         return $this->base;
@@ -128,9 +159,9 @@ class WFYAHOO_yuiloader
 
         $customModules = NULL;
         $indent = 
-"                         ";
+"                             ";
         foreach ($this->customModules as $mod) {
-            $customModules .= "\n{$indent}yl.addModule({";
+            $customModules .= "\n{$indent}PHOCOA.YUILoader.yuiLoader.addModule({";
             foreach ($mod as $k => $v) {
                 if (is_array($v) and count($v))
                 {
@@ -148,16 +179,9 @@ class WFYAHOO_yuiloader
 
         return "
                      (function() {
-                         // on-demand loading of YUILoader started causing bugs with PhocoaDialog, so for now we hard-code includsion of yuiloader in the head tag.
-                         //PHOCOA.importJS('" . WFView::yuiPath() . "/yuiloader/yuiloader-" . ($this->debug() ? 'debug' : 'min') . ".js', 'YAHOO');
-                         var yl = new YAHOO.util.YUILoader();" .
-                         $customModules . "
-                         " . ($this->base() ? 'yl.base = "' . $this->base() . '";' : NULL) . "
-                         yl.require(" . join(',', $this->quotedRequired()) . ");
-                         yl.allowRollup = " . ( ($this->allowRollup() && !$this->debug()) ? 'true' : 'false') . ";
-                         yl.loadOptional = " . ($this->loadOptional() ? 'true' : 'false') . ";
-                         " . ($callback ? "yl.onSuccess = {$callback};" : "") . "
-                         yl.insert( { " . ($this->debug() ? 'filter: "DEBUG"' : NULL) . " } );
+                         {$customModules}
+                         onSuccess = " . ($callback ? $callback : "null") . ";
+                         PHOCOA.YUILoader.require([" . join(',', $this->quotedRequired()) . "], { 'onSuccess': onSuccess } );
                      })();
          ";
     }
@@ -286,6 +310,7 @@ abstract class WFYAHOO extends WFWidget
             {
                 $html .= $this->jsStartHTML() . $this->yuiloader()->jsLoaderCode(
                                                                             "function() {
+    // alert('YUI deps loaded callback for \'{$this->id}\' widget');
     PHOCOA.namespace('widgets.{$this->id}.yuiDelegate');
     // let widget inject JS that depends on YUI libs, and define the init function
     {$initJSCode}

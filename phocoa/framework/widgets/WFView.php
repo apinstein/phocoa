@@ -272,7 +272,7 @@ abstract class WFView extends WFObject
 
     public static function yuiPath()
     {
-        return WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/yui';
+        return WFYAHOO_yuiloader::sharedYuiLoader()->base();
     }
 
     public static function exposedProperties()

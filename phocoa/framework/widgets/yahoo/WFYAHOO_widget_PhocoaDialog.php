@@ -116,6 +116,7 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
 
     function initJS($blockContent)
     {
+        $script = "";
         $script .= parent::initJS($blockContent);
         $script .= "
 PHOCOA.namespace('widgets.{$this->id}.PhocoaDialog');
