@@ -337,6 +337,7 @@ class WFYAHOO_widget_TabView extends WFYAHOO
                                         var confirmDialog = new YAHOO.widget.SimpleDialog('dlg', { 
                                                                                             //effect:{effect:YAHOO.widget.ContainerEffect.FADE, duration:0.25}, 
                                                                                             fixedcenter:true,
+                                                                                            width: '20em',
                                                                                             modal:true,
                                                                                             visible:false,
                                                                                             draggable:false,
