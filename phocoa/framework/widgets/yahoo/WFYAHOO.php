@@ -23,6 +23,8 @@ class WFYAHOO_yuiloader
     protected $base;
     protected $required = array();
     protected $allowRollup = true;
+    protected $combine = false;
+    protected $comboBase = null;
     protected $loadOptional = false;
     protected $customModules = array();
 
@@ -66,7 +68,8 @@ class WFYAHOO_yuiloader
     public function getSetupJS()
     {
         $options = array();
-        foreach (array('base', 'loadOptional', 'allowRollup') as $k) {
+        foreach (array('base', 'loadOptional', 'allowRollup', 'combine', 'comboBase') as $k) {
+            if ($this->$k() === NULL) continue;
             $options[$k] = $this->$k();
         }
         if ($this->debug())
@@ -95,6 +98,28 @@ class WFYAHOO_yuiloader
         return $a;
     }
 
+    public function combine()
+    {
+        return $this->combine;
+    }
+
+    public function setCombine($b)
+    {
+        $this->combine = $b;
+        return $this;
+    }
+
+    public function comboBase()
+    {
+        return $this->comboBase;
+    }
+
+    public function setComboBase($b)
+    {
+        $this->comboBase = $b;
+        return $this;
+    }
+
     public function allowRollup()
     {
         return $this->allowRollup;
@@ -103,6 +128,7 @@ class WFYAHOO_yuiloader
     public function setAllowRollup($b)
     {
         $this->allowRollup = $b;
+        return $this;
     }
 
     /**
@@ -117,6 +143,7 @@ class WFYAHOO_yuiloader
     public function setBase($path)
     {
         $this->base = $path;
+        return $this;
     }
 
     /**
@@ -139,6 +166,7 @@ class WFYAHOO_yuiloader
     public function setLoadOptional($b)
     {
         $this->loadOptional = $b;
+        return $this;
     }
 
     public function loadOptional()
