@@ -307,19 +307,13 @@ class WFYAHOO_widget_TabView extends WFYAHOO
                             {
                                 // beforeActiveIndexChange, beforeActiveTabChange. return false to cancel
                                 $html .= "
-            PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs." . $tab->id() . " = \$H(\$('" . $tab->preventAbandondedForm() . "').serialize(true)).toJSON();
-            tabView.addListener('beforeActiveTabChange', function(o) {
+            YAHOO.util.Event.onContentReady('" . $tab->preventAbandondedForm() ."', function(e) {
+                PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs." . $tab->id() . " = \$H(\$('" . $tab->preventAbandondedForm() . "').serialize(true)).toJSON();
+                tabView.addListener('beforeActiveTabChange', function(o) {
                                     var losingTabId = o.prevValue.get('contentEl').id;
                                     var theForm = \$('" . $tab->preventAbandondedForm() . "');
                                     if (theForm && typeof PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId] !== 'undefined' && \$H(theForm.serialize(true)).toJSON() !== PHOCOA.widgets.{$this->id}.preventAbandondedFormsTabs[losingTabId])
                                     {
-                                        var confirmDialog = new YAHOO.widget.SimpleDialog('dlg', { 
-                                                                                            width: '20em', 
-                                                                                            //effect:{effect:YAHOO.widget.ContainerEffect.FADE, duration:0.25}, 
-                                                                                            fixedcenter:true,
-                                                                                            modal:true,
-                                                                                            visible:false,
-                                                                                            draggable:false });
                                         var handleSave = function() {
                                             this.hide();
                                             theForm.submit();
@@ -340,20 +334,28 @@ class WFYAHOO_widget_TabView extends WFYAHOO
                                         var handleCancel = function() {
                                             this.hide();
                                         };
-                                        var myButtons = [   { text:'Save', handler: handleSave },
-                                                            { text:'Don\'t Save', handler: handleDontSave },
-                                                            { text:'Cancel', handler: handleCancel, isDefault: true },
-                                                        ];
+                                        var confirmDialog = new YAHOO.widget.SimpleDialog('dlg', { 
+                                                                                            //effect:{effect:YAHOO.widget.ContainerEffect.FADE, duration:0.25}, 
+                                                                                            fixedcenter:true,
+                                                                                            modal:true,
+                                                                                            visible:false,
+                                                                                            draggable:false,
+                                                                                            close: false,
+                                                                                            icon: YAHOO.widget.SimpleDialog.ICON_WARN,
+                                                                                            buttons: [
+                                                                                                        { text:'Save', handler: handleSave },
+                                                                                                        { text:'Don\'t Save', handler: handleDontSave },
+                                                                                                        { text:'Cancel', handler: handleCancel, isDefault: true }
+                                                                                            ]
+                                                                                          });
                                         confirmDialog.setHeader('Warning: Unsaved data!');
                                         confirmDialog.setBody('You are navigating away from a tab that has unsaved changes. What do you want to do with that unsaved data?');
-                                        confirmDialog.cfg.queueProperty('close',false);
-                                        confirmDialog.cfg.queueProperty('icon',YAHOO.widget.SimpleDialog.ICON_WARN); 
-                                        confirmDialog.cfg.queueProperty('buttons', myButtons);
                                         confirmDialog.render(document.body);
                                         confirmDialog.show();
                                         return false;   // don't switch tabs; we'll go to the clicked tab as needed in callbacks
                                     }
-                                });";
+                                });
+            });";
                             }
                             break;
                     }
