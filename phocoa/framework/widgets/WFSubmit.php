@@ -152,7 +152,9 @@ class WFSubmit extends WFWidget
             $html .= "
             PHOCOA.namespace('widgets.{$this->id}');
             PHOCOA.widgets.{$this->id}.isSubmitted = false;
-            var preventFunction = function(e) {
+            // define the handleEvent function before the WFAction initializes; it needs it to be defined.
+            PHOCOA.namespace('widgets.{$this->id}.events.click');
+            PHOCOA.widgets['{$this->id}'].events['click'].handleEvent = function(e) {
                 var duplicateSubmitMessage = " .  WFJSON::json_encode($duplicateSubmitMessage) . ";
                 var postSubmitLabel = " .  WFJSON::json_encode($postSubmitLabel) . ";
                 if (PHOCOA.widgets.{$this->id}.isSubmitted && duplicateSubmitMessage)
@@ -165,12 +167,6 @@ class WFSubmit extends WFWidget
                     $('{$this->id}').setValue(postSubmitLabel);
                 }
                 PHOCOA.widgets.{$this->id}.isSubmitted = true;
-            };
-            $('{$this->id}').observe('click', preventFunction);
-            // define the handleEvent function before the WFAction initializes; it needs it to be defined.
-            PHOCOA.namespace('widgets.{$this->id}.events.click');
-            PHOCOA.widgets['{$this->id}'].events['click'].handleEvent = function(e) {
-                preventFunction(e);
             };
             ";
         }

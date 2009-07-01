@@ -80,6 +80,7 @@ class module_widgets_form
 {
     function normalButton1($page, $params)
     {
+        sleep(1);
         $page->assign('normalButtonPressed', 'First button');
     }
     function normalButton2($page, $params)

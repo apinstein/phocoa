@@ -1,6 +1,6 @@
 {* vim: set expandtab tabstop=4 shiftwidth=4 syntax=smarty: *}
 <h1>WFForm Features</h1>
-<p>This page contains tests for various WFForm features. PHOCOA offers the following features for HTML Forms:
+<p>This page contains tests for various WFForm features. PHOCOA offers the following features for HTML Forms:</p>
 <ul>
     <li>Multiple Button Support
         <blockquote>Forms can have multiple buttons, each routing automatically to distinct action methods.</blockquote>
@@ -18,7 +18,6 @@
         <blockquote>Convenient way to tell users to be patient.</blockquote>
     </li>
 </ul>
-</p>
 
 <h2>Default Button Tests</h2>
 <p>When submitted, this form will show the button pressed to the right of the buttons.</p>
