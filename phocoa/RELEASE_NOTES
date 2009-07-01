@@ -10,6 +10,7 @@ Version 0.2.6 - ??
 - [new] Add YUILoader support for "combine" and "comboBase".
 - [bugfix] WFSubmit's duplicateSubmitMessage feature now works again. It was broken when WFSubmit started using WFAction.
   NOTE: WFAction now detects "event.stopped" after calling the PHOCOA.widgets['<widgetId>'].events['<event>'].handleEvent function. Use e.stop() to prevent the WFAction from occurring.
+- [bugfix] Fix nullPlaceholder behavior on IE. Bug would cause the text "null" to appear in WFSearchField instead of "" on focus.
 
 Version 0.2.5 - 6/29/2009
 - [BC-break] Updated the behavior of WFRequestController::WFURL to be consisent with other fuctions; now never ends in a trailing '/'.
@@ -21,7 +22,7 @@ Version 0.2.5 - 6/29/2009
 - [new] The baseDir property of WFImage now supports WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN.
 - [new] WFYAHOO_widget_Container subclasses now all automatically eval scripts in the body. This allows for seamless use of <script> blocks in YUI modules.
 - [new] Uncaught Exception handler now also grabs PHP Fatal Catchable errors and routes them into the exception workflow for even more error-handling goodness.
-- [bugfix] Fix nullPlaceholder behavior on IE. Bug would cause the text "null" to appear in textfield and textarea instead of "" on focus.
+- [bugfix] Fix nullPlaceholder behavior on IE. Bug would cause the text "null" to appear in WFTextField and WFTextArea instead of "" on focus.
 - [bugfix] Fix bug with preventAbandondedForm that caused an error due to a race condition with getting initial form state.
 - [bugfix] Fix bug with preventAbandondedForm that prevented the buttons from being visible on IE browsers.
 - [bugfix] Refactor YUI/YUILoader infrastructure. Eliminate the bug where all YUI assets are loading N times where N = # of YUI widgets on a page. Results in faster loading, fixes "operation aborted" errors in IE and solves "tab content race condition" problem where tab content wasn't always properly linked with tabs.

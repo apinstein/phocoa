@@ -72,7 +72,7 @@ class WFSearchField extends WFTextField
                 PHOCOA.widgets.' . $this->id . '.hasFocus = true;
                 if ($F(\'' . $this->id . '\') === \'' . $this->nullPlaceholder . '\')
                 {
-                    $(\'' . $this->id . '\').value = null;
+                    $(\'' . $this->id . '\').value = "";
                 }
                 $(\'' . $this->id . '\').removeClassName("phocoaWFSearchField_PlaceholderText");
             };
