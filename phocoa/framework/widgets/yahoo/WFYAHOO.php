@@ -18,6 +18,8 @@
  */
 class WFYAHOO_yuiloader
 {
+    const YUI_VERSION = '2.7.0';
+
     static protected $_instance = NULL;
 
     protected $base;
@@ -32,7 +34,7 @@ class WFYAHOO_yuiloader
 
     private function __construct() 
     {
-        $this->base = WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/yui/';
+        $this->setBaseToLocal();
     }
 
     public function addModule($name, $type, $path, $fullpath, $requires, $optional, $after, $varName)
@@ -139,10 +141,38 @@ class WFYAHOO_yuiloader
      * NOTE the contrast: most PHOCOA paths end WITHOUT trailing '/', but YAHOO uses the opposite convention so we stick with their convention.
      *
      * @param string The Base URL path for YUI assets. Defaults to the local framework version.
+     * @return object WFYAHOO_yuiloader For fluent interface.
      */
     public function setBase($path)
     {
         $this->base = $path;
+        return $this;
+    }
+
+    /**
+     * Set the base to the version of YUI bundled with PHOCOA.
+     *
+     * @return object WFYAHOO_yuiloader For fluent interface.
+     */
+    public function setBaseToLocal()
+    {
+        $this->base = $this->localYUI();
+        return $this;
+    }
+
+    public function localYUI()
+    {
+        return WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/yui/';
+    }
+
+    /**
+     * Set the base to the version of YUI hosted on YUI.
+     *
+     * @return object WFYAHOO_yuiloader For fluent interface.
+     */
+    public function setBaseToYUIHosted()
+    {
+        $this->base = 'http://yui.yahooapis.com/' . WFYAHOO_yuiloader::YUI_VERSION . '/build/';
         return $this;
     }
 

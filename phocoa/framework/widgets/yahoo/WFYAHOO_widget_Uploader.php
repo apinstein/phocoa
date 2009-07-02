@@ -257,7 +257,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 YAHOO.util.Dom.setStyle(overlay, 'height', uiLayer.height + 'px');
             });
 
-            YAHOO.widget.Uploader.SWFURL = '" . $this->yuiPath() . "uploader/assets/uploader.swf'; 
+            YAHOO.widget.Uploader.SWFURL = '" . WFYAHOO_yuiloader::sharedYuiLoader()->localYUI() . "uploader/assets/uploader.swf'; 
             var uploader = new YAHOO.widget.Uploader('{$this->id}');
             PHOCOA.runtime.addObject(uploader, '{$this->id}');
 
