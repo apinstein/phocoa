@@ -12,6 +12,7 @@ Version 0.2.6 - ??
   NOTE: WFAction now detects "event.stopped" after calling the PHOCOA.widgets['<widgetId>'].events['<event>'].handleEvent function. Use e.stop() to prevent the WFAction from occurring.
 - [bugfix] Fix nullPlaceholder behavior on IE. Bug would cause the text "null" to appear in WFSearchField instead of "" on focus.
 - [bugfix] Fix WFGenerator bug with proper creation of peer column name in search code of createSkeletonFromPropel.
+- [new] Add "class" property support to WFYAHOO_widget_AutoComplete
 
 Version 0.2.5 - 6/29/2009
 - [BC-break] Updated the behavior of WFRequestController::WFURL to be consisent with other fuctions; now never ends in a trailing '/'.

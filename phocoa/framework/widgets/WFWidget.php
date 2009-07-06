@@ -214,6 +214,15 @@ abstract class WFWidget extends WFView
         }
         return $theValue;
     }
+    
+    protected function classHTML()
+    {
+        if ($this->class)
+        {
+            return ' class="' . $this->class . '" ';
+        }
+        return NULL;
+    }
 
     /**
       * Attach a formatter to the widget.
