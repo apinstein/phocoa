@@ -23,6 +23,7 @@
  *
  * Optional:<br>
  * - {@link WFSelectionCheckbox::$labelKeyPath labelKeyPath}
+ * - {@link WFSelectionCheckbox::$label label}
  *
  * @todo Refactor to coalesce createWidgets and createSelectionWidgets
  * @todo Should WFSelectionCheckbox use WFCheckboxGroup internally for consistency?
@@ -81,6 +82,13 @@ class WFSelectionCheckbox extends WFDynamic
         // only set up the widget config once! if we do this more than once, then we blow away any other widget config (ie from a prototype)
         if (!$this->processedWidgetConfig)
         {
+            // create prototype if one doesn't exist
+            if (!$this->getPrototype())
+            {
+                $prototype = new WFCheckbox($this->id . 'Prototype', $this->page);
+                $prototype->setValueForKey($this->class, 'class');
+                $this->setPrototype($prototype);
+            }
             // add checkboxes for selection
             $options = array(
                 'groupMode' => array( 'custom' => array('iterate' => false, 'value' => true) ),

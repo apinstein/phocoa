@@ -602,6 +602,10 @@ class WFObject implements WFKeyValueCoding
         return print_r($this, true);
     }
 
+    /**
+     * @todo refactor to getPhpClass() or something. this collides horribly with WFWidget...
+     * @deprecated
+     */
     function getClass()
     {
         return get_class($this);

@@ -189,6 +189,11 @@ class WFDynamic extends WFWidget
         $this->setWidgetClass(get_class($view));
     }
 
+    function getPrototype()
+    {
+        return $this->prototype;
+    }
+
     /**
      *  To implement our prototype functionality, we need to detect when a child object named "<id>Prototype" has been added.
      *
