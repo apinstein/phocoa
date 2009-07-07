@@ -15,7 +15,7 @@
 <p>PHOCOA also includes many YUI widgets that have AJAX capabilities, such as AutoComplete, TreeView, and PhocoaDialog (an AJAX-loading YUI Dialog) that have been plugged in nicely to PHOCOA for easy use and require even less setup. All you have to do is supply a PHP callback to provide dynamically loaded data. No Javascript code is required at all.</p>
 
 <h2>AJAX Integration Basics</h2>
-<h3>Settomg Up AJAX Event Handlers</h3>
+<h3>Setting Up AJAX Event Handlers</h3>
 <p>At the highest level, PHOCOA provides an "onEvent" property for all classes in the WFView hierarchy that is used to attach Javascript behaviors to your application. Since the onEvent interface takes in a string as a parameter, you can configure AJAX behaviors via YAML with no PHP coding. If you need more complex behavior, you can always use the PHP API, but 95% of the time you'll find that onEvent works perfectly.</p>
 <p>The basic syntax is:</p>
 <blockquote>onEvent: &lt;eventName&gt; do &lt;typeOfAction&gt;[:&lt;target&gt;][:&lt;action&gt;]</blockquote>
@@ -28,10 +28,13 @@
         <strong>JSAction</strong><br />
         The default is the Javascript function PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.handleEvent.<br />
         If you put in your own action, it will be executed as an anonymous Javascript function.<br />
+        By default, the underlying DOM event that triggered the JSAction will *not* be stopped. To stop event propagation, call this.stopEvent(event) from your event handler (works in handleEvent or a "j:" customer handler).<br />
         <br />
         <strong>ServerAction and AjaxAction</strong><br />
         The default is the php method &lt;widgetId&gt;Handle&lt;eventName&gt;.<br />
-        If you put in your own action, it will be interpreted as the php method call of that name on the target object.
+        The Javascript handleEvent function PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.handleEvent is also called. To cancel the event, implement this function and return false to cancel the RPC. Any return value (or lack thereof) besides "false" will result in the RPC being called.<br />
+        If you put in your own action, it will be interpreted as the php method call of that name on the target object.<br />
+        The underlying DOM event that triggered ServerAction or AjaxAction is stopped to prevent event propagation.<br />
         </blockquote>
     </li>
 </ul>

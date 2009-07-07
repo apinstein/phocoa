@@ -442,9 +442,12 @@ PHOCOA.WFAction.prototype = {
             // call the handleEvent function first, so that the client can do any cleanup or prep work (such as hiding divs)
             if (this.callback)
             {
-                this.callback.apply(this, jsCallbackArgs);
+                var result = this.callback.apply(this, jsCallbackArgs);
+                if (result === false)
+                {
+                    return; // false return value indicates "stop processing"
+                }
             }
-            if (event.stopped) return;
 
             // the event callback for RPC is of the prototype: phpFunc($page, $sender, $event, [$arg1, $arg2, ..])
             // we just pass the senderID to the server; it will convert it to an object.
@@ -466,7 +469,6 @@ PHOCOA.WFAction.prototype = {
             if (this.callback)
             {
                 this.callback.apply(this, jsCallbackArgs);
-                if (event.stopped) return;
             }
             else
             {
