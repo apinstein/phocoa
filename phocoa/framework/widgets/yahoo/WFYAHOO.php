@@ -105,6 +105,16 @@ class WFYAHOO_yuiloader
         return $this->combine;
     }
 
+    /**
+     * Turn on combine handler which will roll-up all js into a single file, and all css into another.
+     *
+     * NOTE: Combine handler seems to have a bug with being run multiple times; loader.insert() never finishes (even though it should finish instantly).
+     * NOTE: I tried using combine: true only on FIRST load, and while it did work for JS, CSS ended up getting loaded 2x. So don't even bother.
+     * NOTE: This was all as of 2.7.0. Maybe a future version will address these issues.
+     *
+     * @param boolean
+     * @return object WFYAHOO_yuiloader Fluent interface.
+     */
     public function setCombine($b)
     {
         $this->combine = $b;
