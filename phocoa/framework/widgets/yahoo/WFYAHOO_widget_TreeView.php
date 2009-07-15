@@ -217,7 +217,6 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
     rpc.callback.failure = PHOCOA.widgets.{$this->id}.loadDataHandleFailure;
     rpc.callback.argument = { loadComplete: fnLoadComplete, node: node };
     " . ($this->queryFieldId ? "var qVal = PHOCOA.widgets.{$this->queryFieldId}.getValue();" : NULL) . "
-    $('{$this->id}_status').show().update('Loading...');
     rpc.execute(path" . ($this->queryFieldId ? ", qVal" : NULL) . ");
     ";
             }
@@ -262,9 +261,9 @@ PHOCOA.widgets.{$this->id}.loadDataHandleSuccess = function(o)
         " . ($this->enableDragDropTree ? "new DDSend(newNode.contentElId);" : NULL) . "
     }
 
-    if (items.length == 0)
+    if (items.length == 0 && o.argument.node.isRoot())
     {
-        $('{$this->id}_status').update('No matches.');
+        $('{$this->id}_status').show().update('No matches.');
     }
     else
     {
