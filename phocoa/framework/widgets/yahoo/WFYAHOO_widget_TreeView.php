@@ -188,7 +188,7 @@ class WFYAHOO_widget_TreeView extends WFYAHOO
             }
             // set up basic HTML
             $html = parent::render($blockContent);
-            $html .= "<div id=\"{$this->id}\"></div>\n";
+            $html .= "<div id=\"{$this->id}_status\" style=\"display: none;\"></div><div id=\"{$this->id}\"></div>\n";
             return $html;
         }
     }
@@ -217,6 +217,7 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
     rpc.callback.failure = PHOCOA.widgets.{$this->id}.loadDataHandleFailure;
     rpc.callback.argument = { loadComplete: fnLoadComplete, node: node };
     " . ($this->queryFieldId ? "var qVal = PHOCOA.widgets.{$this->queryFieldId}.getValue();" : NULL) . "
+    $('{$this->id}_status').show().update('Loading...');
     rpc.execute(path" . ($this->queryFieldId ? ", qVal" : NULL) . ");
     ";
             }
@@ -261,6 +262,15 @@ PHOCOA.widgets.{$this->id}.loadDataHandleSuccess = function(o)
         " . ($this->enableDragDropTree ? "new DDSend(newNode.contentElId);" : NULL) . "
     }
 
+    if (items.length == 0)
+    {
+        $('{$this->id}_status').update('No matches.');
+    }
+    else
+    {
+        $('{$this->id}_status').hide();
+    }
+
     // complete node loading
     o.argument.loadComplete();
 
@@ -269,6 +279,7 @@ PHOCOA.widgets.{$this->id}.loadDataHandleSuccess = function(o)
 
 PHOCOA.widgets.{$this->id}.loadDataHandleFailure = function(o)
 {
+    $('{$this->id}_status').hide();
     alert('failed to load data');
 };
 
