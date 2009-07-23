@@ -71,11 +71,12 @@ class WFFixture extends WFObject
      *
      * @param array An array of paths to YAML fixture files.
      * @param string The method to call on all top-level objects declared in the YAML file. Defaults to NULL (no call). Useful for calling "save" method to persist fixtures to a DB.
+     * @param array An array of arguments to pass into the save method. Useful for Dependency Injection of db connection for instance.
      * @return array An array containing all created objects, as an associative array. NOTE that if you load multiple files with this call and you have the same "name" for different objects,
      *               they will stomp each other and you aren't guaranteed which one you'll get.
      * @throws object WFException
      */
-    public function loadFiles($files, $saveMethod = NULL)
+    public function loadFiles($files, $saveMethod = NULL, $saveMethodArgs = array())
     {
         $allCreatedObjects = array();
 
@@ -96,7 +97,7 @@ class WFFixture extends WFObject
                 foreach ($newObjs as $o)
                 {
                     try {
-                        $o->$saveMethod();
+                        call_user_func_array(array($o, $saveMethod), $saveMethodArgs);
                     } catch (Exception $e) {
                         throw (new WFException("Error saving object: " . $o . "\n" . $e->getMessage()) );
                     }
