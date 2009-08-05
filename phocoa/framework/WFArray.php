@@ -10,30 +10,61 @@
 /**
  * A KVC-compliant array wrapper.
  *
- * @todo Make completely KVC
- * @todo Add all interfaces used by SPL::ArrayObject: class ArrayObject implements IteratorAggregate, ArrayAccess, Countable
- * @todo Should we just subclass ArrayObject and add KVC? Or add implementations for these interfaces?
+ * To get the values of the array you can iterate on it or just call {@link WFArray::values()}.
+ *
+ * @todo Make completely KVC: setValueForKey, setValueForKeyPath, valuesForKeys, valuesForKeyPaths
+ *       What should stuff like valueForUndefinedKey, validateValueForKey, etc do? nothing?
  */
-class WFArray extends WFObject
+class WFArray extends ArrayObject
 {
-    protected $_array;
-
-    public function __construct($array = NULL)
+    /**
+     * Get all of the values contained in the array
+     *
+     * NOTE: calls getArrayCopy.
+     *
+     * @return array
+     */
+    public function values()
     {
-        parent::__construct();
-        $this->_array = $array;
+        return $this->getArrayCopy();
+    }
+
+    public function valueForKey($key)
+    {
+        if ($key === 'values')
+        {
+            return $this->values();
+        }
+        else if ($this->offsetExists($key))
+        {
+            $v = $this[$key];
+            if (is_array($v) and !($v instanceof WFArray))
+            {
+                return new WFArray($v);
+            }
+            return $v;
+        }
+        else if (method_exists($this, $key))
+        {
+            return $this->$key();
+        }
+        else
+        {
+            throw new WFUndefinedKeyException("No value exists for key {$key}.");
+        }
     }
 
     public function valueForKeyPath($keyPath)
     {
-        return parent::valueForKeyPath('_array.' . $keyPath);
+        return WFObject::valueForTargetAndKeyPath($keyPath, $this);
     }
 
-    public function _array()
-    {
-        return $this->_array;
-    }
-
+    /**
+     * Helper static initializer to create a new array for fluent interfaces.
+     *
+     * @param array
+     * @return object WFArray
+     */
     public static function arrayWithArray($array)
     {
         return new WFArray($array);

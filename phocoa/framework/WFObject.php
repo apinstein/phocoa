@@ -179,7 +179,17 @@ class WFObject implements WFKeyValueCoding
         throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . __CLASS__ . "'.") );
     }
 
-    protected static function valueForTargetAndKeyPath($keyPath, $rootObject = NULL)
+    /**
+     * Helper function for implementing KVC.
+     *
+     * This is public so that other objects that don't subclass WFObject can leverage this codebase to implement KVC.
+     *
+     * @param string The keyPath.
+     * @param object Generic The root object to run the keyPath search against.
+     * @return mixed
+     * @throws Exception, WFUndefinedKeyException
+     */
+    public static function valueForTargetAndKeyPath($keyPath, $rootObject = NULL)
     {
         if ($keyPath == NULL) throw( new Exception("NULL keyPath Exception") );
         $staticMode = ($rootObject === NULL);
@@ -239,7 +249,7 @@ class WFObject implements WFKeyValueCoding
             }
             else
             {
-                if (!is_object($target)) throw( new Exception('Target is not an object at keyPath: ' . join('.', array_slice($keys, 0, $keyI))) );
+                if (!is_object($target)) throw( new WFUndefinedKeyException('Value at keyPath: "' . join('.', array_slice($keys, 0, $keyI)) . "\" is not an object when trying to get next key \"{$key}\".") );
                 $result = $target->valueForKey($key);
             }
 

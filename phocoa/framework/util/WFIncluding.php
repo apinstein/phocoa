@@ -171,6 +171,7 @@ class WFIncluding
                 'WFArrayController' => 'framework/WFArrayController.php',
                 'WFArray' => 'framework/WFArray.php',
                 'WFError' => 'framework/WFError.php',
+                'WFErrorArray' => 'framework/WFError.php',
                 'WFErrorsException' => 'framework/WFError.php',
                 'WFExceptionReporting' => 'framework/WFExceptionReporting.php',
                 'WFUnixDateFormatter' => 'framework/widgets/WFFormatter.php',
