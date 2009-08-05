@@ -89,6 +89,11 @@ class WFErrorArray extends WFArray
         return false;
     }
 
+    public function hasErrors()
+    {
+        return (count($this) > 0);
+    }
+
     public function allErrors()
     {
         $flattenedErrors = array();
@@ -184,8 +189,11 @@ class WFErrorsException extends WFException
 
     function __construct($errors)
     {
-        if (!is_array($errors)) throw( new WFException("WFErrorsException requires an array of WFError objects.") );
-        if (count($errors) === 0) throw( new WFException("WFErrorsException must contain errors!") );
+        if (!is_array($errors) and !($errors instanceof WFErrorArray)) throw( new WFException("WFErrorsException requires an array of WFError objects, was passed: " . $errors) );
+        if (count($errors) === 0)
+        {
+            throw( new WFException("WFErrorsException must contain errors!") );
+        }
 
         if (!($errors instanceof WFErrorArray))
         {
