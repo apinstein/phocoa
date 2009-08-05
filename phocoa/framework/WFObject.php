@@ -468,12 +468,7 @@ class WFObject implements WFKeyValueCoding
         {
             throw( new WFException("Target not an object at keypath: " . $keyPath . " for object " . get_class($this)) );
         }
-        $errCount = count($errors);
-        $valid = $target->validateValueForKey($value, $targetKey, $edited, $errors);
-        $errCount = count($errors) - $errCount;
-        if ($valid && $errCount) throw( new WFException("You damn fool! You said that '{$keyPath}' is valid, but you added an error!") );
-        else if (!$valid && $errCount === 0) throw( new WFException("You damn fool! You said that '{$keyPath}' is invalid, but there are no errors!") );
-        return $valid;
+        return $target->validateValueForKey($value, $targetKey, $edited, $errors);
     }
 
     /**
@@ -513,7 +508,7 @@ class WFObject implements WFKeyValueCoding
     {
         if ($errors === null)
         {
-            $errors = array();
+            $errors = new WFErrorArray();
         }
 
         $allMethods = get_class_methods(get_class($this));
@@ -531,8 +526,6 @@ class WFObject implements WFKeyValueCoding
                 $keyErrors = array();
                 $val = $this->valueForKey($key);
                 $ok = $this->validatedSetValueForKey($val, $key, $edited, $keyErrors);
-                if (!$ok and count($keyErrors) === 0) throw( new WFException("Validator returned FALSE but didn't provide any errors.") );
-                if ($ok and count($keyErrors)) throw( new WFException("Validator returned TRUE but also returned errors.") );
                 if (!$ok)
                 {
                     $errors[$key] = $keyErrors;
@@ -540,7 +533,7 @@ class WFObject implements WFKeyValueCoding
             }
         }
 
-        return empty($errors);
+        return count($errors) == 0;
     }
 
     /**
@@ -592,7 +585,16 @@ class WFObject implements WFKeyValueCoding
         $validatorMethod = 'validate' . ucfirst($key);
         if (method_exists($this, $validatorMethod))
         {
+            // track whether or not validator lies
+            $errCount = count($errors);
+
+            // run validator
             $valid = $this->$validatorMethod($value, $edited, $errors);
+
+            // check for mismatch b/w $valid and errors generated
+            $errCount = count($errors) - $errCount;
+            if ($valid && $errCount) throw( new WFException("Validator for key '{$key}' returned TRUE but also returned errors.") );
+            else if (!$valid && $errCount === 0) throw( new WFException("Validator for key '{$key}' returned FALSE but didn't provide any errors.") );
         }
 
         if (!$valid)

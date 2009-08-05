@@ -162,6 +162,10 @@ class WFErrorArray extends WFArray
             $keyErrs = new WFErrorArray($v);
             $str .= $keyErrs;
         }
+        if ($str === "")
+        {
+            $str = "(no errors)";
+        }
         return $str;
     }
 }
