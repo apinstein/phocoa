@@ -209,6 +209,9 @@ interface WFKeyValueCoding
      *
      * NOTE: It's called validateObject right now instead of validate primarily because Propel already has a validate() method.
      *
+     * NOTE: you can pass in an array or an {@link WFErrorArray} object. The latter provides convenience methods that make accessing individual errors easier.
+     * See {@link WFErrorArray} for structure of errors array.
+     *
      * @experimental
      * @param array An array, passed by reference, which will be populated with any errors encountered. Errors are grouped by key, ie $errors['key'] = array()
      * @return boolean TRUE if valid; FALSE if not.
