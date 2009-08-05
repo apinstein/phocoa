@@ -99,7 +99,7 @@ class WFFixture extends WFObject
                     try {
                         call_user_func_array(array($o, $saveMethod), $saveMethodArgs);
                     } catch (Exception $e) {
-                        throw (new WFException("Error saving object: " . $o . "\n" . $e->getMessage()) );
+                        throw (new WFException("Uncaught Exception (" . get_class($e) . ") saving object: " . $o . "\n" . $e->getMessage()) );
                     }
                 }
             }
