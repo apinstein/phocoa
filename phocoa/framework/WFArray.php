@@ -69,4 +69,14 @@ class WFArray extends ArrayObject
     {
         return new WFArray($array);
     }
+
+    public function __toString()
+    {
+        $str = "Array:\n";
+        foreach ($this as $k => $v) {
+            $str .= "  {$k} => {$v}\n";
+        }
+        $str .= "END Array\n";
+        return $str;
+    }
 }
