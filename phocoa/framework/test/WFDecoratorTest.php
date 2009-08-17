@@ -75,7 +75,7 @@ class WFDecoratorTest extends PHPUnit_Framework_TestCase
         self::assertEquals($this->decorator->valueForKey('lastName'), 'Last');
     }
 
-    function testAccessViaKeyPath()
+    function testCanUseValueForKeyPath()
     {
         self::assertEquals($this->decorator->valueForKeyPath('fullName'), 'First Last');
     }

@@ -83,5 +83,10 @@ class WFDecorator extends WFObject
         }
         return call_user_func_array(array($this->decoratedObject, $name), $args);
     }
+
+    function __toString()
+    {
+        return "Object decorated with " . get_class($this) . ": {$this->decoratedObject}";
+    }
 }
 ?>
