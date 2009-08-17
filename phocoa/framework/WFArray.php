@@ -50,7 +50,7 @@ class WFArray extends ArrayObject
         }
         else
         {
-            throw new WFUndefinedKeyException("No value exists for key {$key}.");
+            throw new WFUndefinedKeyException("No value exists for key {$key}. \$this is a WFArray; did you mean 'values.{$key}'?");
         }
     }
 
