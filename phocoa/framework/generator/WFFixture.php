@@ -113,12 +113,13 @@ class WFFixture extends WFObject
      *
      * @param string The yaml file path.
      * @param string The method to call on all top-level objects declared in the YAML file. Defaults to NULL (no call). Useful for calling "save" method to persist fixtures to a DB.
+     * @param array An array of arguments to pass into the save method. Useful for Dependency Injection of db connection for instance.
      * @return array An array containing all created objects, as an associative array.
      * @throws object WFException
      */
-    public function loadFile($file, $saveMethod = NULL)
+    public function loadFile($file, $saveMethod = NULL, $saveMethodArgs = array())
     {
-        return WFFixture::loadFiles(array($file), $saveMethod);
+        return WFFixture::loadFiles(array($file), $saveMethod, $saveMethodArgs);
     }
 
     public function loadFromYaml($yamlString, $saveMethod = NULL)
