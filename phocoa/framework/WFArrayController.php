@@ -438,7 +438,7 @@ class WFArrayController extends WFObjectController implements Iterator
      */
     function addObjects($arr)
     {
-        if (!is_array($arr)) throw( new WFException("The first parameter must be a PHP array.") );
+        if (!is_array($arr) && !($arr instanceof ArrayObject)) throw( new WFException("The first parameter must be a PHP array.") );
         foreach ($arr as $obj) {
             $this->addObject($obj);
         }
@@ -454,9 +454,12 @@ class WFArrayController extends WFObjectController implements Iterator
      */
     function setContent($arr)
     {
-        if (is_object($arr) and (is_array($arr))) throw( new WFException("I don't understand how to deal with objects that have array interfaces yet") );
-        if (is_object($arr)) $arr = array($arr);
-        if (!is_array($arr)) throw( new WFException("The passed content must be a PHP array.") );
+        // automatically wrap a single-object argument in an array
+        if (is_object($arr) && !($arr instanceof ArrayObject))
+        {
+            $arr = array($arr);
+        }
+        if (!is_array($arr) and !($arr instanceof ArrayObject)) throw( new WFException("The passed content must be a PHP array.") );
 
         // clear content
         $this->content = array();

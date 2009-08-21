@@ -3,14 +3,8 @@
 /*
  * @package test
  */
+require_once(getenv('PHOCOA_PROJECT_CONF'));
 error_reporting(E_ALL);
-
-// the CLI doesn't set the CWD to where the script it, but rather where it's run from. To get all of our relative include working, need to chdir to the framework dir.
-require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
-require_once('framework/WFWebApplication.php');
-
-require_once "framework/WFObject.php";
-require_once "framework/WFArrayController.php";
 
 require_once "TestObjects.php";
 
@@ -69,6 +63,32 @@ class WFArrayControllerTest extends PHPUnit_Framework_TestCase
         $result = $this->ac->arrangedObjects();
 
         self::assertTrue($result == $this->personArray);
+    }
+
+    public function testSupportsArrayObjects()
+    {
+        $this->ac->setClass('Person');
+        $this->ac->setClassIdentifiers('uid');
+        $arrayObj = new ArrayObject($this->personArray);
+        xdebug_break();
+        $this->ac->setContent($arrayObj);
+
+        $result = $this->ac->arrangedObjects();
+
+        self::assertTrue($result == $this->personArray);
+    }
+
+    public function testSetContentAcceptsASingleObjectAsAnArrayWith1Object()
+    {
+        $this->ac->setClass('Person');
+        $this->ac->setClassIdentifiers('uid');
+        $person = array_pop($this->personArray);
+        $this->ac->setContent($person);
+
+        $result = $this->ac->arrangedObjects();
+
+        $this->assertEquals(1, $this->ac->arrangedObjectCount());
+        $this->assertEquals($person, $result[0]);
     }
 
     public function testSetSingleKeyClassIdentifiers()
