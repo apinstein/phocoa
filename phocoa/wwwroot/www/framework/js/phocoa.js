@@ -408,7 +408,15 @@ PHOCOA.WFAction = function(elId, eventName) {
     this.callback = PHOCOA.widgets[this.elId].events[this.eventName].handleEvent;
     this.rpc = null;
     this.stopsEvent = true;
-	Event.observe(this.elId, this.eventName, this.yuiTrigger.bindAsEventListener(this));
+    // if on windows and el is a checkbox and eventName is change, should mod to click
+    var el = $(this.elId);
+    var elType = el.type.toLowerCase();
+    var eventToObserve = this.eventName;
+    if (Prototype.Browser.IE && this.eventName === 'change' && (elType === 'checkbox' || elType === 'radio'))
+    {
+        eventToObserve = 'click';
+    }
+	Event.observe(el, eventToObserve, this.yuiTrigger.bindAsEventListener(this));
     return this;
 };
 
