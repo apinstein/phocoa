@@ -1470,7 +1470,7 @@ class WFDieselSearchHelper extends WFObject
      */
     function queryDescription()
     {
-        return $this->dieselSearch->queryDescription();
+        return java_values($this->dieselSearch->queryDescription());
     }
 
 }
