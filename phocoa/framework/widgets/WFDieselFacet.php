@@ -403,7 +403,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                         $items = array();
                         foreach ($facets as $facet) {
                             $label = str_replace("\n", '', $this->facetHTML($facet));
-                            $item = new WFYAHOO_widget_TreeViewNode( (string) $facet->getAttributeValue(), $label);
+                            $item = new WFYAHOO_widget_TreeViewNode( java_values($facet->getAttributeValue()), $label);
                             $fkids = $facet->getChildren();
                             if ($fkids === null)
                             {
@@ -569,7 +569,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         // selected value?
         $selection = $this->dieselSearchHelper->getAttributeSelection($this->attributeID);
         foreach ($facets as $facet) {
-            $attributeValue = $facet->getAttributeValue();
+            $attributeValue = java_values($facet->getAttributeValue());
             if ($selection == $attributeValue)
             {
                 $selected = 'selected';
@@ -648,7 +648,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         }
         $html = '';
 
-        $attributeValue = $facet->getAttributeValue();
+        $attributeValue = java_values($facet->getAttributeValue());
 
         // support for fake open-ended ranges with mutli-value hack
         if ($this->fakeOpenEndedRange)
@@ -674,7 +674,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         {
             if ($this->isTaxonomyAttribute())
             {
-                $newAttrQueries = array("EQ_{$this->attributeID}=" . $facet->getPath());
+                $newAttrQueries = array("EQ_{$this->attributeID}=" . java_values($facet->getPath()));
             }
             else
             {
@@ -725,7 +725,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         }
         if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE) and !$this->fakeOpenEndedRange)
         {
-            $selected = $this->popupAttributeValueIsSelected((string) $attributeValue);
+            $selected = $this->popupAttributeValueIsSelected(java_values($attributeValue));
             $html .= "<span {$classHTML}><input type=\"checkbox\" name=\"{$this->name}[]\" value=\"{$attributeValue}\" id=\"{$this->id}_{$attributeValue}\" " . ($selected == true ? 'checked="checked"' : '') . "/><label for=\"{$this->id}_{$attributeValue}\">{$label}</label>";
             if ($this->showItemCounts)
             {

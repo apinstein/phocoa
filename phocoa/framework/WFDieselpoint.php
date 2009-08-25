@@ -293,7 +293,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
     {
         $trace = new java("java.io.ByteArrayOutputStream");
         $e->printStackTrace(new java("java.io.PrintStream", $trace));
-        throw( new Exception("java stack trace:<pre> $trace </pre>\n") );
+        throw( new Exception("java exception {$e->getMessage()}, stack trace:<pre> $trace </pre>\n") );
     }
 
     /**
@@ -537,7 +537,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
      */
     function isRelevanceSort()
     {
-        $sortAttr = (string) $this->searcher->getSort();
+        $sortAttr = java_values($this->searcher->getSort());
         if (!$sortAttr) return true;
         if ($sortAttr == substr(WFDieselSearch::SORT_BY_RELEVANCE, 0, 1)) return true;
         return false;
@@ -606,12 +606,12 @@ class WFDieselSearch extends WFObject implements WFPagedData
             $rs = $this->searcher->getResultSet();
             if (!$rs) throw( new Exception("Invalid ResultSet returned.") );
             while ($rs->next()) {
-                $itemID = (string) $rs->getItem_id();   // use (string) to force conversion from java bridge string object to native PHP type. ALSO, getItem_id returns non-highlighted itemID.
+                $itemID = java_values($rs->getItem_id());   // use java_values() to force conversion from java bridge string object to native PHP type. ALSO, getItem_id returns non-highlighted itemID.
                 $allIDs[] = $itemID;
-                $hit = new WFDieselHit($itemID, (string) $rs->getRelevanceScore());
+                $hit = new WFDieselHit($itemID, java_values($rs->getRelevanceScore()));
                 // load custom data
                 for ($i = 1; $i < count($this->loadTheseColumnsFromIndex); $i++) {
-                    $hit->addData($this->loadTheseColumnsFromIndex[$i], (string) $rs->getString($i + 1));
+                    $hit->addData($this->loadTheseColumnsFromIndex[$i], java_values($rs->getString($i + 1)));
                 }
                 $allHits[] = $hit;
             }
@@ -1003,7 +1003,7 @@ class WFDieselSearchHelper extends WFObject
             // convert to dpql by setting it on the searcher
             $searcher = $this->dieselSearch->searcher();
             $searcher->setSimpleQuery($this->simpleQueryString, $this->simpleQueryMode);
-            $dpqlQueryForSimpleQuery = $searcher->getQueryString();
+            $dpqlQueryForSimpleQuery = java_values($searcher->getQueryString());
             $dpqlItems[] = $dpqlQueryForSimpleQuery;
             //print "Converted: '{$this->simpleQueryString}' to '$dpqlQueryForSimpleQuery'<BR>";
             $searcher->setQueryString(NULL);
