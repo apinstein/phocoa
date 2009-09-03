@@ -32,7 +32,7 @@ function smarty_block_WFHead($params, $content, &$smarty, &$repeat)
         $skin = $module->invocation()->rootSkin();
         if ($skin)
         {
-            $skin->addHeadString($content);
+            $skin->addHeadString("\n" . $content);  // add newline because smarty seems to eat implied newline after {WFHead}\n
         }
         else
         {
