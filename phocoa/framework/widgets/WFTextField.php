@@ -39,6 +39,11 @@ class WFTextField extends WFWidget
         $this->nullPlaceholder = NULL;
     }
 
+    public function setNullPlaceholder($v)
+    {
+        $this->nullPlaceholder = $v;
+    }
+
     function restoreState()
     {
         //  must call super
