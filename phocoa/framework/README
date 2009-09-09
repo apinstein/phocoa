@@ -40,6 +40,16 @@ svn st | grep '^?' | awk '{ print $2; }' | xargs svn add
 TODO
 
 1.0 Milestone:
+- DEPLOYMENT AND PROJECT MANAGEMENT
+  - Rakefile
+    - bootstrap Rakefile conf file, properties.yml template, etc
+    - phocoa rake tasks:
+      - create project dirs
+  - Cap
+    - bootstrap Capfile, deploy.rb
+      - phocoa cap tasks:
+        - maintenance mode: move "maintenance" to a built-in module
+        - gitflow tasks
 - Make phocoa shell not die on fatal errors (use http://us2.php.net/manual/en/intro.runkit.php)
 - Clean up module instantiation (needed for RESTful ease as well). See: http://misko.hevery.com/2008/09/10/where-have-all-the-new-operators-gone/
 - Incorporte PHP Speedy or Minify (http://code.google.com/p/minify). Minify looks better.
