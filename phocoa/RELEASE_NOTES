@@ -8,6 +8,7 @@ Legend:
 
 Version 0.2.8 - ??
 - [bugfix] Fix bug with KVC magic array operators not working on WFArray instances.
+- [bugfix] Fix bug in WFFixture/YAML where "named" objects created *not* at the top level of the YAML were incorrectly storing the "parent" instance.
 
 Version 0.2.7 - ??
 - [new] Add loading indicator to WFYAHOO_widget_TreeViewNode

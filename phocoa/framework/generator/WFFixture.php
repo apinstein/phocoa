@@ -331,7 +331,7 @@ class WFFixture extends WFObject
                             if (gettype($index) != 'integer')
                             {
                                 if (isset($this->objById[$k][$index])) throw( new Exception("There already exists a {$k} for id {$index}.") );
-                                $this->objById[$k][$index] = $o;
+                                $this->objById[$k][$index] = $subObj;
                             }
                         }
                     }
