@@ -20,6 +20,11 @@ class Node extends WFObject
         return $this->children;
     }
 
+    function childrenAsWFArray()
+    {
+        return new WFArray($this->children());
+    }
+
     // basically for testing "distinctArrays"
     function childrenDuplicated()
     {

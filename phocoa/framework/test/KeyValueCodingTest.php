@@ -5,11 +5,8 @@
  */
  
 
+require_once(getenv('PHOCOA_PROJECT_CONF'));
 error_reporting(E_ALL);
-require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
-require_once('framework/WFWebApplication.php');
-require_once('framework/WFObject.php');
-require_once('framework/WFError.php');
 
 require_once "TestObjects.php";
 
@@ -136,6 +133,13 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
     {
         $g1Count = $this->nodeTree->valueForKeyPath('children.@count');
         $g1Count2 = $this->objectHolder->valueForKeyPath('myObject.children.@count');
+        self::assertTrue($g1Count == $g1Count2 and $g1Count == 2);
+    }
+
+    function testCountOperatorWorksWithArrayObject()
+    {
+        $g1Count = $this->nodeTree->valueForKeyPath('childrenAsWFArray.@count');
+        $g1Count2 = $this->objectHolder->valueForKeyPath('myObject.childrenAsWFArray.@count');
         self::assertTrue($g1Count == $g1Count2 and $g1Count == 2);
     }
 

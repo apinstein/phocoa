@@ -253,7 +253,7 @@ class WFObject implements WFKeyValueCoding
                 $result = $target->valueForKey($key);
             }
 
-            if (is_array($result))
+            if (is_array($result) or ($result instanceof ArrayObject))
             {
                 $arrayMode = true;
             }
