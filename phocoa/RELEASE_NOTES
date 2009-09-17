@@ -7,6 +7,8 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.2.8 - ??
+- [new] Add new ValueTransformer: WFEmptyToNullTransformer
+- [bugfix] NullPlaceholder in bindings now works with mutli-value pattern bindings, so if you have ValuePattern: '%1% credits', it used to turn into ' credits' but now it will be properly replaced with the NullPlaceholder
 - [bugfix] Fix bug with KVC magic array operators not working on WFArray instances.
 - [bugfix] Fix bug in WFFixture/YAML where "named" objects created *not* at the top level of the YAML were incorrectly storing the "parent" instance.
 

@@ -15,6 +15,7 @@ WFValueTransformer::setValueTransformerForName(new WFNegateBooleanTransformer, '
 WFValueTransformer::setValueTransformerForName(new WFIsEmptyTransformer, 'WFIsEmpty');
 WFValueTransformer::setValueTransformerForName(new WFIsNotEmptyTransformer, 'WFIsNotEmpty');
 WFValueTransformer::setValueTransformerForName(new WFUrlencodeTransformer, 'WFUrlencode');
+WFValueTransformer::setValueTransformerForName(new WFEmptyToNullTransformer, 'WFEmptyToNull');
 
 /**
  * The base "widget" class. In our framework, all html form widgets are necessarily WFWidget subclasses.
@@ -510,7 +511,29 @@ abstract class WFWidget extends WFView
                         }
                         else
                         {
-                            $boundValue = str_replace(array_keys($boundValueParts), array_values($boundValueParts), $valuePattern);
+                            // special-case handling for NULL_PLACEHOLDER and multi-value bindings
+                            // if *any* boundValueParts.values is NULL then boundValue should be NULL entirely
+                            // otherwise do normal str substitution
+                            $anyNulls = false;
+                            if (isset($basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER]))
+                            {
+                                foreach (array_values($boundValueParts) as $checkForNull) {
+                                    if ($checkForNull === NULL)
+                                    {
+                                        $anyNulls = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if ($anyNulls)
+                            {
+                                $boundValue = NULL;
+                            }
+                            else
+                            {
+                                $boundValue = str_replace(array_keys($boundValueParts), array_values($boundValueParts), $valuePattern);
+                            }
                         }
                         break;
                     default:
