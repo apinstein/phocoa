@@ -11,6 +11,7 @@ Version 0.2.8 - ??
 - [bugfix] NullPlaceholder in bindings now works with mutli-value pattern bindings, so if you have ValuePattern: '%1% credits', it used to turn into ' credits' but now it will be properly replaced with the NullPlaceholder
 - [bugfix] Fix bug with KVC magic array operators not working on WFArray instances.
 - [bugfix] Fix bug in WFFixture/YAML where "named" objects created *not* at the top level of the YAML were incorrectly storing the "parent" instance.
+- [new] Add an arrangedObjectsHash method to WFArrayController so that managed objects can be easily iterated over with their IDs, including compound keys.
 
 Version 0.2.7 - ??
 - [new] Add loading indicator to WFYAHOO_widget_TreeViewNode

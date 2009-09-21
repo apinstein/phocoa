@@ -479,6 +479,16 @@ class WFArrayController extends WFObjectController implements Iterator
         $this->prepareContent();
         return array_values($this->content);
     }
+
+    /**
+     * Get all of the objects managed by this controller as a hash (by the ID)
+     * @return array A hash, indexed by classIdentifier, of all of the objects we're managing.
+     */
+    function arrangedObjectsHash()
+    {
+        $this->prepareContent();
+        return $this->content;
+    }
     
     /**
      * Get an array with the selected objects.
@@ -746,4 +756,3 @@ class WFArrayController extends WFObjectController implements Iterator
         return $this->iteratorIndex;
     }
 }
-?>

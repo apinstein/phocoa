@@ -70,7 +70,6 @@ class WFArrayControllerTest extends PHPUnit_Framework_TestCase
         $this->ac->setClass('Person');
         $this->ac->setClassIdentifiers('uid');
         $arrayObj = new ArrayObject($this->personArray);
-        xdebug_break();
         $this->ac->setContent($arrayObj);
 
         $result = $this->ac->arrangedObjects();
@@ -177,6 +176,15 @@ class WFArrayControllerTest extends PHPUnit_Framework_TestCase
 
         $result = $this->ac->arrangedObjects();   // SEEMS TO BE ACLLING ADDOBJECT??
         self::assertTrue($result == $this->personArray);
+    }
+
+    function testArrangedObjectsHash()
+    {
+        $this->ac->setClass('PersonID');
+        $this->ac->setClassIdentifiers($this->personID_Identifiers);
+        $this->ac->setContent($this->personIDArray);
+
+        $this->assertEquals(array('GA' . WFArrayController::ID_DELIMITER . '1234', 'NY' . WFArrayController::ID_DELIMITER . '1234'), array_keys($this->ac->arrangedObjectsHash()));
     }
 
     public function testAutomaticallyPrepareContentOff()
