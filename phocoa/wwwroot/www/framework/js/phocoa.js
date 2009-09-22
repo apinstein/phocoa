@@ -270,7 +270,7 @@ PHOCOA.WFRPC.prototype = {
         {
             for (var i = 0; i < args.length; i++) {
                 var argvName = '__phocoa_rpc_argv_' + i;
-                url += '&' + argvName + '=' + (args[i] === null ? 'WFNull' : args[i]);
+                url += '&' + argvName + '=' + (args[i] === null ? 'WFNull' : escape(args[i]));
             }
         }
         url += '&__phocoa_rpc_argc=' + args.length;
