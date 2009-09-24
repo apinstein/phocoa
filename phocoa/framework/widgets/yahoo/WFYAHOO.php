@@ -77,6 +77,7 @@ class WFYAHOO_yuiloader
         if ($this->debug())
         {
             $options['filter'] = "DEBUG";
+            $options['allowRollup'] = false;
         }
         $optionsJSON = WFJSON::encode($options);
 
