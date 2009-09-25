@@ -133,9 +133,19 @@ class WFRequestController extends WFObject
             }
             // create the root invocation; only skin if we're not in an XHR
             $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL, ($this->isAjax() ? NULL : WFWebApplication::sharedWebApplication()->defaultSkinDelegate()) );
-
             // get HTML result of the module, and output it
-            print $this->rootModuleInvocation->execute();
+            $html = $this->rootModuleInvocation->execute();
+            
+            // respond to WFRPC::PARAM_ENABLE_AJAX_IFRAME_RESPONSE_MODE for iframe-targeted XHR. Some XHR requests (ie uploads) must be done by creating an iframe and targeting the form
+            // post to the iframe rather than using XHR (since XHR doesn't support uploads methinks). This WFRPC flag makes these such "ajax" requests need to be wrapped slightly differently
+            // to prevent the HTML returned in the IFRAME from executing in the IFRAME which would cause errors.
+            if (isset($_REQUEST[WFRPC::PARAM_ENABLE_AJAX_IFRAME_RESPONSE_MODE]) && $_REQUEST[WFRPC::PARAM_ENABLE_AJAX_IFRAME_RESPONSE_MODE] == 1)
+            {  
+                header('Content-Type: text/xml');
+                $html = "<?xml version=\"1.0\"?><raw><![CDATA[\n{$html}\n]]></raw>";
+            }   
+
+            print $html;
         } catch (WFRequestController_BadRequestException $e) {
             header("HTTP/1.0 400 Bad Request");
             print "Bad Request: " . $e->getMessage();

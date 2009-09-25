@@ -205,17 +205,6 @@ YAHOO.widget.PhocoaDialog.prototype.init = function(el, userConfig) {
 };
 
 /**
-* Performs the submission of the PhocoaDialog form depending on the value of "postmethod" property.
-* @method doSubmit
-*/
-YAHOO.widget.PhocoaDialog.prototype.doSubmit = function(form) {
-    var method = form.getAttribute("method") || 'POST';
-    method = method.toUpperCase();
-    YAHOO.util.Connect.setForm(form);
-    var cObj = YAHOO.util.Connect.asyncRequest(method, form.getAttribute("action"), this.callback);
-};
-
-/**
 * Prepares the PhocoaDialog's internal FORM object, creating one if one is not currently present.
 * @method registerForms
 */
@@ -224,6 +213,7 @@ YAHOO.widget.PhocoaDialog.prototype.registerForms = function() {
     var forms = this.element.getElementsByTagName('form');
     for (i = 0; i < forms.length; i++) {
         var theForm = forms[i];
+        theForm.nativeSubmitHandler = theForm.submit;
         // subscribe to the submit event of the form
         YAHOO.util.Event.addListener(theForm, 'submit', function(e) {
                                                             var submittedForm = YAHOO.util.Event.getTarget(e);
@@ -355,7 +345,36 @@ YAHOO.widget.PhocoaDialog.prototype.configModuleViewInvocationPath = function(ty
 */
 YAHOO.widget.PhocoaDialog.prototype.submit = function(form) {
     this.beforeSubmitEvent.fire();
-    this.doSubmit(form);
+
+    // this block formerly YAHOO.widget.PhocoaDialog.prototype.doSubmit in case there's an external reliance on it (don't think so)
+    var method = form.getAttribute("method") || 'POST';
+    method = method.toUpperCase();
+
+    var isFileUpload = (YAHOO.util.Selector.query('input[type=file]', form, true) !== null);
+    if (isFileUpload)
+    {
+        var oldSubmitHandler = form.submit;
+        form.submit = function() {
+            form.nativeSubmitHandler();
+        };
+        YAHOO.util.Connect.setForm(form, true);
+        this.callback.upload = this.callback.success;
+
+        // we need to pass two bits of extra info to phocoa so that it can succesfully do the right thing for the "uploads-via-ajax-target-iframe" behavior
+        // 1. Fake HTTP_X_REQUESTED_WITH so that phocoa thinks it's an AJAX request even though it's loading in an iframe
+        // 2. Enable __phocoa_rpc_ajax_iframe_mode so that the resulting HTML is wrapped in XML and sent as text/xml so that:
+        //    a. the iframe doesn't try to execute scripts in the iframe, which won't work, since it's a partial HTML template
+        //    b. the code isn't html-entity-ified so that when we put it into the page it turns into HTML, not a text-version of the HTML
+        var cObj = YAHOO.util.Connect.asyncRequest(method, form.getAttribute("action"), this.callback, 'HTTP_X_REQUESTED_WITH=xmlhttprequest&__phocoa_rpc_ajax_iframe_mode=1');
+
+        form.submit = oldSubmitHandler;
+    }
+    else
+    {
+        YAHOO.util.Connect.setForm(form);
+        var cObj = YAHOO.util.Connect.asyncRequest(method, form.getAttribute("action"), this.callback);
+    }
+
     this.submitEvent.fire();
     return true;
 };

@@ -46,6 +46,8 @@ class WFRPC extends WFObject
     // parameters for actions
     const PARAM_ARGC = '__phocoa_rpc_argc';
     const PARAM_ARGV_PREFIX = '__phocoa_rpc_argv_';
+    // misc
+    const PARAM_ENABLE_AJAX_IFRAME_RESPONSE_MODE = '__phocoa_rpc_ajax_iframe_mode';
 
     /**
      * @var string The module path of the module/page that is producing the WFRPC.
