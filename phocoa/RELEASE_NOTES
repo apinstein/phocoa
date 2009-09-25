@@ -7,6 +7,7 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.3.0 - ??
+- [bugfix] YUI Overlay (and subclasses) with fixedcenter=true and initial visibility=false would sometimes cause horizontal scrollbars on the document since YUI only re-calculates the center position if visible. We now force-recalculate this after rendering and the bug is gone!
 
 Version 0.2.9 - 9/25/2009
 - [new] Rearrange PhocoaDialog javascript module to use the -min and -debug versions via YUILoader. Previously the minified version was never used.
