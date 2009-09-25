@@ -7,6 +7,7 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.2.8 - ??
+- [new] Rearrange PhocoaDialog javascript module to use the -min and -debug versions via YUILoader. Previously the minified version was never used.
 
 Version 0.2.8 - 9/22/2009
 - [new] Add new ValueTransformer: WFEmptyToNullTransformer

@@ -49,8 +49,8 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         $this->yuiloader()->addModule('phocoaDialog',
                                         'js',
                                         NULL,
-                                        WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/yahoo-phocoa.js',
-                                        array('connection', 'container', 'dragdrop'),
+                                        WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK) . '/js/yahoo-phocoa-min.js',
+                                        array('connection', 'container', 'dragdrop', 'selector'),
                                         NULL,
                                         NULL,
                                         NULL
