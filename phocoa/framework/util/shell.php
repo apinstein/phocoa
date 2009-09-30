@@ -93,7 +93,10 @@ class WFShell extends WFObject
         $parsedCommand = "<?php
 require_once(getenv('PHOCOA_PROJECT_CONF'));
 extract(unserialize(file_get_contents('{$this->tmpFileShellCommandState}')));
+ob_start();
 \$_ = {$command};
+\$__out = ob_get_contents();
+ob_end_clean();
 \$__allData = get_defined_vars();
 unset(\$__allData['GLOBALS'], \$__allData['argv'], \$__allData['argc'], \$__allData['_POST'], \$__allData['_GET'], \$__allData['_COOKIE'], \$__allData['_FILES'], \$__allData['_SERVER']);
 file_put_contents('{$this->tmpFileShellCommandState}', serialize(\$__allData));
@@ -110,7 +113,14 @@ file_put_contents('{$this->tmpFileShellCommandState}', serialize(\$__allData));
             
             $lastState = unserialize(file_get_contents($this->tmpFileShellCommandState));
             $this->lastResult = $lastState['_'];
-            print $this->lastResult . "\n";
+            if ($lastState['__out'])
+            {
+                print $lastState['__out'] . "\n";
+            }
+            else
+            {
+                print $this->lastResult . "\n";
+            }
 
             // after the eval, we might have new classes. Only update it if real readline is enabled
             if (!empty($this->autocompleteList)) $this->autocompleteList = array_merge($this->autocompleteList, get_declared_classes());
