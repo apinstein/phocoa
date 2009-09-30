@@ -24,6 +24,8 @@ class WFShell extends WFObject
     protected $lastCommand = NULL;
     protected $prompt = '> ';
     protected $autocompleteList = array();
+    protected $tmpFileShellCommand = null;
+    protected $tmpFileShellCommandState = null;
     
     public function __construct()
     {
@@ -47,6 +49,9 @@ class WFShell extends WFObject
             }
             $this->autocompleteList = array_merge($this->autocompleteList, $tags);
         }
+
+        $this->tmpFileShellCommand = tempnam(sys_get_temp_dir(), 'phocoa.shell.');
+        $this->tmpFileShellCommandState = tempnam(sys_get_temp_dir(), 'phocoa.shell.');
     }
     
     public function prompt()
@@ -72,7 +77,11 @@ class WFShell extends WFObject
     
     public function doCommand($command)
     {
-        if (trim($command) == '') return;
+        print "\n";
+        if (trim($command) == '')
+        {
+            return;
+        }
 
         if (!empty($command) and function_exists('readline_add_history'))
         {
@@ -81,12 +90,27 @@ class WFShell extends WFObject
         }
 
         $command = preg_replace('/^\//', '$_', $command);  // "/" as a command will just output the last result.
-        $parsedCommand = "return {$command};";
+        $parsedCommand = "<?php
+require_once(getenv('PHOCOA_PROJECT_CONF'));
+extract(unserialize(file_get_contents('{$this->tmpFileShellCommandState}')));
+\$_ = {$command};
+\$__allData = get_defined_vars();
+unset(\$__allData['GLOBALS'], \$__allData['argv'], \$__allData['argc'], \$__allData['_POST'], \$__allData['_GET'], \$__allData['_COOKIE'], \$__allData['_FILES'], \$__allData['_SERVER']);
+file_put_contents('{$this->tmpFileShellCommandState}', serialize(\$__allData));
+";
         #echo "  $parsedCommand\n";
         try {
             $_ = $this->lastResult;
-            $this->lastResult = eval($parsedCommand);
-            print "\n---\n{$this->lastResult}\n";
+            file_put_contents($this->tmpFileShellCommand, $parsedCommand);
+
+            $result = NULL;
+            $output = array();
+            $lastLine = exec("/opt/local/bin/php {$this->tmpFileShellCommand} 2>&1", $output, $result);
+            if ($result != 0) throw( new Exception("Fatal error executing php: " . join("\n", $output)) );
+            
+            $lastState = unserialize(file_get_contents($this->tmpFileShellCommandState));
+            $this->lastResult = $lastState['_'];
+            print $this->lastResult . "\n";
 
             // after the eval, we might have new classes. Only update it if real readline is enabled
             if (!empty($this->autocompleteList)) $this->autocompleteList = array_merge($this->autocompleteList, get_declared_classes());
@@ -112,7 +136,6 @@ class WFShell extends WFObject
         }
         else
         {
-            echo $this->prompt;
             $command = rtrim( fgets( STDIN ), "\n" );
             // catch ctl-d
             if (strlen($command) == 0)
@@ -136,9 +159,15 @@ Enter a php statement at the prompt, and it will be evaluated. The variable \$_ 
 
 Example:
 
-new WFObject()
-\$a = \$_
-print_r(\$a)
+> new WFArray(array(1,2))
+Array:
+  0 => 1
+  1 => 2
+END Array
+
+> \$_[0] + 1
+2
+
 
 END;
         // readline history
