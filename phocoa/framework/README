@@ -50,7 +50,7 @@ TODO
       - phocoa cap tasks:
         - maintenance mode: move "maintenance" to a built-in module
         - gitflow tasks
-- Make phocoa shell not die on fatal errors (use http://us2.php.net/manual/en/intro.runkit.php)
+- (DONE) Make phocoa shell not die on fatal errors (use http://us2.php.net/manual/en/intro.runkit.php)
 - ValueTransformer "byName" stuff is stupid; update the valueTransformerForName to look for class as full name ie WFIsEmptyTransformer should work as well as WFIsEmpty
 - Clean up module instantiation (needed for RESTful ease as well). See: http://misko.hevery.com/2008/09/10/where-have-all-the-new-operators-gone/
 - Incorporte PHP Speedy or Minify (http://code.google.com/p/minify). Minify looks better.
