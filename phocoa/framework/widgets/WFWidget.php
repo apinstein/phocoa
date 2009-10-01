@@ -370,6 +370,7 @@ abstract class WFWidget extends WFView
 
         // Get a list of all options, coalesced with default value from the binding setup for this property.
         // the lack of documenting (ie exposing) a binding setup should simply assume that there are no options.
+        // @todo can this block be relplaced with $binding->coalescedOptions()?
         $optionDefaults = array();
         $optionDefaults = $binding->bindingSetup()->options();
         $coalescedOptions = array_merge($optionDefaults, $binding->options());
@@ -540,9 +541,9 @@ abstract class WFWidget extends WFView
                         throw( new Exception("Support for bindingType " . $bindingSetup->bindingType() . " used by '$prop' is not yet implemented.") );
                 }
                 // adjust for NullPlaceholder
-                if ( ($boundValue === NULL or $boundValue === '') and (isset($basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER])) )
+                if ( ($boundValue === NULL or $boundValue === '') and $binding->coalescedOption(WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER) )
                 {
-                    $boundValue = $basePropertyOptions[WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER];
+                    $boundValue = $binding->coalescedOption(WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER);
                 }
                 WFLog::log("FINAL value " . print_r($boundValue, true) . " for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
                 $this->setValueForKey($boundValue, $prop);  // must do this to allow accessors to be called!

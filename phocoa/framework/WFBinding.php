@@ -411,6 +411,21 @@ class WFBinding extends WFObject
         return $this->options;
     }
 
+    function coalescedOptions()
+    {
+        $optionDefaults = array();
+        $optionDefaults = $this->bindingSetup()->options();
+        $coalescedOptions = array_merge($optionDefaults, $this->options());
+        return $coalescedOptions;
+    }
+
+    function coalescedOption($name)
+    {
+        $coalescedOptions = $this->coalescedOptions();
+        if (!isset($coalescedOptions[$name])) return NULL;
+        return $coalescedOptions[$name];
+    }
+
     function option($name)
     {
         if (!isset($this->options[$name])) return NULL;
