@@ -123,11 +123,28 @@ YAHOO.widget.PhocoaDialog.prototype.initDefaultConfig = function() {
 YAHOO.widget.PhocoaDialog.prototype.callbackSuccess = function(o) {
     var phocoaDialog = o.argument;
 
+    var newBodyContent = null;
+    if (o.responseXML !== null && o.responseXML.firstChild !== null)
+    {
+        if (YAHOO.env.ua.ie > 0)
+        {
+            newBodyContent = o.responseXML.documentElement.firstChild.text;
+        }
+        else
+        {
+            newBodyContent = o.responseXML.firstChild.textContent;
+        }
+    }
+    else
+    {
+        newBodyContent = o.responseText;
+    }
+
     // fix styles - do this BEFORE setting the content so it looks right immediately
-    phocoaDialog.applyStyles(o.responseText);
+    phocoaDialog.applyStyles(newBodyContent);
 
     // update body of dialog with response (it's the HTML we want added)
-    phocoaDialog.setBody(o.responseText);
+    phocoaDialog.setBody(newBodyContent);
 
     // evalScripts - do this after we set the HTML b/c the script might look for stuff in the HTML
     var bodyEl = YAHOO.util.Dom.get(phocoaDialog.id);
@@ -427,6 +444,7 @@ YAHOO.widget.PhocoaDialog.prototype.focusFirst = function() {
             }
         }
     }
+    if (!firstFormElement) return;
     // give HTML a chance to execute scripts before we munge focus; HTML may install focus listeners
     window.setTimeout(function() { firstFormElement.focus(); }, 1);
 };
