@@ -207,7 +207,7 @@ PHOCOA.widgets.{$this->id}.loadData = function(node, fnLoadComplete)
         if (!tNode || tNode.nodeId == null) break;
     }
     pathParts.reverse();
-    var path = encodeURIComponent(pathParts.join('|'));
+    var path = pathParts.join('|');
 ";
             if ($this->dynamicDataLoader)
             {

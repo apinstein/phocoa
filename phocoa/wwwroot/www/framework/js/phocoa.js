@@ -261,8 +261,8 @@ PHOCOA.WFRPC.prototype = {
         append = append || false;
         var url = (append ? '&' : '');
         url += '__phocoa_rpc_enable=1';
-        url += '&__phocoa_rpc_invocationPath=' + escape(this.invocationPath);
-        url += '&__phocoa_rpc_target=' + escape(this.target);
+        url += '&__phocoa_rpc_invocationPath=' + encodeURIComponent(this.invocationPath);
+        url += '&__phocoa_rpc_target=' + encodeURIComponent(this.target);
         url += '&__phocoa_rpc_action=' + this.action;
         url += '&__phocoa_rpc_runsIfInvalid=' + this.runsIfInvalid;
         url += '&__phocoa_is_ajax=' + this.isAjax;
@@ -270,7 +270,7 @@ PHOCOA.WFRPC.prototype = {
         {
             for (var i = 0; i < args.length; i++) {
                 var argvName = '__phocoa_rpc_argv_' + i;
-                url += '&' + argvName + '=' + (args[i] === null ? 'WFNull' : escape(args[i]));
+                url += '&' + argvName + '=' + (args[i] === null ? 'WFNull' : encodeURIComponent(args[i]));
             }
         }
         url += '&__phocoa_rpc_argc=' + args.length;
