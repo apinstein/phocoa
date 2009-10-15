@@ -218,6 +218,7 @@ PHOCOA.WFRPC = function(url, target, action) {
     this.transaction = null;
     this.isAjax = true;
     this.submitButton = null;
+    this.method = 'get';
     // yui-style callback
     this.callback = {
             success: null,
@@ -277,11 +278,6 @@ PHOCOA.WFRPC.prototype = {
         return url;
     },
 
-    // args should be an array of arguments
-    actionAsURL: function(args) {
-        return this.actionURL() + '?' + this.actionURLParams(args);
-    },
-
     phocoaRPCParameters: function(args) {
         args = args || [];
         var params = {};
@@ -304,7 +300,7 @@ PHOCOA.WFRPC.prototype = {
 
     // args passed into this will be passed on via the RPC
     execute: function() {
-        // @todo Do we need to deal with serializing requests so that we can make sure to process responses in order?
+        // @todo Do we need to deal with serializing requests so that we can make sure to process responses in order? See WFRPCQueue (in tourbuzz atm)
         if (this.form)
         {
             // turn off all form errors...
@@ -330,7 +326,7 @@ PHOCOA.WFRPC.prototype = {
             {
                 // see Prototype.Form.request()
                 this.transaction = $(this.form).request(   {
-                                            method: 'GET',
+                                            method: this.method,    // @todo should this read this.form.method?
                                             parameters: this.phocoaRPCParameters(this.execute.arguments),
                                             onSuccess: this.successCallbackWrapper.bind(this),
                                             onFailure: this.failureCallbackWrapper.bind(this),
@@ -340,13 +336,13 @@ PHOCOA.WFRPC.prototype = {
         }
         else
         {
-            var url = this.actionAsURL(this.execute.arguments);
             if (this.isAjax)
             {
                 // set up XHR request & callback
-				this.transaction = new Ajax.Request(url,
+				this.transaction = new Ajax.Request(this.actionURL(),
                                                         {
-                                                            method: 'get',
+                                                            method: this.method,
+                                                            parameters: this.phocoaRPCParameters(this.execute.arguments),
                                                             asynchronous: true,
                                                             onSuccess: this.successCallbackWrapper.bind(this),
                                                             onFailure: this.failureCallbackWrapper.bind(this),
