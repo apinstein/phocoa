@@ -271,6 +271,7 @@ PHOCOA.WFRPC.prototype = {
         {
             for (var i = 0; i < args.length; i++) {
                 var argvName = '__phocoa_rpc_argv_' + i;
+                // @todo do we need to array-ify paramters like argv_0[]=1&argv_0[]=2 ?? see phocoaRPCParameters()
                 url += '&' + argvName + '=' + (args[i] === null ? 'WFNull' : encodeURIComponent(args[i]));
             }
         }
@@ -291,6 +292,11 @@ PHOCOA.WFRPC.prototype = {
         {
             for (var i = 0; i < args.length; i++) {
                 var argvName = '__phocoa_rpc_argv_' + i;
+                // automatically array-ify parameters that are arrays of scalars (well we do it to anything but only useful for arrays of scalar)
+                if (args[i] && typeof args[i] == 'object' && Object.isArray(args[i]))
+                {
+                    argvName += '[]';
+                }
                 params[argvName] = (args[i] === null ? 'WFNull' : args[i]);
             }
         }
