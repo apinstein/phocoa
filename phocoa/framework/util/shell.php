@@ -25,6 +25,7 @@ class WFShell extends WFObject
     protected $prompt = '> ';
     protected $autocompleteList = array();
     protected $tmpFileShellCommand = null;
+    protected $tmpFileShellCommandRequires = null;
     protected $tmpFileShellCommandState = null;
     
     public function __construct()
@@ -51,6 +52,7 @@ class WFShell extends WFObject
         }
 
         $this->tmpFileShellCommand = tempnam(sys_get_temp_dir(), 'phocoa.shell.');
+        $this->tmpFileShellCommandRequires = tempnam(sys_get_temp_dir(), 'phocoa.shell.');
         $this->tmpFileShellCommandState = tempnam(sys_get_temp_dir(), 'phocoa.shell.');
     }
     
@@ -90,8 +92,18 @@ class WFShell extends WFObject
         }
 
         $command = preg_replace('/^\//', '$_', $command);  // "/" as a command will just output the last result.
+
+        $requires = unserialize(file_get_contents($this->tmpFileShellCommandRequires));
+        if (!is_array($requires))
+        {
+            $requires = array();
+        }
+
         $parsedCommand = "<?php
 require_once(getenv('PHOCOA_PROJECT_CONF'));
+foreach (" . var_export($requires, true) . " as \$file) {
+    require_once(\$file);
+}
 extract(unserialize(file_get_contents('{$this->tmpFileShellCommandState}')));
 ob_start();
 \$_ = {$command};
@@ -99,6 +111,7 @@ ob_start();
 ob_end_clean();
 \$__allData = get_defined_vars();
 unset(\$__allData['GLOBALS'], \$__allData['argv'], \$__allData['argc'], \$__allData['_POST'], \$__allData['_GET'], \$__allData['_COOKIE'], \$__allData['_FILES'], \$__allData['_SERVER']);
+file_put_contents('{$this->tmpFileShellCommandRequires}', serialize(get_included_files()));
 file_put_contents('{$this->tmpFileShellCommandState}', serialize(\$__allData));
 ";
         #echo "  $parsedCommand\n";
