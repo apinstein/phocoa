@@ -9,7 +9,7 @@ Legend:
 Version 0.3.4 - ??
 
 Version 0.3.3 - 11/2/2009
-- [new] WFRPC.execute() now automatically array-ifies arguments that are arrays of scalars. IE array(1,2,3) ==> arg_0[]=1&arg_0[]=2&arg_0[]=3.
+- [BC-break] [new] WFRPC.execute() now automatically array-ifies arguments that are arrays of scalars. IE array(1,2,3) ==> arg_0[]=1&arg_0[]=2&arg_0[]=3.
 
 Version 0.3.2 - 10/15/2009
 - [new] Added WFRPC.method (accepts 'get' or 'post').
