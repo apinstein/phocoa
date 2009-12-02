@@ -46,6 +46,7 @@ $classesToExport = array(
     'WFYAHOO_widget_Panel',
     'WFYAHOO_widget_PhocoaDialog',
     'WFYAHOO_widget_TabView',
+    'WFYAHOO_widget_Tab',
     'WFYAHOO_widget_TreeView',
     'WFYAHOO_widget_Uploader',
     'WFYAHOO_widget_YahooScript',
