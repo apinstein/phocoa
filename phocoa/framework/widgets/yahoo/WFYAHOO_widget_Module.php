@@ -91,6 +91,22 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->buildModuleProgrammatically = $b;
     }
 
+    /**
+     * Set the element that the container renders to.
+     *
+     * There are a *lot* of caveats with this... see the YUI docs on render.
+     * By default all non-Module containers that are rendered programmatically are rendered to document.body. This is the recommended behavior.
+     * IF you really need your container's content to be in a particular DOM element, you can set the element here. This is useful for popups that add form inputs to exists forms.
+     * 
+     * This value will be passed thru as raw javascript; so if you want to use a string element id, make sure the string includes enclosing quotes.
+     *
+     * @param string The element to render the container to. Should have '' surrounding the value if it's an HTML id.
+     */
+    public function setRenderTo($el)
+    {
+        $this->renderTo = $el;
+    }
+
     function addEffect($effectName, $duration = 0.5)
     {
         $this->effects[$effectName] = $duration;
