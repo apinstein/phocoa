@@ -8,6 +8,7 @@ Legend:
 
 Version 0.3.4 - ??
 - [bugfix] Improve the default settings of buildModuleProgrammatically for WFYAHOO_widget_Module. Prevents Modules from being re-arranged on page once rendered.
+- [bugfix] Add html escaping to WFDieselKeyword.
 
 Version 0.3.3 - 11/2/2009
 - [BC-break] [new] WFRPC.execute() now automatically array-ifies arguments that are arrays of scalars. IE array(1,2,3) ==> arg_0[]=1&arg_0[]=2&arg_0[]=3.
