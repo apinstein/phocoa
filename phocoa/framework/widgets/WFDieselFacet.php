@@ -505,12 +505,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
     
     function removeFacetLink($linkText = "Remove")
     {
-        $showLoadingJS = NULL;
-        if ($this->parent()->showLoadingMessage())
-        {
-            $showLoadingJS = " onClick=\"showLoading();\" ";
-        }
-        return "<a {$showLoadingJS} href=\"" . $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . "\">{$linkText}</a>";
+        return "<a onClick=\"facetHandleClick(event);\" href=\"" . $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . "\">{$linkText}</a>";
     }
 
     function editFacetLink($linkText = "Edit", $class = NULL)
@@ -527,18 +522,6 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
     private function facetMenuHTML($facets)
     {
         $baseLink = $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID));
-        $showLoadingJS = NULL;
-        if ($this->parent()->showLoadingMessage())
-        {
-            if ($this->isPopup)
-            {
-                $showLoadingJS .= "cancelPopup();\nshowLoading();";
-            }
-            else
-            {
-                $showLoadingJS = "showLoading();";
-            }
-        }
         $html = '
             <script language="JavaScript">
             <!--
@@ -553,7 +536,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                         if(select.options[index].value != initialSelection)
                         {
                             newURL = "' . $baseLink . '|EQ_' . $this->attributeID . '=" + select.options[index].value; 
-                            ' . $showLoadingJS . '
+                            facetHandleClick();
                             window.location.href = newURL;
                         }
                         break;
@@ -711,18 +694,6 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
             $label = substr($label, 0, $this->ellipsisAfterChars) . '...';
         }
 
-        $showLoadingJS = NULL;
-        if ($this->parent()->showLoadingMessage())
-        {
-            if ($this->isPopup)
-            {
-                $showLoadingJS = " onClick=\"cancelPopup(); showLoading();\" ";
-            }
-            else
-            {
-                $showLoadingJS = " onClick=\"showLoading();\" ";
-            }
-        }
         if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE) and !$this->fakeOpenEndedRange)
         {
             $selected = $this->popupAttributeValueIsSelected(java_values($attributeValue));
@@ -736,7 +707,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         else
         {
             $link = $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID, $newAttrQueries));
-            $html .= "<span {$classHTML}><a {$showLoadingJS} href=\"{$link}\"$fullLabelAsTooltip>{$label}</a>";
+            $html .= "<span {$classHTML}><a onClick=\"facetHandleClick(event);\" href=\"{$link}\"$fullLabelAsTooltip>{$label}</a>";
             if ($this->showItemCounts)
             {
                 $html .= ' (' . $facet->getHits() . ')';
