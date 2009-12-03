@@ -11,6 +11,7 @@ Version 0.3.4 - ??
 - [bugfix] Add html escaping to WFDieselKeyword.
 - [bugfix] Add encodeUriComponent() to WFYAHOO_widget_TreeView ajax methods so that nodeId's with '/' characters work.
 - [bugfix] Make WFDieselFacet compatible with YUI 2.7.0. It was eating clicks and getting stuck on "loading".
+- [bugfix] Fix bug in menu facets where onChange handler no longer worked due to newer version of prototype scoping code from evalScripts.
 
 Version 0.3.3 - 11/2/2009
 - [BC-break] [new] WFRPC.execute() now automatically array-ifies arguments that are arrays of scalars. IE array(1,2,3) ==> arg_0[]=1&arg_0[]=2&arg_0[]=3.
