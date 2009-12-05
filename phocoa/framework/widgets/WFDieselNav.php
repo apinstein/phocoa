@@ -146,6 +146,7 @@ class WFDieselNav extends WFWidget
 
             // set up popup container
             $popup = new WFYAHOO_widget_Panel("phocoaWFDieselNav_Popup_{$this->id}", $this->page);
+            $popup->setRenderTo("'{$this->id}'");
             $popup->setHeader('<div style="height: 10px"></div>');
             $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input " . ($this->showLoadingMessage ? 'onClick="cancelPopup(); showLoading();"' : NULL) . " type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
             $popup->setValueForKey('400px', 'width');
@@ -170,18 +171,31 @@ class WFDieselNav extends WFWidget
     {
         Element.hide('phocoaWFDieselNav_Popup_{$this->id}');
     }
+    function facetHandleClick(event)
+    {
+        cancelPopup();
+        showLoading();
+        if (event)
+        {
+            event.stopPropagation();     // allows click to fall thru to a.click => go to url
+        }
+    }
+    function showLoading()
+    {
     ";
     
             if ($this->showLoadingMessage)
             {
                 $html .= "
-    function showLoading()
-    {
-        PHOCOA.runtime.getObject('phocoaWFDieselNav_Loading_{$this->id}').show();
-    }
+        var loadingDlog = PHOCOA.runtime.getObject('phocoaWFDieselNav_Loading_{$this->id}');
+        if (loadingDlog)
+        {
+            loadingDlog.show();
+        }
     ";
             }
             $html .= "
+    }
     </script>
     <div id=\"{$this->id}\">
             ";

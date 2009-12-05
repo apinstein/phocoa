@@ -48,6 +48,12 @@ class WFYAHOO_widget_Module extends WFYAHOO
      * @var string The name of the YAHOO Container class to instantiate. Subclasses should set this method to the proper name.
      */
     protected $containerClass;
+    /**
+     * @var boolean Whether or not to build the module programmatically (ie via javascript) or to inline the module HTML when rendering this widget.
+     *              By default, WFYAHOO_widget_Module is set to FALSE, and all other subclasses are set to TRUE.
+     *              This setup works best for the respective types; since Modules are inline, they would get re-ordered if they were re-attached to document.body.
+     *              All subclasses are positioned absolutely so they benefit from being attached to document.body inline, to prevent rendering artifacts during load.
+     */
     protected $buildModuleProgrammatically;
 
     /**
@@ -66,10 +72,9 @@ class WFYAHOO_widget_Module extends WFYAHOO
         $this->body = NULL;
         $this->footer = NULL;
 
-        $this->renderTo = NULL;
-        
         $this->containerClass = 'Module';
-        $this->setBuildModuleProgrammatically(true);
+        $this->buildModuleProgrammatically = (get_class($this) !== 'WFYAHOO_widget_Module');
+        $this->renderTo = NULL;
 
         $this->yuiloader()->yuiRequire('container');
     }
@@ -84,10 +89,22 @@ class WFYAHOO_widget_Module extends WFYAHOO
     public function setBuildModuleProgrammatically($b)
     {
         $this->buildModuleProgrammatically = $b;
-        if ($b)
-        {
-            $this->renderTo = 'document.body';
-        }
+    }
+
+    /**
+     * Set the element that the container renders to.
+     *
+     * There are a *lot* of caveats with this... see the YUI docs on render.
+     * By default all non-Module containers that are rendered programmatically are rendered to document.body. This is the recommended behavior.
+     * IF you really need your container's content to be in a particular DOM element, you can set the element here. This is useful for popups that add form inputs to exists forms.
+     * 
+     * This value will be passed thru as raw javascript; so if you want to use a string element id, make sure the string includes enclosing quotes.
+     *
+     * @param string The element to render the container to. Should have '' surrounding the value if it's an HTML id.
+     */
+    public function setRenderTo($el)
+    {
+        $this->renderTo = $el;
     }
 
     function addEffect($effectName, $duration = 0.5)
@@ -225,11 +242,15 @@ PHOCOA.widgets.{$this->id}.Module.init = function() {
     module.setHeader(" . ($this->header === NULL ? '""' : WFJSON::json_encode($this->header)) . ");
     module.setBody(" . ($bodyHTML === NULL ? '""' : WFJSON::json_encode($bodyHTML)) . ");
     module.setFooter(" . ($this->footer  === NULL ? '""' : WFJSON::json_encode($this->footer)) . ");
-";
-        }
-        $script .= "
     module.render({$this->renderTo});
 ";
+        }
+        else
+        {
+            $script .= "
+    module.render();
+";
+        }
         $script .= 
 ( $addEffectsJS ? "\n    module.cfg.setProperty('effect', {$addEffectsJS});" : NULL ) . 
 // Module visibility controlled by display attr; subclass visibility controlled by visibilty. Non-modules must be display: block so that they'll appear when asked

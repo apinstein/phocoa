@@ -87,9 +87,10 @@ class WFYAHOO_widget_Panel extends WFYAHOO_widget_Overlay
         }
         else
         {
-            if ($this->modal === true)
+            // YUI recommends modal dialogs be rendered to document.body to prevent the mask from obscuring content on IE.
+            if ($this->modal === true && $this->renderTo === NULL)
             {
-                $this->renderTo = 'document.body';  // YUI recommends modal dialogs be rendered to document.body to prevent the mask from obscuring content on IE.
+                $this->renderTo = 'document.body';
             }
             // set up basic HTML
             $html = parent::render($blockContent);

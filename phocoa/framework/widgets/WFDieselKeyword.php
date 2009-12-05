@@ -113,7 +113,7 @@ class WFDieselKeyword extends WFWidget implements WFDieselSearchHelperStateTrack
 
         return 'Keywords: <input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" ' .
             // always get value from the dieselSearchHelper, not the local value, because it can be changed outside of this widget
-            'value="' . $this->dieselSearchHelper->simpleQuery() . '"' .
+            'value="' . htmlspecialchars($this->dieselSearchHelper->simpleQuery()) . '"' .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->class ? ' class="' . $this->class . '"' : '') .

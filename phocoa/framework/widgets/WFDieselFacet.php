@@ -505,12 +505,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
     
     function removeFacetLink($linkText = "Remove")
     {
-        $showLoadingJS = NULL;
-        if ($this->parent()->showLoadingMessage())
-        {
-            $showLoadingJS = " onClick=\"showLoading();\" ";
-        }
-        return "<a {$showLoadingJS} href=\"" . $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . "\">{$linkText}</a>";
+        return "<a onClick=\"facetHandleClick(event);\" href=\"" . $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . "\">{$linkText}</a>";
     }
 
     function editFacetLink($linkText = "Edit", $class = NULL)
@@ -527,42 +522,29 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
     private function facetMenuHTML($facets)
     {
         $baseLink = $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID));
-        $showLoadingJS = NULL;
-        if ($this->parent()->showLoadingMessage())
-        {
-            if ($this->isPopup)
-            {
-                $showLoadingJS .= "cancelPopup();\nshowLoading();";
-            }
-            else
-            {
-                $showLoadingJS = "showLoading();";
-            }
-        }
-        $html = '
-            <script language="JavaScript">
-            <!--
-            function __phocoaWFDieselSearchMenuSelected_' . $this->attributeID . '(select)
+        $html = <<<END
+            <script>
+            PHOCOA.namespace("widgets.{$this->id}.attributes.{$this->attributeID}");
+            PHOCOA.widgets.{$this->id}.attributes.{$this->attributeID}.menuSelected = function(select)
             {
                 var index;
-                var initialSelection = \'' . $this->value . '\';
+                var initialSelection = '{$this->value}';
 
                 for(index=0; index<select.options.length; index++)
                     if(select.options[index].selected)
                     {
                         if(select.options[index].value != initialSelection)
                         {
-                            newURL = "' . $baseLink . '|EQ_' . $this->attributeID . '=" + select.options[index].value; 
-                            ' . $showLoadingJS . '
+                            newURL = '{$baseLink}|EQ_{$this->attributeID}=' + select.options[index].value; 
+                            facetHandleClick();
                             window.location.href = newURL;
                         }
                         break;
                     }
             }
-            -->
             </script>
-            ';
-        $html .= "<select id=\"{$this->id}\" name=\"{$this->id}\" onChange=\"__phocoaWFDieselSearchMenuSelected_{$this->attributeID}(this);\" >\n";
+END;
+        $html .= "<select id=\"{$this->id}\" name=\"{$this->id}\" onChange=\"PHOCOA.widgets.{$this->id}.attributes.{$this->attributeID}.menuSelected(this);\" >\n";
         // add "show all" choice
         $html .= "<option value=\"\">{$this->showAllText}</option>\n";
 
@@ -711,18 +693,6 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
             $label = substr($label, 0, $this->ellipsisAfterChars) . '...';
         }
 
-        $showLoadingJS = NULL;
-        if ($this->parent()->showLoadingMessage())
-        {
-            if ($this->isPopup)
-            {
-                $showLoadingJS = " onClick=\"cancelPopup(); showLoading();\" ";
-            }
-            else
-            {
-                $showLoadingJS = " onClick=\"showLoading();\" ";
-            }
-        }
         if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE) and !$this->fakeOpenEndedRange)
         {
             $selected = $this->popupAttributeValueIsSelected(java_values($attributeValue));
@@ -736,7 +706,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         else
         {
             $link = $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID, $newAttrQueries));
-            $html .= "<span {$classHTML}><a {$showLoadingJS} href=\"{$link}\"$fullLabelAsTooltip>{$label}</a>";
+            $html .= "<span {$classHTML}><a onClick=\"facetHandleClick(event);\" href=\"{$link}\"$fullLabelAsTooltip>{$label}</a>";
             if ($this->showItemCounts)
             {
                 $html .= ' (' . $facet->getHits() . ')';
