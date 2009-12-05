@@ -1,0 +1,284 @@
+require 'rake'
+
+#########
+# System-dependent settings: Each developer will set these for themselves in conf/properties.yml
+#########
+
+# Load conf/properties.yml. If it doesn't exist, copy conf/properties.yml.sample to it
+require 'yaml'
+begin
+  config = YAML.load_file(File.join('conf', 'properties.yml'))
+rescue
+  puts "You need to edit conf/properties.yml to match your system."
+  exit
+end
+
+#########
+# Project-wide settings: These settings should be the same for all developers on the project
+#########
+
+# Project Directories
+data_dir        =   "propel-build"
+www_dir         =   "wwwroot/www"
+externals_dir   =   "externals"
+app_root        =   FileUtils.pwd
+pg_dump         =   "#{config['pg_dump']}"
+
+ENV['PHOCOA_PROJECT_CONF']="#{config['phocoa_project_conf']}"
+
+#########
+# TASKS
+#########
+
+namespace :db do
+    namespace :export do
+    end
+
+    namespace :import do
+        desc "Load useful data for doing development."
+        task :development_data do
+            sh "#{config['php']} #{data_dir}/LoadFixtures.php #{data_dir}/development-data/fixture.yaml"
+        end
+    end
+
+    desc "Rebuild the entire database, reload baseline data, and rebuild the propel ORM model."
+    task :rebuild => [:die_on_production, "project:setupDirectories", "db:migrate:rebuild"] do
+        Rake::Task["db:model:rebuild"].execute
+    end
+
+    desc "Create Database"
+    task :create => [:die_on_production] do
+        begin
+            sh "#{config['psql']} -U #{config['dbRootUser']} -c 'create user #{config['dbUser']} with nocreatedb nocreateuser'"
+        rescue
+        end
+        sh "#{config['psql']} -U #{config['dbRootUser']} -c \"create database #{config['dbName']} with encoding 'UNICODE' owner #{config['dbUser']} template template0\""
+    end
+
+    desc "Drop Database"
+    task :drop => [:die_on_production] do
+        sh "#{config['psql']} -U #{config['dbRootUser']} -c 'drop database #{config['dbName']}'"
+    end
+
+    desc "Restore Production DB to Local DB"
+    task :clone_production => [:die_on_production, "db:drop", "db:create"] do
+        # Backup & Restore of our setup is a bit tricky, since we use postgis which installs functions that wrap a library explicitly by file path.
+        # thus you will see errors when the restore happens as it tries to re-create the postgis functions that are already there. It's ok to ignore them.
+
+        # to prevent from thrashing production frequently, we back up to a local gzip and then restore from that. If you want a fresh copy of production, delete production.db.gz
+        if !File.exist? "production.db.gz"
+            puts "backing up production"
+            # need --inserts since staging isn't same exact pg version
+            puts "enter a command here to back up your production db to a local file ./production.db.gz"
+        else
+            puts "using cached copy of production.db.gz"
+        end
+        sh "gzip -d -c production.db.gz | #{config['psql']} -U #{config['dbUser']} -h #{config['dbHost']} #{config['dbName']}"
+        puts "Backup/restore is tricky -- if things don't seem right it might be that the db restore failed, so don't freak out chasing nothing before looking at the DB first!"
+    end
+
+    desc "Backup production DB - for safety before deployment only"
+    task :backup_production => [:die_on_production] do
+        puts "backing up production"
+        puts "enter a command here to back up your production db to a local file ./production.db.gz"
+    end
+
+    desc "Propel tasks"
+    namespace :model do
+        desc "Rebuild model (reverse om convert-conf) from existing database state."
+        task :rebuild => [:die_on_production] do
+            ENV['PHING_COMMAND']="#{externals_dir}/pear/phing"
+            ENV['PHP_COMMAND']="#{config['php']}"
+            sh "#{config['propel-gen']} #{data_dir} reverse && #{config['php']} #{data_dir}/fix-schema.php && #{config['propel-gen']} #{data_dir} om convert-conf"
+        end
+    end
+
+    desc "Migration tasks."
+    namespace :migrate do
+        mpBaseCommand = "#{config['php']} externals/mp/mp -x'pgsql:dbname=#{config['dbName']};user=#{config['dbUser']};host=#{config['dbHost']}'"
+        desc "Verify project is already set up for MP."
+        task :check do
+            versionOut =  `#{mpBaseCommand} -s -q 2>&1`
+            versionMatch = versionOut.match('Current version: ([0-9]+)')
+            if !versionMatch
+                puts "Unexpected response from MP, aborting.\n#{versionOut}"
+                exit 1
+            end
+            version = versionMatch[1]
+            if (version == "0")
+                puts "\nWARNING!!! MP not yet installed for this app installation! DANGEROUS. Please resolve manually and try again.\n\nFor your convenience below is the mp base command:\n\n#{mpBaseCommand}"
+                exit 1
+            end
+            puts "MP configured and not at version 0."
+        end
+
+        desc "Clean database."
+        task :clean => [:die_on_production, :check] do
+            sh "#{mpBaseCommand} -r"
+        end
+
+        desc "Update to latest version."
+        task :head => [:check] do
+            sh "#{mpBaseCommand} -v -m head"
+        end
+
+        desc "Rebuild db from clean state and update to latest version."
+        task :rebuild => [:die_on_production, :clean] do
+            Rake::Task["db:migrate:head"].execute
+        end
+    end
+
+    desc "Migrate to latest db version"
+    task :migrate => ["db:migrate:head"] do
+    end
+end
+
+
+namespace :project do
+    desc "Environment Setup"
+    namespace :environment do
+        desc "Check the environment to be sure all needed dependencies are installed."
+        task :check do
+            phpVersion = `#{config['php']} --version`
+            raise "PHP 5.2.x or higher required." if !phpVersion.match('5.[23].[0-9]')
+
+            puts "All dependencies satisfied."
+        end
+    end
+
+    task :setupDirectories do
+        sh "mkdir -p #{app_root}/wwwroot/www/db_images && chmod -R 777 #{app_root}/wwwroot/www/db_images || echo OK"
+    end
+
+    desc "Build API docs."
+    task :build_docs do
+        puts "build docs command here"
+    end
+
+    desc "Build tags file."
+    task :build_tags do
+        sh "ctags -f tags -R classes modules skins"
+    end
+end
+
+desc "Download local copies of external libs to the project."
+namespace :externals do
+    desc "Update all external libs"
+    task :update => [ :init, "externals:pear:update", "externals:phocoa:update", "externals:cfg:update", "externals:mp:update", "externals:git_deployment:update" ]
+
+    desc "Make sure the project's externals lib folder is set up."
+    task :init do
+        sh "test -d #{externals_dir} || mkdir #{externals_dir}"
+    end
+
+    desc "Setup local phocoa framework"
+    namespace :phocoa do
+        desc "Update to proper phocoa release"
+        task :update => [ :init ] do
+            # update/install cached phocoa
+            cachedPhocoa="#{config['cachedExternals']}/phocoa"
+            puts "Checking cached phocoa at #{config['cachedExternals']}/phocoa"
+            if !File.exists?(cachedPhocoa)
+                sh "mkdir -p #{config['cachedExternals']} && git clone git://github.com/apinstein/phocoa.git #{cachedPhocoa}"
+            else
+                sh "cd #{cachedPhocoa} && git pull && cd #{app_root}"
+            end
+
+            # update/install externals copy of cached phocoa
+            if File.exists?("#{externals_dir}/phocoa")
+                sh "cd #{externals_dir}/phocoa && git pull"
+            else
+                sh "git clone file://#{cachedPhocoa} #{externals_dir}/phocoa"
+            end
+        end
+    end
+
+
+    desc "Setup local gitflow (deployment)"
+    namespace :git_deployment do
+        desc "Update to proper git-deployment release"
+        task :update => [ :init ] do
+            path="#{externals_dir}/git-deployment"
+            if File.exists?(path) && File.directory?(path)
+                #it is already checked out
+                sh "cd #{app_root}/#{externals_dir}/git-deployment && git pull"
+            else
+                sh "git clone git://github.com/apinstein/git-deployment.git #{app_root}/#{externals_dir}/git-deployment "
+            end
+        end
+    end
+
+    desc "Setup local MP (migrations for PHP)"
+    namespace :mp do
+        desc "Update to proper mp release"
+        task :update => [ :init ] do
+            path="#{externals_dir}/mp"
+            if File.exists?(path) && File.directory?(path)
+                #it is already checked out
+                sh "cd #{app_root}/#{externals_dir}/mp && git pull"
+            else
+                sh "git clone git://github.com/apinstein/mp.git #{app_root}/#{externals_dir}/mp "
+            end
+        end
+    end
+
+    desc "Setup local cfg"
+    namespace :cfg do
+        desc "Update to proper cfg release"
+        task :update => [ :init ] do
+            path="#{externals_dir}/cfg"
+            if File.exists?(path) && File.directory?(path)
+    		    #it is already checked out
+                sh "cd #{externals_dir}/cfg && git pull"
+            else
+                sh "git clone git://github.com/apinstein/config-magic.git #{externals_dir}/cfg"
+            end
+        end
+    end
+
+    desc "Setup local PEAR repository"
+    namespace :pear do
+        pearrc = "conf/.pearrc"
+
+        desc "Create a local PEAR repository"
+        task :setup => [ :init ] do
+            if !FileTest.exists? "#{pearrc}"
+                sh "pear config-create #{app_root}/#{externals_dir} #{pearrc}"
+            end
+            if !FileTest.directory? "#{externals_dir}/pear"
+                sh "pear -c #{pearrc} install -o PEAR"
+            end
+        end
+        
+        desc "Make sure all PEAR dependencies are installed and up-to-date."
+        task :update => [ :setup ] do
+            sh "pear -c #{pearrc} upgrade PEAR"
+            sh "pear -c #{pearrc} upgrade -a Log Mail_Mime"
+            sh "pear -c #{pearrc} channel-discover pear.phing.info; pear -c #{pearrc} upgrade phing/phing"
+            # Fix stupid phing thing where they override a nicely-set env var
+            sh "grep '^PHP_COMMAND=' #{externals_dir}/pear/phing && vim #{externals_dir}/pear/phing -c '%s/^\\(PHP_COMMAND=.*\\)/#\\1/' -c ':wq' || echo OK"
+            sh "grep '^export PHP_COMMAND' #{externals_dir}/pear/phing && vim #{externals_dir}/pear/phing -c '%s/^\\(export PHP_COMMAND.*\\)/#\\1/' -c ':wq' || echo OK"
+
+            sh "pear -c #{pearrc} channel-discover pear.phpdb.org; pear -c #{pearrc} install -f phpdb/propel_generator-1.3.0 phpdb/propel_runtime-1.3.0"
+            # have propel extend WFObject
+            sh "grep '^abstract class BaseObject {' #{externals_dir}/pear/php/propel/om/BaseObject.php && vim -c ':%s/class BaseObject/class BaseObject extends WFObject/g' #{externals_dir}/pear/php/propel/om/BaseObject.php -c ':wq' || echo OK"
+            sh "grep '^class BasePeer *$' #{externals_dir}/pear/php/propel/util/BasePeer.php && vim -c ':%s/class BasePeer/class BasePeer extends WFObject/g' #{externals_dir}/pear/php/propel/util/BasePeer.php -c ':wq' || echo OK"
+            sh "grep '^export PHING_COMMAND=\"phing\"$' #{externals_dir}/pear/propel-gen && vim -c ':%s/^export PHING_COMMAND=\"phing\"/if [ -z \"$PHING_COMMAND\" ]; then export PHING_COMMAND=\"phing\"; fi/g' #{externals_dir}/pear/propel-gen -c ':wq' || echo OK"
+
+            sh "pear -c #{pearrc} channel-discover pear.horde.org; pear -c #{pearrc} upgrade horde/Yaml"
+            sh "pear -c #{pearrc} channel-discover pear-smarty.googlecode.com/svn; pear -c #{pearrc} upgrade smarty/smarty"
+        end
+    end
+end
+
+task :default do
+    puts "Available tasks"
+    sh "rake --tasks"
+end
+
+task :die_on_production do
+    if config['isProduction'] then
+        puts "I'm sorry dave, I can't do that on production."
+        exit 1
+    end
+end
