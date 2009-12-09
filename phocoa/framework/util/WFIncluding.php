@@ -44,6 +44,7 @@ class WFIncluding
                 'WFFixture' => 'framework/generator/WFFixture.php',
                 'WFYaml' => 'framework/util/WFYaml.php',
                 'WFJSON' => 'framework/util/WFJSON.php',
+                'WFWebApplication' => 'framework/WFWebApplication.php',
                 'WFMenuTree' => 'framework/WFMenuItem.php',
                 'WFMenuTreeBuilding' => 'framework/WFMenuItem.php',
                 'WFMenuItem' => 'framework/WFMenuItem.php',
@@ -198,7 +199,9 @@ class WFIncluding
             return true;
         }
 
-        return false;
+        // give appdelegate a shot at it
+        $webapp = WFWebApplication::sharedWebApplication();
+        return $webapp->autoload($className);
     }
 }
 
