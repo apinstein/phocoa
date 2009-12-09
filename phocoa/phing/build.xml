@@ -135,7 +135,7 @@
         <if>
             <equals arg1="${db.generate}" arg2="1" />
             <then>
-                <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} creole" passthru="true" />
+                <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} reverse" passthru="true" />
                 <exec command="${propel.bin.propel-gen} ${phocoa.propel.dir} main" passthru="true" />
                 <echo message="Propel code generation complete." />
             </then>
