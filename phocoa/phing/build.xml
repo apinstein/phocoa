@@ -1,4 +1,4 @@
-<?xml version="1.0"?> 
+<?xml version="1.0"?>
 <!-- NOTE:: All paths should leave off trailing slash!!! -->
 <project name="phocoa" default="newProject">
     <!-- Set up tasks -->
@@ -98,7 +98,9 @@
         <input propertyname="db.host" defaultValue="localhost">Enter the database host:</input>
         <property userProperty="true" name="propel.project" value="${phocoa.project.name}" />
         <property userProperty="true" name="propel.database.url" value="${propel.database}:user=${db.user};password=${db.pass};hostname=${db.host};dbname=${db.name}" />
-        <property userProperty="true" name="propel.database.creole.url" value="${propel.database}://${db.user}:${db.pass}@${db.host}/${db.name}" />
+        <property userProperty="true" name="propel.database.user" value="${db.user}" />
+        <property userProperty="true" name="propel.database.password" value="${db.pass}" />
+        <property userProperty="true" name="propel.database.reverse.url" value="${propel.database}://${db.user}:${db.pass}@${db.host}/${db.name}" />
         <property userProperty="true" name="propel.targetPackage" value="${db.name}" />
         <property userProperty="true" name="propel.output.dir" value="${phocoa.propel.dir}" />
         <property userProperty="true" name="propel.php.dir" value="${phocoa.project.dir}/classes" />
@@ -191,22 +193,22 @@
         </if>
         <fail unless="phocoa.project.container" message="phocoa.project.container must be defined." />
         <!-- Create a reasonable directory structure -->
-        <echo msg="Creating project container directories and setting up permissions" /> 
+        <echo msg="Creating project container directories and setting up permissions" />
         <mkdir dir="${phocoa.project.container}" />
         <mkdir dir="${phocoa.project.container}/log" />
-        <chmod file="${phocoa.project.container}/log" mode="777" /> 
+        <chmod file="${phocoa.project.container}/log" mode="777" />
         <mkdir dir="${phocoa.project.container}/runtime" />
-        <chmod file="${phocoa.project.container}/runtime" mode="777" /> 
+        <chmod file="${phocoa.project.container}/runtime" mode="777" />
         <mkdir dir="${phocoa.project.container}/runtime/smarty/templates_c" />
-        <chmod file="${phocoa.project.container}/runtime/smarty/templates_c" mode="777" /> 
-        <echo msg="Creating project directory: ${phocoa.project.dir}" /> 
+        <chmod file="${phocoa.project.container}/runtime/smarty/templates_c" mode="777" />
+        <echo msg="Creating project directory: ${phocoa.project.dir}" />
         <mkdir dir="${phocoa.project.dir}" />
     </target>
 
-    <target name="newProject" description="Create a new project workspace." depends="prepareGeneral"> 
+    <target name="newProject" description="Create a new project workspace." depends="prepareGeneral">
         <!-- Gather information -->
         <input propertyname="phocoa.project.name">Enter the name of the new project:</input>
-        <echo msg="The container directory for your PHOCOA project will be used to place the log, runtime, and project directories. Please be careful!" /> 
+        <echo msg="The container directory for your PHOCOA project will be used to place the log, runtime, and project directories. Please be careful!" />
         <input propertyname="local.containerInput" defaultValue="${phocoa.pwd}/${phocoa.project.name}">Enter the path to the project container directory:</input>
         <realpathexpandhome propertyName="phocoa.project.container" file="${local.containerInput}"/>
         <!-- since the phocoa.project.dir property is already defined (via cmd line), we must do some tricks to "update" the property since phing makes all props R/O by default -->
@@ -262,18 +264,18 @@
             </then>
         </if>
         <echo msg="New Project setup complete." />
-    </target> 
+    </target>
 
     <!-- administrative tasks for phocoa dev -->
     <!-- maybe we should have another phing build file for PHOCOA-DEV purposes with this target and others like regressions tests, etc. -->
     <!-- The ouput package.xml of this task seems to fail, maybe try PearPackageTask -->
-    <target name="buildpearpackage" depends="prepareGeneral" description="Build a PEAR package of PHOCOA."> 
-        <echo msg="Building PEAR package..." /> 
-        <build-pear-package 
+    <target name="buildpearpackage" depends="prepareGeneral" description="Build a PEAR package of PHOCOA.">
+        <echo msg="Building PEAR package..." />
+        <build-pear-package
             packageFileDir="${phocoa.dir}/data"
             baseFilesDir="${phocoa.dir}"
         />
-        <echo msg="PEAR package.xml file is built in ${phocoa.dir}/data/package.xml" /> 
-    </target> 
+        <echo msg="PEAR package.xml file is built in ${phocoa.dir}/data/package.xml" />
+    </target>
 
 </project>
