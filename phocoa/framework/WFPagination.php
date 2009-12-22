@@ -1041,4 +1041,126 @@ class WFPagedCreoleQuery implements WFPagedData
     }
 }
 
+/**
+ * A WFPagedData implementation for a PDO-based SQL query.
+ *
+ * Sorting support: The sortKeys should be the acutal SQL token to use in the order by clause (ie "table.column") with +/- prepended.
+ */
+class WFPagedPDOQuery implements WFPagedData
+{
+    protected $baseSQL;
+    protected $connection;
+    protected $options;
+
+    const OPT_COUNT_QUERY_ROWS_MODE = 'countQueryRowsMode';
+    const OPT_PROCESS_ROWS_CALLBACK = 'processRowsCallback';
+    const OPT_FETCH_MODE            = 'fetchMode';
+
+    /**
+      * Create a WFPagedPDOQuery paged query.
+      *
+      * @param string The SQL query desired, WITHOUT "order by" or "limit/offset" clauses.
+      * @param object PDO A PDO connection.
+      * @param array Various options for processing the data. See WFPagedPDOQuery::OPT_*.
+      */
+    function __construct($sql, $connection, $options = array())
+    {
+        $this->baseSQL = $sql;
+        $this->connection = $connection;
+
+        $this->options = array_merge(array(
+                                            self::OPT_COUNT_QUERY_ROWS_MODE    => false,
+                                            self::OPT_PROCESS_ROWS_CALLBACK    => array('WFPagedPDOQuery', 'defaultProcessRowsCallback'),
+                                            self::OPT_FETCH_MODE               => PDO::BOTH,
+                                          ), $options);
+    }
+
+    /**
+     * By default, WFPagedPDOQuery returns an associative array of the results using PDO::BOTH mode.
+     *
+     * If you are using a sql query load Propel objects with a custom query (ie something too complex for criteria) but you still want propel objects returned,
+     * call this function with array('PeerName', 'populateObjects'). Note that your query should contain the proper select columns as Criteria would set them up, ie the result of
+     * MyPeer::getFieldNames(BasePeer::TYPE_COLNAME)
+     *
+     * @param callback A valid PHP callback.
+     */
+    function setProcessRowsCallback($callback)
+    {
+        $this->options[self::OPT_PROCESS_ROWS_CALLBACK] = $callback;
+    }
+
+    function itemCount()
+    {
+        $matches = array();
+        if (stripos($this->baseSQL, 'order by'))
+        {
+            $matchCount = preg_match('/^.*(\bfrom\b.*)(\border by\b.*)$/si', $this->baseSQL, $matches);
+        }
+        else
+        {
+            $matchCount = preg_match('/^.*(\bfrom\b.*)$/si', $this->baseSQL, $matches);
+        }
+        if ($matchCount != 1) throw(new Exception("Could not parse sql statement."));
+
+        if ($this->options[self::OPT_COUNT_QUERY_ROWS_MODE] === true)
+        {
+            $countSQL = "select count(*) from (select count(*) " . $matches[1] . ") as queryRows";
+        }
+        else
+        {
+            $countSQL = "select count(*) " . $matches[1];
+        }
+
+        $stmt = $this->connection->prepare($countSQL);
+        $stmt->execute();
+        $rowCount = $stmt->rowCount();
+        if ($rowCount != 1) throw(new Exception("Record count for itemCount query was not 1 as expected. You may need to set countQueryRowsMode to true.") );
+        $row = $stmt->fetch(PDO::FETCH_NUM);
+        return $row[0];
+    }
+
+    function itemsAtIndex($startIndex, $numItems, $sortKeys)
+    {
+        $pageSQL = $this->baseSQL;
+        if (count($sortKeys)) {
+            $pageSQL .= " order by ";
+            $first = true;
+            foreach ($sortKeys as $sortKey) {
+                if (!$first)
+                {
+                    $pageSQL .= ",";
+                }
+                if (substr($sortKey, 0, 1) == '-')
+                {
+                    $pageSQL .= " " . substr($sortKey, 1) . " desc ";
+                }
+                else
+                {
+                    $pageSQL .= " " . substr($sortKey, 1) . " asc ";
+                }
+                $first = false;
+            }
+        }
+        if ($numItems !== WFPaginator::PAGINATOR_PAGESIZE_ALL)
+        {
+            $pageSQL .= " limit " . $numItems;
+        }
+        $pageSQL .= " offset " . ($startIndex - 1);
+
+        // run query
+        $stmt = $this->connection->prepare($pageSQL);
+        $stmt->execute();
+
+        // prepare results into an array of row data
+        $results = array_map($this->options[self::OPT_PROCESS_ROWS_CALLBACK], $stmt->fetchAll($this->options[self::OPT_FETCH_MODE]));
+        
+        return $results;
+    }
+
+    public static function defaultProcessRowsCallback($data)
+    {
+        return $data->fetch();
+    }
+}
+
 ?>
