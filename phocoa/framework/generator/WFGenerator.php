@@ -61,27 +61,34 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
             $propertyName[0] = strtolower($propertyName[0]);
             $property->setValueForKey($propertyName, 'name');
             $property->setValueForKey($column->getDefaultValue(), 'defaultValue');
-            switch ($column->getType()) {
+            // BOOLEAN|TINYINT|SMALLINT|INTEGER|BIGINT|DOUBLE|FLOAT|REAL|DECIMAL|CHAR|{VARCHAR}|LONGVARCHAR|DATE|TIME|TIMESTAMP|BLOB|CLOB
+            switch (strtoupper($column->getType())) {
+                case 'TINYINT':
+                case 'SMALLINT':
                 case 'INTEGER':
+                case 'BIGINT':
+                case 'DOUBLE':
                 case 'NUMERIC':
-                case 'int':
-                case 'double':
+                case 'FLOAT':
+                case 'REAL':
+                case 'DECIMAL':
                     $type = WFModelEntityProperty::TYPE_NUMBER;
                     break;
                 case 'TIMESTAMP':
-                case 'datetime':
+                case 'DATETIME':
+                case 'DATE':
                     $type = WFModelEntityProperty::TYPE_DATETIME;
                     break;
-                case 'text':
+                case 'TEXT':
+                case 'LONGVARCHAR':
                     $type = WFModelEntityProperty::TYPE_TEXT;
                     break;
                 case 'BOOLEAN':
-                case 'boolean':
                     $type = WFModelEntityProperty::TYPE_BOOLEAN;
                     break;
+                case 'CHAR':
                 case 'VARCHAR':
-                case 'string':
-                case 'LONGVARCHAR':
+                case 'STRING':
                     $type = WFModelEntityProperty::TYPE_STRING;
                     break;
                 default: 
