@@ -1071,12 +1071,12 @@ class WFPagedPDOQuery implements WFPagedData
         $this->options = array_merge(array(
                                             self::OPT_COUNT_QUERY_ROWS_MODE    => false,
                                             self::OPT_PROCESS_ROWS_CALLBACK    => array('WFPagedPDOQuery', 'defaultProcessRowsCallback'),
-                                            self::OPT_FETCH_MODE               => PDO::BOTH,
+                                            self::OPT_FETCH_MODE               => PDO::FETCH_BOTH,
                                           ), $options);
     }
 
     /**
-     * By default, WFPagedPDOQuery returns an associative array of the results using PDO::BOTH mode.
+     * By default, WFPagedPDOQuery returns an associative array of the results using PDO::FETCH_BOTH mode.
      *
      * If you are using a sql query load Propel objects with a custom query (ie something too complex for criteria) but you still want propel objects returned,
      * call this function with array('PeerName', 'populateObjects'). Note that your query should contain the proper select columns as Criteria would set them up, ie the result of
