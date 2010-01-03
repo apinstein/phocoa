@@ -1052,9 +1052,9 @@ class WFPagedPDOQuery implements WFPagedData
     protected $connection;
     protected $options;
 
-    const OPT_COUNT_QUERY_ROWS_MODE = 'countQueryRowsMode';
-    const OPT_PROCESS_ROWS_CALLBACK = 'processRowsCallback';
-    const OPT_FETCH_MODE            = 'fetchMode';
+    const OPT_COUNT_QUERY_ROWS_MODE         = 'countQueryRowsMode';
+    const OPT_PROCESS_STATEMENT_CALLBACK    = 'processRowsCallback';
+    const OPT_FETCH_MODE                    = 'fetchMode';
 
     /**
       * Create a WFPagedPDOQuery paged query.
@@ -1069,24 +1069,26 @@ class WFPagedPDOQuery implements WFPagedData
         $this->connection = $connection;
 
         $this->options = array_merge(array(
-                                            self::OPT_COUNT_QUERY_ROWS_MODE    => false,
-                                            self::OPT_PROCESS_ROWS_CALLBACK    => array('WFPagedPDOQuery', 'defaultProcessRowsCallback'),
-                                            self::OPT_FETCH_MODE               => PDO::BOTH,
+                                            self::OPT_COUNT_QUERY_ROWS_MODE         => false,
+                                            self::OPT_PROCESS_STATEMENT_CALLBACK    => array('WFPagedPDOQuery', 'defaultProcessStatementCallback'),
+                                            self::OPT_FETCH_MODE                    => PDO::FETCH_BOTH,
                                           ), $options);
     }
 
     /**
-     * By default, WFPagedPDOQuery returns an associative array of the results using PDO::BOTH mode.
+     * By default, WFPagedPDOQuery returns an associative array of the results using PDO::FETCH_BOTH mode.
      *
      * If you are using a sql query load Propel objects with a custom query (ie something too complex for criteria) but you still want propel objects returned,
      * call this function with array('PeerName', 'populateObjects'). Note that your query should contain the proper select columns as Criteria would set them up, ie the result of
      * MyPeer::getFieldNames(BasePeer::TYPE_COLNAME)
      *
+     * The protoype for the callback is: <code> array callbackF(PDOStatement $stmt) </code>
+     *
      * @param callback A valid PHP callback.
      */
-    function setProcessRowsCallback($callback)
+    function setProcessStatementCallback($callback)
     {
-        $this->options[self::OPT_PROCESS_ROWS_CALLBACK] = $callback;
+        $this->options[self::OPT_PROCESS_STATEMENT_CALLBACK] = $callback;
     }
 
     function itemCount()
@@ -1150,16 +1152,20 @@ class WFPagedPDOQuery implements WFPagedData
         // run query
         $stmt = $this->connection->prepare($pageSQL);
         $stmt->execute();
+        $stmt->setFetchMode($this->options[self::OPT_FETCH_MODE]);
 
-        // prepare results into an array of row data
-        $results = array_map($this->options[self::OPT_PROCESS_ROWS_CALLBACK], $stmt->fetchAll($this->options[self::OPT_FETCH_MODE]));
+        $results = call_user_func($this->options[self::OPT_PROCESS_STATEMENT_CALLBACK], $stmt);
         
         return $results;
     }
 
-    public static function defaultProcessRowsCallback($data)
+    public static function defaultProcessStatementCallback($stmt)
     {
-        return $data->fetch();
+        $results = array();
+        foreach ($stmt as $row) {
+            $results[] = $row;
+        }
+        return $results;
     }
 }
 

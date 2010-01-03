@@ -46,9 +46,22 @@ class WFRequestController extends WFObject
 
         WFExceptionReporting::log($e);
 
+        // build stack of errors (php 5.3+)
+        if (method_exists($e, 'getPrevious'))
+        {
+            $allExceptions = array();
+            do {
+                $allExceptions[] = $e;
+            } while ($e = $e->getPrevious());
+        }
+        else
+        {
+            $allExceptions = array($e);
+        }
+
         $exceptionPage = new WFSmarty();
-        $exceptionPage->assign('exception', $e);
-        $exceptionPage->assign('exceptionClass', get_class($e));
+        $exceptionPage->assign('exceptions', $allExceptions);
+        $exceptionPage->assign('exceptionClass', get_class($allExceptions[0]));
         $exceptionPage->assign('home_url', WWW_ROOT . '/');
         if (IS_PRODUCTION)
         {

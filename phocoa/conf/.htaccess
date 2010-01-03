@@ -6,8 +6,11 @@ RewriteRule ^/?www/framework(/[0-9\.]+)/?(.*) /www/framework/$2 [L]
 #enable a normal wwwroot
 RewriteRule ^/?www/?(.*) - [L]
 
-# enable normal www access to skins directory - WWWROOT for EACH SKIN WWWROOT in EACH SKIN DIR. Pieces are SkinType, SkinName, SkinThemeName, and path/to/resource
+# enable www access to skin assets
 # security thought... can people ../../.. their way to trouble? Apache 2 at least seems to prevent this, but I am not sure how.
+# skinTypeAssetsDir
+RewriteRule ^/?skins/([^/]*)/www/?(.*) ##PHOCOA_APP_DIR##/skins/$1/www/$2 [L]
+# skinSharedAssetsDir and skinThemeAssetsDir
 RewriteRule ^/?skins/([^/]*)/([^/]*)/([^/]*)/?(.*) /www/skins/$1/$2/www/$3/$4 [L]
 
 # show phpdoc documentation

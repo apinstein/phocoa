@@ -474,23 +474,46 @@ class WFSkin extends WFObject
     }
 
 	/**
-	 * return a path to the skin image dir
-	 * @todo Convert this to use the www root in the skins/ dir rather than the wwwroot/skins/ dir to consolidate skins into a single subdirectory
+	 * @deprecated
+     * @see getSkinThemeAssetsDir()
 	 */
 	function getSkinDir()
 	{
-		return WWW_ROOT . '/skins/' . $this->delegateName . '/' . $this->skinName . '/' . $this->skinThemeName;
+		return $this->getSkinThemeAssetsDir();
 	}
 
 	/**
-	 * return a path to the skin shared image dir
-	 * @todo Convert this to use the www root in the skins/ dir rather than the wwwroot/skins/ dir to consolidate skins into a single subdirectory
+     * @deprecated
+     * @see getSkinSharedAssetsDir
 	 */
 	function getSkinDirShared()
 	{
-		return WWW_ROOT . '/skins/' . $this->delegateName . '/' . $this->skinName . '/shared';
+        return $this->getSkinSharedAssetsDir();
 	}
 
+	/**
+	 * @return string www-accessible path to the skin type assets dir (<skintype>/www)
+	 */
+	function getSkinTypeAssetsDir()
+	{
+		return WWW_ROOT . '/skins/' . $this->delegateName . '/www';
+	}
+
+	/**
+	 * @return string www-accessible path to the skin shared assets dir (<skintype>/<skin>/www/<shared>)
+	 */
+    function getSkinSharedAssetsDir()
+    {
+		return WWW_ROOT . '/skins/' . $this->delegateName . '/' . $this->skinName . '/shared';
+    }
+
+	/**
+	 * @return string www-accessible path to the skin theme assets dir (<skintype>/<skin>/www/<theme>)
+	 */
+    function getSkinThemeAssetsDir()
+    {
+		return WWW_ROOT . '/skins/' . $this->delegateName . '/' . $this->skinName . '/' . $this->skinThemeName;
+    }
 
     /**
      * Render the skin.
@@ -518,8 +541,13 @@ class WFSkin extends WFObject
         $smarty->assign('phocoaDebug', WFWebApplication::sharedWebApplication()->debug());
 
         // set up shared directory URLs
+        // deprecated
         $smarty->assign('skinDir', $this->getSkinDir() );
         $smarty->assign('skinDirShared', $this->getSkinDirShared() );
+        // new names
+        $smarty->assign('skinTypeAssetsDir', $this->getSkinTypeAssetsDir() );
+        $smarty->assign('skinSharedAssetsDir', $this->getSkinSharedAssetsDir() );
+        $smarty->assign('skinThemeAssetsDir', $this->getSkinThemeAssetsDir() );
 
         // build the <head> section
         $smarty->assign('skinPhocoaHeadTpl', WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/head.tpl');
