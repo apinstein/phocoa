@@ -14,6 +14,11 @@ Version 0.3.4 - ??
 - [bugfix] Make WFDieselFacet compatible with YUI 2.7.0. It was eating clicks and getting stuck on "loading".
 - [bugfix] Fix bug in menu facets where onChange handler no longer worked due to newer version of prototype scoping code from evalScripts.
 - [improved] The phocoa shell is now even better, with full support for require'd files, tolerance of "fatal" errors, and more.
+- [BC-deprecated] The nomenclature for skins has been cleaned up to be more consistent and understandable, resulting in the following rename/deprecation:
+                  - {$skinDir} / $skin->getSkinDir() BECOMES {$skinThemeAssetsDir} / $skin->getSkinThemeAssetsDir()
+                  - {$skinDirShared} / $skin->getSkinDirShared() BECOMES {$skinSharedAssetsDir} / $skin->getSkinSharedAssetsDir()
+- [new] There is now a new "skin" assets section, for assets shared across all skin implementations for a given skin type.
+        This directory is at skins/<skinTypeName>/www/ and is accessible via {$skinTypeAssetsDir} / $skin->getSkinTypeAssetsDir()
 
 Version 0.3.3 - 11/2/2009
 - [BC-break] [new] WFRPC.execute() now automatically array-ifies arguments that are arrays of scalars. IE array(1,2,3) ==> arg_0[]=1&arg_0[]=2&arg_0[]=3.

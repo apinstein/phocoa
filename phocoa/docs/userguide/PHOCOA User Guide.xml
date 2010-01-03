@@ -2122,6 +2122,9 @@ Total time: 2.8443 seconds
       <emphasis>skin type</emphasis>, pick a unique name and create a
       directory.</para>
 
+      <para><filename>skins/&lt;skinType&gt;/www/</filename> - For each
+      <emphasis>skin type</emphasis>, assets shared across all skins.</para>
+
       <para><filename>skins/&lt;skinType&gt;/&lt;skinType&gt;_SkinDelegate.php</filename>
       - A php file containing exactly one class, named
       <filename>&lt;skinType&gt;_SkinDelegate</filename>, that is the
@@ -2161,15 +2164,32 @@ Total time: 2.8443 seconds
 
       <itemizedlist>
         <listitem>
-          <para><token>skinDir</token> Absolute URL path to the
+          <para><token>skinThemeAssetsDir (formelry skinDir)</token> Absolute
+          URI to the
           <filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/www/&lt;themeName&gt;/</filename>
           directory.</para>
+
+          <note>
+            <para><varname>skinThemeAssetsDir</varname> was previously named
+            <varname>skinDir</varname></para>
+          </note>
         </listitem>
 
         <listitem>
-          <para><token>skinDirShared</token> Absoulte URL path to the
+          <para><token>skinSharedAssetsDir (formerly skinDirShared</token>)
+          Absoulte URI to the
           <filename>skins/&lt;skinType&gt;/&lt;skinName&gt;/www/shared/
-          directory.</filename></para>
+          directory</filename></para>
+
+          <note>
+            <para><varname>skinSharedAssetsDir</varname> was previously named
+            <varname>skinDirShared</varname></para>
+          </note>
+        </listitem>
+
+        <listitem>
+          <para><token>skinTypeAssetsDir </token>Absoulte URI to the
+          <filename>skins/&lt;skinType&gt;/www/ directory</filename></para>
         </listitem>
 
         <listitem>
@@ -2190,25 +2210,36 @@ Total time: 2.8443 seconds
         </listitem>
       </itemizedlist>
 
-      <para>In addition to these variables, PHOCOA also includes a Smarty
-      plugin to generate the correct CSS reference to include themed CSS
-      files. The syntax is:</para>
+      <para>For instance, the following code would include the current skin's
+      shared "style.css" file:</para>
 
-      <para><function>{WFSkinCSS file="myFile.css"
-      media="screen"}</function></para>
+      <screen>&lt;link href="{$skinSharedAssetsDir}/style.css" rel="stylesheet" type="text/css" /&gt;</screen>
+
+      <bridgehead>Generating CSS Dynamically</bridgehead>
+
+      <para>The above form of linking to CSS assets in the shared/ directory
+      works fine. However, in many cases you will want to generate your CSS
+      dynamically so you can use Smarty syntax to simplify your CSS creation,
+      or reflect the current theme's variable data (via the
+      <token>skinThemeVars</token> variable) in your css file.</para>
+
+      <para>To run a css file through the Smarty processing engine, use the
+      following form to reference CSS files:</para>
+
+      <screen><function>{WFSkinCSS file="style.css" media="screen"}</function></screen>
+
+      <para>The above form will display the same
+      <filename>style.css</filename> file, but first processed through
+      Smarty.</para>
 
       <para>The <token>media</token> attribute is optional.</para>
 
-      <para>You don't have to use this method to include CSS files. You can
-      simply put them in your theme's www directory, or in the shared
-      directory. The difference, however, is that if you use the themed css
-      syntax, your CSS file will be processed as a template and thus have
-      access to the <token>skinThemeVars</token> variable. This is
-      particularly useful if the only difference between your different theme
-      css files is just a different colorscheme, for instance. Instead of
-      having to maintain multiple copies of nearly identical CSS files, you
-      can just have one that is run through the themed CSS system, and simply
-      subsitute the colorscheme info via template variables.</para>
+      <para>This method is particularly useful if the only difference between
+      your different theme css files is just a different colorscheme, for
+      instance. Instead of having to maintain multiple copies of nearly
+      identical CSS files, you can just have one that is run through the
+      themed CSS system, and simply subsitute the colorscheme info via
+      template variables.</para>
 
       <bridgehead>Previewing Skins</bridgehead>
 
