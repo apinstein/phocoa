@@ -2,7 +2,7 @@
 
 # tools:
 # fink install docbook-xsl fop
-DOCBOOK_INPUT=/Users/alanpinstein/dev/sandbox/phocoa/phocoa/docs/userguide/ug.xml
+DOCBOOK_INPUT='PHOCOA_User_Guide.xml'
 if [ -z $1 ]; then
     DOCBOOK_OUTPUT=.
 else
@@ -11,7 +11,7 @@ fi
 echo $DOCBOOK_OUTPUT
 
 # PDF Version
-fop -xml $DOCBOOK_INPUT -xsl /sw/share/xml/xsl/docbook-xsl/fo/docbook.xsl -pdf $DOCBOOK_OUTPUT/PHOCOA_User_Guide.pdf
+fop -xml $DOCBOOK_INPUT -xsl /sw/share/xml/xsl/docbook-xsl/fo/docbook.xsl -pdf "$DOCBOOK_OUTPUT/PHOCOA_User_Guide.pdf"
 
 # HTML Version
-docbook2html -o $DOCBOOK_OUTPUT/userguide-html $DOCBOOK_INPUT
+docbook2html -o $DOCBOOK_OUTPUT/userguide-html "$DOCBOOK_INPUT"
