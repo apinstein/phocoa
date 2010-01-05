@@ -158,6 +158,7 @@ class WFSkinDelegate
  * The skins have a specified, hierarchical directory structure, based in the "skins" directory.
  * skins/ - Contains only directories; each directory represents a Skin Type.
  * skins/&lt;skinType&gt;/ - For each skin type, pick a unique name and create a directory.
+ * skins/&lt;skinType&gt;/www/ - For each skin type, css that is shared across all skins.
  * skins/&lt;skinType&gt;/&lt;skinType&gt;_SkinDelegate.php - A php file containing exactly one class, named &lt;skinType&gt;_SkinDelegate, that is the {@link WFSkinDelegate} for the Skin Type.
  * skins/&lt;skinType&gt;/&lt;skinName&gt;/ - Also in the skinType directory are other directories, one for each skin that can be used for the Skin Type.
  * skins/&lt;skinType&gt;/&lt;skinName&gt;/&lt;skinName&gt;_SkinManifestDelegate.php - The {@link WFSkinManifestDelegate} for the skin &lt;skinName&gt;.

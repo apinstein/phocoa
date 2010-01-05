@@ -91,6 +91,7 @@ TODO
   - Re-build "code-gen" things to build WFAutoForm instead
   - Update PHOCOA Builder to allow browsing ( or instantiating ) of PHP Objects, & drag-drop an object onto an interface
 - RESTful infrastructure; TRICKY! See framework/resftul.patch; see http://www.krisjordan.com/2008/12/02/towards-restful-php-5-basic-tips/ for tips
+- Should track which binding options actually get *processed* somehow, so that we can report on ones that *don't* which is useful for debugging.
 - WFModule/Page architecture
   - Can we "cache" the "state" of the page sent before rendering? And then restore it instead of "bootstrapping" again? Would mean that we could then do KVO more cleanly.
     Could even have a "alwaysDoPostback" mode that would postBack to ensure only one UI change made at a time; this would nearly fully replicate desktop environment
