@@ -7,36 +7,45 @@
 # - check for PHOCOA_HOME env, if found use it
 #   - if not look for it
 PHOCOA_RUN_FROM_DIR=`pwd`
+
+# determine PHOCOA_HOME
 if [ -z "$PHOCOA_HOME" ] ; then
 
-  # we never really expect PHOCOA_HOME to be set... we get this info from the path to this executable
-  # echo "WARNING: PHOCOA_HOME environment not set. Attempting to guess."
+  PEAR_INSTALL_DIR="@pear_directory@"
+  if [ ${PEAR_INSTALL_DIR:0:15} == "@pear_directory" ] ; then
+    # is not pear install
+    # we never really expect PHOCOA_HOME to be set... we get this info from the path to this executable
+    # echo "WARNING: PHOCOA_HOME environment not set. Attempting to guess."
 
-  # try to find PHOCOA
-  
-  ## resolve links - $0 may be a link to phing's home
-  PRG="$0"
-  progname=`basename "$0"`
+    # try to find PHOCOA
+    
+    ## resolve links - $0 may be a link to phing's home
+    PRG="$0"
+    progname=`basename "$0"`
 
-  # need this for relative symlinks
-  dirname_prg=`dirname "$PRG"`
-  cd "$dirname_prg"
-  
-  while [ -h "$PRG" ] ; do
-    ls=`ls -ld "$PRG"`
-    link=`expr "$ls" : '.*-> \(.*\)$'`
-    if expr "$link" : '/.*' > /dev/null; then
-        PRG="$link"
-    else
-        PRG=`dirname "$PRG"`"/$link"
-    fi
-  done
-  cd "$PHOCOA_RUN_FROM_DIR"
-  
-  PHOCOA_HOME=`dirname "$PRG"`/..
+    # need this for relative symlinks
+    dirname_prg=`dirname "$PRG"`
+    cd "$dirname_prg"
+    
+    while [ -h "$PRG" ] ; do
+      ls=`ls -ld "$PRG"`
+      link=`expr "$ls" : '.*-> \(.*\)$'`
+      if expr "$link" : '/.*' > /dev/null; then
+          PRG="$link"
+      else
+          PRG=`dirname "$PRG"`"/$link"
+      fi
+    done
+    cd "$PHOCOA_RUN_FROM_DIR"
+    
+    PHOCOA_HOME=`dirname "$PRG"`/..
 
-  # make it fully qualified
-  PHOCOA_HOME=`cd "$PHOCOA_HOME" && pwd`
+    # make it fully qualified
+    PHOCOA_HOME=`cd "$PHOCOA_HOME" && pwd`
+  else
+    # is a pear install
+    PHOCOA_HOME="@pear_directory@/phocoa"
+  fi
   
   # make it available in PHP via getenv("PHOCOA_HOME")
   export PHOCOA_HOME
