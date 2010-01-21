@@ -54,6 +54,18 @@ class WFArray extends ArrayObject
         }
     }
 
+    public function setValueForKey($value, $key)
+    {
+        $this[$key] = $value;
+    }
+
+    public function setValuesForKeys($valuesForKeys)
+    {
+        foreach ($valuesForKeys as $k => $v) {
+            $this->setValueForKey($v, $k);
+        }
+    }
+
     public function valueForKeyPath($keyPath)
     {
         return WFObject::valueForTargetAndKeyPath($keyPath, $this);
