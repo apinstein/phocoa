@@ -61,6 +61,7 @@ TODO
 - Get WFDateTimeFormatter working... object issues with bindings
 - Need to track whether or not a widget was "restored" so we can skip pushbindings if the data wasn't in the request stream. This is important for things like dynamically hidden fields... creationDts, fkId, etc.
 - The "default" class for the WFControllers is WFDictionary... I think maybe we can use ArrayObject, which is an PHP5 SPL class (or at least subclass it). Need more testing...
+- WFAuthorizationManager has a "version" used to invalidate sessions when the data structure changes, but there's no way to do this from userland. WFAuthorizationDelegate should have a "version" delegate method used to invalidate the authorization info.
 - Can we add "default values" to parameters for parameterList('name' => 'defaultValue') the way we did for: phocoa builder/exportPhocoaBuilderIntegrationInfo.php
   - would simplify default value setup
   - I think it's safe re php spec
