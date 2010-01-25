@@ -427,7 +427,6 @@ class WFSelect extends WFWidget
     }
 
     function canPushValueBinding() { return true; }
-
+    function pushBindingsIfNotEnabled() { return true; }
 }
-
 ?>

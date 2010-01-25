@@ -655,6 +655,22 @@ abstract class WFWidget extends WFView
     }
 
     /**
+     * By default HTML doesn't submit the data for disabled controls; phocoa hence skips pushBindings for disabled controls to prevent "null" data
+     * from being pushed back onto the models.
+     *
+     * This function allows WFWidget subclasses that "fake" submission of data for disabled controls via hidden fields to "make themselves work"
+     * by re-enabling pushBindings for not enabled widgets.
+     *
+     * Subclasses that fake their own data should override this function and return true.
+     * 
+     * @return boolean
+     */
+    function pushBindingsIfNotEnabled()
+    {
+        return false;
+    }
+
+    /**
      * Each widget should implement this callback if there are any bindable properties whose values are to be propagated back to the bound objects.
      * For each bound property, use the {@link propagateValueToBinding} method to perform validation and propagate the value back to the bound object.
      * Don't forget that the value may be cleaned up by propagateValueToBinding and that you should update the value(s) of your widget so that it will
@@ -667,7 +683,8 @@ abstract class WFWidget extends WFView
     {
         if (!$this->canPushValueBinding()) return;
         if ($this->bindingByName('value') and !$this->bindingByName('value')->canWriteBoundValue()) return;
-        if (!$this->enabled()) return;  // disabled HTML controls do not submit data, thus they'll be empty! Thus don't push data or we'll blow away valid data.
+        if (!$this->enabled() and !$this->pushBindingsIfNotEnabled()) return;  // disabled HTML controls do not submit data, thus they'll be empty! Thus don't push data  or we'll blow away valid data.
+
 
         WFLog::log("pushBindings() for for widget id '{$this->id}'", WFLog::TRACE_LOG);
 
