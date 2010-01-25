@@ -79,6 +79,13 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
         $this->yuiloader()->yuiRequire('container,colorpicker');
     }
 
+    function cloneWithID($id)
+    {
+        $newView = parent::cloneWithID($id);
+        $newView->setValueForKey($id, 'initializeWaitsForID');
+        return $newView;
+    }
+
     function render($blockContent = NULL)
     {
         if (!$this->textFieldId) throw( new WFException("WFYAHOO_widget_ColorPicker requires a text field to work with at present.") );
