@@ -159,6 +159,10 @@ class WFRequestController extends WFObject
             }   
 
             print $html;
+        } catch (WFRequestController_HTTPException $e) {
+            header("HTTP/1.0 {$e->getCode()}");
+            print $e->getMessage();
+            exit;
         } catch (WFRequestController_BadRequestException $e) {
             header("HTTP/1.0 400 Bad Request");
             print "Bad Request: " . $e->getMessage();
@@ -291,4 +295,8 @@ class WFRequestController_RedirectException extends WFRedirectRequestException {
 class WFRequestController_InternalRedirectException extends WFRedirectRequestException {}
 class WFRequestController_NotFoundException extends WFException {}
 class WFRequestController_BadRequestException extends WFException {}
+class WFRequestController_HTTPException extends WFException
+{
+    public function __construct($message = NULL, $code = 500) { parent::__construct($message, $code); }
+}
 ?>
