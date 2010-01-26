@@ -86,6 +86,8 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
         return $newView;
     }
 
+    function canPushValueBinding() { return true; }
+
     function restoreState()
     {
         //  must call super

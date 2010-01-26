@@ -11,6 +11,7 @@ Version 0.3.5 - ??
 - [BC-break] WFSelect will now "pushBindings" even if it is disabled. This shouldn't cause any problem since the data is immutable on the form, but is being listed as a BC here out of an abundance of caution.
 - [bugfix] WFYAHOO_widget_ColorPicker now works properly when used as a prototype for WFDynamic.
 - [new] WFYAHOO_widget_ColorPicker will bootstrap its own text field if none supplied.
+- [new] WFYAHOO_widget_ColorPicker.value is now bindable.
 
 Version 0.3.4 - 1/8/2010
 - [new] Now PEAR-installable! pear channel-discover apinstein.pearfarm.org; pear install apinstein/phocoa
