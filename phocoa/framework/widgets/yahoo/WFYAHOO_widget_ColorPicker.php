@@ -86,9 +86,29 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
         return $newView;
     }
 
+    function restoreState()
+    {
+        //  must call super
+        parent::restoreState();
+
+        if (isset($_REQUEST[$this->getInternalTextFieldId()]))
+        {
+            $this->value = $_REQUEST[$this->getInternalTextFieldId()];
+        }
+    }
+
+    function getInternalTextFieldId()
+    {
+        return "{$this->id}_tf";
+    }
+
     function render($blockContent = NULL)
     {
-        if (!$this->textFieldId) throw( new WFException("WFYAHOO_widget_ColorPicker requires a text field to work with at present.") );
+        $localTF = ($this->textFieldId === NULL);
+        if ($localTF)
+        {
+            $this->textFieldId = $this->getInternalTextFieldId();
+        }
 
         if ($this->hidden)
         {
@@ -98,9 +118,13 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
         {
             // render the tab's content block
             $html = parent::render($blockContent);
+            if ($localTF)
+            {
+                $html .= '<input style="float: left;" type="text" name="' . $this->textFieldId . '" id="' . $this->textFieldId . '" value="' . htmlentities($this->value) . '" />';
+            }
             $html .= '
             <div style="width: auto; margin: 0 auto; padding: 0 1px; overflow: hidden;">
-                <div id="' . $this->id . '_sample" style="float: left; background: ' . $this->page->outlet($this->textFieldId)->value() . '; border: 1px solid black; width: 1.25em; height: 1.25em; margin: 0px 7px;" ></div>
+                <div id="' . $this->id . '_sample" style="float: left; border: 1px solid black; width: 1.25em; height: 1.25em; margin: 0px 7px; visibility: hidden;" ></div>
                 <input style="float: left;" type="button" value="Pick Color" id="' . $this->id . '_trigger" />
             </div>
             <div id="' . $this->id . '" class="yui-picker-panel" style="display: none">
@@ -120,6 +144,9 @@ class WFYAHOO_widget_ColorPicker extends WFYAHOO
         $html = "
         PHOCOA.widgets.{$this->id}.init = function() {
             PHOCOA.widgets.{$this->id}.originalValue = null;
+
+            // adjust intial color based on TF
+            $('{$this->id}_sample').setStyle({ background: \$F('{$this->textFieldId}'), visibility: 'visible' });
 
             // add listener to text field for changes
             YAHOO.util.Event.addListener('{$this->textFieldId}', 'change', function() {
