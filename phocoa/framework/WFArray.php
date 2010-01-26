@@ -71,6 +71,25 @@ class WFArray extends ArrayObject
         return WFObject::valueForTargetAndKeyPath($keyPath, $this);
     }
 
+    // @todo Factor out into WFKVC::valuesForKeyPaths($keysAndKeyPaths, $object)
+    public function valuesForKeyPaths($keysAndKeyPaths)
+    {
+        $hash = array();
+        // fix integer keys into keys... this allows keysAndKeyPaths to return ('myProp', 'myProp2' => 'myKeyPath', 'myProp3')
+        foreach ( array_keys($keysAndKeyPaths) as $k ) {
+            if (gettype($k) == 'integer')
+            {
+                $keysAndKeyPaths[$keysAndKeyPaths[$k]] = $keysAndKeyPaths[$k];
+                unset($keysAndKeyPaths[$k]);
+            }
+        }
+        foreach ($keysAndKeyPaths as $k => $keyPath) {
+            $v = $this->valueForKeyPath($keyPath);
+            $hash[$k] = $v;
+        }
+        return $hash;
+    }
+
     /**
      * Helper static initializer to create a new array for fluent interfaces.
      *
