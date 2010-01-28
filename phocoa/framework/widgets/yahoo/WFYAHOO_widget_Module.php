@@ -164,6 +164,15 @@ class WFYAHOO_widget_Module extends WFYAHOO
         }
         else
         {
+            if ($this->buildModuleProgrammatically)
+            {
+                // if buildModuleProgrammatically, the dom el with the real ID can't be there when we call new YAHOO.widget.Module or YUI will use that el and it won't truly be programmatic.
+                // but we still need a dom element to use to bootstrap our code as part of our YUI loading infrastructure (see base class onContentReady),
+                // so we manufacture one with a different id.
+                // @todo we can probable get rid of this hack and use initializeWaitsForID === NULL as a flag to *not* hang things on onContentReady().
+                $this->initializeWaitsForID = "{$this->id}_bootstrap";
+            }
+
             $html = parent::render($blockContent);
             // determine body html
             $bodyHTML = ($blockContent === NULL ? $this->body : $blockContent);
@@ -197,7 +206,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
             }
             else
             {
-                $html .= "<div id=\"{$this->id}\"{$visibility}></div>";
+                $html .= "<div id=\"{$this->initializeWaitsForID}\" style=\"display:none;\"></div>";
             }
             return $html;
         }
@@ -225,9 +234,6 @@ PHOCOA.widgets.{$this->id}.Module.queueProps = function(o) {
     // queue Module props here
 };
 PHOCOA.widgets.{$this->id}.Module.init = function() {
-    // if buildModuleProgrammatically, the dom el w/ID can't be there when we call new or it won't be programmatic. so we remove it.
-    // the reason it's there in the first place is we need the div there so onContentReady(id) will fire. part of our YUI loading infrastructure.
-    $('{$this->id}').remove();
     var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\");
     module.subscribe('changeBody', function(el) { PHOCOA.widgets.{$this->id}.scriptsEvald = false; } );
     module.showEvent.subscribe(function(el) {
