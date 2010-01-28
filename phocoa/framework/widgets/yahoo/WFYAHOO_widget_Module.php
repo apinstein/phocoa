@@ -225,6 +225,9 @@ PHOCOA.widgets.{$this->id}.Module.queueProps = function(o) {
     // queue Module props here
 };
 PHOCOA.widgets.{$this->id}.Module.init = function() {
+    // if buildModuleProgrammatically, the dom el w/ID can't be there when we call new or it won't be programmatic. so we remove it.
+    // the reason it's there in the first place is we need the div there so onContentReady(id) will fire. part of our YUI loading infrastructure.
+    $('{$this->id}').remove();
     var module = new YAHOO.widget.{$this->containerClass}(\"{$this->id}\");
     module.subscribe('changeBody', function(el) { PHOCOA.widgets.{$this->id}.scriptsEvald = false; } );
     module.showEvent.subscribe(function(el) {
@@ -240,11 +243,13 @@ PHOCOA.widgets.{$this->id}.Module.init = function() {
 
         if ($this->buildModuleProgrammatically)
         {
+            // renderTo is required for buildModuleProgrammatically. should default to document.body if user doesn't specify something more specific
+            $renderTo = ($this->renderTo ? $this->renderTo : 'document.body');
             $script .= "
     module.setHeader(" . ($this->header === NULL ? '""' : WFJSON::json_encode($this->header)) . ");
     module.setBody(" . ($bodyHTML === NULL ? '""' : WFJSON::json_encode($bodyHTML)) . ");
     module.setFooter(" . ($this->footer  === NULL ? '""' : WFJSON::json_encode($this->footer)) . ");
-    module.render({$this->renderTo});
+    module.render({$renderTo});
 ";
         }
         else
