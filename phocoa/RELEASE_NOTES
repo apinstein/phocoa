@@ -6,12 +6,15 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.3.5 - ??
+Version 0.3.6 - ??
+
+Version 0.3.5 - 1/28/2010
 - [new] Added WFRequestController_HTTPException which takes in a ($msg, $httpCode) which defaults to HTTP 500, internal server exception. This should make it much easier to send arbitrary HTTP codes without having to subclass each one. WFRequestController_HTTPException is *not* emailed through the uncaught exception handler.
 - [BC-break] WFSelect will now "pushBindings" even if it is disabled. This shouldn't cause any problem since the data is immutable on the form, but is being listed as a BC here out of an abundance of caution.
 - [bugfix] WFYAHOO_widget_ColorPicker now works properly when used as a prototype for WFDynamic.
 - [new] WFYAHOO_widget_ColorPicker will bootstrap its own text field if none supplied.
 - [bugfix, BC-break] WFYAHOO_widget_Module, when set to build "programmatically", now defaults to being added to document.body rather than "inline" in the DOM where it is rendered. Previously it was always rendered inline, which made it very fragile to layout clipping and accidental creation of nested forms. YUI recommends the new behavior. I *thought* that I had already made this fix, but there was a bug. The BC-break is for existing uses of YUI containers that accidentally relied on the inline DOM positioning of the Container and didn't already have code (like setRenderTo()) to force inline rendering.
+- [bugfix] WFRPC.execute now works properly for raw URL redirects.
 
 Version 0.3.4 - 1/8/2010
 - [new] Now PEAR-installable! pear channel-discover apinstein.pearfarm.org; pear install apinstein/phocoa

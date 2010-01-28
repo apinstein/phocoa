@@ -279,6 +279,11 @@ PHOCOA.WFRPC.prototype = {
         return url;
     },
 
+    // args should be an array of arguments
+    actionAsURL: function(args) {
+        return this.actionURL() + '?' + this.actionURLParams(args);
+    },
+
     phocoaRPCParameters: function(args) {
         args = args || [];
         var params = {};
@@ -358,6 +363,7 @@ PHOCOA.WFRPC.prototype = {
             }
             else
             {
+                var url = this.actionAsURL(this.execute.arguments);
                 document.location = url;
             }
         }
