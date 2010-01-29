@@ -257,6 +257,8 @@ PHOCOA.WFRPC.prototype = {
     actionURL: function() {
         return this.invocationPath;
     },
+
+    // data will be URL-encoded
     actionURLParams: function(args, append) {
         args = args || [];
         append = append || false;
@@ -280,10 +282,12 @@ PHOCOA.WFRPC.prototype = {
     },
 
     // args should be an array of arguments
+    // returns a valid URL with proper URLEncoding of data.
     actionAsURL: function(args) {
         return this.actionURL() + '?' + this.actionURLParams(args);
     },
 
+    // does no value encoding *on purpose* it is meant to return raw values.
     phocoaRPCParameters: function(args) {
         args = args || [];
         var params = {};
