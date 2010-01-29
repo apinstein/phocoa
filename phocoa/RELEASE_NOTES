@@ -7,6 +7,7 @@ Legend:
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
 Version 0.3.6 - ??
+- [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().
 
 Version 0.3.5 - 1/28/2010
 - [new] Added WFRequestController_HTTPException which takes in a ($msg, $httpCode) which defaults to HTTP 500, internal server exception. This should make it much easier to send arbitrary HTTP codes without having to subclass each one. WFRequestController_HTTPException is *not* emailed through the uncaught exception handler.
