@@ -20,7 +20,9 @@
  * <b>Optional:</b><br>
  *
  * NOTE: Effects don't work on Modules, but do on all subclasses. Bugfix coming from YUI.
- * @todo buildModuleProgrammatically needs a way to specify a parent element to add the module to.
+ * @todo if buildModuleProgrammatically is true, we *shouldn't be* dropping in an empty div. Not sure why we are, it causes the module to
+ *       be put in wrong spot in DOM (or at least diff than expected).
+ * @todo TEST! We should build selenium tests for Container family. Scenarios include: dynamic/static build, DOM insertion location, and inside/outside form in Module.
  */
 class WFYAHOO_widget_Module extends WFYAHOO
 {
@@ -162,6 +164,15 @@ class WFYAHOO_widget_Module extends WFYAHOO
         }
         else
         {
+            if ($this->buildModuleProgrammatically)
+            {
+                // if buildModuleProgrammatically, the dom el with the real ID can't be there when we call new YAHOO.widget.Module or YUI will use that el and it won't truly be programmatic.
+                // but we still need a dom element to use to bootstrap our code as part of our YUI loading infrastructure (see base class onContentReady),
+                // so we manufacture one with a different id.
+                // @todo we can probable get rid of this hack and use initializeWaitsForID === NULL as a flag to *not* hang things on onContentReady().
+                $this->initializeWaitsForID = "{$this->id}_bootstrap";
+            }
+
             $html = parent::render($blockContent);
             // determine body html
             $bodyHTML = ($blockContent === NULL ? $this->body : $blockContent);
@@ -195,7 +206,7 @@ class WFYAHOO_widget_Module extends WFYAHOO
             }
             else
             {
-                $html .= "<div id=\"{$this->id}\"{$visibility}></div>";
+                $html .= "<div id=\"{$this->initializeWaitsForID}\" style=\"display:none;\"></div>";
             }
             return $html;
         }
@@ -238,11 +249,13 @@ PHOCOA.widgets.{$this->id}.Module.init = function() {
 
         if ($this->buildModuleProgrammatically)
         {
+            // renderTo is required for buildModuleProgrammatically. should default to document.body if user doesn't specify something more specific
+            $renderTo = ($this->renderTo ? $this->renderTo : 'document.body');
             $script .= "
     module.setHeader(" . ($this->header === NULL ? '""' : WFJSON::json_encode($this->header)) . ");
     module.setBody(" . ($bodyHTML === NULL ? '""' : WFJSON::json_encode($bodyHTML)) . ");
     module.setFooter(" . ($this->footer  === NULL ? '""' : WFJSON::json_encode($this->footer)) . ");
-    module.render({$this->renderTo});
+    module.render({$renderTo});
 ";
         }
         else
