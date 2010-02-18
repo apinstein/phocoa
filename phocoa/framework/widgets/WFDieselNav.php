@@ -105,15 +105,16 @@ class WFDieselNav extends WFWidget
             if ($pName == $this->dpQueryStateParamName) break;
             $baseURLParams[] = $value;
         }
+        $baseURLParams = rtrim(join('/', $baseURLParams), '/');
         
         // calculate base URL for links
         if ($this->page->module()->invocation()->targetRootModule() and !$this->page->module()->invocation()->isRootInvocation())
         {
-            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->rootInvocation()->invocationPath() . '/' . join('/', $baseURLParams);
+            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->rootInvocation()->invocationPath() . $baseURLParams;
         }
         else
         {
-            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . '/' . join('/', $baseURLParams);
+            $this->baseURL = WWW_ROOT . '/' . $this->page->module()->invocation()->modulePath() . '/' . $this->page->pageName() . $baseURLParams;
         }
         return $this->baseURL;
     }
