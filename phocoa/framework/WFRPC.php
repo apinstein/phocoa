@@ -361,7 +361,10 @@ class WFRPC extends WFObject
 
         // not sure why this is with WWW_ROOT....
         $invocationPathWithWWW = WWW_ROOT . '/' . $invocationPath;
-        if ($invocationPathWithWWW !== $_REQUEST[self::PARAM_INVOCATION_PATH]) return NULL;
+        // invocationPath comes from PATH_INFO which has not been urldecode'd or rawurldecode'd
+        // the PARAM_INVOCATION_PATH is in request, which php automatically urldecode'd and rawurldecode'd, but since our infrastructure *also* rawurlencode'd it,
+        // for this test we need to urldecode and then rawurldecode the invocationPath, and rawurldecode the PARAM_INVOCATION_PATH
+        if (rawurldecode(urldecode($invocationPathWithWWW)) !== rawurldecode($_REQUEST[self::PARAM_INVOCATION_PATH])) return NULL;
 
         $rpc = WFRPC::RPC();
         $rpc->setInvocationPath($_REQUEST[self::PARAM_INVOCATION_PATH]);
