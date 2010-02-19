@@ -276,7 +276,7 @@ class WFDieselNav extends WFWidget
             $renderedCount = 0;
             $moreChoicesListIDs = array();
             // render widgets
-            $html .= '<table border="0" cellpadding="5" cellspacing="0"><tr>';
+            $html .= '<ul class="phocoaWFDieselNav_FacetList">';
             // first do items in desired order
             foreach ($this->facetNavOrder as $id) {
                 if (isset($facetNavsByID[$id]))
@@ -294,7 +294,7 @@ class WFDieselNav extends WFWidget
                     $facetHTML = $facetNav->render();
                     if ($facetHTML)
                     {
-                        $html .= "\n<td>{$facetHTML}</td>";
+                        $html .= "\n<li class='phocoaWFDieselNav_Facet'>{$facetHTML}</li>";
                         $renderedCount++;
                     }
                     $renderedList[$id] = true;
@@ -319,18 +319,17 @@ class WFDieselNav extends WFWidget
                     $facetHTML = $facetNav->render();
                     if ($facetHTML)
                     {
-                        $html .= "\n<td>{$facetHTML}</td>";
+                        $html .= "\n<li class='phocoaWFDieselNav_Facet'>{$facetHTML}</li>";
                         $renderedCount++;
                     }
                     $renderedList[$id] = true;
                 }
             }
-            $html .= "\n</tr></table>\n";
 
             // 3. display "more choices" as needed
             if (count($moreChoicesListIDs))
             {
-                $html .= "<div class=\"phocoaWFDieselNav_MoreChoices\"><b>More Choices:</b>\n";
+                $html .= "<li class='phocoaWFDieselNav_MoreChoices'><b>More Choices:</b>\n";
                 $first = true;
                 foreach ($moreChoicesListIDs as $id => $nothing) {
                     // skip already rendered items
@@ -351,10 +350,10 @@ class WFDieselNav extends WFWidget
                     }
                     $first = false;
                 }
-                $html .= "\n</div>\n";
+                $html .= "\n</li>\n";
             }
             
-            $html .= "</div>";
+            $html .= "</ul></div>";
             return $html;
         }
     }

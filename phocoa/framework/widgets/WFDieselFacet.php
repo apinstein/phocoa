@@ -108,6 +108,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
     protected $treeDataPath;
     protected $isTaxonomyAttribute;
     protected $width;
+    protected $height;
 
     /**
       * Constructor.
@@ -134,6 +135,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         $this->popupSelections = array();
         $this->treeDataPath = null;
         $this->width = NULL;
+        $this->height = NULL;
     }
 
     public static function exposedProperties()
@@ -154,6 +156,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
             'sortByFrequency' => array('list', 'menu', 'tree'),
             'ellipsisAfterChars',
             'width',
+            'height',
             ));
     }
 
@@ -389,8 +392,9 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                     $html .= "<span style=\"font-weight: bold; white-space: nowrap;\">{$this->label}</span><br />\n";
                 }
                 $width = ($this->width ? "width: {$this->width};" : NULL );
+                $height = ($this->isPopup ? '300px' : ($this->height ? $this->height : $this->parent()->facetNavHeight()));
                 // NOTE: Safari seems to have a bug where even tho the content fits within the width, it still puts a scroll bar. Works in FF, not sure about IE yet.
-                $html .= '<div style="height: ' . ($this->isPopup ? '300px' : $this->parent()->facetNavHeight()) . '; overflow: auto; padding-right: 4px;' . $width . '">' . "\n";
+                $html .= '<div style="max-height: ' . $height . '; overflow: auto; padding-right: 4px;' . $width . '">' . "\n";
                     
                 // actual facets
                 switch ($this->facetStyle) {
