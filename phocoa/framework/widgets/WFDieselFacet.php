@@ -753,6 +753,29 @@ END;
         }
     }
 
+    function generatePopupHTML($page, $params, $popupSelections, $treeViewPath)
+    {
+        $dpSearch = $this->dieselSearchHelper->dieselSearch();
+        $dpSearch->setResultObjectLoaderCallbackWithPropelPeer(NULL);
+        $this->dieselSearchHelper->buildQuery();
+        $dpSearch->execute();
+
+        $this->setPopupSelections($popupSelections);
+        $this->setIsPopup(true);
+        if ($treeViewPath)
+        {
+            $path = str_replace('|', "\t", $treeViewPath);
+            $this->setTreeDataPath($path);
+        }
+        $facetHTML = $this->render();
+        if ($facetHTML === NULL)
+        {
+            $facetHTML = "No items have " . $this->label() . " data.";
+        }
+        $updateId = "phocoaWFDieselNav_PopupContent_{$this->parent()->id()}";
+        return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()->addUpdateHTML($updateId, $facetHTML);
+    }
+
     function canPushValueBinding() { return false; }
 }
 
