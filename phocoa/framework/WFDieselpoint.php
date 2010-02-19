@@ -635,17 +635,6 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 $c = new Criteria;
                 $c->add($this->getPrimaryKeyColumnFromPropelPeer($this->resultObjectLoaderCallbackPropelPeerName), $allIDs, Criteria::IN);
                 $tableName = eval( "return {$this->resultObjectLoaderCallbackPropelPeerName}::TABLE_NAME;" );
-                foreach ($sortKeys as $sortKey) {
-                    $sortAttr = substr($sortKey, 1);
-                    if (substr($sortKey, 0, 1) == '-')
-                    {
-                        $c->addDescendingOrderByColumn($tableName . '.' . $sortAttr);
-                    }
-                    else
-                    {
-                        $c->addAscendingOrderByColumn($tableName . '.' . $sortAttr);
-                    }
-                }
                 $propelObjects = call_user_func($propelCallback, $c);    // more efficient to grab all items in a single query
                 // map the propel objects back into the WFDieselHit's.
                 // we have to gracefully deal with the situation that an item in the index isn't in the database
