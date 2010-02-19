@@ -138,7 +138,7 @@ class WFDieselNav extends WFWidget
                 $loading->setBody('<div style="padding: 10px; font-size: 20px; line-height: 25px;">Searching... please wait...</div><div class="phocoaWFDieselNav_Loading"></div>');
                 $loading->setWidth('400px');
                 $loading->setHeight('125px');
-                $loading->setFixedCenter(false);
+                $loading->setFixedCenter(true);
                 $loading->setClose(false);
                 $loading->setModal(true);
                 $loading->setDraggable(false);
@@ -149,7 +149,7 @@ class WFDieselNav extends WFWidget
 
             // set up popup container
             $popup = new WFYAHOO_widget_Panel("phocoaWFDieselNav_Popup_{$this->id}", $this->page);
-            $popup->setRenderTo("'{$this->id}'");
+            $popup->setFixedCenter(true);
             $popup->setHeader('<div style="height: 10px"></div>');
             $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input " . ($this->showLoadingMessage ? 'onClick="cancelPopup(); showLoading();"' : NULL) . " type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
             $popup->setValueForKey('400px', 'width');
