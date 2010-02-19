@@ -443,8 +443,8 @@ PHOCOA.WFAction = function(elId, eventName) {
     this.stopsEvent = true;
     // if on windows and el is a checkbox and eventName is change, should mod to click
     var el = $(this.elId);
-    var elType = el.type.toLowerCase();
     var eventToObserve = this.eventName;
+    var elType = (typeof el.type !== 'undefined' ? el.type.toLowerCase() : null);
     if (Prototype.Browser.IE && this.eventName === 'change' && (elType === 'checkbox' || elType === 'radio'))
     {
         eventToObserve = 'click';
