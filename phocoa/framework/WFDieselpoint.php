@@ -377,7 +377,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
         } catch (JavaException $e) {
             $trace = new java("java.io.ByteArrayOutputStream");
             $e->printStackTrace(new java("java.io.PrintStream", $trace));
-            if (preg_match('/com.dieselpoint.query.ParseException/', $trace))
+            if (preg_match('/com.dieselpoint.query.(ParseException|SyntaxException)/', $trace))
             {   
                 throw( new WFDieselSearch_ParseException("Dieselpoint could not parse the query: " . $this->getQueryString() ."\n\nDieselpoint said: " . $trace) );
             }
