@@ -525,25 +525,36 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
 
     private function facetMenuHTML($facets)
     {
+        // selected value?
+        if ($this->isPopup)
+        {
+            if (count($this->popupSelections) === 0)
+            {
+                $selection = NULL;
+            }
+            else if (count($this->popupSelections) === 1)
+            {
+                $selection = key($this->popupSelections);
+            }
+        }
+        else
+        {
+            $selection = $this->dieselSearchHelper->getAttributeSelection($this->attributeID);
+        }
+
         $baseLink = $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID));
         $html = <<<END
             <script>
             PHOCOA.namespace("widgets.{$this->id}.attributes.{$this->attributeID}");
             PHOCOA.widgets.{$this->id}.attributes.{$this->attributeID}.menuSelected = function(select)
             {
-                var index;
-                var initialSelection = '{$this->value}';
-
-                for(index=0; index<select.options.length; index++)
-                    if(select.options[index].selected)
-                    {
-                        if(select.options[index].value != initialSelection)
-                        {
-                            newURL = '{$baseLink}|EQ_{$this->attributeID}=' + select.options[index].value; 
-                            facetHandleClick(newURL);
-                        }
-                        break;
-                    }
+                var selectedValue = \$F(select);
+                var initialSelectedValue = '{$selection}';
+                if (selectedValue !== initialSelectedValue)
+                {
+                    facetHandleClick();
+                    window.location.href = '{$baseLink}|EQ_{$this->attributeID}=' + selectedValue;
+                }
             }
             </script>
 END;
@@ -551,11 +562,10 @@ END;
         // add "show all" choice
         $html .= "<option value=\"\">{$this->showAllText}</option>\n";
 
-        // selected value?
-        $selection = $this->dieselSearchHelper->getAttributeSelection($this->attributeID);
+        // build options
         foreach ($facets as $facet) {
             $attributeValue = java_values($facet->getAttributeValue());
-            if ($selection == $attributeValue or ($this->isPopup and $this->popupAttributeValueIsSelected($attributeValue)))
+            if ($selection == $attributeValue)
             {
                 $selected = 'selected';
             }
