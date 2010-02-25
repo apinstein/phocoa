@@ -42,6 +42,7 @@ Version 0.3.7 - 6/10/2010
 - [bugfix] Errors in processing WFActionResponsePhocoaUIUpdater are no longer silenced; an alert() will show (it's a dev-time-only failure).
 - [improved] Errors in processing WFActionResponsePhocoaUIUpdater due to missing element ID's warn in console if available, rather than cause an error.
 - [bugfix] Fix bug with WFAction when attaching events to non-input items.
+- [bugfix] WFDieselFacet popups with menus now have current attribute pre-selected.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().
