@@ -44,6 +44,7 @@ Version 0.3.7 - 6/10/2010
 - [bugfix] Fix bug with WFAction when attaching events to non-input items.
 - [bugfix] WFDieselFacet popups with menus now have current attribute pre-selected.
 - [bugfix] WFDieselFacet popups now auto-submit if a "show all" choice with value="" is selected.
+- [bugfix] WFDieselSearch now ignores attribute queries with empty values.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().
