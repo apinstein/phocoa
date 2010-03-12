@@ -9,7 +9,8 @@
  */
 
 /**
- * A colorpicker widget. Works in conjunction with a text field.
+ * A calendar widget. Works in conjunction with a text field.
+ * Only supports m/d/Y formatting currently.
  *
  * <b>PHOCOA Builder Setup:</b>
  *
@@ -19,6 +20,7 @@
  * {@link WFYAHOO_widget_Calendar::$title title}
  *
  * @todo deal with layout/css/alignment; locale issues?; formatter?
+ * @TODO: support different date formats.
  */
 class WFYAHOO_widget_Calendar extends WFYAHOO
 {
@@ -38,6 +40,22 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
         $this->title = "Select Date";
     }
 
+    function restoreState()
+    {
+        //  must call super
+        parent::restoreState();
+
+        // look for the things in the form I need to restore state...
+        if (isset($_REQUEST[$this->id]))
+        {
+            $value = new WFDateTime();
+            $value->setTime(0, 0, 0);
+            $date = explode('/', $_REQUEST[$this->id]);
+            $value->setDate($date[2], $date[0], $date[1]);
+            $this->value = $value;
+        }
+    }
+
     function render($blockContent = NULL)
     {
         if ($this->hidden)
@@ -46,10 +64,13 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
         }
         else
         {
+            if( !($this->value instanceof WFDateTime)) throw new WFException("Value must be of type WFDateTime");
+            $formattedValue = $this->value->format('m/d/Y');
+
             // render the tab's content block
             $html = parent::render($blockContent);
             $html .= '
-        <input type="text" id="' . $this->id . '" name="date" value="' . $this->value . '" /><img id="' . $this->id . '-show" src="' . $this->getWidgetWWWDir() . '/calbtn.gif" width="18" height="18" alt="Calendar" style="margin: 0 0 1px 3px" valign="bottom" />
+        <input type="text" id="' . $this->id . '" name="' . $this->id . '" value="' . $formattedValue . '" /><img id="' . $this->id . '-show" src="' . $this->getWidgetWWWDir() . '/calbtn.gif" width="18" height="18" alt="Calendar" style="margin: 0 0 1px 3px" valign="bottom" />
        <div id="' . $this->id . '-container" style="visibility: hidden">
           <div class="hd">' . $this->title . '</div>
           <div class="bd">
@@ -140,4 +161,5 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
         return $html;
     }
 
+    function canPushValueBinding() { return true; }
 }
