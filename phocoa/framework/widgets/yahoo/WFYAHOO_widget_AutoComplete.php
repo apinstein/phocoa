@@ -128,6 +128,11 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     protected $dynamicDataLoaderSchema = NULL;
 
     /**
+     * @var boolean Add a toggle button for the list dropdown. Requires {@link minQueryLength} of 0 to work as expected.
+     */
+    protected $enableToggleButton = false;
+
+    /**
       * Constructor.
       */
     function __construct($id, $page)
@@ -202,6 +207,14 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         return new WFActionResponseJSON($results);
     }
 
+    public function setEnableToggleButton($b)
+    {
+        if ($b)
+        {
+            $this->yuiloader()->yuiRequire('button');
+        }
+        $this->enableToggleButton = $b;
+    }
 
     public function setAnimVert($b)
     {
@@ -306,6 +319,16 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     width: 100%;
     " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : '') . "
 }
+#{$this->id}_acToggle {
+    position: absolute;
+    left: {$this->width};
+    padding-left: 5px;
+}
+.yui-ac .yui-button {vertical-align:middle; }
+.yui-ac .yui-button button {
+    background: url({$this->getWidgetWWWDir()}/ac-arrow-rt.png) center center no-repeat;
+} 
+.yui-ac .open .yui-button button {background: url({$this->getWidgetWWWDir()}/ac-arrow-dn.png) center center no-repeat} 
 </style>
             ";
             $html .= "
@@ -321,6 +344,10 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             else
             {
                 throw( new WFException("inputType must be either INPUT_TYPE_TEXTFIELD or INPUT_TYPE_TEXTAREA.") );
+            }
+            if ($this->enableToggleButton)
+            {
+                $html .= "<span id=\"{$this->id}_acToggle\"></span>";
             }
             $html .= "<div id=\"{$myAutoCompleteContainer}\"></div>
             </div>";
@@ -437,8 +464,32 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'typeAhead', $this->typeAhead);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'allowBrowserAutocomplete', $this->allowBrowserAutocomplete);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'alwaysShowContainer', $this->alwaysShowContainer);
-        $html .= "\nPHOCOA.runtime.addObject(AutoCompleteWidget, '{$this->id}');\n";
+        if ($this->enableToggleButton)
+        {
+            $html .= <<<END
+var bToggler = YAHOO.util.Dom.get("{$this->id}_acToggle");
+var oPushButtonB = new YAHOO.widget.Button({container:bToggler});
+oPushButtonB.on("click", function(e) {
+    if(!YAHOO.util.Dom.hasClass(bToggler, "open")) {
+        YAHOO.util.Dom.addClass(bToggler, "open")
+    }
 
+    // Is open
+    if(AutoCompleteWidget.isContainerOpen()) {
+        AutoCompleteWidget.collapseContainer();
+    }
+    // Is closed
+    else {
+        AutoCompleteWidget.getInputEl().focus(); // Needed to keep widget active
+        setTimeout(function() { // For IE
+            AutoCompleteWidget.sendQuery("");
+        },0);
+    }
+});
+AutoCompleteWidget.containerCollapseEvent.subscribe(function(){YAHOO.util.Dom.removeClass(bToggler, "open")});
+END;
+        }
+        $html .= "\nPHOCOA.runtime.addObject(AutoCompleteWidget, '{$this->id}');\n";
         $html .= "\n};";
         return $html;
     }

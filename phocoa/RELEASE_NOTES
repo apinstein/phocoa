@@ -12,6 +12,7 @@ Version 0.3.6 - ??
 - [new] Added WFArray.valuesForKeyPaths
 - [bugfix] WFRPC::rpcFromRequest() now properly handles comparisions of invocation paths with spaces and other url-sensitive characters.
 - [new] Get WFYAHOO_widget_Calendar working.
+- [new] Add enableToggleButton option to WFYAHOO_widget_AutoComplete that can optionally show a button to show display the AC list when clicked.
 
 Version 0.3.5 - 1/28/2010
 - [new] Added WFRequestController_HTTPException which takes in a ($msg, $httpCode) which defaults to HTTP 500, internal server exception. This should make it much easier to send arbitrary HTTP codes without having to subclass each one. WFRequestController_HTTPException is *not* emailed through the uncaught exception handler.
