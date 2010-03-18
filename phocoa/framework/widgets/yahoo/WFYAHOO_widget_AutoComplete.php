@@ -274,11 +274,14 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             ));
     }
 
-    public function setDatasourceJSArray($a)
+    public function setDatasourceJSArray($a, $sort = true)
     {
         $this->datasource = WFYAHOO_widget_AutoComplete::DATASOURCE_JS_ARRAY;
         $this->datasourceJSArray = $a;
-        sort($this->datasourceJSArray);
+        if ($sort)
+        {
+            sort($this->datasourceJSArray);
+        }
     }
 
     function restoreState()
