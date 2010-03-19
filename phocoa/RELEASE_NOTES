@@ -18,6 +18,7 @@ Version 0.3.6 - 3/18/2010
 - [new] Add optional parameter to WFYAHOO_widget_PhocoaDialog.show() to allow specification of an invocationPath to show. Great for a shared PhocoaDialog used for multiple sub-windows.
 - [bugfix] WFYAHOO_widget_PhocoaDialog uses overflow: auto for the content (bd) area.
 - [improved] WFYAHOO_widget_PhocoaDialog automatically keeps "context" correct for windowResize, windowScroll, and beforeShow.
+- [new] If WFYAHOO_widget_Panel is configured with "modal" and "close" then clicking on the mask is the same as clicking the "close" button.
 
 Version 0.3.5 - 1/28/2010
 - [new] Added WFRequestController_HTTPException which takes in a ($msg, $httpCode) which defaults to HTTP 500, internal server exception. This should make it much easier to send arbitrary HTTP codes without having to subclass each one. WFRequestController_HTTPException is *not* emailed through the uncaught exception handler.

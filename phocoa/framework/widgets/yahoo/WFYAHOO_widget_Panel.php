@@ -115,6 +115,7 @@ PHOCOA.widgets.{$this->id}.Panel.init = function() {
     panel.cfg.setProperty('close', " . ($this->close ? 'true' : 'false') . ");
     panel.cfg.setProperty('draggable', " . ($this->draggable ? 'true' : 'false') . ");
     panel.cfg.setProperty('modal', " . ($this->modal ? 'true' : 'false') . ");
+    " . ( ($this->modal and $this->close) ? "panel.showEvent.subscribe(function() { YAHOO.util.Event.on('{$this->id}_mask', 'click', panel.cancel, panel, true); });" : NULL) . "
 };
 " .
 ( (get_class($this) == 'WFYAHOO_widget_Panel') ? "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.Panel.init(); };" : NULL );
