@@ -409,10 +409,20 @@ YAHOO.widget.PhocoaDialog.prototype.cancel = function() {
 * Executes the cancel of the PhocoaDialog followed by a hide.
 * @method cancel
 */
-YAHOO.widget.PhocoaDialog.prototype.show = function() {
+YAHOO.widget.PhocoaDialog.prototype.show = function(moduleViewInvocationPath) {
+    moduleViewInvocationPath = moduleViewInvocationPath || null;
+    if (moduleViewInvocationPath)
+    {
+        this.moduleViewInvocationPath = moduleViewInvocationPath;
+        this.moduleViewHasLoaded = false;
+    }
+    // make sure scrolling is setup reasonably
+    YAHOO.util.Dom.setStyle(this.body, 'overflow', 'auto');
     // need to load the initial content if deferModuleViewLoading is set
     if (this.deferModuleViewLoading && ( (this.cacheModuleView === false ) || (this.cacheModuleView === true && this.moduleViewHasLoaded === false)) )
     {
+        if (this.moduleViewInvocationPath === null) throw "No invocation path is set.";
+
         this.setBody('Loading...');
         YAHOO.widget.PhocoaDialog.superclass.show.call(this);
 
