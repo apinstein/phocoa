@@ -113,8 +113,9 @@ YAHOO.widget.PhocoaDialog.prototype.initDefaultConfig = function() {
                    value: DEFAULT_CONFIG.MODULE_VIEW_INVOCATION_PATH.value
                 }
            );   
-
 };
+
+YAHOO.widget.PhocoaDialog.prototype.CONTEXT_TRIGGERS = YAHOO.widget.Overlay.prototype.CONTEXT_TRIGGERS.concat(["windowScroll", "windowResize", "beforeShow"]);
 
 /**
 * Default callback functions.
