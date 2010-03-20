@@ -338,11 +338,11 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             <div id=\"{$this->initializeWaitsForID}\">";
             if ($this->inputType == self::INPUT_TYPE_TEXTFIELD)
             {
-                $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"{$this->value}\" " . $this->classHTML() . " />";
+                $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"" . htmlspecialchars($this->value) ."\" " . $this->classHTML() . " />";
             }
             else if ($this->inputType == self::INPUT_TYPE_TEXTAREA)
             {
-                $html .= "<textarea id=\"{$this->id}\" name=\"{$this->id}\"" . $this->classHTML() . ">{$this->value}</textarea>";
+                $html .= "<textarea id=\"{$this->id}\" name=\"{$this->id}\"" . $this->classHTML() . ">" . htmlspecialchars($this->value) ."</textarea>";
             }
             else
             {
