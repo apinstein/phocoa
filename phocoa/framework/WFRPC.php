@@ -271,7 +271,7 @@ class WFRPC extends WFObject
     function execute($page)
     {
         $bcMode = false;
-        // setup backwqrds-compatibility for really old-school
+        // setup backwards-compatibility for really old-school
         if (!$page->delegate() and strncmp($this->target, WFRPC::TARGET_PAGE, strlen(WFRPC::TARGET_PAGE)) == 0)
         {
             $bcMode = true;
@@ -324,6 +324,7 @@ class WFRPC extends WFObject
                 throw( new WFException("WFRPC Invocation is not callable: " . $this->target . "->" . $this->action . "(). Please ensure that there is a method of that name on the specified object.") );
             }
         }
+        WFLog::log("Running target/action: '{$this->target}/{$this->action}'", WFLog::TRACE_LOG);
         $result = call_user_func_array($rpcCall, array_merge( array($page, $page->parameters()), $this->args ));
         if ($result !== NULL)
         {
