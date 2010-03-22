@@ -303,7 +303,7 @@ abstract class WFWidget extends WFView
             $this->valueForKey($baseLocalProperty);
         } catch (WFException $e) {
             // must do === because getCode returns a number
-            if ($e->name() === WFUndefinedKeyException)
+            if ($e instanceof WFUndefinedKeyException)
             {
                 throw( new Exception("Cannot bind property '$bindLocalProperty' because it is not a property of the object '" . get_class($this) . "' (" . $this->id() . ").") );
             }
