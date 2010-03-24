@@ -18,6 +18,37 @@
 class WFArray extends ArrayObject
 {
     /**
+     * A convenience function to create a hash of the contained values in interesting ways.
+     *
+     * @param string The key to use on each array entry to generate the hash key for the entry.
+     * @param mixed
+     *          NULL    => the entry for each key will be the entire entry in the array
+     *          string  => the entry for each key will be the valueForKey() of the passed key
+     *          array   => the entry for each key will be an associative array, the result of passing the argument to valuesForKeyPaths()
+     * @return array An associative array of the contained values hashed according to the parameters provided.
+     */
+    public function hash($hashKey, $keyPath = NULL)
+    {
+        $hash = array();
+        foreach ($this as $entry) {
+            if ($keyPath === NULL)
+            {
+                $hashInfo = $entry;
+            }
+            else if (is_string($keyPath))
+            {
+                $hashInfo = $entry->valueForKey($keyPath);
+            }
+            else if (is_array($keyPath))
+            {
+                $hashInfo = $entry->valuesForKeyPaths($keyPath);
+            }
+            $hash[$entry->valueForKey($hashKey)] = $hashInfo;
+        }
+        return $hash;
+    }
+
+    /**
      * Get all of the values contained in the array
      *
      * NOTE: calls getArrayCopy.
