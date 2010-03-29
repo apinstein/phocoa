@@ -9,6 +9,7 @@ Legend:
 Version 0.3.7 - ??
 - [bugfix] Add htmlspecialchars() to WFYAHOO_widget_AutoComplete.
 - [new] Added a hash() function to WFArray to make it easy to create hashes of object models. Great for use with JSON.
+- [bugfix] Improve the way the WFDieselNav loading image is set up to avoid the Firefox 3.6 "fetching" of bogus URLs found in <img src=""> tags.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().
