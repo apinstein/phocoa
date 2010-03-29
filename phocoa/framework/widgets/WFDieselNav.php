@@ -165,7 +165,7 @@ class WFDieselNav extends WFWidget
     {
         PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').cfg.setProperty('context', ['{$this->id}', 'tl', 'tl']);
         PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').show();
-        Element.update('phocoaWFDieselNav_PopupContent_{$this->id}', '<div style=\"padding: 10px; font-size: 20px; line-height: 25px;\">Loading... please wait...</div><div style=\"text-align: center; margin-top: 20px;\"><img src=\"{$this->getWidgetWWWDir()}/loading.gif\" align=\"center\" /></div>');
+        Element.update('phocoaWFDieselNav_PopupContent_{$this->id}', '<div style=\"padding: 10px; font-size: 20px; line-height: 25px;\">Loading... please wait...</div><div class=\"phocoaWFDieselNav_Loading\"></div>');
 
         // use the baseURL to *remove* the existing query state and use the passed-in one instead, which excludes the selection for facetID
         var rpc = new PHOCOA.WFRPC('{$this->baseURL()}/' + dpQueryState, '#page#' + facetID, 'generatePopupHTML');
