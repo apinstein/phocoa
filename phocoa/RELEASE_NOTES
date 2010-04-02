@@ -9,6 +9,7 @@ Legend:
 Version 0.3.7 - ??
 - [bugfix] Add htmlspecialchars() to WFYAHOO_widget_AutoComplete.
 - [new] Added a hash() function to WFArray to make it easy to create hashes of object models. Great for use with JSON.
+- [new] Added srcWidth and srcHeight fields to WFImage that can be populated with the source image's dimensions in lieu of supplying a filesystemPath and having the system look up the image dimensions from the local file. This is useful for performance reasons, and also when you are not storing the image locally.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().

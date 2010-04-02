@@ -33,6 +33,8 @@
  * - {@link WFImage::$width width}
  * - {@link WFImage::$height height}
  * - {@link WFImage::$fitToBox fitToBox}
+ * - {@link WFImage::$srcWidth srcWidth}
+ * - {@link WFImage::$srcHeight srcHeight}
  * - {@link WFImage::$alt alt}
  * - {@link WFImage::$border border}
  * - {@link WFImage::$align align}
@@ -82,11 +84,19 @@ class WFImage extends WFWidget
      *
      *              If only one of width or height is specified, the image will be scaled to fit that dimension only.
      *
-     *              Requires that the filesystemPath property exist.
+     *              Requires that the filesystemPath property exist, OR both srcWidth and srcHeight properties are set.
      *
      *              If any error conditions occur, will throw an exception.
      */
     protected $fitToBox;
+    /**
+     * @var integer The width of the source image; if not supplied, {@link WFImage::$fitToBox} requires {@link WFImage::$filesystemPath}.
+     */
+    protected $srcWidth;
+    /**
+     * @var integer The height of the source image; if not supplied, {@link WFImage::$fitToBox} requires {@link WFImage::$filesystemPath}.
+     */
+    protected $srcHeight;
     /**
      * @var string The filesystem path to the image.
      */
@@ -110,6 +120,7 @@ class WFImage extends WFWidget
         $this->link = NULL;
         $this->linkTarget = NULL;
         $this->fitToBox = false;
+        $this->srcWidth = $this->srcHeight = NULL;
         $this->filesystemPath = NULL;
         $this->filesystemBasePath = NULL;
     }
@@ -171,69 +182,80 @@ class WFImage extends WFWidget
         $this->baseDir = $path;
     }
 
+    function setSrcWidth($w)
+    {
+        $this->srcWidth = $w;
+    }
+
+    function setSrcHeight($h)
+    {
+        $this->srcHeight = $h;
+    }
+
     private function doFitToBox(&$pxWidth, &$pxHeight)
     {
-        $fsPath = $this->filesystemBasePath . $this->filesystemPath;
-        $info = getimagesize($fsPath);
-        if ($info === false) throw( new WFException("Can't fitToBox because no image file found at: '{$fsPath}'. Make sure filesystemPath is set.") );
+        // need to load srcWidth and srcHeight from image file if dims haven't been pre-populated
+        if (!$this->srcWidth or !$this->srcHeight)
+        {
+            $fsPath = $this->filesystemBasePath . $this->filesystemPath;
+            $info = getimagesize($fsPath);
+            if ($info === false) throw( new WFException("Can't fitToBox because no image file found at: '{$fsPath}'. Make sure filesystemPath is set.") );
 
-        // calculate some useful info; "i" prefix means "original image"
-        $iWidth = $info[0];
-        $iHeight = $info[1];
-        $iRatio = $iWidth / $iHeight;
+            // calculate some useful info; "i" prefix means "original image"
+            $this->srcWidth = $info[0];
+            $this->srcHeight = $info[1];
+        }
+        $iRatio = $this->srcWidth / $this->srcHeight;
 
         if ($this->width and $this->height)
         {
             // fit to box
             
             // scale DOWN to fix box 
-            if ($iWidth > $this->width or $iHeight > $this->height)
+            if ($this->srcWidth > $this->width or $this->srcHeight > $this->height)
             {   
                 $newRatio = $this->width / $this->height;
-                //die("$iWidth x $iHeight; $iRatio / $this->width x $this->height; $newRatio");
+                //die("{$this->srcWidth} x {$this->srcHeight}; $iRatio / $this->width x $this->height; $newRatio");
                 // resize
                 if ($iRatio > $newRatio)
                 {   
-                    $resizeRatio = $this->width / $iWidth;
-                    $newWidth = $iWidth * $resizeRatio;
+                    $resizeRatio = $this->width / $this->srcWidth;
+                    $newWidth = $this->srcWidth * $resizeRatio;
                     $newHeight = $newWidth / $iRatio;
                 }
                 else
                 {
-                    $resizeRatio = $this->height / $iHeight;
-                    $newHeight = $iHeight * $resizeRatio;
+                    $resizeRatio = $this->height / $this->srcHeight;
+                    $newHeight = $this->srcHeight * $resizeRatio;
                     $newWidth = $newHeight * $iRatio;
                 }
             }
             // DON'T scale up to fit box; only down - maybe make this optional later
             else
             {   
-                //die("no need to resize: {$iWidth}x{$iHeight} to fix box: {$this->width}x{$this->height}");
-                $newWidth = $iWidth;
-                $newHeight = $iHeight;
+                //die("no need to resize: {$this->srcWidth}x{$this->srcHeight} to fix box: {$this->width}x{$this->height}");
+                $newWidth = $this->srcWidth;
+                $newHeight = $this->srcHeight;
             }
         }
         else if ($this->width)
         {
             // scale DOWN to fit width
-            if ($iWidth > $this->width)
+            if ($this->srcWidth > $this->width)
             {
-                $resizeRatio = $this->width / $iWidth;
-                $newWidth = $iWidth * $resizeRatio;
+                $resizeRatio = $this->width / $this->srcWidth;
+                $newWidth = $this->srcWidth * $resizeRatio;
                 $newHeight = $newWidth / $iRatio;
             }
-            // DON'T scale up to fit width
-            else
-            {
-            }
+            else { /* DON'T scale up to fit width */ }
         }
         else if ($this->height)
         {
             // scale DOWN to fit height
-            if ($iWidth > $this->height)
+            if ($this->srcWidth > $this->height)
             {
-                $resizeRatio = $this->height / $iHeight;
-                $newHeight = $iHeight * $resizeRatio;
+                $resizeRatio = $this->height / $this->srcHeight;
+                $newHeight = $this->srcHeight * $resizeRatio;
                 $newWidth = $newHeight * $iRatio;
             }
             // DON'T scale up to fit height
