@@ -98,6 +98,12 @@ div.phocoaWFDieselNav_Popup {
     background: white;
     z-index: 10000;
 }
+div.phocoaWFDieselNav_Loading {
+    background-image: url(widgets/WFDieselNav/loading.gif);
+    width: 220px;
+    height: 19px;
+    margin: auto;
+}
 
 /* WFSearchField */
 .phocoaWFSearchField_PlaceholderText {
