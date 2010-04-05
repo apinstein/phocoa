@@ -107,6 +107,10 @@ class WFModelBuilderPropel extends WFObject implements WFModelBuilder
             $property->setValueForKey($type, 'type');
             $entity->addProperty($property);
         }
+        if (!$entity->valueForKey('descriptiveColumnName'))
+        {
+            $entity->setValueForKey($entity->valueForKey('primaryKeyProperty'), 'descriptiveColumnName');
+        }
 
         // set up relationships
         foreach ($tableMap->getColumns() as $column) {
