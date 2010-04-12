@@ -12,6 +12,7 @@ Version 0.3.7 - ??
 - [new] Added srcWidth and srcHeight fields to WFImage that can be populated with the source image's dimensions in lieu of supplying a filesystemPath and having the system look up the image dimensions from the local file. This is useful for performance reasons, and also when you are not storing the image locally.
 - [bugfix] Improve the way the WFDieselNav loading image is set up to avoid the Firefox 3.6 "fetching" of bogus URLs found in <img src=""> tags.
 - [bugfix] WFModel (and the skeleton generator) will use the Primary Key field as the descriptiveColumnName if the entity has no string field.
+- [bugfix] WFCheckbox didn't invalidate its internal state when the checked/unchecked values were set, causing it to get out of sync with the restoreState() cycle.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().

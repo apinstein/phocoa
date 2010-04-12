@@ -88,6 +88,7 @@ class WFCheckbox extends WFWidget
     function setCheckedValue($v)
     {
         $this->checkedValue = $v;
+        $this->hasRestoredState = false;
     }
     function checkedValue()
     {
@@ -97,6 +98,7 @@ class WFCheckbox extends WFWidget
     function setUncheckedValue($v)
     {
         $this->uncheckedValue = $v;
+        $this->hasRestoredState = false;
     }
 
     function checked()
