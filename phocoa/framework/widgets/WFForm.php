@@ -48,6 +48,10 @@ class WFForm extends WFWidget
      */
     protected $method;
     /**
+     * @var string The target to submit to. Default is ''.
+     */
+    protected $target;
+    /**
      * @var string The ID of the "default" button. This is the button that should be used as the action if no button information is submitted.
      */
     protected $defaultSubmitID;
@@ -87,6 +91,7 @@ class WFForm extends WFWidget
         }
 
         $this->method = WFForm::METHOD_POST;
+        $this->target = '';
         $this->defaultSubmitID = $this->calculatedDefaultSubmitID = NULL;
         $this->numberOfSubmitButtons = 0;
 
@@ -120,6 +125,7 @@ class WFForm extends WFWidget
         return array_merge($items, array(
             'action',
             'method' => array(WFForm::METHOD_GET, WFForm::METHOD_POST),
+            'target' => array('', '_top', '_blank', '_parent'),
             'defaultSubmitID',
             ));
     }
@@ -197,6 +203,11 @@ class WFForm extends WFWidget
         {
             $encType = 'enctype="multipart/form-data"';
         }
+        $target = '';
+        if (! ($this->target == '') )
+        {
+            $target = 'target="' . $this->target . '"';
+        }
         // DEFAULT submit button correction; the DEFAULT button is the submit button that is "pressed" when someone submits a form by hitting ENTER
         // DEFAULT button is not something that is supported in HTML. Each browser behaves differently on enter-to-submit.
         // Because of browser differences in submit buttons, the default button of a form needs lots of "cleanup" to make it work as expected in PHOCOA.
@@ -213,7 +224,7 @@ class WFForm extends WFWidget
             if (!isset($this->children[$this->defaultSubmitID])) throw( new WFException("The default button specified: '" . $this->defaultSubmitID . '" does not exist.') );
             $defaultFormButtonHTML = "\n" . $this->children[$this->defaultSubmitID]->renderDefaultButton();
         }
-        $html =  "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $encType . '>';
+        $html =  "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $target . ' ' . $encType . '>';
         foreach ($this->phocoaFormParameters as $k => $v) {
             $html .= "\n" . '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
         }
