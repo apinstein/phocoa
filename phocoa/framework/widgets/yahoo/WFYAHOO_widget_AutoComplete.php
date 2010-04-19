@@ -403,14 +403,17 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
                     // need to create a PHOCOA.RPC to get the URL for the query
                     var acXHRRPC = new PHOCOA.WFRPC('" . WWW_ROOT . '/' . $this->page()->module()->invocation()->invocationPath() . "', '#page#{$this->id}', 'ajaxLoadData');
                 ";
-                $schema = array("'results'");
+                $schema = array();
                 foreach ($this->dynamicDataLoaderSchema as $field) {
-                    $schema[] = "'{$field}'";
+                    $schema[] = array('key' => $field);
                 }
                 $html .= "
-                    var acXHRSchema = [". join(',', $schema) . "];
-                    var acDatasource = new YAHOO.widget.DS_XHR(acXHRRPC.actionURL(), acXHRSchema);
-                    acDatasource.scriptQueryAppend = acXHRRPC.actionURLParams();
+                    var acDatasource = new YAHOO.util.XHRDataSource(acXHRRPC.actionURL() + '?' + acXHRRPC.actionURLParams() + '&');
+                    acDatasource.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;
+                    acDatasource.responseSchema = {
+                        resultsList: 'results',
+                             fields: " . WFJSON::encode($schema) . "
+                    };
                     ";
                 break;
             default:
@@ -418,14 +421,15 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         }
         // add properties to datasource
         $html .= $this->jsForSimplePropertyConfig('acDatasource', 'maxCacheEntries', $this->datasourceMaxCacheEntries);
-        $html .= $this->jsForSimplePropertyConfig('acDatasource', 'queryMatchCase', $this->datasourceQueryMatchCase);
-        $html .= $this->jsForSimplePropertyConfig('acDatasource', 'queryMatchContains', $this->datasourceQueryMatchContains);
-        $html .= $this->jsForSimplePropertyConfig('acDatasource', 'queryMatchSubset', $this->datasourceQueryMatchSubset);
         // set up widget
         $html .= "\nvar AutoCompleteWidget = new YAHOO.widget.AutoComplete('{$this->id}','{$myAutoCompleteContainer}', acDatasource);\n";
+        $html .= "\nAutoCompleteWidget.queryQuestionMark = false;\n";
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animVert', $this->animVert);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animHoriz', $this->animHoriz);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animSpeed', $this->animSpeed);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'queryMatchCase', $this->datasourceQueryMatchCase);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'queryMatchContains', $this->datasourceQueryMatchContains);
+        $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'queryMatchSubset', $this->datasourceQueryMatchSubset);
 
         // calculate delimiter
         $delimJs = NULL;
