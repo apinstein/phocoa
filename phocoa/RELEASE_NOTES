@@ -15,6 +15,10 @@ Version 0.3.7 - ??
 - [bugfix] WFCheckbox didn't invalidate its internal state when the checked/unchecked values were set, causing it to get out of sync with the restoreState() cycle.
 - [bugfix] Fix WFYAHOO_widget_AutoComplete dynamicDataLoader mode. It was broken when we upgraded to YUI 2.6.0; it now works again.
 - [new] Added support for target attribute in WFForm.
+- [improved] Updated handling of bindings when keyPath cannot be resolved:
+  - New binding option RaisesForNotApplicableKeys (boolean) which if set to false will cause the NotApplicablePlaceholder to be used rather than throwing an exception.
+  - New binding option NotApplicablePlaceholder (mixed) which will be used if RaisesForNotApplicableKeys is set to false.
+  - pullBindings() now only skips processing of the current bound property (instead of all properties for the widget) when an exception is encountered.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().

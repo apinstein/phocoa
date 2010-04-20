@@ -287,11 +287,15 @@ class WFBinding extends WFObject
     const OPTION_VALUE_PATTERN = 'ValuePattern';
     const OPTION_VALUE_PATTERN_DEFAULT_PATTERN = '%1%';
 
+    const OPTION_RAISES_FOR_NOT_APPLICABLE_KEYS = 'RaisesForNotApplicableKeys';
+
     // NullPlaceholder stuff
     //const WFBINDINGSETUP_INSERTS_NULL_PLACEHOLDER = 'InsertsNullPlaceholder';   // reference only; delete once refactoring above done
     //const WFBINDINGSETUP_NULL_PLACEHOLDER = 'NullPlaceholder';                  // reference only; delete once refactoring above done
+    // Placeholders
     const OPTION_INSERTS_NULL_PLACEHOLDER = 'InsertsNullPlaceholder';
     const OPTION_NULL_PLACEHOLDER = 'NullPlaceholder';
+    const OPTION_NOT_APPLICABLE_PLACEHOLDER = 'NotApplicablePlaceholder';
 
     const OPTION_READ_WRITE_MODE = 'ReadWriteMode';  // 'normal', 'readonly', 'writeonly'. Default 'normal'. A way to use a binding option on any binding to make it act read-only, write-only, or read-write. This cannot add any capability not allowed in the binding's setup.
     const OPTION_READ_WRITE_MODE_NORMAL = 'normal'; 
@@ -306,11 +310,6 @@ class WFBinding extends WFObject
      * @var string The keyPath on the {@link $bindToObject} that this binding is bound to.
      */
     protected $bindToKeyPath;
-
-    /**
-     * @var boolean Should an exception be raised if the binding cannot be resolved? If false, the bindings system may log the exception.
-     */
-    protected $raisesForNotApplicableKeys;
 
     /**
      * @var assoc_array All of the various options that the binding supports. Each binding may have extra properties that it needs to know, and 
@@ -334,7 +333,6 @@ class WFBinding extends WFObject
         $this->bindToKeyPath = NULL;
         $this->valueTransformer = NULL;
         $this->placeholders = array();
-        $this->raisesForNotApplicableKeys = true;
         $this->options = array();
         $this->bindingSetup = NULL;
         $this->bindLocalProperty = NULL;
@@ -383,9 +381,24 @@ class WFBinding extends WFObject
         $this->bindLocalProperty = $localPropName;
     }
 
+    function notApplicablePlaceholder()
+    {
+        $options = $this->coalescedOptions();
+        if (isset($options[WFBinding::OPTION_NOT_APPLICABLE_PLACEHOLDER]))
+        {
+            return $options[WFBinding::OPTION_NOT_APPLICABLE_PLACEHOLDER];
+        }
+        return NULL; // default
+    }
+
     function raisesForNotApplicableKeys()
     {
-        return $this->raisesForNotApplicableKeys;
+        $options = $this->coalescedOptions();
+        if (isset($options[WFBinding::OPTION_RAISES_FOR_NOT_APPLICABLE_KEYS]))
+        {
+            return $options[WFBinding::OPTION_RAISES_FOR_NOT_APPLICABLE_KEYS];
+        }
+        return true; // default
     }
 
     function bindToKeyPath()

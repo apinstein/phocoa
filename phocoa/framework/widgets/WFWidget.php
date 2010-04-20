@@ -358,15 +358,6 @@ abstract class WFWidget extends WFView
     final function valueForBinding($prop, $binding)
     {
         $exposedBindings = $this->exposedBindings();
-        // get original value
-        if (strpos($binding->bindToKeyPath(), '::') === false)
-        {
-            $boundValue = $binding->bindToObject()->valueForKeyPath($binding->bindToKeyPath());
-        }
-        else
-        {
-            $boundValue = $binding->bindToObject()->valueForStaticKeyPath($binding->bindToKeyPath());
-        }
 
         // Get a list of all options, coalesced with default value from the binding setup for this property.
         // the lack of documenting (ie exposing) a binding setup should simply assume that there are no options.
@@ -374,6 +365,22 @@ abstract class WFWidget extends WFView
         $optionDefaults = array();
         $optionDefaults = $binding->bindingSetup()->options();
         $coalescedOptions = array_merge($optionDefaults, $binding->options());
+
+        try {
+            // get original value
+            if (strpos($binding->bindToKeyPath(), '::') === false)
+            {
+                $boundValue = $binding->bindToObject()->valueForKeyPath($binding->bindToKeyPath());
+            }
+            else
+            {
+                $boundValue = $binding->bindToObject()->valueForStaticKeyPath($binding->bindToKeyPath());
+            }
+        } catch (WFUndefinedKeyException $e) {
+            if ($binding->raisesForNotApplicableKeys()) throw $e;
+            WFLog::log("undefined key: {$binding->bindToKeyPath()}, substituting " . var_export($binding->notApplicablePlaceholder(), true), WFLog::TRACE_LOG);
+            $boundValue = $binding->notApplicablePlaceholder();
+        }
 
         // let class apply options to value
         $this->processBindingOptions($prop, $coalescedOptions, $boundValue);
@@ -547,17 +554,9 @@ abstract class WFWidget extends WFView
                 }
                 WFLog::log("FINAL value " . print_r($boundValue, true) . " for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
                 $this->setValueForKey($boundValue, $prop);  // must do this to allow accessors to be called!
-            } catch (WFUndefinedKeyException $e) {
-                if ($binding->raisesForNotApplicableKeys())
-                {
-                    throw($e);
-                }
-                else
-                {
-                    WFExceptionReporting::log($e);
-                }
             } catch (Exception $e) {
-                throw($e);
+                WFLog::log("Skipping pullBindings for {$this->id} / {$prop} due to exception: {$e->getMessage()}", WFLog::WARN_LOG);
+                continue;
             }
         }
     }
