@@ -10,7 +10,8 @@
 
 /**
  * A calendar widget. Works in conjunction with a text field.
- * Only supports m/d/Y formatting currently.
+ * Only supports m/d/Y formatting currently. @TODO: support
+ * different date formats.
  *
  * <b>PHOCOA Builder Setup:</b>
  *
@@ -39,20 +40,28 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
         $this->yuiloader()->yuiRequire('button,container,calendar');
         $this->title = "Select Date";
     }
-
+    
     function restoreState()
     {
         //  must call super
         parent::restoreState();
-
+        
         // look for the things in the form I need to restore state...
         if (isset($_REQUEST[$this->id]))
         {
-            $value = new WFDateTime();
-            $value->setTime(0, 0, 0);
-            $date = explode('/', $_REQUEST[$this->id]);
-            $value->setDate($date[2], $date[0], $date[1]);
-            $this->value = $value;
+            if( empty($_REQUEST[$this->id]) )
+            {
+                $this->value = NULL;
+            } else {
+                $value = new WFDateTime();
+                $value->setTime(0, 0, 0);
+                $date = explode('/', $_REQUEST[$this->id]);
+                if( isset($date[2]) && isset($date[1]) && isset($date[0]) )
+                {
+                    $value->setDate($date[2], $date[0], $date[1]);
+                }
+                $this->value = $value;
+            }
         }
     }
 
@@ -64,9 +73,14 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
         }
         else
         {
-            if( !($this->value instanceof WFDateTime)) throw new WFException("Value must be of type WFDateTime");
-            $formattedValue = $this->value->format('m/d/Y');
-
+            if($this->value === NULL)
+            {
+                $formattedValue = '';
+            } else {
+                $dateTimeObject = new WFDateTime($this->value);
+                $formattedValue = $dateTimeObject->format('m/d/Y');
+            }
+            
             // render the tab's content block
             $html = parent::render($blockContent);
             $html .= '
@@ -160,6 +174,7 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
 
         return $html;
     }
-
+    
     function canPushValueBinding() { return true; }
+    
 }
