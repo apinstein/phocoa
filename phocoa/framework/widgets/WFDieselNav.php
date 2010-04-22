@@ -100,12 +100,11 @@ class WFDieselNav extends WFWidget
         if ($this->baseURL) return $this->baseURL;
 
         // calculate parameters up until our dpQueryState starts (after this point, we know what the last 4 params must be)
-        $baseURLParams = array();
+        $baseURLParams = NULL;
         foreach ($this->page()->parameters() as $pName => $value) {
             if ($pName == $this->dpQueryStateParamName) break;
-            $baseURLParams[] = $value;
+            $baseURLParams .= "/{$value}";
         }
-        $baseURLParams = rtrim(join('/', $baseURLParams), '/');
         
         // calculate base URL for links
         if ($this->page->module()->invocation()->targetRootModule() and !$this->page->module()->invocation()->isRootInvocation())
