@@ -171,14 +171,11 @@ class WFDieselNav extends WFWidget
     {
         Element.hide('phocoaWFDieselNav_Popup_{$this->id}');
     }
-    function facetHandleClick(event)
+    function facetHandleClick(newURL)
     {
         cancelPopup();
         showLoading();
-        if (event)
-        {
-            event.stopPropagation();     // allows click to fall thru to a.click => go to url
-        }
+        window.location.href = newURL;
     }
     function showLoading()
     {

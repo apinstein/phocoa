@@ -20,6 +20,7 @@ Version 0.3.7 - ??
   - New binding option NotApplicablePlaceholder (mixed) which will be used if RaisesForNotApplicableKeys is set to false.
   - pullBindings() now only skips processing of the current bound property (instead of all properties for the widget) when an exception is encountered.
 - [bugfix] Fixed bugs with WFDieselNav when calculating URLs for pages that have leading parameters (ie params before the required DP ones).
+- [bugfix] Fixed bug with WFDieselNav which caused clicking facets to drill-down or remove them would fail on IE.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().
