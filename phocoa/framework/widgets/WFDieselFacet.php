@@ -552,8 +552,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                 var initialSelectedValue = '{$selection}';
                 if (selectedValue !== initialSelectedValue)
                 {
-                    facetHandleClick();
-                    window.location.href = '{$baseLink}|EQ_{$this->attributeID}=' + selectedValue;
+                    facetHandleClick('{$baseLink}|EQ_{$this->attributeID}=' + selectedValue);
                 }
             }
             </script>
