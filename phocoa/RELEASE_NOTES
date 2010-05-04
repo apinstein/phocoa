@@ -46,6 +46,7 @@ Version 0.3.7 - 6/10/2010
 - [bugfix] WFDieselFacet popups now auto-submit if a "show all" choice with value="" is selected.
 - [bugfix] WFDieselSearch now ignores attribute queries with empty values.
 - [bugfix] Fixed bug with WFDieselNav which caused clicking facets to drill-down or remove them would fail on IE.
+- [bugfix] Fixed bug with WFDieselNav where menu-style attributes were not escaped in javascript which caused bugs when navigating menu facets with legit + characters.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().
