@@ -19,6 +19,8 @@ Version 0.3.7 - ??
   - New binding option RaisesForNotApplicableKeys (boolean) which if set to false will cause the NotApplicablePlaceholder to be used rather than throwing an exception.
   - New binding option NotApplicablePlaceholder (mixed) which will be used if RaisesForNotApplicableKeys is set to false.
   - pullBindings() now only skips processing of the current bound property (instead of all properties for the widget) when an exception is encountered.
+- [bugfix] Fixed bugs with WFDieselNav when calculating URLs for pages that have leading parameters (ie params before the required DP ones).
+- [bugfix] Fixed bug with WFDieselNav which caused clicking facets to drill-down or remove them would fail on IE.
 - [improved] Added built-in support for "namedContent" into WFSkin itself. This provides automatic setter functionality for skins without having to implement it themselves.
              NamedContent is by default a value, but can be foreced into array mode via WFSkin::initializeNamedContentAsArray().
              A new smarty plugin, WFSkinNamedContentBlock, allows pages to shunt their content into the namedContent infrastrucure easily.
