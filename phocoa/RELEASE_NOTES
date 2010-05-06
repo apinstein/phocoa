@@ -19,6 +19,10 @@ Version 0.3.7 - ??
   - New binding option RaisesForNotApplicableKeys (boolean) which if set to false will cause the NotApplicablePlaceholder to be used rather than throwing an exception.
   - New binding option NotApplicablePlaceholder (mixed) which will be used if RaisesForNotApplicableKeys is set to false.
   - pullBindings() now only skips processing of the current bound property (instead of all properties for the widget) when an exception is encountered.
+- [improved] Added built-in support for "namedContent" into WFSkin itself. This provides automatic setter functionality for skins without having to implement it themselves.
+             NamedContent is by default a value, but can be foreced into array mode via WFSkin::initializeNamedContentAsArray().
+             A new smarty plugin, WFSkinNamedContentBlock, allows pages to shunt their content into the namedContent infrastrucure easily.
+             This new infrastructure makes it easy to implement "flash" messages functionality, or "main" / "sidebar" targeting of content for skins.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().

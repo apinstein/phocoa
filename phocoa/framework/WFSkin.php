@@ -233,6 +233,10 @@ class WFSkin extends WFObject
      * @var array An array of strings of things that needed to be added to the <head> section.
      */
     protected $headStrings;
+    /**
+     * @var arrary An associative array of "named" content chunks.
+     */
+    protected $namedContent;
 
     function __construct()
     {
@@ -244,6 +248,7 @@ class WFSkin extends WFObject
         $this->skinManifestDelegate = NULL;
         $this->body = NULL;
         $this->templateType = WFSkin::SKIN_WRAPPER_TYPE_NORMAL;
+        $this->namedContent = array();
 
         $this->title = NULL;
         $this->metaKeywords = array();
@@ -635,21 +640,29 @@ class WFSkin extends WFObject
     }
 
     /**
-     * Get the catalog (ie list) of named content for this skin from its delegate.
+     * Get the catalog (ie list) of named content for this skin.
+     *
+     * This is a merge of all names from the delegate and any existing content that's already been added programmatically to WFSkin.
+     *
      * If the skin delegate supports additional content for the skin, the catalog of content is provided here. Mostly this is for documentation purposes.
      * @see WFSkinDelegate::namedContentList
      * @return array Array of strings; each entry is a name of a content driver for this skin delegate.
      */
     function namedContentList()
     {
+        $keys = array_keys($this->namedContent);
         if (is_object($this->delegate) && method_exists($this->delegate, 'namedContentList')) {
-            return $this->delegate->namedContentList();
+            $keys = array_merge($keys, $this->delegate->namedContentList());
         }
-        return array();
+        return $keys;
     }
 
     /**
-     * Get the named content from the delegate.
+     * Get the named content.
+     *
+     * This will use the value from the delegate *first*, and if one is not found (ie NULL is returned) then it will also 
+     * look for a value in the local namedContent list.
+     *
      * @see WFSkinDelegate::namedContent
      * @param string The name of the content to retrieve.
      * @param assoc_array A list of additional parameters.
@@ -657,10 +670,50 @@ class WFSkin extends WFObject
      */
     function namedContent($name, $options = NULL)
     {
+        $val = NULL;
         if (is_object($this->delegate) && method_exists($this->delegate, 'namedContent')) {
-            return $this->delegate->namedContent($name, $options);
+            $val = $this->delegate->namedContent($name, $options);
         }
-        return NULL;
+        if ($val === NULL) {
+            if (isset($this->namedContent[$name])) {
+                $val = $this->namedContent[$name];
+            }
+        }
+        return $val;
+    }
+
+    /**
+     * Set a value for a "namedContent" entry.
+     *
+     * If the namedContent is an array, the entry will be appended.
+     *
+     * To "set up" a namedContent as an array, the skin delegate should call {@link WFSkin::initializeNamedContentAsArray()}.
+     *
+     * @param mixed The "content" of the namedContent you are setting.
+     * @param string The "name" of the namedContent you are setting.
+     * @return object WFSkin (fluent interface).
+     */
+    function setContentForName($content, $name)
+    {
+        $curVal = $this->namedContent($name);
+        if (is_array($curVal)) {
+            $this->namedContent[$name][] = $content;
+        } else {
+            $this->namedContent[$name] = $content;
+        }
+        return $this;
+    }
+
+    /**
+     * Mark a "namedContent" chunk as an array so that when used by pages the values will be concatentated rather than last-one-wins.
+     *
+     * @param string The "name" of the "namedContent".
+     * @return object WFSkin (fluent interface).
+     */
+    function initializeNamedContentAsArray($name)
+    {
+        $this->namedContent[$name] = array();
+        return $this;
     }
 
     /**
