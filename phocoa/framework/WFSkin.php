@@ -705,6 +705,23 @@ class WFSkin extends WFObject
     }
 
     /**
+     * Test whether there is a value set for the namedContent passed.
+     *
+     * NOTE: at present this only looks *locally* in the WFSkin. It does not call through
+     * to the delegate.
+     *
+     * The idea behind this is that it's much more efficient that testing namedContent('name').
+     *
+     * @param string The "name" of the namedContent you are inquiring about.
+     * @return boolean
+     * @todo add support for hasNamedContent to WFSkinDelegate.
+     */
+    function hasNamedContent($name)
+    {
+        return isset($this->namedContent[$name]);
+    }
+
+    /**
      * Mark a "namedContent" chunk as an array so that when used by pages the values will be concatentated rather than last-one-wins.
      *
      * @param string The "name" of the "namedContent".
