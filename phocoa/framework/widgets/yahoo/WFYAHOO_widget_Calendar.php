@@ -53,13 +53,8 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
             {
                 $this->value = NULL;
             } else {
-                $value = new WFDateTime();
+                $value = new WFDateTime($_REQUEST[$this->id]);
                 $value->setTime(0, 0, 0);
-                $date = explode('/', $_REQUEST[$this->id]);
-                if( isset($date[2]) && isset($date[1]) && isset($date[0]) )
-                {
-                    $value->setDate($date[2], $date[0], $date[1]);
-                }
                 $this->value = $value;
             }
         }
