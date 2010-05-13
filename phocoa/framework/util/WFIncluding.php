@@ -160,6 +160,7 @@ class WFIncluding
                 'WFYAHOO_widget_TabView' => 'framework/widgets/yahoo/WFYAHOO_widget_TabView.php',
                 'WFYAHOO_widget_ColorPicker' => 'framework/widgets/yahoo/WFYAHOO_widget_ColorPicker.php',
                 'WFYAHOO_widget_Calendar' => 'framework/widgets/yahoo/WFYAHOO_widget_Calendar.php',
+                'WFYAHOO_widget_DateTimePicker' => 'framework/widgets/yahoo/WFYAHOO_widget_DateTimePicker.php',
                 'WFYAHOO_widget_Uploader' => 'framework/widgets/yahoo/WFYAHOO_widget_Uploader.php',
                 'WFYAHOO_widget_Carousel' => 'framework/widgets/yahoo/WFYAHOO_widget_Carousel.php',
                 'WFPaginatorPageInfo' => 'framework/widgets/WFPaginatorPageInfo.php',

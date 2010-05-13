@@ -182,6 +182,12 @@ class WFSelect extends WFWidget
         }
     }
 
+    function setWidth($w)
+    {
+        $this->width = $w;
+        return $this;
+    }
+
     function setLabelFormatter($f)
     {
         if (!($f instanceof WFFormatter)) throw( new Exception("labelFormatter must be a WFFormatter subclass.") );
@@ -374,6 +380,8 @@ class WFSelect extends WFWidget
 
     function render($blockContent = NULL)
     {
+        if ($this->hidden) return NULL;
+
         $multiple = $this->multiple() ? ' multiple ' : NULL;
         $size = ($this->visibleItems() != 1) ? 'size="' . $this->visibleItems() . '" ' : NULL;
 

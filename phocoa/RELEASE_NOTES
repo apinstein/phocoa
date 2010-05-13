@@ -25,6 +25,10 @@ Version 0.3.7 - ??
              NamedContent is by default a value, but can be foreced into array mode via WFSkin::initializeNamedContentAsArray().
              A new smarty plugin, WFSkinNamedContentBlock, allows pages to shunt their content into the namedContent infrastrucure easily.
              This new infrastructure makes it easy to implement "flash" messages functionality, or "main" / "sidebar" targeting of content for skins.
+- [improved] Add "hidden" support to WFSelect.
+- [improved] Add "width" property to WFYAHOO_widget_AutoComplete. Improve layout. So it works more cleanly when laid out inline with other elements.
+- [improved] Add "width" property to WFYAHOO_widget_Calendar. Improve layout. So it works more cleanly when laid out inline with other elements.
+- [new] Add WFYAHOO_widget_DateTimePicker widget.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().

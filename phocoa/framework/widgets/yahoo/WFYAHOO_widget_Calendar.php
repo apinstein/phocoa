@@ -29,6 +29,7 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
      * @var string The title of the date picker dialog.
      */
     protected $title;
+    protected $width;
 
     /**
       * Constructor.
@@ -40,6 +41,12 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
         $this->yuiloader()->yuiRequire('button,container,calendar');
         $this->title = "Select Date";
     }
+
+    function setWidth($w)
+    {
+        $this->width = $w;
+        return $this;
+    }
     
     function restoreState()
     {
@@ -49,47 +56,48 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
         // look for the things in the form I need to restore state...
         if (isset($_REQUEST[$this->id]))
         {
-            if( empty($_REQUEST[$this->id]) )
+            $inputVal = trim($_REQUEST[$this->id]);
+            if(empty($inputVal))
             {
                 $this->value = NULL;
-            } else {
-                $value = new WFDateTime($_REQUEST[$this->id]);
-                $value->setTime(0, 0, 0);
-                $this->value = $value;
+            }
+            else
+            {
+                try {
+                    $value = new WFDateTime($inputVal);
+                    $value->setTime(0, 0, 0);
+                    $this->value = $value;
+                } catch (Exception $e) {
+                    $this->addError(new WFError($e->getMessage()));
+                }
             }
         }
     }
 
     function render($blockContent = NULL)
     {
-        if ($this->hidden)
-        {
-            return NULL;
-        }
-        else
-        {
-            if($this->value === NULL)
-            {
-                $formattedValue = '';
-            } else {
-                $dateTimeObject = new WFDateTime($this->value);
-                $formattedValue = $dateTimeObject->format('m/d/Y');
-            }
-            
-            // render the tab's content block
-            $html = parent::render($blockContent);
-            $html .= '
-        <input type="text" id="' . $this->id . '" name="' . $this->id . '" value="' . $formattedValue . '" /><img id="' . $this->id . '-show" src="' . $this->getWidgetWWWDir() . '/calbtn.gif" width="18" height="18" alt="Calendar" style="margin: 0 0 1px 3px" valign="bottom" />
-       <div id="' . $this->id . '-container" style="visibility: hidden">
-          <div class="hd">' . $this->title . '</div>
-          <div class="bd">
-             <div id="' . $this->id . '-cal"></div>
-          </div>
-       </div>
-';
+        if ($this->hidden) return NULL;
 
-            return $html;
+        if($this->value === NULL)
+        {
+            $formattedValue = '';
+        } else {
+            $dateTimeObject = new WFDateTime($this->value);
+            $formattedValue = $dateTimeObject->format('m/d/Y');
         }
+        
+        // render the tab's content block
+        $html = parent::render($blockContent);
+        $html .= '
+    <input type="text" id="' . $this->id . '" name="' . $this->id . '" value="' . $formattedValue . '" ' . ($this->width ? "style=\"width: {$this->width};\"" : NULL) . ' /><img id="' . $this->id . '-show" src="' . $this->getWidgetWWWDir() . '/calbtn.gif" width="18" height="18" alt="Calendar" style="margin: 0 0 1px 3px" valign="bottom" />
+   <div id="' . $this->id . '-container" style="visibility: hidden">
+      <div class="hd">' . $this->title . '</div>
+      <div class="bd">
+         <div id="' . $this->id . '-cal"></div>
+      </div>
+   </div>
+';
+        return $html;
     }
 
     function initJS($blockContent)

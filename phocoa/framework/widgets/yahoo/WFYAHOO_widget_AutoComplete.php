@@ -175,6 +175,12 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         $this->dynamicDataLoaderSchema = $schema;
     }
 
+    function setWidth($w)
+    {
+        $this->width = $w;
+        return $this;
+    }
+
     function setDynamicDataLoaderSchema($schema)
     {
         if (is_string($schema))
@@ -316,7 +322,8 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
 #{$this->initializeWaitsForID} {
     position: relative;
     width: {$this->width};
-    " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : 'height: 1em;') . "
+    margin-right: 12px; /* to compensate for browser dressing of input  */
+    " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : 'height: 2.5em;') . "
 }
 #{$this->id} {
     width: 100%;

@@ -607,6 +607,17 @@ abstract class WFWidget extends WFView
         return $this->errors;
     }
 
+
+    /**
+      * Are there any errors recorded for this widget?
+      *
+      * @return boolean
+      */
+    function hasErrors()
+    {
+        return count($this->errors());
+    }
+
     /**
       * Set the HTML 'name' of the widget.
       *
