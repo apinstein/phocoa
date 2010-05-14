@@ -268,6 +268,15 @@ class Mail_Mailer
     }
 
     /**
+     * Get the subject of the message.
+     * @return string
+     */
+    function getSubject()
+    {
+        return $this->subject;
+    }
+
+    /**
      * Set the HTML for the message.
      * @param $html string HTML to use for HTML portion of message.
      */
@@ -277,12 +286,30 @@ class Mail_Mailer
     }
 
     /**
+     * Get the HTML part of the message.
+     * @return string
+     */
+    function getMessageHTML()
+    {
+        return $this->raw_message_html;
+    }
+
+    /**
      * If just a simple message is desired to be sent, the caller can use this function.
      * @param $msg string - the BODY of the email.
      */
     function setMessageTEXT($msg)
     {
         $this->raw_message_text = $msg;
+    }
+
+    /**
+     * Get the TEXT part of the message.
+     * @return string
+     */
+    function getMessageTEXT()
+    {
+        return $this->raw_message_text;
     }
 
     /**
