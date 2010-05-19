@@ -34,4 +34,30 @@ class WFKeyValueValidatorsTest extends PHPUnit_Framework_TestCase
             }
         }
     }
+
+    /**
+     * @dataProvider emailValidationDataProvider
+     */
+    function testEmailValidation($input, $expectedOutput, $expectedValid, $options = array())
+    {
+        if ($expectedOutput === 'same') $expectedOutput = $input;
+
+        $edited = false;
+        $errors = new WFErrorArray;
+        $ok = WFKeyValueValidators::validateEmail($input, $edited, $errors, $options);
+        $this->assertEquals( ($expectedValid === true ? true : false), $ok);
+        $this->assertEquals($expectedOutput, $input);
+    }
+    function emailValidationDataProvider()
+    {
+        return array(
+            array('a@b.com', 'same', true),
+            array(' a@b.com ', 'a@b.com', true),
+            array('b.com', 'same', false),
+            array('a@', 'same', false),
+            array('a@localhost', 'same', false),                                        // no '.' in domain is not cool by default
+            array('a@localhost', 'same', true, array('requireRealDomains' => false)),   // no '.' in domain is actually legit if requireRealDomains = false
+            array('a@l', 'same', false, array('requireRealDomains' => false)),          // tld must be 2+ chars even with requireRealDomains = false
+        );
+    }
 }

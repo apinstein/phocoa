@@ -18,11 +18,13 @@
 class WFKeyValueValidators extends WFObject
 {
     /**
-     *  Validate email addresses.
+     * Validate email addresses.
      *
-     *  Options:
-     *  required: Whether to make the value required. Default false.
-     *  key: What to display as the "field" title in error messages. Default: "Email".
+     * Options:
+     * - required: Whether to make the value required. Default false.
+     * - key: What to display as the "field" title in error messages. Default: "Email".
+     * - requireRealDomains: If true, will also error on email address with domains that are unlikley to be deliverable over the public internet. Default: true.
+     *                       Basically this just requires emails to have domains with a '.' character.
      *
      * @param mixed A reference to value to check. Passed by reference so that the implementation can normalize the data.
      * @param boolean A reference to a boolean. This value will always be FALSE when the method is called. If the implementation edits the $value, set to TRUE.
@@ -35,6 +37,7 @@ class WFKeyValueValidators extends WFObject
         $options = array_merge(array(
                                     'required' => true,
                                     'key' => 'Email',
+                                    'requireRealDomains' => true,
                                     ), $options);
 
         //  normalize
@@ -64,6 +67,10 @@ class WFKeyValueValidators extends WFObject
         else
         {
             $okFilter = preg_match('/^[_A-Za-z0-9-\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$/', $value);
+        }
+        if ($okFilter and $options['requireRealDomains'])
+        {
+            $okFilter = preg_match('/@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$/', $value);
         }
         if (!$okFilter)
         {
