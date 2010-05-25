@@ -29,6 +29,8 @@ Version 0.3.7 - ??
 - [improved] Add "width" property to WFYAHOO_widget_AutoComplete. Improve layout. So it works more cleanly when laid out inline with other elements.
 - [improved] Add "width" property to WFYAHOO_widget_Calendar. Improve layout. So it works more cleanly when laid out inline with other elements.
 - [new] Add WFYAHOO_widget_DateTimePicker widget.
+- [new] Add WFForm.disableEnterKeySubmit property to optionally (default false) prevent enter-key-submit of forms.
+
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().
