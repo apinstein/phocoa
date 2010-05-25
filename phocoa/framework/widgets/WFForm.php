@@ -51,6 +51,12 @@ class WFForm extends WFWidget
      * @var string The target to submit to. Default is ''.
      */
     protected $target;
+
+    /**
+     * @var boolean TRUE to disable form submission via enter key. Default FALSE.
+     */
+    protected $disableEnterKeySubmit;
+
     /**
      * @var string The ID of the "default" button. This is the button that should be used as the action if no button information is submitted.
      */
@@ -92,6 +98,7 @@ class WFForm extends WFWidget
 
         $this->method = WFForm::METHOD_POST;
         $this->target = '';
+        $this->disableEnterKeySubmit = false;
         $this->defaultSubmitID = $this->calculatedDefaultSubmitID = NULL;
         $this->numberOfSubmitButtons = 0;
 
@@ -233,7 +240,18 @@ class WFForm extends WFWidget
                "\n" . $blockContent .
                "\n</form>\n" .
                "\n";
-        if ($this->isAjax())
+
+        if ($this->disableEnterKeySubmit)
+        {
+            $html .= $this->jsStartHTML() . "Element.observe('{$this->id}', 'keypress', function(e) {
+                            if (e.element().type === 'text' && (e.keyCode === Event.KEY_RETURN || e.keyCode === 3)) // safari enter not normalized
+                            {
+                                e.stop();
+                                e.cancelBubble = true;
+                            }
+                        } );" . $this->jsEndHTML();
+        }
+        if ($this->isAjax() and !$this->disableEnterKeySubmit)
         {
             $html .= $this->jsStartHTML() . "Element.observe('{$this->id}', 'keypress', function(e) {
                             if (e.element().type === 'text' && (e.keyCode === Event.KEY_RETURN || e.keyCode === 3)) // safari enter not normalized
