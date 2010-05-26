@@ -180,12 +180,19 @@ class Mail_Mailer
      */
     function setToName($to)
     {
+        if (is_array($this->to_email)) {
+            PEAR::raiseError("Cannot call setToName after addToEmail().");
+        }
         $to = trim($to);
         $this->to_name = $to;
     }
 
     /**
      * Set the TO address for the email.
+     *
+     * NOTE: Calling setToEmail will *blow away* any existing to emails... beware!
+     * @todo A future non-PEAR-y version of this class will THROW when you use setToEmail 2+ times.
+     *
      * @param $to string Properly formatted email.
      * @return $err int 0 if no error, PEAR error if email is not valid.
      */
@@ -198,6 +205,27 @@ class Mail_Mailer
         } else {
             return PEAR::raiseError("Email address '$to' is not valid.");
         }
+    }
+
+    /**
+     * Add a "to" email.
+     *
+     * Note that calling addToEmail() switched the "To" field into array mode, and you cannot call setToEmail or setToName on the object anymore.
+     *
+     * @param string Email. The email address.
+     * @param string Name. The "Name" associated with the email address. OPTIONAL.
+     * @return $err int 0 if no error, PEAR error if email is not valid.
+     */
+    function addToEmail($to, $name = NULL)
+    {
+        if (!$this->emailOK($to)) {
+            return PEAR::raiseError("Email address '$to' is not valid.");
+        }
+
+        $this->arrayIfyToEmail();
+        $this->to_email[$to] = $name;
+
+        return 0;
     }
 
     /**
@@ -335,6 +363,66 @@ class Mail_Mailer
     }
 
     /**
+     * @private
+     */
+    function arrayIfyToEmail()
+    {
+        if (!is_array($this->to_email)) {
+            $this->to_email = array($this->to_email => $this->to_name);
+        }
+    }
+
+    /**
+     * Calculate all of the recipients for this mailer.
+     *
+     * @return array 
+     *    'All' => array( email => "Name" <email>, ...)
+     *    'To'  => array( email => "Name" <email>, ...)
+     *    'Cc'  => array( email => "Name" <email>, ...)
+     *    'Bcc' => array( email => "Name" <email>, ...)
+     */
+    function getRecipients()
+    {
+        $recipients = array(
+                                'All'   => array(),
+                                'To'    => array(),
+                                'Cc'    => array(),
+                                'Bcc'   => array(),
+                           );
+
+        // To
+        $this->arrayIfyToEmail();
+        foreach ($this->to_email as $toEmail => $toName) {
+            if ($toName) {
+                $rfcRecipient = "\"{$toName}\" <{$toEmail}>";
+            } else {
+                $rfcRecipient = $toEmail;
+            }
+            $recipients['All'][$toEmail] = $rfcRecipient;
+            $recipients['To'][$toEmail] = $rfcRecipient;
+        }
+        
+        // Cc
+        foreach ($this->cc_list as $ccEmail) {
+            $recipients['All'][$ccEmail] = $ccEmail;
+            $recipients['Cc'][$ccEmail] = $ccEmail;
+        }
+
+        // Bcc
+        foreach ($this->bcc_list as $bccEmail) {
+            $recipients['All'][$bccEmail] = $bccEmail;
+            $recipients['Bcc'][$bccEmail] = $bccEmail;
+        }
+        if ($this->bcc_sender) {
+            $bccEmail = $this->from_email;
+            $recipients['All'][$bccEmail] = $bccEmail;
+            $recipients['Bcc'][$bccEmail] = $bccEmail;
+        }
+
+        return $recipients;
+    }
+
+    /**
      * Send the email out. 
      * @return err 0 if no error; otherwise a PEAR_Error object with the error.
      */
@@ -350,31 +438,16 @@ class Mail_Mailer
         
         // set up all headers
         $headers = array();
-        $recipients = array();
+        $recipients = $this->getRecipients();
 
-        // TO field
-        if ($this->to_name) {
-            $to = "\"{$this->to_name}\" <{$this->to_email}>";
-        } else {
-            $to = $this->to_email;
+        $headers["To"] = join(", ", $recipients['To']);
+        if (count($recipients['Cc'])) {
+            $headers["Cc"] = join(", ", $recipients['Cc']);
         }
-        $headers["To"] = $to;
-        $recipients[] = $this->to_email;
+        if (count($recipients['Bcc'])) {
+            $headers["Bcc"] = join(", ", $recipients['Bcc']);
+        }
         
-        // CC people
-        if (count($this->cc_list)) {
-            $headers["Cc"] = join(", ", $this->cc_list);
-            $recipients = array_merge($recipients, $this->cc_list);
-        }
-        // BCC people
-        // BCC sender?
-        if ($this->bcc_sender) {
-            $this->bcc_list[] = $this->from_email;
-        }
-        if (count($this->bcc_list)) {
-            $recipients = array_merge($recipients, $this->bcc_list);
-        }
-
         // FROM
         if ($this->from_name != '') {
             $headers["From"] = "\"{$this->from_name}\" <{$this->from_email}>";
@@ -428,7 +501,7 @@ class Mail_Mailer
             return $mailer;
         }
 
-        $err = @$mailer->send($recipients, $mm_headers, $mm_body);
+        $err = @$mailer->send(array_keys($recipients['All']), $mm_headers, $mm_body);
 
         if (PEAR::isError($err)) {
             return $err;
