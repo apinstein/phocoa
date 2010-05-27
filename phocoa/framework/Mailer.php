@@ -368,7 +368,11 @@ class Mail_Mailer
     function arrayIfyToEmail()
     {
         if (!is_array($this->to_email)) {
-            $this->to_email = array($this->to_email => $this->to_name);
+            $originalToEmail = $this->to_email;
+            $this->to_email = array();
+            if ($originalToEmail != '') {
+                $this->to_email[$originalToEmail] = $this->to_name;
+            }
         }
     }
 
