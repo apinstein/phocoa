@@ -156,7 +156,60 @@ class WFRequestController extends WFObject
             {  
                 header('Content-Type: text/xml');
                 $html = "<?xml version=\"1.0\"?><raw><![CDATA[\n{$html}\n]]></raw>";
-            }   
+            }
+
+            // magic css/js minification
+            if (isset($_REQUEST['magic-css-js']) and $_REQUEST['magic-css-js'] === 'inline')
+            {
+                // js
+                $matches = array();
+                if (preg_match_all('/(?:<script(?: *type=["\']text\/javascript["\'] *)?)(?: *src=["\']([^"\']+)["\']) *><\/script>/', $html, $matches))
+                {
+                    $allJS = '<script type="text/javascript">';
+                    foreach ($matches[1] as $scriptURL) {
+                        $fqScriptURL = $scriptURL;
+                        if ($scriptURL[0] === '/')
+                        {
+                            $fqScriptURL = 'http://' . $_SERVER['HTTP_HOST'] . $scriptURL;
+                        }
+                        $allJS .= file_get_contents($fqScriptURL);
+                    }
+                    $allJS .= "</script>";
+
+                    // replace script tags
+                    $replaceScriptTagsWith = array_fill(0, count($matches[0]), NULL);
+                    $replaceScriptTagsWith[0] = $allJS;
+                    $html = str_replace($matches[0], $replaceScriptTagsWith, $html);
+                }
+
+                // css
+                $matches = array();
+                if (preg_match_all('/<link +rel=["\']stylesheet["\'] +type=["\']text\/css["\'] +(?:href=["\']([^"\']+)["\'])(?: *media=["\']screen["\'])? *\/?>/', $html, $matches))
+                {
+                    $allCSS = '<style type="text/css">';
+                    foreach ($matches[1] as $cssURL) {
+                        $fqCSSURL = $cssURL;
+                        if ($cssURL[0] === '/')
+                        {
+                            $fqCSSURL = 'http://' . $_SERVER['HTTP_HOST'] . $cssURL;
+                        }
+                        $cssFile = file_get_contents($fqCSSURL);
+                        // FIX url() references
+                        $replaces = array(
+                            //'/url\(\//'         => 'url(http://' . $_SERVER['HTTP_HOST'] . '/',   // don't seem to need this one
+                            '/url\(([^\/])/'    => 'url(' . dirname($fqCSSURL) . '/\\1'
+                        );
+                        $cssFile = preg_replace(array_keys($replaces), array_values($replaces), $cssFile);
+                        $allCSS .= $cssFile;
+                    }
+                    $allCSS .= "</style>";
+
+                    // replace script tags
+                    $replaceLinkTagsWith = array_fill(0, count($matches[0]), NULL);
+                    $replaceLinkTagsWith[0] = $allCSS;
+                    $html = str_replace($matches[0], $replaceLinkTagsWith, $html);
+                }
+            }
 
             print $html;
         } catch (WFRequestController_HTTPException $e) {
