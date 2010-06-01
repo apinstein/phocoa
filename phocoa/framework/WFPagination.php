@@ -638,6 +638,18 @@ class WFPaginator extends WFObject
     }
 
     /**
+     * Are all items visible on the current page?
+     *
+     * This is useful for "Show All" calculations.
+     *
+     * @return boolean
+     */
+    function canSeeAllItems()
+    {
+        return $this->pageCount() <= 1; // still true if 0 items
+    }
+
+    /**
      *  Is the current page the first page?
      *
      *  @return boolean
