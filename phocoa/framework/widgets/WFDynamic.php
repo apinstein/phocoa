@@ -311,6 +311,22 @@ class WFDynamic extends WFWidget
     }
 
     /**
+     * Edit the widget config for a particular property.
+     *
+     * Useful if you want to add/change the config for a particular property.
+     *
+     * @param array The config data, see {@link setWidgetConfig()}
+     * @param string The property to update the config for.
+     * @throws If the passed parameter is not a PHP array.
+     */
+    function setWidgetConfigForProperty($config, $property)
+    {
+        if (!is_array($config)) throw( new Exception("Config must be an array."));
+        $this->widgetConfig[$property] = $config;
+        $this->processedWidgetConfig = false;
+    }
+
+    /**
      *  Get the last rendered widget.
      *
      *  @return object WFWidget The instance of the last rendered widget.
