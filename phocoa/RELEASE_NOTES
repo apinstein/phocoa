@@ -31,6 +31,8 @@ Version 0.3.7 - ??
 - [new] Add WFYAHOO_widget_DateTimePicker widget.
 - [new] Add WFForm.disableEnterKeySubmit property to optionally (default false) prevent enter-key-submit of forms.
 - [new] Add addToEmail() to Mail_Mailer to allow multiple "to" recipients.
+- [new] Added WFYAHOO_widget_TabView.hideWhileLoading (default false) to suppress display of the tabs until they are ready to use. This prevents flickering of content as well as weird
+        behavior bugs where you can click on tabs before the content is loaded.
 
 
 Version 0.3.6 - 3/18/2010
