@@ -196,7 +196,7 @@ class WFYAHOO_widget_DateTimePicker extends WFYAHOO
         else if ($datePart['error_count'])
         {
             foreach ($datePart['errors'] as $err) {
-                $this->addError(new WFError("Invalid date: $err")); 
+                $this->addError(new WFError("The date you entered is invalid")); 
             }
         }
 
@@ -209,7 +209,7 @@ class WFYAHOO_widget_DateTimePicker extends WFYAHOO
         else if ($timePart['error_count'])
         {
             foreach ($timePart['errors'] as $err) {
-                $this->addError(new WFError("Invalid time: $err")); 
+                $this->addError(new WFError("The time you entered is invalid")); 
             }
         }
 
@@ -242,7 +242,7 @@ class WFYAHOO_widget_DateTimePicker extends WFYAHOO
                 }
             }
         } catch (Exception $e) {
-            $this->addError(new WFError("Invalid timezone: " . $e->getMessage()));
+            $this->addError(new WFError("The timezone you entered is invalid"));
         }
     }
 
