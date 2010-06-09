@@ -284,7 +284,7 @@ class WFYAHOO_widget_TabView extends WFYAHOO
         if ($this->hideWhileLoading)
         {
             $html .= "
-            YAHOO.util.Dom.get('{$this->id}').setStyle({ display: 'block' });
+            YAHOO.util.Dom.setStyle('{$this->id}', 'display', 'block');
             ";
         }
 
