@@ -393,6 +393,14 @@ PHOCOA.WFRPC.prototype = {
         {
             for (id in updateList.update) {
                 el = $(id);
+                if (!el)
+                {
+                    if (console)
+                    {
+                        console.warn('doPhocoaUIUpdatesJSON: could not update element: ' + id + ' because it was not found in the DOM.');
+                    }
+                    continue;
+                }
                 el.update(updateList.update[id]);
                 this.runScriptsInElement(el);
                 // need to add code to process style blocks
@@ -402,6 +410,14 @@ PHOCOA.WFRPC.prototype = {
         {
             for (id in updateList.replace) {
                 el = $(id);
+                if (!el)
+                {
+                    if (console)
+                    {
+                        console.warn('doPhocoaUIUpdatesJSON: could not update element: ' + id + ' because it was not found in the DOM.');
+                    }
+                    continue;
+                }
                 el.replace(updateList.replace[id]);
                 this.runScriptsInElement(el);
                 // need to add code to process style blocks

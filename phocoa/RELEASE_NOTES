@@ -36,6 +36,7 @@ Version 0.3.7 - 6/10/2010
 - [new] Added WFYAHOO_widget_TabView.hideWhileLoading (default false) to suppress display of the tabs until they are ready to use. This prevents flickering of content as well as weird
         behavior bugs where you can click on tabs before the content is loaded.
 - [bugfix] Errors in processing WFActionResponsePhocoaUIUpdater are no longer silenced; an alert() will show (it's a dev-time-only failure).
+- [improved] Errors in processing WFActionResponsePhocoaUIUpdater due to missing element ID's warn in console if available, rather than cause an error.
 
 
 Version 0.3.6 - 3/18/2010
