@@ -238,7 +238,12 @@ PHOCOA.WFRPC.prototype = {
         o.argument = this.callback.argument;
         if (o.getResponseHeader('Content-Type').strip() === 'application/x-json-phocoa-ui-updates')
         {
-            this.doPhocoaUIUpdatesJSON(eval('(' + o.responseText + ')'));
+            try {
+                this.doPhocoaUIUpdatesJSON(eval('(' + o.responseText + ')'));
+            } catch (e) {
+                alert('WFRPC doPhocoaUIUpdatesJSON() failed: ' + e + ' processing: ' + o.responseText);
+                return; // don't call success function
+            }
         }
         if (typeof this.callback.success === 'function')
         {

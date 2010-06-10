@@ -6,7 +6,9 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.3.7 - ??
+Version 0.3.8 - ??
+
+Version 0.3.7 - 6/10/2010
 - [bugfix] Add htmlspecialchars() to WFYAHOO_widget_AutoComplete.
 - [new] Added a hash() function to WFArray to make it easy to create hashes of object models. Great for use with JSON.
 - [new] Added srcWidth and srcHeight fields to WFImage that can be populated with the source image's dimensions in lieu of supplying a filesystemPath and having the system look up the image dimensions from the local file. This is useful for performance reasons, and also when you are not storing the image locally.
@@ -33,6 +35,7 @@ Version 0.3.7 - ??
 - [new] Add addToEmail() to Mail_Mailer to allow multiple "to" recipients.
 - [new] Added WFYAHOO_widget_TabView.hideWhileLoading (default false) to suppress display of the tabs until they are ready to use. This prevents flickering of content as well as weird
         behavior bugs where you can click on tabs before the content is loaded.
+- [bugfix] Errors in processing WFActionResponsePhocoaUIUpdater are no longer silenced; an alert() will show (it's a dev-time-only failure).
 
 
 Version 0.3.6 - 3/18/2010
