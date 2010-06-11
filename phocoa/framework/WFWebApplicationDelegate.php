@@ -98,4 +98,13 @@ class WFWebApplicationDelegate
      * @return string The class name to use as the {@link WFAuthorizationManager::$authorizationInfo}. Defaults to {@link WFAuthorizationInfo}.
      */
     function authorizationInfoClass() {}
+
+    /**
+     * A callback function to allow the application to override the default routing for an invocation path.
+     *
+     * @param string The invocation path requested
+     * @return mixed Return a STRING and that string will be used as the invocationPath for the request.
+     *               Return NULL to use default phocoa routing.
+     */
+    function rerouteInvocationPath($invocationPath) {}
 }

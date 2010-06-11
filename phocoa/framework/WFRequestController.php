@@ -144,6 +144,17 @@ class WFRequestController extends WFObject
             {
                 $modInvocationPath = WFWebApplication::sharedWebApplication()->defaultInvocationPath();
             }
+            // allow routing delegate to munge modInvocationPath
+            $webAppDelegate = WFWebApplication::sharedWebApplication()->delegate();
+            if (is_object($webAppDelegate) && method_exists($webAppDelegate, 'rerouteInvocationPath'))
+            {
+                $newInvocationPath = $webAppDelegate->rerouteInvocationPath($modInvocationPath);
+                if ($newInvocationPath)
+                {
+                    $modInvocationPath = $newInvocationPath;
+                }
+            }
+
             // create the root invocation; only skin if we're not in an XHR
             $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL, ($this->isAjax() ? NULL : WFWebApplication::sharedWebApplication()->defaultSkinDelegate()) );
             // get HTML result of the module, and output it
