@@ -245,6 +245,15 @@ class WFYAHOO_widget_TabView extends WFYAHOO
         }
     }
 
+    function getSelectedTabId()
+    {
+        if (!isset($this->tabRenderOrder[$this->selectedTabId]))
+        {
+            $this->selectedTabId = array_shift(array_keys($this->tabRenderOrder));
+        }
+        return $this->selectedTabId;
+    }
+
     function render($blockContent = NULL)
     {
         if ($blockContent === NULL) return NULL;
@@ -259,7 +268,7 @@ class WFYAHOO_widget_TabView extends WFYAHOO
             $html .= "\n<div id=\"{$this->id}\" class=\"yui-navset\" {$initialStyle}>";
             $html .= "\n<ul class=\"yui-nav\">";
             foreach ($this->tabRenderOrder as $tabId => $tab) {
-                $html .= "<li class=\"" . ($this->selectedTabId === $tabId ? ' selected' : NULL) . "\"><a href=\"#" . $tabId . "\"><em>" . $tab->label() . "</em></a></li>";
+                $html .= "<li class=\"" . ($this->getSelectedTabId() === $tabId ? ' selected' : NULL) . "\"><a href=\"#" . $tabId . "\"><em>" . $tab->label() . "</em></a></li>";
             }
             $html .= "\n</ul>";
             $html .= "\n<div class=\"yui-content\">{$blockContent}</div>";
