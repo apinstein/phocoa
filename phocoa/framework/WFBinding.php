@@ -302,6 +302,9 @@ class WFBinding extends WFObject
     const OPTION_READ_WRITE_MODE_WRITE_ONLY = 'writeonly'; 
     const OPTION_READ_WRITE_MODE_READ_ONLY = 'readonly'; 
 
+    // provide a way to tell the system not to push a value if the given value is X. Useful for WFSensitiveDataFormatter, at least... maybe other uses too.
+    const OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE = 'DoNotPushValueSemaphore';
+
     /**
      * @var object The object that this property is bound to.
      */

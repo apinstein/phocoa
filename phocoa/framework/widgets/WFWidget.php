@@ -292,40 +292,28 @@ abstract class WFWidget extends WFView
       */
     function bind($bindLocalProperty, $bindToObject, $bindToKeyPath, $options = NULL)
     {
-        // does this property exist? Easy to test as valueForKey will THROW if DNE...
-        try {
-            $baseLocalProperty = $bindLocalProperty;
-            $matches = array();
-            if (preg_match('/(.*)[0-9]+$/', $bindLocalProperty, $matches) == 1)
-            {
-                $baseLocalProperty = $matches[1];
-            }
-            $this->valueForKey($baseLocalProperty);
-        } catch (WFException $e) {
-            // must do === because getCode returns a number
-            if ($e instanceof WFUndefinedKeyException)
-            {
-                throw( new Exception("Cannot bind property '$bindLocalProperty' because it is not a property of the object '" . get_class($this) . "' (" . $this->id() . ").") );
-            }
-            else
-            {
-                throw($e);
-            }
+        // determine if $bindLocalProperty is a multi-value binding and, if so, figure out the "base" property
+        $baseLocalProperty = $bindLocalProperty;
+        $matches = array();
+        if (preg_match('/(.*)[0-9]+$/', $bindLocalProperty, $matches) == 1)
+        {
+            $baseLocalProperty = $matches[1];
         }
+        // does this property exist? Easy to test as valueForKey will THROW if DNE...
+        $exposedBindings = $this->exposedBindings();
+        if (!isset($exposedBindings[$baseLocalProperty])) throw( new WFException("Cannot bind property '{$bindLocalProperty}' because it is not a property of object '" . get_class($this) . "' (instanceId: " . $this->id() . ")."));
 
         // is the bindToObject an object? ideally we'd check to be sure it's KVC compliant, but for now just make sure it's an object.
-        if (!is_object($bindToObject)) throw( new Exception("The bindToObject (for '" . get_class($this) . "::{$bindLocalProperty}') must be a Key-Value Coding Compliant object.") );
+        if (!is_object($bindToObject)) throw( new WFException("The bindToObject (for '" . get_class($this) . "::{$bindLocalProperty}') must be a Key-Value Coding Compliant object.") );
 
         // is the property already bound?
-        if (isset($this->bindings[$bindLocalProperty])) throw( new Exception("Cannot bind property '$bindLocalProperty' because it is already bound to " . get_class($this->bindings[$bindLocalProperty]->bindToObject()) . " with keyPath '" . $this->bindings[$bindLocalProperty]->bindToKeyPath() . "'.") );
+        if (isset($this->bindings[$bindLocalProperty])) throw( new WFException("Cannot bind property '$bindLocalProperty' because it is already bound to " . get_class($this->bindings[$bindLocalProperty]->bindToObject()) . " with keyPath '" . $this->bindings[$bindLocalProperty]->bindToKeyPath() . "'.") );
 
         $binding = new WFBinding();
         $binding->setBindToObject($bindToObject);
         $binding->setBindToKeyPath($bindToKeyPath);
         $binding->setBindLocalProperty($bindLocalProperty);
 
-        $exposedBindings = $this->exposedBindings();
-        if (!isset($exposedBindings[$baseLocalProperty])) throw( new Exception("No binding setup available for property: $baseLocalProperty.") );
         $binding->setBindingSetup($exposedBindings[$baseLocalProperty]);
 
         // Save options
@@ -704,6 +692,9 @@ abstract class WFWidget extends WFView
         {
             $fmtV = $this->formattedValue($this->value);
             // null signifies ERROR! cannot proceed to normal validate/push routine (ie propagateValueToBinding);
+            // @todo NOTE: This chunk of logic (null == error, doesn't push) seems at odds with WFFormatter.php:22, which says:
+            //       >>> Now that valueForString() can return NULL as a legitimate value, need to look at existing formatters to make sure they're compatible.
+            //       Since some formatters do return NULL w/o an error, and formattedValue() itself seems to be OK with that, why on earth is this is_null() / return below?
             if (is_null($fmtV))
             {
                 //print "skinpipng pb b/c of null value for {$this->value}<BR>";
@@ -758,6 +749,13 @@ abstract class WFWidget extends WFView
         // the bindable property may not be bound! The is legitimate, so be graceful about it.
         $binding = $this->bindingByName($bindingName);
         if (is_null($binding)) return $value;
+
+        // check OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE
+        if ($binding->coalescedOption(WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE) === $value)
+        {
+            WFLog::log("propagateValueToBinding() skipping push for {$bindingName} since value matched OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE for for widget id '{$this->id}'", WFLog::TRACE_LOG);
+            return $value;
+        }
 
         // assert for r/o bindings.
         if ($binding->bindingSetup()->readOnly()) throw( new Exception("Attempt to propagateValueToBinding for a read-only binding: {$this->id} / $bindingName.") );

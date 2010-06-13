@@ -589,6 +589,12 @@ class WFSensitiveDataFormatter extends WFFormatter
     */
     protected $redactedChr = 'X';
 
+    /**
+     * @var string The value to return from valueForString() if the input string matches the obsfucation pattern. This allows for WFSensitiveDataFormatter to be used on 
+     *             editable fields in conjunction with {@link WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE}.
+     */
+    protected $notModifiedSemaphore = NULL;
+
     function stringForValue($value)
     {
         $displayString = NULL;
@@ -607,9 +613,29 @@ class WFSensitiveDataFormatter extends WFFormatter
         return $displayString;
     }
 
+    /**
+     * Returns {@link WFSensitiveDataFormatter::$notModifiedSemaphore} if the input pattern matches the obsfucation pattern (ie, the input string was not modified).
+     *
+     * @see WFFormatter::valueForString()
+     */
     function valueForString($string, &$error)
     {
-        $error->setErrorMessage("SensitiveDataFormatter cannot be used in reverse.");
+        if ($this->notModifiedSemaphore !== NULL)
+        {
+            $isObscuredRegex = '/^.{' . $this->showBeginCharacters . '}[\\' . $this->redactedChr . ']+.{' . $this->showEndCharacters . '}$/';
+            if (preg_match($isObscuredRegex, $string))
+            {
+                return $this->notModifiedSemaphore;
+            }
+            else
+            {
+                return $string;
+            }
+        }
+        else
+        {
+            $error->setErrorMessage("SensitiveDataFormatter cannot be used in reverse.");
+        }
         return NULL;
     }
 
