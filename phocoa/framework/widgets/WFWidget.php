@@ -232,7 +232,7 @@ abstract class WFWidget extends WFView
       */
     function setFormatter($formatter)
     {
-        if (!($formatter instanceof WFFormatter)) throw( new Exception("You must pass a WFFormatter subclass to setFormatter().") );
+        if ($formatter !== NULL and !($formatter instanceof WFFormatter)) throw( new Exception("You must pass a WFFormatter subclass to setFormatter().") );
         $this->formatter = $formatter;
     }
 
