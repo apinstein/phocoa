@@ -72,6 +72,9 @@ TODO
                                          'splitIntoArray' => ','
                                          )
                 )
+- WFErrorsException improvement: in WFPage, where we catch it, walk thru all widgets' bindings and look for errors matching the key(Path?) for that binding and map thru to the widget so that
+  we don't have to do this in the controllers:
+           $e->propagateErrorsForKeyToWidget('hfov', $page->outlet("virtualTourFOV_{$inimg->getTourInboxImageId()}"));
 - IDEA: Make ObjectControllers inherently handle "Decorator" classses where you can specify a decorator class to be used to "wrap" any object returned by the ObjectController. There would be a WFDecorator base class that just handles "decoratedObject" and passes everything through (via __call and/or KVC implementations). 
 - Need to update bindings setup infrastructure to handle STATIC KVC. Think about whether or not we should enable static KVC calls to an INSTANCE. Right now that throws an error.
 - IDEA: Instead of having to restore state each time the page loads, couldn't we just serialize the entire state to the session and re-load that? Seems that it would be much faster and more accurate.
