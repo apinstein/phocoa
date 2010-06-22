@@ -140,6 +140,16 @@ class WFYAHOO_widget_Calendar extends WFYAHOO
                 draggable:false,
                 close:true
             });
+            dialog._focusDefaultButton = dialog.focusDefaultButton;
+            dialog.focusDefaultButton = function () {
+                var button = this._getButton(this.defaultHtmlButton);
+                if (!button.cfg.getProperty("visible")) {
+                    return;
+                }
+                
+                dialog._focusDefaultButton();
+            };
+            
             calendar.render();
             dialog.render();
 
