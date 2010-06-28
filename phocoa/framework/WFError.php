@@ -94,6 +94,11 @@ class WFErrorArray extends WFArray
         return (count($this) > 0);
     }
 
+    public function hasErrorsForKey($key)
+    {
+        return isset($this[$key]);
+    }
+
     public function allErrors()
     {
         $flattenedErrors = array();
