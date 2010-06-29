@@ -1027,6 +1027,29 @@ class WFPage extends WFObject
     }
 
     /**
+     * Helper function to propagate errors from WFErrorsException to widgets.
+     *
+     * @param object WFErrorsException
+     * @param array Either 1) An array of strings, each of which is the key and corresponding widgetId, or 2) A hash of key => widgetId
+     * @throws
+     */
+    function propagateErrorsForKeysToWidgets($e, $keysAndWidgets, $prune = true)
+    {
+        if (!is_array($keysAndWidgets)) throw new WFException("Array or Hash required.");
+        foreach ($keysAndWidgets as $key => $widget) {
+            if (is_int($key))
+            {
+                $key = $widget;
+            }
+            if (is_string($widget))
+            {
+                $widget = $this->outlet($widget);
+            }
+            $e->propagateErrorsForKeyToWidget($key, $widget, $prune);
+        }
+    }
+
+    /**
      * Get a list of all errors on the page.
      * @return array An array of WFErrors, or an empty array if there are no errors.
      */
