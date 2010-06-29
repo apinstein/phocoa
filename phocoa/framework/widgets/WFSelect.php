@@ -321,7 +321,7 @@ class WFSelect extends WFWidget
     {
         if ($nullPlaceholder)
         {
-            $opts = array($nullPlaceholder => $nullPlaceholderValue) + $opts;
+            $opts = array($nullPlaceholderValue => $nullPlaceholder) + $opts;
         }
         $this->setContentValues(array_keys($opts));
         $this->setContentLabels(array_values($opts));
