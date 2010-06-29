@@ -314,9 +314,15 @@ class WFSelect extends WFWidget
     /**
      * A convenience function to set both values and labels simultaneously from an associative array.
      * @param assoc_array A list of value => label.
+     * @param string NullPlaceholder that will be inserted at the top of the options list
+     * @param string NullPlaceholderValue The "value" used for the NULL placeholder (default NULL)
      */
-    function setOptions($opts)
+    function setOptions($opts, $nullPlaceholder = NULL, $nullPlaceholderValue = NULL)
     {
+        if ($nullPlaceholder)
+        {
+            $opts = array($nullPlaceholder => $nullPlaceholderValue) + $opts;
+        }
         $this->setContentValues(array_keys($opts));
         $this->setContentLabels(array_values($opts));
     }
