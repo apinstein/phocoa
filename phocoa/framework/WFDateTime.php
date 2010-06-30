@@ -16,4 +16,15 @@ class WFDateTime extends DateTime
     {
         return $this->format('r');
     }
+
+    public static function create($time = "now")
+    {
+        return new WFDateTime($time);
+    }
+
+    public function modify($modify)
+    {
+        parent::modify($modify);
+        return $this;
+    }
 }
