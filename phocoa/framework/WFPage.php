@@ -1183,7 +1183,7 @@ class WFPage extends WFObject
                     }
                     else
                     {
-                        $parameters[$parameterList[$i]] = NULL;
+                        $parameters[$parameterList[$i]] = isset($_REQUEST[$parameterList[$i]]) ? $_REQUEST[$parameterList[$i]] : NULL;
                     }
                 }
 

@@ -47,6 +47,7 @@ Version 0.3.7 - 6/10/2010
 - [bugfix] WFDieselSearch now ignores attribute queries with empty values.
 - [bugfix] Fixed bug with WFDieselNav which caused clicking facets to drill-down or remove them would fail on IE.
 - [bugfix] Fixed bug with WFDieselNav where menu-style attributes were not escaped in javascript which caused bugs when navigating menu facets with legit + characters.
+- [new, BC-break] Parameters will now use the $_REQUEST data for a given parameter name as the default value if available. This value will still be overridden by a submitted form data of the same name if there is one available. This makes it easier to build controllers that use parameter data but don't use bindings.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().
