@@ -133,6 +133,7 @@ class WFObject implements WFKeyValueCoding
         foreach ($valuesForKeys as $k => $v) {
             $this->setValueForKey($v, $k);
         }
+        return $this;
     }
 
     function valuesForKeyPaths($keysAndKeyPaths)

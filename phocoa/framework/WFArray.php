@@ -20,7 +20,7 @@ class WFArray extends ArrayObject
     /**
      * A convenience function to create a hash of the contained values in interesting ways.
      *
-     * @param string The key to use on each array entry to generate the hash key for the entry.
+     * @param string The key to use on each array entry to generate the hash key for the entry. NULL used sequential numerical indices rather than a hash key.
      * @param mixed
      *          NULL    => the entry for each key will be the entire entry in the array
      *          string  => the entry for each key will be the valueForKey() of the passed key
@@ -43,9 +43,33 @@ class WFArray extends ArrayObject
             {
                 $hashInfo = $entry->valuesForKeyPaths($keyPath);
             }
-            $hash[$entry->valueForKey($hashKey)] = $hashInfo;
+            if ($hashKey)
+            {
+                $hash[$entry->valueForKey($hashKey)] = $hashInfo;
+            }
+            else
+            {
+                $hash[] = $hashInfo;
+            }
         }
         return $hash;
+    }
+
+    /**
+     * Canonical map function.
+     *
+     * The map function is a wrapper around {@link hash()}; the map argument can thus do some magical things since it is invoked via {@link WFObject::valueForKeyPath()}.
+     *
+     * @param mixed
+     *          NULL    => the entry for each key will be the entire entry in the array
+     *          string  => the entry for each key will be the valueForKey() of the passed key
+     *          array   => the entry for each key will be an associative array, the result of passing the argument to valuesForKeyPaths()
+     * @return array An associative array of the contained values hashed according to the parameters provided.
+     */
+    public function map($keyPath)
+    {
+        if (is_null($keyPath)) throw new WFException("Cannot call map with NULL argument. I think you're looking for WFArray::values().");
+        return $this->hash(NULL, $keyPath);
     }
 
     /**

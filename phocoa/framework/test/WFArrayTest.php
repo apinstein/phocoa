@@ -34,6 +34,18 @@ class WFArrayTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->array['hashData']->values(), array_values($hash), "Hash values didn't match.");
     }
 
+    public function testHashObjectsInArrayMode()
+    {
+        $hash = $this->array['hashData']->hash(NULL);
+        $this->assertEquals(array(0,1,2), array_keys($hash), "Hash keys didn't match.");
+        $this->assertEquals($this->array['hashData']->values(), array_values($hash), "Hash values didn't match.");
+    }
+
+    public function testMap()
+    {
+        $this->assertEquals($this->array['hashData']->map('uid'), $this->array['hashData']->hash(NULL, 'uid'));
+    }
+
     public function testHashObjectsWithSingleKey()
     {
         $hash = $this->array['hashData']->hash('uid', 'firstName');
