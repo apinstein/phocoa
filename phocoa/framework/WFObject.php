@@ -120,6 +120,7 @@ class WFObject implements WFKeyValueCoding
 
     function valuesForKeys($keys)
     {
+        if (!is_array($keys)) throw new WFException("valuesForKeys() requires an array as first argument.");
         $hash = array();
         foreach ($keys as $k) {
             $v = $this->valueForKey($k);
