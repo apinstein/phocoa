@@ -414,7 +414,15 @@ class WFAuthorizationManager extends WFObject
     function doLoginRedirect($continueURL)
     {
         $loginInvocationPath = $this->loginInvocationPath();
-        header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL));
+        if (WFRequestController::sharedRequestController()->isAjax())
+        {
+            header("HTTP/1.0 401 Login Required");
+            print WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL);
+        }
+        else
+        {
+            header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL));
+        }
         exit;
     }
 
