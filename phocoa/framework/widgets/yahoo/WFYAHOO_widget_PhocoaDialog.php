@@ -28,12 +28,14 @@
  * <b>Optional:</b><br>
  * - deferModuleViewLoading - boolean - True to defer loading of the WFModuleView content until the module is shown, false to load immediately. Default true.
  * - cacheModuleView - boolean - True to locally cache the result of the WFModuleView, false to re-load it every time the module is shown. Default false.
+ * - inline - boolean TRUE to revert this "Panel" to act like a "Module" and render the content INLINE where it's placed. Very useful for embedding other containers inline.
  */
 class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
 {
     protected $moduleView;
     protected $deferModuleViewLoading;
     protected $cacheModuleView;
+    protected $inline;
 
     /**
       * Constructor.
@@ -45,6 +47,7 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         $this->moduleView = NULL;
         $this->deferModuleViewLoading = false;
         $this->cacheModuleView = false;
+        $this->inline = false;
 
         $this->yuiloader()->addModule('phocoaDialog',
                                         'js',
@@ -95,6 +98,25 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         }
     }
 
+    function setInline($b)
+    {
+        $this->inline = (bool) $b;
+        if ($this->inline)
+        {
+            $this->setValuesForKeys(array(
+                                            'modal'     => false,
+                                            'underlay'  => 'none',
+                                            'close'     => false,
+                                   ));
+            $this->setRenderTo("'{$this->getInlinePlaceholderId()}'");
+        }
+        return $this;
+    }
+    protected function getInlinePlaceholderId()
+    {
+        return "{$this->id}_inlinePlaceholder";
+    }
+
     function render($blockContent = NULL)
     {
         if ($this->hidden)
@@ -103,13 +125,21 @@ class WFYAHOO_widget_PhocoaDialog extends WFYAHOO_widget_Panel
         }
         else
         {
+            $html = '';
+
             // set "body" from WFModuleView if there is one
             if ($this->moduleView and !$this->deferModuleViewLoading)
             {
                 $this->setBody($this->moduleView->render());
             }
 
-            $html = parent::render($blockContent);
+            if ($this->inline)
+            {
+                $inlinePlaceholderId = $this->getInlinePlaceholderId();
+                $html = "<div id=\"{$inlinePlaceholderId}\"></div>";
+            }
+
+            $html .= parent::render($blockContent);
             return $html;
         }
     }
@@ -131,6 +161,7 @@ PHOCOA.widgets.{$this->id}.PhocoaDialog.init = function() {
     phocoaDialog.cfg.setProperty('deferModuleViewLoading', " . ($this->deferModuleViewLoading ? 'true' : 'false') . ");
     phocoaDialog.cfg.setProperty('cacheModuleView', " . ($this->cacheModuleView ? 'true' : 'false') . ");
     phocoaDialog.cfg.setProperty('moduleViewInvocationPath', " . ($this->moduleView ? "'" . WWW_ROOT . '/' . $this->moduleView->invocationPath() . "'" : 'null') . ");
+    " . ($this->inline ? "phocoaDialog.element.setStyle({position:'static'});" : null) . "
 };
 " .
 ( (get_class($this) == 'WFYAHOO_widget_PhocoaDialog') ? "PHOCOA.widgets.{$this->id}.init = function() { PHOCOA.widgets.{$this->id}.PhocoaDialog.init(); };" : NULL );
