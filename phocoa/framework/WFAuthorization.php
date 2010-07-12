@@ -7,7 +7,9 @@
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
  * @author Alan Pinstein <apinstein@mac.com>                        
- * @todo Remember Me - there is no implementation yet. Need to "set remember me cookie" in login module (do we need another callback for "rememberMeToken" to get the hash?), clear it in logout, and add support for auto-login if remember me detected in WFSession. Also, make sure that it all interacts with recentLoginTime stuff.
+ * @todo Remember Me - Add to default login module now that there's support for it in core.
+ * @todo Remember Me - Use HMAC or something to sign the cookie on the remote end. Read a "private" salt/passphrase from OPTIONS.
+ * @todo Remember Me - Encrypt the cookie on the client end so that the userid isn't in cleartext.
  */
 
 /**
@@ -67,7 +69,6 @@ class WFAuthorizationDelegate extends WFObject
      *  Should the login interface have a "remember me" checkbox?
      *
      *  @return boolean TRUE to enable "remember me" functionality. DEFAULT: false.
-     *  @todo REMEMBER ME code to actually set up / read remember me cookies it NOT implemented.
      */
     function shouldEnableRememberMe() {}
 
@@ -75,7 +76,7 @@ class WFAuthorizationDelegate extends WFObject
      *  Delegate should return the "token" to persist via a long-term cookie. This exact token will be passed back in when trying to do a rememberMe login.
      *
      *  SECURITY RECOMMENDATION:
-     *  ????
+     *  Your token should be something like md5("app-salt+userid").
      *
      *  Clients should get the userid from the current WFAuthorizationInfo.
      *
@@ -264,7 +265,6 @@ class WFAuthorizationException extends Exception
   *
   * You can reliably link to the above listed invocationPaths from your application.
   *
-  * @todo Remember-me logins not yet implemented.
   * @todo captcha option
   * @todo Decouple the default WFAuthorizationInfo class from the manager; let applications define this so that if there's no one logged in at least they get back the correct instance type.
   * @todo Make VERSION accessible externally (maybe through Delegate interface?) so that applications can have phocoa invalidate/re-login automatically when session structures change.
