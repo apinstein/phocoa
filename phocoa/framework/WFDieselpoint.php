@@ -1014,11 +1014,7 @@ class WFDieselSearchHelper extends WFObject
             // convert this into a multi-d array of <attrID> with <ops> with <opQueries>
             foreach ($this->attributeQueries as $qInfo) {
                 $matches = array();
-<<<<<<< HEAD
                 if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $qInfo, $matches) and count($matches) == 4)
-=======
-                if (preg_match('/^([A-Z]{2})_([^=]*)=(.+)$/', $qInfo, $matches) and count($matches) == 4)
->>>>>>> [bugfix] WFDieselSearch now ignores attribute queries with empty values.
                 {
                     $op = $matches[1];
                     $attr = $matches[2];
@@ -1186,11 +1182,7 @@ class WFDieselSearchHelper extends WFObject
         $state = array();
         foreach ($this->attributeQueries as $q) {
             $matches = array();
-<<<<<<< HEAD
             if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
-=======
-            if (preg_match('/^([A-Z]{2})_([^=]*)=(.+)$/', $q, $matches) and count($matches) == 4)
->>>>>>> [bugfix] WFDieselSearch now ignores attribute queries with empty values.
             {
                 $attr = $matches[2];
                 if ($attr == $attribute)
