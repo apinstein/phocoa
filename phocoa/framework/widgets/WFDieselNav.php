@@ -172,7 +172,7 @@ class WFDieselNav extends WFWidget
         rpc.method = 'post';
         rpc.callback.success = function() {};
         rpc.callback.failure = function() { alert('Failed to load popup data.'); };
-        rpc.execute(facetSelections.replace(/\//g, '%2F'), null);
+        rpc.execute(encodeURIComponent(facetSelections), null);
     }
     function cancelPopup()
     {

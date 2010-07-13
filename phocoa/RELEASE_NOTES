@@ -11,6 +11,7 @@ Version 0.3.8 - ??
 - [bugfix] WFYAHOO_widget_TabView no longer tries to select tabs from $_REQUEST[$tabViewId] if the tab does not exist. This caused no tab to be selected in some cases.
 - [improved] Remove in-efficient (and duplicate) check in bind() that tried to figure out if the specified local property is bindable.
 - [new] Add WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE and WFSensitiveDataFormatter::$notModifiedSemaphore to allow use of WFSensitiveDataFormatter in an editable WFTextField.
+- [bugfix] Properly encode current facetSelections() in Ajax requests. Previously was just "fixing" / chars. Now using encodeUriComponent.
 
 Version 0.3.7 - 6/10/2010
 - [bugfix] Add htmlspecialchars() to WFYAHOO_widget_AutoComplete.
