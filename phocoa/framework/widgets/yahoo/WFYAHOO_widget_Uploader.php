@@ -145,9 +145,10 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
                 call_user_func($this->hasUploadCallback, $this->page(), $this->page()->parameters(), $this);
                 // send back success
                 print "UPLOAD OK";
-            } catch (Excpetion $e) {
+            } catch (Exception $e) {
                 // send back error+noretry
                 print "UPLOAD ERROR: " . $e->getMessage();
+                WFLog::log("UPLOAD ERROR: {$e->getMessage()}", WFLog::TRACE_LOG, PEAR_LOG_ERR);
             }
             exit;
         }
