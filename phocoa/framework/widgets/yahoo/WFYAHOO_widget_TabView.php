@@ -311,7 +311,7 @@ class WFYAHOO_widget_TabView extends WFYAHOO
                     if ($needTabVarInJS)
                     {
                         $html .= "
-            tab = tabView.getTab(" . $i++ . ");\n";
+            tab = tabView.getTab(" . $i . ");\n";
                     $needTabVarInJS = false;
                     }
                     switch ($config) {
@@ -382,6 +382,12 @@ class WFYAHOO_widget_TabView extends WFYAHOO
                     }
                 }
             }
+            if ($tabId === $this->selectedTabId)
+            {
+                $html .= "            tabView.set('activeIndex', null);";
+                $html .= "            tabView.set('activeIndex', {$i});";
+            }
+            $i++;
         }
         $html .= "
             PHOCOA.runtime.addObject(tabView, '{$this->id}');
