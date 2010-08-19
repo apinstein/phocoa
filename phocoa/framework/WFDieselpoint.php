@@ -1627,7 +1627,7 @@ class WFDieselSearch_FacetedAttribute extends WFObject
         {
             $facetSearchOptions['hasMoreFacets'] = true;
         }
-        else if ($this->options[self::OPT_MAX_ROWS] == self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::MAX_ROWS_UNLIMITED])
+        else if ($this->options[self::OPT_MAX_ROWS] == self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::OPT_MAX_ROWS])
         {
             $facetSearchOptions['hasMoreFacets'] = true;
         }
@@ -1782,26 +1782,9 @@ class WFDieselSearch_FacetedAttribute extends WFObject
             {
                 $openToBuf = new Java('com.dieselpoint.util.FastStringBuffer', '');
             }
-            // determine tree root ???? trouble porting...
-            if ($this->facetStyle == WFDieselFacet::STYLE_TREE)
-            {
-                if ($this->treeDataPath)
-                {
-                    $treeRootPath = ($this->treeRoot ? $this->treeRoot . "\t" . $this->treeDataPath : $this->treeDataPath);
-                    $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $treeRootPath);
-                }
-                else
-                {
-                    $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', ($this->treeRoot ? $this->treeRoot : ""));
-                }
-            }
-            else
-            {
-                $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal ? $cVal : "");
-            }
+            $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal ? $cVal : "");
             if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
-            //$facets = $facetGenerator->getTaxonomyTree($this->attributeId, $openToBuf, $treeRootBuf, $this->maxHits); // built-in facetgenerator
-            $facets = $facetGenerator->getTaxonomyTree($this->attributeId, $treeRootBuf, 3, $this->maxHits); // mouser facetgenerator (handles multiple depths)
+            $facets = $facetGenerator->getTaxonomyTree($this->attributeId, $treeRootBuf, 3, $this->options[self::OPT_MAX_HITS]); // mouser facetgenerator (handles multiple depths)
             if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getTaxonomyTree(\"{$this->attributeId}\", \"{$openToBuf}\", \"{$treeRootBuf}\", {$this->maxHits}) for {$this->id}");
             if (count($facets) == 1 and $facets[0]->getAttributeValue()->equals('')) // needed to extract facets from trees
             {
@@ -1811,31 +1794,6 @@ class WFDieselSearch_FacetedAttribute extends WFObject
             {
                 $facets = array();
             }
-            //print "OTB: $openToBuf, TRB: $treeRootBuf<BR>";
-            //if ($this->attributeId == 'location') $this->printAttributeValue($facets);
-//                    //print "Tree has " . $tree->length() . " items.<BR>\n";
-//                    if (count($tree) == 1)
-//                    {
-//                        //print "Tree has 1 item: p/v/c: " . $tree[0]->getPath() . " / " . $tree[0]->getAttributeValue() . ' / ' .  count($tree[0]->getChildren()) . "<BR>\n";
-//                        if ($tree[0]->getAttributeValue()->equals(""))
-//                        {
-//                            $facets = $tree[0]->getChildren();
-//                            if (!$facets) $facets = array();
-//                        }
-//                        else
-//                        {
-//                            $facets = $tree;
-//                        }
-//                    }
-//                    else if (count($tree) == 0)
-//                    {
-//                        print "Tree has 0 items: ";
-//                        $facets = array();
-//                    }
-//                    else
-//                    {
-//                        throw( new Exception("Tree has more than one item at root... what does this mean?") );
-//                    }
         }
         else
         {
