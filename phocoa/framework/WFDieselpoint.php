@@ -1622,14 +1622,17 @@ class WFDieselSearch_FacetedAttribute extends WFObject
             'facets'                    => array(),
         );
 
-        $Array = new JavaClass("java.lang.reflect.Array");
-        if ($this->options[self::OPT_MAX_ROWS] != self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::OPT_MAX_ROWS])
+        if (gettype($this->generatedFacetData) === 'object')
         {
-            $facetSearchOptions['hasMoreFacets'] = true;
-        }
-        else if ($this->options[self::OPT_MAX_ROWS] == self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::OPT_MAX_ROWS])
-        {
-            $facetSearchOptions['hasMoreFacets'] = true;
+            $Array = new JavaClass("java.lang.reflect.Array");
+            if ($this->options[self::OPT_MAX_ROWS] != self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::OPT_MAX_ROWS])
+            {
+                $facetSearchOptions['hasMoreFacets'] = true;
+            }
+            else if ($this->options[self::OPT_MAX_ROWS] == self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::OPT_MAX_ROWS])
+            {
+                $facetSearchOptions['hasMoreFacets'] = true;
+            }
         }
 
         // actual facet data
