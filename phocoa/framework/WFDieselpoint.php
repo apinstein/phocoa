@@ -57,6 +57,9 @@ class WFDieselSearch extends WFObject implements WFPagedData
     protected $hasRunQuery;
     protected $dpQueryStateParameterID;
 
+    // populated with the *actual* sort used by the search. we have to persist this since you cannot interrogate the "direction" of the search from DP (no api call).
+    protected $sortBy;
+
     // callback object loader
     protected $resultObjectLoaderCallback;
 
@@ -266,15 +269,23 @@ class WFDieselSearch extends WFObject implements WFPagedData
     /**
      *  Choose the Dieselpoint index to use for this query.
      *
-     *  @param string Filesystem path to the dieselpoint index to open.
+     *  @param mixed (string) Filesystem path to the dieselpoint index to open.
+     *               (object) Java Object from ({@link WFDieselSearch::index()})
      */
-    function setIndex($indexPath)
+    function setIndex($index)
     {
         try {
             if (!defined('DIESELPOINT_JAR_FILES')) throw( new Exception("DIESELPOINT_JAR_FILES must be defined, usually in your webapp.conf file.") );
             java_require(DIESELPOINT_JAR_FILES);
-            $Index = new JavaClass("com.dieselpoint.search.Index");
-            $this->index = $Index->getInstance($indexPath);
+            if (is_string($index))
+            {
+                $Index = new JavaClass("com.dieselpoint.search.Index");
+                $this->index = $Index->getInstance($index);
+            }
+            else
+            {
+                $this->index = $index;
+            }
             $this->searcher = new Java("com.dieselpoint.search.Searcher", $this->index);
         } catch (JavaException $e) {
             $this->handleJavaException($e);
@@ -543,6 +554,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
         return false;
     }
 
+    /**
+     * @return string The actual sort key sent to Dieselpoint, in form of "+/-sortkey".
+     */
+    function sortBy()
+    {
+        return $this->sortBy;
+    }
+
     // WFPagedData interface implementation
     // NOTE: Diesel sets are special in that if there is no query in the passed dieselSearch, then there are NO ITEMS. Can only show items once searching has started.
     function itemCount()
@@ -585,11 +604,13 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 }
             }
             $sortKeys = $sortKeysToUse;
+            $this->sortBy = self::SORT_BY_RELEVANCE;
             if (count($sortKeys) > 1) throw( new Exception("Only 1-key sorting supported at this time.") );
             else if (count($sortKeys) == 1)
             {
                 $sortKey = $sortKeys[0];
                 $sortAttr = substr($sortKey, 1);
+                $this->sortBy = $sortKey;
                 if (substr($sortKey, 0, 1) == '-')
                 {
                     $this->searcher->setSort($sortAttr, -1);
@@ -1174,6 +1195,8 @@ class WFDieselSearchHelper extends WFObject
     {
         $selections = array();
         foreach ($this->attributeQueries as $q) {
+            if (!$q) continue;  // not sure why q === '' sometimes
+
             $matches = array();
             if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
             {
@@ -1185,7 +1208,7 @@ class WFDieselSearchHelper extends WFObject
             }
             else
             {
-                throw new Exception("Couldn't parse attribute value for {$attribute}");
+                throw new Exception("Couldn't parse attribute value for {$attribute} against '$q'");
             }
         }
         return $selections;
@@ -1546,6 +1569,10 @@ class WFDieselSearch_FacetedAttribute extends WFObject
      * @const boolean If true, the number of items in each facet will be shown as well. Default is TRUE. Performance will be faster if this is set to FALSE.
      */
     const OPT_SHOW_ITEM_COUNTS          = 'showItemCounts';
+    /**
+     * @const boolean TRUE to enable multiple selection, false to only allow single selections. DEFAULT is TRUE.
+     */
+    const OPT_ALLOW_MULTIPLE_SELECTION  = 'multipleSelection';
 
     /**
      * @const object WFFormatter to format the facet labels.
@@ -1569,6 +1596,7 @@ class WFDieselSearch_FacetedAttribute extends WFObject
             self::OPT_SORT_BY_FREQUENCY         => true,
             self::OPT_FORMATTER                 => NULL,
             self::OPT_SHOW_ITEM_COUNTS          => true,
+            self::OPT_ALLOW_MULTIPLE_SELECTION  => true,
         );
         $this->options = array_merge($defaultOptions, $options);
         $this->attributeId = $attributeId;
@@ -1582,15 +1610,16 @@ class WFDieselSearch_FacetedAttribute extends WFObject
         }
     }
 
-    public function facetSearchOptions()
+    public function facetSearchOptions($includeAlternateFacets = false)
     {
         $this->prepareFacets();
 
         $facetSearchOptions = array(
-            'currentSelection'  => $this->dieselSearchHelper->getSelectedAttributeQueries($this->attributeId),
-            'queryBase'         => $this->dieselSearchHelper->getQueryState($this->attributeId),
-            'hasMoreFacets'     => false,
-            'facets'            => $this->facets(),
+            'currentSelection'          => $this->dieselSearchHelper->getSelectedAttributeQueries($this->attributeId),
+            'allowMultipleSelection'   => $this->options[self::OPT_ALLOW_MULTIPLE_SELECTION],
+            'queryBase'                 => $this->dieselSearchHelper->getQueryState($this->attributeId),
+            'hasMoreFacets'             => false,
+            'facets'                    => array(),
         );
 
         $Array = new JavaClass("java.lang.reflect.Array");
@@ -1601,6 +1630,34 @@ class WFDieselSearch_FacetedAttribute extends WFObject
         else if ($this->options[self::OPT_MAX_ROWS] == self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::MAX_ROWS_UNLIMITED])
         {
             $facetSearchOptions['hasMoreFacets'] = true;
+        }
+
+        // actual facet data
+        if (count($facetSearchOptions['currentSelection']) == 0)
+        {
+            $facetSearchOptions['facets'] = $this->facets();
+        }
+        else
+        {
+            if ($includeAlternateFacets)
+            {
+                $facetSearchOptions['facets'] = 'coming soon';
+                // set up a new search w/o this attribute and just get facets for this one.
+                $subDpSearch = new WFDieselSearch;
+                $subDpSearch->setIndex($this->dieselSearch->index());
+                $subDpSearchHelper = new WFDieselSearchHelper;
+                $subDpSearchHelper->setDieselSearch($subDpSearch);
+                $subDpSearchHelper->setQueryState($facetSearchOptions['queryBase']);
+                $subFacet = new WFDieselSearch_FacetedAttribute($this->attributeId, $subDpSearchHelper, $this->options);
+                $subFacetInfo = $subFacet->facetSearchOptions();
+                // copy data over from sub-query
+                $facetSearchOptions['facets'] = $subFacetInfo['facets'];
+                $facetSearchOptions['hasMoreFacets'] = $subFacetInfo['hasMoreFacets'];
+            }
+            else
+            {
+                $facetSearchOptions['facets'] = 'query for more';
+            }
         }
 
         return $facetSearchOptions;
@@ -1681,7 +1738,7 @@ class WFDieselSearch_FacetedAttribute extends WFObject
                     $facetAttrQuery = array("EQ_{$this->attributeId}=" . $attributeValue);
                 }
             }
-            $localFacetData['attributeQuery'] = $facetAttrQuery;
+            $localFacetData['attributeQuery'] = join('|', $facetAttrQuery);
 
             $this->facets[] = $localFacetData;
         }
