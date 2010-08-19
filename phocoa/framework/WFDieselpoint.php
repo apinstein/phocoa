@@ -305,7 +305,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
     {
         if (!$this->hasRunQuery()) throw( new WFException("Search has not been executed yet.") );
         try {
-            return $this->searcher->getQueryDescription(true, '', '');
+            return java_values($this->searcher->getQueryDescription(true, '', ''));
         } catch (JavaException $e) {
             $this->handleJavaException($e);
         }
@@ -1170,6 +1170,50 @@ class WFDieselSearchHelper extends WFObject
         $this->attributeQueries = $newAttributeQueries;
     }
 
+    function getSelectedAttributeQueries($attribute)
+    {
+        $selections = array();
+        foreach ($this->attributeQueries as $q) {
+            $matches = array();
+            if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
+            {
+                $attr = $matches[2];
+                if ($attr == $attribute)
+                {
+                    $selections[] = $q;
+                }
+            }
+            else
+            {
+                throw new Exception("Couldn't parse attribute value for {$attribute}");
+            }
+        }
+        return $selections;
+    }
+
+    function getAttributeSelectedValues($attribute)
+    {
+        $state = array();
+        foreach ($this->attributeQueries as $q) {
+            $matches = array();
+            if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
+            {
+                $attr = $matches[2];
+                if ($attr == $attribute)
+                {
+                    $op = $matches[1];
+                    $val = $matches[3];
+                    $state[$op][] = $val;
+                }
+            }
+            else
+            {
+                throw new Exception("Couldn't parse attribute value for {$attribute}");
+            }
+        }
+        return $state['EQ'];
+    }
+
     /**
      *  Get a human-readable description of the current attribute selections for the passed attribute.
      *
@@ -1467,4 +1511,288 @@ class WFDieselSearchHelper extends WFObject
 }
 
 class WFDieselSearch_ParseException extends WFException {}
-?>
+
+class WFDieselSearch_FacetedAttribute extends WFObject
+{
+    protected $attributedId;
+    protected $dieselSearch;
+    protected $dieselSearchHelper;
+
+    protected $options = array();
+
+    /**
+     * @const boolean True to implement fake open-ended ranges corrections. With DP < 4.0, there is no range supprort, so we fake it with multi-value attr categories. IE Bedrooms 1+, 2+, 3+. 
+     *                The downside of this is that the facets don't adjust as choices are selected (b/c 3+ includes 1+ and 2+).
+     *                The fakeOpenEndedRange support will correct the facet display by eliminating choices less than the current value.
+     */
+    const OPT_FAKE_OPEN_ENDED_RANGE     = 'fake_open_ended_range';
+    /**
+     * @const int The number of ranges to show for the facet. Presently this will create N facets each containing approximately equal numbers of items. Default is 0, which disables range mode.
+     */
+    const OPT_RANGE_COUNT               = 'range_count';
+    /**
+     * @const int The maximum number of hits to count for each facet. Defaults to SHOW EXACT COUNT (Integer.MAX_VALUE). Set to a lower number if you don't care about more than a certain number, like 1000. Set to 1 for maxium performance. NOTE: setting showItemCounts to FALSE will automatically set maxHits to 1.
+     */
+    const OPT_MAX_HITS                  = 'max_hits';
+    /**
+     * @const int The maximum number of facets to show. Defaults to -1, which means SHOW ALL ROWS.
+     */
+    const OPT_MAX_ROWS                  = 'max_rows';
+    /**
+     * @const boolean If true, facets will be sorted by frequency of each facet. In this case, the facet with the most "hits" will be first, etc. If false, facets are sorted by the value they represent. Default is TRUE.
+     */
+    const OPT_SORT_BY_FREQUENCY         = 'sortByFrequency';
+    /**
+     * @const boolean If true, the number of items in each facet will be shown as well. Default is TRUE. Performance will be faster if this is set to FALSE.
+     */
+    const OPT_SHOW_ITEM_COUNTS          = 'showItemCounts';
+
+    /**
+     * @const object WFFormatter to format the facet labels.
+     */
+    const OPT_FORMATTER                 = 'formatter';
+
+    // ??
+    const OPT_TAXONOMY_PATH             = 'taxonomy_path';
+    const OPT_TAXONOMY_DEFAULT_PATH     = 'taxonomy_default_path';
+
+    const MAX_ROWS_UNLIMITED            = -1;
+
+
+    public function __construct($attributeId, $dieselSearchHelper, $options = array())
+    {
+        $defaultOptions = array(
+            self::OPT_FAKE_OPEN_ENDED_RANGE     => false,
+            self::OPT_RANGE_COUNT               => 0,
+            self::OPT_MAX_HITS                  => 10000000,    /* Integer.MAX_VALUE */
+            self::OPT_MAX_ROWS                  => self::MAX_ROWS_UNLIMITED,
+            self::OPT_SORT_BY_FREQUENCY         => true,
+            self::OPT_FORMATTER                 => NULL,
+            self::OPT_SHOW_ITEM_COUNTS          => true,
+        );
+        $this->options = array_merge($defaultOptions, $options);
+        $this->attributeId = $attributeId;
+        $this->dieselSearchHelper = $dieselSearchHelper;
+        $this->dieselSearch = $dieselSearchHelper->dieselSearch();
+
+        // optimization
+        if ($this->options[self::OPT_SHOW_ITEM_COUNTS] === false)
+        {
+            $this->options[self::OPT_MAX_HITS] = 1;
+        }
+    }
+
+    public function facetSearchOptions()
+    {
+        $this->prepareFacets();
+
+        $facetSearchOptions = array(
+            'currentSelection'  => $this->dieselSearchHelper->getSelectedAttributeQueries($this->attributeId),
+            'queryBase'         => $this->dieselSearchHelper->getQueryState($this->attributeId),
+            'hasMoreFacets'     => false,
+            'facets'            => $this->facets(),
+        );
+
+        $Array = new JavaClass("java.lang.reflect.Array");
+        if ($this->options[self::OPT_MAX_ROWS] != self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::OPT_MAX_ROWS])
+        {
+            $facetSearchOptions['hasMoreFacets'] = true;
+        }
+        else if ($this->options[self::OPT_MAX_ROWS] == self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::MAX_ROWS_UNLIMITED])
+        {
+            $facetSearchOptions['hasMoreFacets'] = true;
+        }
+
+        return $facetSearchOptions;
+    }
+
+    private $facets = NULL;
+    public function facets()
+    {
+        if ($this->facets) return $this->facets;
+
+        $this->facets = array();
+        $this->prepareFacets();
+        foreach ($this->generatedFacetData as $facet) {
+            $localFacetData = array();
+
+            $attributeValue = java_values($facet->getAttributeValue());
+
+            // calculate label
+            $label = '';
+            if ($this->options[self::OPT_FORMATTER])
+            {
+                $label .= $this->options[self::OPT_FORMATTER]->stringForValue($attributeValue);
+            }
+            else
+            {
+                $label .= $attributeValue;
+            }
+            if ($this->options[self::OPT_RANGE_COUNT] and $facet->getEndValue())
+            {
+                $label .= ' - ';
+                if ($this->options[self::OPT_FORMATTER])
+                {
+                    $label .= $this->options[self::OPT_FORMATTER]->stringForValue($facet->getEndValue());
+                }
+                else
+                {
+                    $label .= $facet->getEndValue();
+                }
+            }
+            $localFacetData['label'] = $label;
+
+            // calculate item counts
+            $itemCount = NULL;
+            if ($this->options[self::OPT_SHOW_ITEM_COUNTS])
+            {
+                $itemCount = $facet->getHits();
+            }
+            $localFacetData['itemCount'] = $itemCount;
+
+            // support for fake open-ended ranges with mutli-value hack
+            if ($this->options[self::OPT_FAKE_OPEN_ENDED_RANGE])
+            {
+                $currentVal = $this->dieselSearchHelper->getAttributeSelection($this->attributeId);
+                if ($attributeValue < $currentVal) continue;
+            }
+
+            $facetAttrQuery = array();
+            if ($this->options[self::OPT_RANGE_COUNT])
+            {
+                if ($facet->getEndValue())
+                {
+                    $facetAttrQuery[] = "GE_{$this->attributeId}=" . $attributeValue;
+                    $facetAttrQuery[] = "LE_{$this->attributeId}=" . $facet->getEndValue();
+                }
+                else
+                {
+                    $facetAttrQuery[] = "EQ_{$this->attributeId}=" . $attributeValue;
+                }
+            }
+            else
+            {
+                if ($this->isTaxonomyAttribute())
+                {
+                    $facetAttrQuery = array("EQ_{$this->attributeId}=" . java_values($facet->getPath()));
+                }
+                else
+                {
+                    $facetAttrQuery = array("EQ_{$this->attributeId}=" . $attributeValue);
+                }
+            }
+            $localFacetData['attributeQuery'] = $facetAttrQuery;
+
+            $this->facets[] = $localFacetData;
+        }
+        return $this->facets;
+    }
+
+    // cached for your pleasure
+    private $isTaxonomyAttribute = NULL;
+    private function isTaxonomyAttribute()
+    {
+        if (!is_null($this->isTaxonomyAttribute)) return $this->isTaxonomyAttribute;
+
+        $row = $this->dieselSearch->index()->getAttribute()->getRowByAttribute_id($this->attributeId);
+        if (!$row) throw( new Exception("Couldn't find attribute: {$this->attributeId}") );
+        $Attribute = new JavaClass('com.dieselpoint.search.Attribute');
+        $this->isTaxonomyAttribute = ($row->getDataType()->equals($Attribute->DATATYPE_TAXONOMY));
+
+        return $this->isTaxonomyAttribute;
+    }
+
+    private $generatedFacetData = NULL;
+    private function prepareFacets()
+    {
+        if ($this->generatedFacetData) return $this->generatedFacetData;
+
+        // load facet data
+        if ($this->isTaxonomyAttribute())
+        {
+            $facetGenerator = $this->dieselSearch->getGeneratorObject(true);
+            // determine "open branch"
+            $cVal = $this->options[self::OPT_TAXONOMY_PATH];
+            if ($cVal)
+            {
+                $openToBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal);
+            }
+            else if ($this->options[self::OPT_TAXONOMY_DEFAULT_PATH])
+            {
+                $openToBuf = new Java('com.dieselpoint.util.FastStringBuffer', $this->options[self::OPT_TAXONOMY_DEFAULT_PATH]);
+            }
+            else
+            {
+                $openToBuf = new Java('com.dieselpoint.util.FastStringBuffer', '');
+            }
+            // determine tree root ???? trouble porting...
+            if ($this->facetStyle == WFDieselFacet::STYLE_TREE)
+            {
+                if ($this->treeDataPath)
+                {
+                    $treeRootPath = ($this->treeRoot ? $this->treeRoot . "\t" . $this->treeDataPath : $this->treeDataPath);
+                    $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $treeRootPath);
+                }
+                else
+                {
+                    $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', ($this->treeRoot ? $this->treeRoot : ""));
+                }
+            }
+            else
+            {
+                $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal ? $cVal : "");
+            }
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
+            //$facets = $facetGenerator->getTaxonomyTree($this->attributeId, $openToBuf, $treeRootBuf, $this->maxHits); // built-in facetgenerator
+            $facets = $facetGenerator->getTaxonomyTree($this->attributeId, $treeRootBuf, 3, $this->maxHits); // mouser facetgenerator (handles multiple depths)
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getTaxonomyTree(\"{$this->attributeId}\", \"{$openToBuf}\", \"{$treeRootBuf}\", {$this->maxHits}) for {$this->id}");
+            if (count($facets) == 1 and $facets[0]->getAttributeValue()->equals('')) // needed to extract facets from trees
+            {
+                $facets = $facets[0]->getChildren();
+            }
+            if (!$facets)
+            {
+                $facets = array();
+            }
+            //print "OTB: $openToBuf, TRB: $treeRootBuf<BR>";
+            //if ($this->attributeId == 'location') $this->printAttributeValue($facets);
+//                    //print "Tree has " . $tree->length() . " items.<BR>\n";
+//                    if (count($tree) == 1)
+//                    {
+//                        //print "Tree has 1 item: p/v/c: " . $tree[0]->getPath() . " / " . $tree[0]->getAttributeValue() . ' / ' .  count($tree[0]->getChildren()) . "<BR>\n";
+//                        if ($tree[0]->getAttributeValue()->equals(""))
+//                        {
+//                            $facets = $tree[0]->getChildren();
+//                            if (!$facets) $facets = array();
+//                        }
+//                        else
+//                        {
+//                            $facets = $tree;
+//                        }
+//                    }
+//                    else if (count($tree) == 0)
+//                    {
+//                        print "Tree has 0 items: ";
+//                        $facets = array();
+//                    }
+//                    else
+//                    {
+//                        throw( new Exception("Tree has more than one item at root... what does this mean?") );
+//                    }
+        }
+        else
+        {
+            $facetGenerator = $this->dieselSearch->getGeneratorObject();
+            if ($this->options[self::OPT_RANGE_COUNT])
+            {
+                $facetGenerator->setRangeCount($this->options[self::OPT_RANGE_COUNT]);
+            }
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
+            $facets = $facetGenerator->getList($this->attributeId, $this->options[self::OPT_MAX_ROWS], $this->options[self::OPT_SORT_BY_FREQUENCY], $this->options[self::OPT_MAX_HITS]);
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getList(\"{$this->attributeId}\", {$this->options[self::OPT_MAX_ROWS]}, " . ($this->options[self::OPT_SORT_BY_FREQUENCY] ? 'true' : 'false') . ", {$this->options[self::OPT_MAX_HITS]})");
+        }
+
+        $this->generatedFacetData = $facets;
+        return $this->generatedFacetData;
+    }
+}

@@ -260,6 +260,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
      *
      *  @return array An array of facet objects (via the java bridge)
      *  @throws Excpetion if there are any errors.
+     *  @todo refactoring to WFDieselSearchHelper
      */
     function prepareFacets()
     {
