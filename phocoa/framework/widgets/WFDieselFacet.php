@@ -576,7 +576,7 @@ END;
             $label = '';
             if ($this->formatter)
             {
-                $label .= $this->formatter->stringForValue($attributeValue);
+                $label .= $this->formatter->stringForValue(java_values($attributeValue));
             }
             else
             {
@@ -601,16 +601,17 @@ END;
             // kill existing selection
             $this->dieselSearchHelper->clearAttributeQueries($this->attributeID);
 
-            // set current query
-            if (is_array($_REQUEST[$this->name]))
+            $submittedState = $_REQUEST[$this->name];
+            if (!is_array($submittedState))
             {
-                foreach ($_REQUEST[$this->name] as $value) {
-                    $this->dieselSearchHelper->addAttributeQuery($this->attributeID, 'EQ', $value);
-                }
+                $submittedState = array($submittedState);
             }
-            else
-            {
-                $this->dieselSearchHelper->addAttributeQuery($this->attributeID, 'EQ', $_REQUEST[$this->name]);
+
+            // set current query
+            foreach ($_REQUEST[$this->name] as $value) {
+                foreach (explode('|', $value) as $aq) {
+                    $this->dieselSearchHelper->addAttributeQuery($aq);
+                }
             }
         }
     }
@@ -680,7 +681,7 @@ END;
         $label = '';
         if ($this->formatter)
         {
-            $label .= $this->formatter->stringForValue($attributeValue);
+            $label .= $this->formatter->stringForValue(java_values($attributeValue));
         }
         else
         {
@@ -691,7 +692,7 @@ END;
             $label .= ' - ';
             if ($this->formatter)
             {
-                $label .= $this->formatter->stringForValue($facet->getEndValue());
+                $label .= $this->formatter->stringForValue(java_values($facet->getEndValue()));
             }
             else
             {
@@ -709,7 +710,7 @@ END;
         if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE) and !$this->fakeOpenEndedRange)
         {
             $selected = $this->popupAttributeValueIsSelected(java_values($attributeValue));
-            $html .= "<span {$classHTML}><input type=\"checkbox\" name=\"{$this->name}[]\" value=\"{$attributeValue}\" id=\"{$this->id}_{$attributeValue}\" " . ($selected == true ? 'checked="checked"' : '') . "/><label for=\"{$this->id}_{$attributeValue}\">{$label}</label>";
+            $html .= "<span {$classHTML}><input type=\"checkbox\" name=\"{$this->name}[]\" value=\"{$this->dieselSearchHelper->getQueryState($this->attributeID, $newAttrQueries)}\" id=\"{$this->id}_{$attributeValue}\" " . ($selected == true ? 'checked="checked"' : '') . "/><label for=\"{$this->id}_{$attributeValue}\">{$label}</label>";
             if ($this->showItemCounts)
             {
                 $html .= ' (' . $facet->getHits() . ')';

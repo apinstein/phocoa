@@ -891,8 +891,9 @@ class WFDieselSearchHelper extends WFObject
     const QUERY_STATE_SIMPLE_QUERY_ATTR_NAME            = 'simpleQuery';
     const QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME      = 'dpqlQuery';
 
-    const ATTRIBUTE_QUERY_ANY = "any";
-    const ATTRIBUTE_QUERY_ALL = "all";
+    const ATTRIBUTE_QUERY_ANY       = "any";
+    const ATTRIBUTE_QUERY_ALL       = "all";
+    const ATTRIBUTE_QUERY_RANGES    = "any";
 
     const QUERY_STATE_REGEX                             = '/^([A-Z]{2})_([^=]+)=(.+)$/';
 
@@ -1049,28 +1050,84 @@ class WFDieselSearchHelper extends WFObject
             }
             //print_r($attrQueryInfo);
             foreach ($attrQueryInfo as $attrID => $attrQueryInfo) {
-                $attrQueryItems = array();  // array of dpql queries on THIS attribute
-                foreach ($attrQueryInfo as $op => $opQueries) {
-                    $opSubQueries = array();
-                    foreach ($opQueries as $subQ) {
-                        if (!isset($this->legalComparatorList[$op]))
-                        {
-                            throw(new Exception("Unknown operator: '$op'"));
+                // for now, we allow only EQ's, or GE/LE, or GT/LT
+                $comparators = array_unique(array_keys($attrQueryInfo));
+                sort($comparators);
+
+                // EQ
+                if (isset($attrQueryInfo['EQ']))
+                {
+                    // EQ only allowed
+                    if (count($comparators) > 1) throw new Exception("attribute {$attrID} contains EQ and other comparators: " . print_r($comparators, true));
+                    // sensible default
+                    if (!isset($this->attributeQueryLogicalOperators[$attrID]))
+                    {
+                        $this->attributeQueryLogicalOperators[$attrID] = self::ATTRIBUTE_QUERY_ANY;
+                    }
+                    switch ($this->attributeQueryLogicalOperators[$attrID]) {
+                        case self::ATTRIBUTE_QUERY_ANY:
+                            $combiner = ' OR ';
+                            break;
+                        case self::ATTRIBUTE_QUERY_ALL:
+                            $combiner = ' AND ';
+                            break;
+                        default:
+                            throw new Exception("EQ logical must be ANY or ALL");
+                    }
+                    $compChr = $this->legalComparatorList['EQ'];
+                    $attrQueryItems = array();  // array of dpql queries on THIS attribute
+                    foreach ($attrQueryInfo as $op => $opQueries) {
+                        $opSubQueries = array();
+                        foreach ($opQueries as $subQ) {
+                            $opSubQueries[] = "{$attrID}{$compChr}\"{$subQ}\"";
                         }
-                        $opChr = $this->legalComparatorList[$op];
-                        $opSubQueries[] = "{$attrID}{$opChr}\"{$subQ}\"";
+                        $attrQueryItems[] = join($combiner, $opSubQueries);
                     }
-                    // @todo fold in support for attributeQueryLogicalOperators
-                    if ($op == 'EQ')
-                    {
-                        $attrQueryItems[] =  join(' OR ', $opSubQueries);
-                    }
-                    else
-                    {
-                        $attrQueryItems[] =  join(' AND ', $opSubQueries);
-                    }
+                    $dpqlItems[] = join(' AND ', $attrQueryItems);
                 }
-                $dpqlItems[] = join(' AND ', $attrQueryItems);
+                // GE/LE
+                else if ( (isset($attrQueryInfo['GE']) or isset($attrQueryInfo['LE'])) )
+                {
+                    // only GE/LE allowed
+                    if ( $comparators != array('GE', 'LE') ) throw new Exception("attribute {$attrID} contains something besides GE/LE: " . print_r($comparators, true));
+                    // sensible default
+                    if (!isset($this->attributeQueryLogicalOperators[$attrID]))
+                    {
+                        $this->attributeQueryLogicalOperators[$attrID] = self::ATTRIBUTE_QUERY_RANGES;
+                    }
+                    // sanity check
+                    if ($this->attributeQueryLogicalOperators[$attrID] !== self::ATTRIBUTE_QUERY_RANGES) throw new Exception("expected RANGE mode");
+
+                    // build DQL
+                    $min = min($attrQueryInfo['GE']);
+                    $minCompChr = $this->legalComparatorList['GE'];
+                    $max = max($attrQueryInfo['LE']);
+                    $maxCompChr = $this->legalComparatorList['LE'];
+                    $dpqlItems[] = " {$attrID} {$minCompChr} {$min} AND {$attrID} {$maxCompChr} {$max} ";
+                }
+                // GT/LT
+                else if ( (isset($attrQueryInfo['GT']) or isset($attrQueryInfo['LT'])) )
+                {
+                    // only GT/LT allowed
+                    if ( $comparators != array('GT', 'LT') ) throw new Exception("attribute {$attrID} contains something besides GT/LT: " . print_r($comparators, true));
+                    // sensible default
+                    if (!isset($this->attributeQueryLogicalOperators[$attrID]))
+                    {
+                        $this->attributeQueryLogicalOperators[$attrID] = self::ATTRIBUTE_QUERY_RANGES;
+                    }
+                    // sanity check
+                    if ($this->attributeQueryLogicalOperators[$attrID] !== self::ATTRIBUTE_QUERY_RANGES) throw new Exception("expected RANGE mode");
+
+                    $min = min($attrQueryInfo['GT']);
+                    $minCompChr = $this->legalComparatorList['GT'];
+                    $max = max($attrQueryInfo['LT']);
+                    $maxCompChr = $this->legalComparatorList['LT'];
+                    $dpqlItems[] = " {$attrID} {$minCompChr} {$min} AND {$attrID} {$maxCompChr} {$max} ";
+                }
+                else
+                {
+                    throw new Exception("WTF!");
+                }
             }
         }
 
@@ -1137,7 +1194,7 @@ class WFDieselSearchHelper extends WFObject
      */
     function setAttributeQueryMode($attribute, $mode)
     {
-        if (!in_array($mode, array(WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY, WFDieselSearchHelper::ATTRIBUTE_QUERY_ALL))) throw( new WFException("Invalid mode '{$mode}' for attribute '{$attribute}'.") );
+        if (!in_array($mode, array(WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY, WFDieselSearchHelper::ATTRIBUTE_QUERY_ALL, WFDieselSearchHelper::ATTRIBUTE_QUERY_RANGES))) throw( new WFException("Invalid mode '{$mode}' for attribute '{$attribute}'.") );
         $this->attributeQueryLogicalOperators[$attribute] = $mode;
     }
 
@@ -1150,20 +1207,51 @@ class WFDieselSearchHelper extends WFObject
      *  @throws object WFException If the comparator is invalid.
      *  @see WFDieselSearchHelper::$legalComparatorList
      */
-    function addAttributeQuery($attribute, $comparator, $query)
+    function addAttributeQuery($attribute, $comparator = NULL, $query = NULL)
     {
-        if (!in_array($comparator, array('EQ', 'GT', 'GE', 'LT', 'LE'))) throw( new WFException("Illegal comparator: " . $comparator) );
-        // don't add duplicates
-        $aq = "{$comparator}_{$attribute}={$query}";
-        if (!in_array($aq, $this->attributeQueries))
+        // look for EQ_attribute=query
+        if ($comparator === NULL and $query === NULL)
         {
-            $this->attributeQueries[] = $aq;
-            if ($comparator == 'EQ')
-            {
-                $this->setAttributeQueryMode($attribute, WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY);    // default to "any" of the listed attribute values
-            }
-            //print "adding {$comparator}_{$attribute}={$query}<BR>";
+            extract($this->parseAttributeQuery($attribute));
         }
+
+        $aq = $this->buildAttributeQuery($attribute, $comparator, $query);
+        switch ($comparator) {
+            case 'GT':
+            case 'GE':
+            case 'LT':
+            case 'LE':
+                $this->attributeQueries[] = $aq;
+                break;
+            case 'EQ':
+                // don't add duplicates
+                if (!in_array($aq, $this->attributeQueries))
+                {
+                    $this->attributeQueries[] = $aq;
+                }
+                break;
+            default:
+                throw( new WFException("Illegal comparator: " . $comparator) );
+        }
+    }
+
+    private function buildAttributeQuery($attribute, $comparator, $query)
+    {
+        return "{$comparator}_{$attribute}={$query}";
+    }
+
+    private function parseAttributeQuery($aq)
+    {
+        $matches = array();
+        if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $aq, $matches) and count($matches) == 4)
+        {
+            return array(
+                'comparator'    => $matches[1],
+                'attribute'     => $matches[2],
+                'query'         => $matches[3]
+            );
+        }
+        throw new Exception("unrecognized attribute query '{$aq}'");
     }
 
     /**
@@ -1191,24 +1279,19 @@ class WFDieselSearchHelper extends WFObject
         $this->attributeQueries = $newAttributeQueries;
     }
 
+    /**
+     * Get an array of all "selected" attributeQueries for the given attribute.
+     */
     function getSelectedAttributeQueries($attribute)
     {
         $selections = array();
         foreach ($this->attributeQueries as $q) {
             if (!$q) continue;  // not sure why q === '' sometimes
 
-            $matches = array();
-            if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
+            $aq = $this->parseAttributeQuery($q);
+            if ($attribute == $aq['attribute'])
             {
-                $attr = $matches[2];
-                if ($attr == $attribute)
-                {
-                    $selections[] = $q;
-                }
-            }
-            else
-            {
-                throw new Exception("Couldn't parse attribute value for {$attribute} against '$q'");
+                $selections[] = $q;
             }
         }
         return $selections;
@@ -1688,12 +1771,12 @@ class WFDieselSearch_FacetedAttribute extends WFObject
             {
                 $label .= $attributeValue;
             }
-            if ($this->options[self::OPT_RANGE_COUNT] and $facet->getEndValue())
+            if ($this->options[self::OPT_RANGE_COUNT] and java_values($facet->getEndValue()))
             {
                 $label .= ' - ';
                 if ($this->options[self::OPT_FORMATTER])
                 {
-                    $label .= $this->options[self::OPT_FORMATTER]->stringForValue($facet->getEndValue());
+                    $label .= $this->options[self::OPT_FORMATTER]->stringForValue(java_values($facet->getEndValue()));
                 }
                 else
                 {
