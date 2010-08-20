@@ -1359,24 +1359,18 @@ class WFDieselSearchHelper extends WFObject
             {
                 $desc = join(', ', $state['EQ']);
             }
-            else if (in_array('GE', $ops))
+            //todo: need to sync this with the way the queries work -- min/max on things
+            else if (count(array_intersect($ops, array('LE', 'GE'))) > 0) //in_array('GE', $ops))
             {
-                $desc = $state['GE'][0];
-                if (in_array('LE', $ops) or in_array('LT', $ops))
-                {
-                    if (in_array('LE', $ops))
-                    {
-                        $desc .= ' - ' . $state['LE'][0];
-                    }
-                    else
-                    {
-                        $desc .= ' - ' . $state['LT'][0];
-                    }
-                }
-                else
-                {
-                    $desc .= "+";
-                }
+                $min = min($state['GE']);
+                $max = max($state['LE']);
+                $desc .= "{$min} - {$max}";
+            }
+            else if (count(array_intersect($ops, array('LT', 'GT'))) > 0) //in_array('GE', $ops))
+            {
+                $min = min($state['GT']);
+                $max = max($state['LT']);
+                $desc .= "{$min} - {$max}";
             }
 
             return $desc;
