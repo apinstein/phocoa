@@ -14,6 +14,7 @@ Version 0.3.8 - ??
 - [bugfix] Properly encode current facetSelections() in Ajax requests. Previously was just "fixing" / chars. Now using encodeUriComponent.
 - [bugfix] Fixed a bug (thanks SwissalpS) in WFYAHOO_widget_TabView that caused tabs to work funny if some of the tabs had no config.
 - [bugfix] Fixed a bug that caused the default selected tab (from markup class="selected") to not load dynamic dataSrc content. I think this is a "fix" for a YUI bug.
+- [new] Add "class" support to WFTextArea.
 
 Version 0.3.7 - 6/10/2010
 - [bugfix] Add htmlspecialchars() to WFYAHOO_widget_AutoComplete.
