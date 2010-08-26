@@ -710,7 +710,7 @@ END;
         if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE) and !$this->fakeOpenEndedRange)
         {
             $selected = $this->popupAttributeValueIsSelected(java_values($attributeValue));
-            $html .= "<span {$classHTML}><input type=\"checkbox\" name=\"{$this->name}[]\" value=\"{$this->dieselSearchHelper->getQueryState($this->attributeID, $newAttrQueries)}\" id=\"{$this->id}_{$attributeValue}\" " . ($selected == true ? 'checked="checked"' : '') . "/><label for=\"{$this->id}_{$attributeValue}\">{$label}</label>";
+            $html .= "<span {$classHTML}><input type=\"checkbox\" name=\"{$this->name}[]\" value=\"" . join('|', $newAttrQueries) . "\" id=\"{$this->id}_{$attributeValue}\" " . ($selected == true ? 'checked="checked"' : '') . "/><label for=\"{$this->id}_{$attributeValue}\">{$label}</label>";
             if ($this->showItemCounts)
             {
                 $html .= ' (' . $facet->getHits() . ')';
