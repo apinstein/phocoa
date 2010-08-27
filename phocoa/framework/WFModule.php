@@ -769,6 +769,10 @@ abstract class WFModule extends WFObject
             {
                 throw( new WFException($e->getMessage()) );
             }
+            if (WFRequestController::sharedRequestController()->isAjax())
+            {
+                throw new WFRequestController_HTTPException("Not authorized." , 403);
+            }
             switch ($e->getCode()) {
                 case WFAuthorizationException::TRY_LOGIN:
                     WFAuthorizationManager::sharedAuthorizationManager()->doLoginRedirect($_SERVER['REQUEST_URI']);
