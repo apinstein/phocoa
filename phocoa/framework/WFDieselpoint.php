@@ -1471,10 +1471,32 @@ class WFDieselSearchHelper extends WFObject
         foreach ($newAttributeQueries as $q) {
             $state[] = $q;
         }
+        $state = array_map(array($this, 'encodeAttributeQuery'), $state);
         //WFLog::log("done building state: " . print_r($state, true));
         $rv =  join('|',$state);
         //WFLog::log("called u/j");
         return $rv;
+    }
+
+    /**
+     * Encode an attributeQuery chunk so that it can be concatenated into queryState without screwing things up (I'm looking at you |).
+     *
+     * @param string AttributeQuery Value
+     * @return string Encoded AttributeQuery Value
+     */
+    // @todo Need to use ATTRIBUTE_QUERY_DELIMITER all over the place in WFDiesel* and client code to make this cleaner for the future.
+    const ATTRIBUTE_QUERY_DELIMITER             = '|';
+    const ATTRIBUTE_QUERY_DELIMITER_ENCODED     = '-::-';
+    private function encodeAttributeQuery($q)
+    {
+        return str_replace(self::ATTRIBUTE_QUERY_DELIMITER, self::ATTRIBUTE_QUERY_DELIMITER_ENCODED, $q);
+    }
+    /**
+     * @see encodeAttributeQuery()
+     */
+    private function decodeAttributeQuery($q)
+    {
+        return str_replace(self::ATTRIBUTE_QUERY_DELIMITER_ENCODED, self::ATTRIBUTE_QUERY_DELIMITER, $q);
     }
 
     /**
@@ -1503,7 +1525,7 @@ class WFDieselSearchHelper extends WFObject
     {
         // Restore the query state indicated by the serialized state (this is the "initial" state, before any "changes" from form posts are processed)
         //print "Restoring querystate: $state<BR>";
-        $attrQueries = explode('|', $state);
+        $attrQueries = array_map(array($this, 'decodeAttributeQuery'), explode('|', $state));
         foreach ($attrQueries as $q) {
             //print "Extracting state from: $q<BR>";
             if (strncmp($q, WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME, strlen(WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME)) == 0)
