@@ -46,6 +46,17 @@ class WFArrayTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($this->array['hashData']->map('uid'), $this->array['hashData']->hash(NULL, 'uid'));
     }
 
+    public function testSubArrayWithKeys()
+    {
+        $refArray = new WFArray(array(
+            'a'         => 1,
+            'b'         => 2,
+            'c'         => 3,
+            'd'         => 4
+        ));
+        $this->assertEquals(new WFArray(array('a' => 1, 'c' => 3)), $refArray->subArrayWithKeys(array('a','c')));
+    }
+
     public function testHashObjectsWithSingleKey()
     {
         $hash = $this->array['hashData']->hash('uid', 'firstName');

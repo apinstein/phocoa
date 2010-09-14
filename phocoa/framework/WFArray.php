@@ -73,6 +73,24 @@ class WFArray extends ArrayObject
     }
 
     /**
+     * Get a subset of the array for the passed set of keys.
+     *
+     * @param array An array of keys to look for in the array.
+     * @return object WFArray A new associative array with all key/value pairs matching the passed-in set of keys.
+     */
+    public function subArrayWithKeys($keys)
+    {
+        $matchedArray = array();
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $this))
+            {
+                $matchedArray[$key] = $this[$key];
+            }
+        }
+        return new WFArray($matchedArray);
+    }
+
+    /**
      * Get all of the values contained in the array
      *
      * NOTE: calls getArrayCopy.
