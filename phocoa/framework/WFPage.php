@@ -1354,11 +1354,11 @@ class WFPage extends WFObject
 
     private function sendPageErrorsOverAjax()
     {
-        // Collect all errors and send them back in a WFActionResponsePhocoaUIUpdater
+        // Collect all errors and send them back in a WFActionResponseWFErrorsException
         $errorSmarty = new WFSmarty;
         $errorSmarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/form_error.tpl');
 
-        $uiUpdates = new WFActionResponsePhocoaUIUpdater();
+        $uiUpdates = new WFActionResponseWFErrorsException();
         foreach ($this->widgets() as $id => $obj) {
             $errors = $obj->errors();
             if (count($errors))

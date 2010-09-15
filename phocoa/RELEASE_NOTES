@@ -6,7 +6,9 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.3.8 - ??
+Version 0.3.9 - ??
+
+Version 0.3.8 - 9/15/2010
 - [new] add WFWebApplicationDelegate::rerouteInvocationPath() function to allow routing customizations.
 - [bugfix] WFYAHOO_widget_TabView no longer tries to select tabs from $_REQUEST[$tabViewId] if the tab does not exist. This caused no tab to be selected in some cases.
 - [improved] Remove in-efficient (and duplicate) check in bind() that tried to figure out if the specified local property is bindable.
@@ -15,6 +17,7 @@ Version 0.3.8 - ??
 - [bugfix] Fixed a bug (thanks SwissalpS) in WFYAHOO_widget_TabView that caused tabs to work funny if some of the tabs had no config.
 - [bugfix] Fixed a bug that caused the default selected tab (from markup class="selected") to not load dynamic dataSrc content. I think this is a "fix" for a YUI bug.
 - [new] Add "class" support to WFTextArea.
+- [improved] Improve WFAction/WFRPC callback infrastructure. Add new rpc.callback.invalid and WFAction ajaxInvalid callback to allow clients to detect that a phocoa validation error occurred.
 
 Version 0.3.7 - 6/10/2010
 - [bugfix] Add htmlspecialchars() to WFYAHOO_widget_AutoComplete.
