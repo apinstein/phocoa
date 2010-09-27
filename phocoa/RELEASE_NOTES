@@ -8,6 +8,7 @@ Legend:
 
 Version 0.3.9 - ??
 - [new] Add WFRequestController->isMobileBrowser()
+- [new] Add PhocoaControllerTestCase_PHPUnit as a PHPUnit TestCase subclass for testing controllers.
 
 Version 0.3.8 - 9/15/2010
 - [new] add WFWebApplicationDelegate::rerouteInvocationPath() function to allow routing customizations.

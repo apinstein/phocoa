@@ -185,6 +185,9 @@ class WFIncluding
                 'WFPagedPropelQuery' => 'framework/WFPagination.php',
                 'WFModelBuilderPropel' => 'framework/generator/WFGeneratorPropel12_13.php',
                 'WFModelBuilderPropel15' => 'framework/generator/WFGeneratorPropel15.php',
+
+                // PHPUnit
+                'PhocoaControllerTestCase_PHPUnit' => 'phpunit/PhocoaControllerTestCase_PHPUnit.php',
             );
         }
 
