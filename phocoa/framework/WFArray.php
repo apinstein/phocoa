@@ -23,7 +23,7 @@ class WFArray extends ArrayObject
      * @param string The key to use on each array entry to generate the hash key for the entry. NULL used sequential numerical indices rather than a hash key.
      * @param mixed
      *          NULL    => the entry for each key will be the entire entry in the array
-     *          string  => the entry for each key will be the valueForKey() of the passed key
+     *          string  => the entry for each key will be the valueForKeyPath() of the passed key path
      *          array   => the entry for each key will be an associative array, the result of passing the argument to valuesForKeyPaths()
      * @return array An associative array of the contained values hashed according to the parameters provided.
      */
@@ -37,7 +37,7 @@ class WFArray extends ArrayObject
             }
             else if (is_string($keyPath))
             {
-                $hashInfo = $entry->valueForKey($keyPath);
+                $hashInfo = $entry->valueForKeyPath($keyPath);
             }
             else if (is_array($keyPath))
             {
