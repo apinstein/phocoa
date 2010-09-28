@@ -311,7 +311,7 @@ class WFImage extends WFWidget
             ($cssHeight ? "height: {$cssHeight}; " : '') .
             ($this->border ? "border: {$this->border}; " : '') .
             '" />'
-            . $this->getListenerJS();
+            . $this->getListenerJSInScriptTag();
         if ($this->link)
         {
             $target = ($this->linkTarget ? " target=\"{$this->linkTarget}\"" : '');
