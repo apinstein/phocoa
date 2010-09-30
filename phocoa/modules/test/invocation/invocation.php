@@ -35,3 +35,43 @@ class module_invocation_anotherPage
         $page->assign('parameter1',  $params['parameter1']);
     }
 }
+
+class module_invocation_default_parameter_values
+{
+    public function parameterList()
+    {
+        return array(
+            'parameter1',
+            'parameter2'    => 'parameter2DefaultValue',
+            'parameter3'    => array('defaultValue' => 'parameter3DefaultValue')
+        );
+    }
+    public function parametersDidLoad($page, $params)
+    {
+        $page->assign('parameters', var_export($params, true));
+        $page->setTemplateFile('export_parameters.tpl');
+    }
+    public function setupSkin($page, $params, $skin)
+    {
+        $skin->setTemplateType(WFSkin::SKIN_WRAPPER_TYPE_RAW);
+    }
+}
+
+class module_invocation_greedy
+{
+    public function parameterList()
+    {
+        return array(
+            'parameter1' => array('greedy' => true, 'defaultValue' => 'parameter1DefaultValue')
+        );
+    }
+    public function parametersDidLoad($page, $params)
+    {
+        $page->assign('parameters', var_export($params, true));
+        $page->setTemplateFile('export_parameters.tpl');
+    }
+    public function setupSkin($page, $params, $skin)
+    {
+        $skin->setTemplateType(WFSkin::SKIN_WRAPPER_TYPE_RAW);
+    }
+}
