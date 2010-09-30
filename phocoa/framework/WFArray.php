@@ -56,6 +56,23 @@ class WFArray extends ArrayObject
     }
 
     /**
+     * A convenience function to create a WFArray of WFArrays keyed by the valueForKeyPath of each object.
+     *
+     * @param string The key to use on each array entry to generate the hash key for the entry.
+     * @return array An associative array of the contained values hashed according to the parameters provided. All items whose valueForKeyPath match will be included in the chunk.
+     */
+    public function chunk($hashKey)
+    {
+        $chunked = new WFArray();
+        foreach ($this as $entry)
+        {
+            $chunked[$entry->valueForKeyPath($hashKey)][] = $entry;
+        }
+
+        return $chunked;
+    }
+
+    /**
      * Canonical map function.
      *
      * The map function is a wrapper around {@link hash()}; the map argument can thus do some magical things since it is invoked via {@link WFObject::valueForKeyPath()}.
