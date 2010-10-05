@@ -6,13 +6,25 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.3.8 - ??
+Version 0.3.9 - ??
+- [new] Add WFRequestController->isMobileBrowser()
+- [new] Add PhocoaControllerTestCase_PHPUnit as a PHPUnit TestCase subclass for testing controllers.
+- [bugfix] Fix bug in WFImage that caused WFAction's to not be placed in <script> tags.
+- [new] Add support for parameter options to WFPageDelegate::getParameterList().
+        Form array('param1' => 'myDefaultValue', 'param2') allows you to optionally specify default values.
+        Form array('param1' => array('defaultValue' => 'myDefaultValue', 'greedy' => true) allows you to specify other options, like greedy.
+        Greedy is ignored on all but the LAST parameter, and has the effect of including the rest of the /-separated PATH_INFO in the last parameter.
+
+Version 0.3.8 - 9/15/2010
 - [new] add WFWebApplicationDelegate::rerouteInvocationPath() function to allow routing customizations.
 - [bugfix] WFYAHOO_widget_TabView no longer tries to select tabs from $_REQUEST[$tabViewId] if the tab does not exist. This caused no tab to be selected in some cases.
 - [improved] Remove in-efficient (and duplicate) check in bind() that tried to figure out if the specified local property is bindable.
 - [new] Add WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE and WFSensitiveDataFormatter::$notModifiedSemaphore to allow use of WFSensitiveDataFormatter in an editable WFTextField.
+- [bugfix] Properly encode current facetSelections() in Ajax requests. Previously was just "fixing" / chars. Now using encodeUriComponent.
 - [bugfix] Fixed a bug (thanks SwissalpS) in WFYAHOO_widget_TabView that caused tabs to work funny if some of the tabs had no config.
 - [bugfix] Fixed a bug that caused the default selected tab (from markup class="selected") to not load dynamic dataSrc content. I think this is a "fix" for a YUI bug.
+- [new] Add "class" support to WFTextArea.
+- [improved] Improve WFAction/WFRPC callback infrastructure. Add new rpc.callback.invalid and WFAction ajaxInvalid callback to allow clients to detect that a phocoa validation error occurred.
 
 Version 0.3.7 - 6/10/2010
 - [bugfix] Add htmlspecialchars() to WFYAHOO_widget_AutoComplete.
@@ -43,7 +55,15 @@ Version 0.3.7 - 6/10/2010
         behavior bugs where you can click on tabs before the content is loaded.
 - [bugfix] Errors in processing WFActionResponsePhocoaUIUpdater are no longer silenced; an alert() will show (it's a dev-time-only failure).
 - [improved] Errors in processing WFActionResponsePhocoaUIUpdater due to missing element ID's warn in console if available, rather than cause an error.
-
+- [bugfix] Fix bug with WFAction when attaching events to non-input items.
+- [bugfix] WFDieselFacet popups with menus now have current attribute pre-selected.
+- [bugfix] WFDieselFacet popups now auto-submit if a "show all" choice with value="" is selected.
+- [bugfix] WFDieselSearch now ignores attribute queries with empty values.
+- [bugfix] Fixed bug with WFDieselNav which caused clicking facets to drill-down or remove them would fail on IE.
+- [bugfix] Fixed bug with WFDieselNav where menu-style attributes were not escaped in javascript which caused bugs when navigating menu facets with legit + characters.
+- [new, BC-break] Parameters will now use the $_REQUEST data for a given parameter name as the default value if available. This value will still be overridden by a submitted form data of the same name if there is one available. This makes it easier to build controllers that use parameter data but don't use bindings.
+- [new] Add WFArray.map() function.
+- [new] Add infrastructure for rememberMe in WFAuthorizationDelegate and WFAuthorizationManager.
 
 Version 0.3.6 - 3/18/2010
 - [bugfix] WFYAHOO_widget_TreeViewNode now works properly when there are special characters in the node IDs (/, space, etc). We were missing an encodeUriComponent().

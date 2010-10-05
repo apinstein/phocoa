@@ -108,6 +108,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
     protected $treeDataPath;
     protected $isTaxonomyAttribute;
     protected $width;
+    protected $height;
 
     /**
       * Constructor.
@@ -134,6 +135,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         $this->popupSelections = array();
         $this->treeDataPath = null;
         $this->width = NULL;
+        $this->height = NULL;
     }
 
     public static function exposedProperties()
@@ -154,6 +156,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
             'sortByFrequency' => array('list', 'menu', 'tree'),
             'ellipsisAfterChars',
             'width',
+            'height',
             ));
     }
 
@@ -257,6 +260,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
      *
      *  @return array An array of facet objects (via the java bridge)
      *  @throws Excpetion if there are any errors.
+     *  @todo refactoring to WFDieselSearchHelper
      */
     function prepareFacets()
     {
@@ -389,8 +393,9 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
                     $html .= "<span style=\"font-weight: bold; white-space: nowrap;\">{$this->label}</span><br />\n";
                 }
                 $width = ($this->width ? "width: {$this->width};" : NULL );
+                $height = ($this->isPopup ? '300px' : ($this->height ? $this->height : $this->parent()->facetNavHeight()));
                 // NOTE: Safari seems to have a bug where even tho the content fits within the width, it still puts a scroll bar. Works in FF, not sure about IE yet.
-                $html .= '<div style="height: ' . ($this->isPopup ? '300px' : $this->parent()->facetNavHeight()) . '; overflow: auto; padding-right: 4px;' . $width . '">' . "\n";
+                $html .= '<div style="max-height: ' . $height . '; overflow: auto; padding-right: 4px;' . $width . '">' . "\n";
                     
                 // actual facets
                 switch ($this->facetStyle) {
@@ -521,25 +526,35 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
 
     private function facetMenuHTML($facets)
     {
+        // selected value?
+        if ($this->isPopup)
+        {
+            if (count($this->popupSelections) === 0)
+            {
+                $selection = NULL;
+            }
+            else if (count($this->popupSelections) === 1)
+            {
+                $selection = key($this->popupSelections);
+            }
+        }
+        else
+        {
+            $selection = $this->dieselSearchHelper->getAttributeSelection($this->attributeID);
+        }
+
         $baseLink = $this->parent()->baseURL() . '/' . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID));
         $html = <<<END
             <script>
             PHOCOA.namespace("widgets.{$this->id}.attributes.{$this->attributeID}");
             PHOCOA.widgets.{$this->id}.attributes.{$this->attributeID}.menuSelected = function(select)
             {
-                var index;
-                var initialSelection = '{$this->value}';
-
-                for(index=0; index<select.options.length; index++)
-                    if(select.options[index].selected)
-                    {
-                        if(select.options[index].value != initialSelection)
-                        {
-                            newURL = '{$baseLink}|EQ_{$this->attributeID}=' + select.options[index].value; 
-                            facetHandleClick(newURL);
-                        }
-                        break;
-                    }
+                var selectedValue = \$F(select);
+                var initialSelectedValue = '{$selection}';
+                if (selectedValue !== initialSelectedValue)
+                {
+                    facetHandleClick('{$baseLink}|EQ_{$this->attributeID}=' + encodeURIComponent(selectedValue));
+                }
             }
             </script>
 END;
@@ -547,8 +562,7 @@ END;
         // add "show all" choice
         $html .= "<option value=\"\">{$this->showAllText}</option>\n";
 
-        // selected value?
-        $selection = $this->dieselSearchHelper->getAttributeSelection($this->attributeID);
+        // build options
         foreach ($facets as $facet) {
             $attributeValue = java_values($facet->getAttributeValue());
             if ($selection == $attributeValue)
@@ -562,7 +576,7 @@ END;
             $label = '';
             if ($this->formatter)
             {
-                $label .= $this->formatter->stringForValue($attributeValue);
+                $label .= $this->formatter->stringForValue(java_values($attributeValue));
             }
             else
             {
@@ -587,16 +601,17 @@ END;
             // kill existing selection
             $this->dieselSearchHelper->clearAttributeQueries($this->attributeID);
 
-            // set current query
-            if (is_array($_REQUEST[$this->name]))
+            $submittedState = $_REQUEST[$this->name];
+            if (!is_array($submittedState))
             {
-                foreach ($_REQUEST[$this->name] as $value) {
-                    $this->dieselSearchHelper->addAttributeQuery($this->attributeID, 'EQ', $value);
-                }
+                $submittedState = array($submittedState);
             }
-            else
-            {
-                $this->dieselSearchHelper->addAttributeQuery($this->attributeID, 'EQ', $_REQUEST[$this->name]);
+
+            // set current query
+            foreach ($_REQUEST[$this->name] as $value) {
+                foreach (explode('|', $value) as $aq) {
+                    $this->dieselSearchHelper->addAttributeQuery($aq);
+                }
             }
         }
     }
@@ -666,7 +681,7 @@ END;
         $label = '';
         if ($this->formatter)
         {
-            $label .= $this->formatter->stringForValue($attributeValue);
+            $label .= $this->formatter->stringForValue(java_values($attributeValue));
         }
         else
         {
@@ -677,7 +692,7 @@ END;
             $label .= ' - ';
             if ($this->formatter)
             {
-                $label .= $this->formatter->stringForValue($facet->getEndValue());
+                $label .= $this->formatter->stringForValue(java_values($facet->getEndValue()));
             }
             else
             {
@@ -695,7 +710,7 @@ END;
         if ($this->isPopup and !($this->facetStyle == WFDieselFacet::STYLE_TREE) and !$this->fakeOpenEndedRange)
         {
             $selected = $this->popupAttributeValueIsSelected(java_values($attributeValue));
-            $html .= "<span {$classHTML}><input type=\"checkbox\" name=\"{$this->name}[]\" value=\"{$attributeValue}\" id=\"{$this->id}_{$attributeValue}\" " . ($selected == true ? 'checked="checked"' : '') . "/><label for=\"{$this->id}_{$attributeValue}\">{$label}</label>";
+            $html .= "<span {$classHTML}><input type=\"checkbox\" name=\"{$this->name}[]\" value=\"" . join('|', $newAttrQueries) . "\" id=\"{$this->id}_{$attributeValue}\" " . ($selected == true ? 'checked="checked"' : '') . "/><label for=\"{$this->id}_{$attributeValue}\">{$label}</label>";
             if ($this->showItemCounts)
             {
                 $html .= ' (' . $facet->getHits() . ')';
@@ -751,6 +766,29 @@ END;
                 $this->printAttributeValue($children, $indent + 1);
             }
         }
+    }
+
+    function generatePopupHTML($page, $params, $popupSelections, $treeViewPath)
+    {
+        $dpSearch = $this->dieselSearchHelper->dieselSearch();
+        $dpSearch->setResultObjectLoaderCallbackWithPropelPeer(NULL);
+        $this->dieselSearchHelper->buildQuery();
+        $dpSearch->execute();
+
+        $this->setPopupSelections($popupSelections);
+        $this->setIsPopup(true);
+        if ($treeViewPath)
+        {
+            $path = str_replace('|', "\t", $treeViewPath);
+            $this->setTreeDataPath($path);
+        }
+        $facetHTML = $this->render();
+        if ($facetHTML === NULL)
+        {
+            $facetHTML = "No items have " . $this->label() . " data.";
+        }
+        $updateId = "phocoaWFDieselNav_PopupContent_{$this->parent()->id()}";
+        return WFActionResponsePhocoaUIUpdater::WFActionResponsePhocoaUIUpdater()->addUpdateHTML($updateId, $facetHTML);
     }
 
     function canPushValueBinding() { return false; }

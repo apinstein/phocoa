@@ -251,13 +251,14 @@ class WFForm extends WFWidget
                             }
                         } );" . $this->jsEndHTML();
         }
+        // if no defaultSubmitID is specified, then we should eat the event to prevent unexpected things from happening.
         if ($this->isAjax() and !$this->disableEnterKeySubmit)
         {
             $html .= $this->jsStartHTML() . "Element.observe('{$this->id}', 'keypress', function(e) {
                             if (e.element().type === 'text' && (e.keyCode === Event.KEY_RETURN || e.keyCode === 3)) // safari enter not normalized
                             {
                                 e.stop();
-                                $('{$this->defaultSubmitID}').click();
+                                " . ($this->defaultSubmitID ? "$('{$this->defaultSubmitID}').click();" : "e.cancelBubble = true;") . "
                             }
                         } );" . $this->jsEndHTML();
         }

@@ -51,9 +51,22 @@ class WFFixture extends WFObject
 {
     protected $objById = array();
 
-    public function __construct()
+    protected $options = array();
+    const OPT_MODEL_ADAPTER = 'modelAdapter';
+
+    public function __construct($opts = array())
     {
         parent::__construct();
+
+        $this->options = array_merge(array(
+                                    self::OPT_MODEL_ADAPTER => 'Propel',
+        ), $opts);
+    }
+
+    public function getOpt($opt)
+    {
+        if (!isset($this->options[$opt])) throw new Exception("Unknown option: {$opt}.");
+        return $this->options[$opt];
     }
 
     /**
@@ -61,9 +74,9 @@ class WFFixture extends WFObject
      *
      * @return object WFFixture
      */
-    public static function WFFixture()
+    public static function WFFixture($opts = array())
     {
-        return new WFFixture();
+        return new WFFixture($opts);
     }
 
     /**
@@ -162,7 +175,7 @@ class WFFixture extends WFObject
                 try {
                     $o = $this->makeObj($class_name, $props);
                 } catch (Exception $e) {
-                    throw( new WFException("Error processing class {$class_name}[{$instanceId}]: " . $e->getMessage()) );
+                    throw( new WFException("Error processing class {$class_name}[{$instanceId}]: " . $e->getMessage() . $e->getTraceAsString()) );
                 }
                 // store all "named" objects for future reference
                 if (gettype($instanceId) != 'integer')
@@ -207,7 +220,7 @@ class WFFixture extends WFObject
             // model object; could have relationships, see if we need to build it...
             if (!$model->getEntity($class))
             {
-                $model->buildModel('Propel', NULL, array($class));
+                $model->buildModel($this->getOpt(self::OPT_MODEL_ADAPTER), NULL, array($class));
             }
             foreach ($props as $k => $v)
             {
@@ -244,7 +257,7 @@ class WFFixture extends WFObject
                     {
                         // try to build the entity; can't get all relationships unless we build the related entity
                         try {
-                            $model->buildModel('Propel', NULL, array($k));
+                            $model->buildModel($this->getOpt(self::OPT_MODEL_ADAPTER), NULL, array($k));
                         } catch (Exception $e) {
                             // maybe it's an instance variable or just a KVC property?
                             try {

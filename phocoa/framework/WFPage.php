@@ -42,6 +42,19 @@ interface WFPageDelegate
     /**
      *  Get the list of named parameters for the page.
      *
+     *  NOTE: You can also pass an associative array, there are two forms of this extended option:
+     *  array(
+     *          'param1'    =>  'defaultValueForParam1'
+     *          'param2',       // default will be NULL
+     *          'param3'        // default will be NULL 
+     *  )
+     *  array(
+     *          'param1'    =>  array(
+     *                                  'default'   => 'defaultValueForParam1',
+     *                                  'greedy'    => true                     // makes this param include the remaining path_info from this parameter on
+     *                                                                          // ie /module/page/foo/bar/baz => param1 = foo/bar/baz with greedy=true
+     *                               )
+     *  )
      *  @return array An array of names of parameters, in positional order.
      */
     function parameterList();
@@ -1176,15 +1189,50 @@ class WFPage extends WFObject
                 // first map all items through from PATH_INFO
                 // @todo Right now this doesn't allow DEFAULT parameter values (uses NULL). Would be nice if this supported assoc_array so we could have defaults.
                 $invocationParameters = $this->module->invocation()->parameters();
-                for ($i = 0; $i < count($parameterList); $i++) {
-                    if (isset($invocationParameters[$i]))
+                $defaultOpts = array(
+                                        'defaultValue'  => NULL,
+                                        'greedy'        => false
+                                    );
+                $i = 0;
+                $lastI = count($parameterList) - 1;
+                foreach ($parameterList as $k => $v) {
+                    if (gettype($k) === 'integer')  // has options
                     {
-                        $parameters[$parameterList[$i]] = $invocationParameters[$i];
+                        $opts = $defaultOpts;
+                        $parameterKey = $v;
                     }
                     else
                     {
-                        $parameters[$parameterList[$i]] = NULL;
+                        $parameterKey = $k;
+                        if (is_array($v))
+                        {
+                            $opts = array_merge($defaultOpts, $v);
+                        }
+                        else
+                        {
+                            $opts = $defaultOpts;
+                            $opts['defaultValue'] = $v;
+                        }
                     }
+
+                    if (isset($invocationParameters[$i]))
+                    {
+                        // handle greedy
+                        if ($i === $lastI and $opts['greedy'] === true and count($invocationParameters) > count($parameterList))
+                        {
+                            $parameters[$parameterKey] = join('/', array_slice($invocationParameters, $i));
+                        }
+                        else
+                        {
+                            $parameters[$parameterKey] = $invocationParameters[$i];
+                        }
+                    }
+                    else
+                    {
+                        $parameters[$parameterKey] = isset($_REQUEST[$parameterKey]) ? $_REQUEST[$parameterKey] : $opts['defaultValue'];
+                    }
+
+                    $i++;
                 }
 
                 // then over-ride with from form, if one has been submitted
@@ -1354,11 +1402,11 @@ class WFPage extends WFObject
 
     private function sendPageErrorsOverAjax()
     {
-        // Collect all errors and send them back in a WFActionResponsePhocoaUIUpdater
+        // Collect all errors and send them back in a WFActionResponseWFErrorsException
         $errorSmarty = new WFSmarty;
         $errorSmarty->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/form_error.tpl');
 
-        $uiUpdates = new WFActionResponsePhocoaUIUpdater();
+        $uiUpdates = new WFActionResponseWFErrorsException();
         foreach ($this->widgets() as $id => $obj) {
             $errors = $obj->errors();
             if (count($errors))

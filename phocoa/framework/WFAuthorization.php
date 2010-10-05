@@ -7,7 +7,9 @@
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
  * @author Alan Pinstein <apinstein@mac.com>                        
- * @todo Remember Me - there is no implementation yet. Need to "set remember me cookie" in login module (do we need another callback for "rememberMeHash" to get the hash?), clear it in logout, and add support for auto-login if remember me detected in WFSession. Also, make sure that it all interacts with recentLoginTime stuff.
+ * @todo Remember Me - Add to default login module now that there's support for it in core.
+ * @todo Remember Me - Use HMAC or something to sign the cookie on the remote end. Read a "private" salt/passphrase from OPTIONS.
+ * @todo Remember Me - Encrypt the cookie on the client end so that the userid isn't in cleartext.
  */
 
 /**
@@ -67,9 +69,27 @@ class WFAuthorizationDelegate extends WFObject
      *  Should the login interface have a "remember me" checkbox?
      *
      *  @return boolean TRUE to enable "remember me" functionality. DEFAULT: false.
-     *  @todo REMEMBER ME code to actually set up / read remember me cookies it NOT implemented.
      */
     function shouldEnableRememberMe() {}
+
+    /**
+     *  Delegate should return the "token" to persist via a long-term cookie. This exact token will be passed back in when trying to do a rememberMe login.
+     *
+     *  SECURITY RECOMMENDATION:
+     *  Your token should be something like md5("app-salt+userid").
+     *
+     *  Clients should get the userid from the current WFAuthorizationInfo.
+     *
+     *  @return string The token to persist on the client.
+     */
+    function rememberMeToken() {}
+
+    /**
+     *  Delegate should implement and return this method if they want to override the default rememberme settings.
+     *
+     *  @return array OPTIONS hash. See WFAuthorizationManager::REMEMBER_ME_OPT_*.
+     */
+    function rememberMeOptions() {}
 
     /**
      *  If "remember me" is enabled with {@link WFAuthorizationDelegate::shouldEnableRememberMe() shouldEnableRememberMe}, should "remember me"
@@ -245,7 +265,6 @@ class WFAuthorizationException extends Exception
   *
   * You can reliably link to the above listed invocationPaths from your application.
   *
-  * @todo Remember-me logins not yet implemented.
   * @todo captcha option
   * @todo Decouple the default WFAuthorizationInfo class from the manager; let applications define this so that if there's no one logged in at least they get back the correct instance type.
   * @todo Make VERSION accessible externally (maybe through Delegate interface?) so that applications can have phocoa invalidate/re-login automatically when session structures change.
@@ -286,15 +305,15 @@ class WFAuthorizationManager extends WFObject
         $this->authorizationInfo = NULL;
         $this->authorizationDelegate = NULL;
 
+
         // is session authorization info initialized?
         if (empty($_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_VERSION]) or $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_VERSION] < WFAuthorizationManager::VERSION)
         {
             // SESSION authorization info doesn't exist; initialize to least-privileged state
 
-            // try to load from remember me
-
             // initialize
             $this->init();
+
         }
         else
         {
@@ -307,6 +326,55 @@ class WFAuthorizationManager extends WFObject
                 $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = time();
             }
         }
+    }
+
+    const REMEMBER_ME_OPT_NAME          = 'name';
+    const REMEMBER_ME_OPT_DURATION      = 'duration';
+    const REMEMBER_ME_OPT_DOMAIN        = 'domain';
+    const REMEMBER_ME_OPT_PATH          = 'path';
+    const REMEMBER_ME_SEPARATOR         = ':';
+    /**
+     * Set a long-term remember me cookie.
+     * @param array OPTIONS hash. See WFAuthorizationManager::REMEMBER_ME_OPT_*.
+     */
+    function rememberMe()
+    {
+        $options = $this->rememberMeOptions();
+        $userid = $this->authorizationInfo->userid();
+        $userToken = $this->rememberMeToken($userid);
+        $rememberMeData = "{$userid}" . self::REMEMBER_ME_SEPARATOR . "{$userToken}";
+        setcookie($options[self::REMEMBER_ME_OPT_NAME], $rememberMeData, strtotime($options[self::REMEMBER_ME_OPT_DURATION]), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
+    }
+
+    function rememberMeToken($username)
+    {
+        if (!$this->authorizationInfo->isLoggedIn()) throw new WFException("Cannot call rememberMeToken if not logged in.");
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for rememberMeToken.") );
+
+        $rememberMeToken = NULL;
+        if (method_exists($this->authorizationDelegate, 'rememberMeToken'))
+        {
+            $rememberMeToken = $this->authorizationDelegate->rememberMeToken($username);
+        }
+
+        return $rememberMeToken;
+    }
+
+    function rememberMeOptions()
+    {
+        $options = array(
+            self::REMEMBER_ME_OPT_NAME      => 'PHOCOA_REMEMBER_ME',
+            self::REMEMBER_ME_OPT_DURATION  => '+10 years',
+            self::REMEMBER_ME_OPT_DOMAIN    => NULL,
+            self::REMEMBER_ME_OPT_PATH      => '/',
+        );
+
+        if ($this->authorizationDelegate && method_exists($this->authorizationDelegate, 'rememberMeOptions'))
+        {
+            $options = array_merge($options, $this->authorizationDelegate->rememberMeOptions());
+        }
+
+        return $options;
     }
 
     /**
@@ -354,6 +422,16 @@ class WFAuthorizationManager extends WFObject
     function setDelegate($d)
     {
         $this->authorizationDelegate = $d;
+        if (!$this->authorizationInfo->isLoggedIn())
+        {
+            $options = $this->rememberMeOptions();
+            // try to load from remember me
+            if (isset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]]))
+            {
+                list($username, $token) = explode(self::REMEMBER_ME_SEPARATOR, $_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]], 2);
+                $ok = $this->login($username, $token, true);
+            }
+        }
     }
 
     /**
@@ -362,6 +440,10 @@ class WFAuthorizationManager extends WFObject
     function logout()
     {
         $this->init();
+
+        // clear remember me cookie
+        $options = $this->rememberMeOptions();
+        setcookie($options[self::REMEMBER_ME_OPT_NAME], '', strtotime('-1 year'), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
     }
 
     /**
@@ -414,7 +496,15 @@ class WFAuthorizationManager extends WFObject
     function doLoginRedirect($continueURL)
     {
         $loginInvocationPath = $this->loginInvocationPath();
-        header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL));
+        if (WFRequestController::sharedRequestController()->isAjax())
+        {
+            header("HTTP/1.0 401 Login Required");
+            print WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL);
+        }
+        else
+        {
+            header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL));
+        }
         exit;
     }
 

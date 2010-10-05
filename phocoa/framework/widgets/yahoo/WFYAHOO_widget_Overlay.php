@@ -117,7 +117,7 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
 
     function setZIndex($i)
     {
-        $this->zIndex = $i;
+        $this->zIndex = (int) $i;
     }
 
     function setIFrame($b)
@@ -191,7 +191,7 @@ PHOCOA.widgets.{$this->id}.Overlay.init = function() {
     ($this->height ? "\n    overlay.cfg.setProperty('height', '{$this->height}');" : NULL ) .
     ($this->x ? "\n    overlay.cfg.setProperty('x', '{$this->x}');" : NULL ) .
     ($this->y ? "\n    overlay.cfg.setProperty('y', '{$this->y}');" : NULL ) .
-    ($this->zIndex ? "\n    overlay.cfg.setProperty('zIndex', '{$this->zIndex}');" : NULL ) .
+    ($this->zIndex ? "\n    overlay.cfg.setProperty('zIndex', {$this->zIndex});" : NULL ) .
     // YUI only re-calcs center when item is VISIBLE thus if a width is defined and it's not visible often will cause horizontal scrollbars due to excess width
     ($this->fixedcenter && !$this->visibility ? "overlay.center();" : NULL) . "
     // hopefully this next chunk can be removed when YUI fixes this internally

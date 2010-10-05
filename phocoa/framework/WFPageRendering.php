@@ -18,6 +18,14 @@ interface WFPageRendering
     function assign($name, $value);
 
     /**
+     * Get the value of a previously assigned variable.
+     *
+     * @param string Name
+     * @return mixed Value
+     */
+    function get($name);
+
+    /**
      * Render the view.
      * @param boolean Display the output or return it in a variable?
      * @return string The HTML output, or NULL, depending on $display.

@@ -13,7 +13,6 @@
 
 <p>All of this functionality uses the same PHOCOA programming model as standard form/action programming, and requires very little effort to set up.</p>
 <p>PHOCOA also includes many YUI widgets that have AJAX capabilities, such as AutoComplete, TreeView, and PhocoaDialog (an AJAX-loading YUI Dialog) that have been plugged in nicely to PHOCOA for easy use and require even less setup. All you have to do is supply a PHP callback to provide dynamically loaded data. No Javascript code is required at all.</p>
-
 <h2>AJAX Integration Basics</h2>
 <h3>Setting Up AJAX Event Handlers</h3>
 <p>At the highest level, PHOCOA provides an "onEvent" property for all classes in the WFView hierarchy that is used to attach Javascript behaviors to your application. Since the onEvent interface takes in a string as a parameter, you can configure AJAX behaviors via YAML with no PHP coding. If you need more complex behavior, you can always use the PHP API, but 95% of the time you'll find that onEvent works perfectly.</p>
@@ -109,13 +108,55 @@ PHOCOA.widgets.myLink.events.click.ajaxSuccess = function(response) {
 </p>
 
 <h2>Advanced AJAX Integration</h2>
-<p>PHOCOA uses a delegation paradigm to implement the AJAX integration. We have already looked at the default handleEvent delegate method above. There are a few additional delegate methods that you can implement if you want to pass arguments to your handleEvent function, or have specialized success or error handlers.</p>
+
+<h2>Classes Involved</h2>
+<p>The WFAction and WFRPC classes are responsible for the javascript/AJAX integration in phocoa.</p>
 <ul>
-    <li>PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.collectArguments() is called when the event you're listening to fires, to give you a chance to tell the infrastructure what arguments to pass to your Javascript handler.</li>
-    <li>PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.ajaxSuccess() is called if an AJAX RPC occurred, and succeeded.</li>
-    <li>PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.ajaxError() is called if an AJAX RPC occurred, and failed.</li>
+    <li>WFRPC is a thin wrapper around the raw AJAX that provides a phocoa-aware AJAX bus for client/server communitcation.</li>
+    <li>WFAction is a higher-level class that is responsible for detecting and routing events either locally (ie all client-side JS) or remotely (via WFRPC).</li>
 </ul>
-</p>
+
+<h2>Available Callbacks and Sequence of Events</h2>
+<h2>WFRPC</h2>
+<p>WFRPC itself has 3 callbacks:</p>
+<ul>
+    <li><em>success</em>: Called on HTTP 2xx where no WFErrorsException was thrown.</li>
+    <li><em>invalid</em>: Called on HTTP 2xx where a WFErrorsException was thrown. In this case the errors are automatically "shown" in the appropriate WFShowErrors blocks.</li>
+    <li><em>failure</em>: Called on HTTP 4xx,5xx.</li>
+</ul>
+<p>The prototype for these callbacks is: <em>(void) rpcCallbackF(responseObj)</em>, where the responseObj is the raw XMLHttpRequest response object that has been augmented with an "argument" property if one was set via rpc.callback.argument. The "this" inside the func will be set automatically for you if rpc.callback.scope was set.</p>
+<p>Exactly one callback is called for every WFRPC request.<p>
+
+<h2>WFAction</h2>
+<p>WFAction also has callbacks, but they are configured slightly differently. Since WFAction's are often produced generatively by WFWidgets, there is no easy way to "set" the callback at the time WFAction is created. Instead, WFAction looks for canonically named javascript functions to use for the various callback phases.</p>
+
+<ul>
+    <li>
+        <em>collectArguments</em>:
+        <p><em>(Array) PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.collectArgumentsF()</em></p>
+        <p>This is the first thing called after the event fires. It should return an array, each element which will be passed as arguments to later callback functions.</p>
+    </li>
+    <li>
+        <em>handleEvent</em>:
+        <p><em>(boolean) PHOCOA.widgets.&lt;widgetId&gt;.events.&lt;eventName&gt;.handleEvent(event, arg1, arg2, ...)</em></p>
+        <p>Called before the action is executed. If it returns <em>false</em>, further processing of the action will be canceled.</p>
+    </li>
+    <li>
+        <em>ajaxSuccess</em>: 
+        <p><em>(boolean) PHOCOA.widgets.&lt;      widgetId&gt;.events.&lt;eventName&gt;.ajaxSuccess(event, arg1, arg2, ...)</em></p>
+        <p>Called if the underlying RPC success callback fires.</p>
+    </li>
+    <li>
+        <em>ajaxInvalid</em>: 
+        <p><em>(boolean) PHOCOA.widgets.&lt;      widgetId&gt;.events.&lt;eventName&gt;.ajaxInvalid(event, arg1, arg2, ...)</em></p>
+        <p>Called if the underlying RPC invalid callback fires.</p>
+    </li>
+    <li>
+        <em>ajaxError</em>: 
+        <p><em>(boolean) PHOCOA.widgets.&lt;      widgetId&gt;.events.&lt;eventName&gt;.ajaxError(event, arg1, arg2, ...)</em></p>
+        <p>Called if the underlying RPC failure callback fires.</p>
+    </li>
+</ul>
 
 <h2>Examples</h2>
 <h3>JSAction - call a Javascript function when an event fires</h3>

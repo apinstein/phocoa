@@ -20,10 +20,10 @@ class WFArray extends ArrayObject
     /**
      * A convenience function to create a hash of the contained values in interesting ways.
      *
-     * @param string The key to use on each array entry to generate the hash key for the entry.
+     * @param string The key to use on each array entry to generate the hash key for the entry. NULL used sequential numerical indices rather than a hash key.
      * @param mixed
      *          NULL    => the entry for each key will be the entire entry in the array
-     *          string  => the entry for each key will be the valueForKey() of the passed key
+     *          string  => the entry for each key will be the valueForKeyPath() of the passed key path
      *          array   => the entry for each key will be an associative array, the result of passing the argument to valuesForKeyPaths()
      * @return array An associative array of the contained values hashed according to the parameters provided.
      */
@@ -37,15 +37,74 @@ class WFArray extends ArrayObject
             }
             else if (is_string($keyPath))
             {
-                $hashInfo = $entry->valueForKey($keyPath);
+                $hashInfo = $entry->valueForKeyPath($keyPath);
             }
             else if (is_array($keyPath))
             {
                 $hashInfo = $entry->valuesForKeyPaths($keyPath);
             }
-            $hash[$entry->valueForKey($hashKey)] = $hashInfo;
+            if ($hashKey)
+            {
+                $hash[$entry->valueForKey($hashKey)] = $hashInfo;
+            }
+            else
+            {
+                $hash[] = $hashInfo;
+            }
         }
         return $hash;
+    }
+
+    /**
+     * A convenience function to create a WFArray of WFArrays keyed by the valueForKeyPath of each object.
+     *
+     * @param string The key to use on each array entry to generate the hash key for the entry.
+     * @return array An associative array of the contained values hashed according to the parameters provided. All items whose valueForKeyPath match will be included in the chunk.
+     */
+    public function chunk($hashKey)
+    {
+        $chunked = new WFArray();
+        foreach ($this as $entry)
+        {
+            $chunked[$entry->valueForKeyPath($hashKey)][] = $entry;
+        }
+
+        return $chunked;
+    }
+
+    /**
+     * Canonical map function.
+     *
+     * The map function is a wrapper around {@link hash()}; the map argument can thus do some magical things since it is invoked via {@link WFObject::valueForKeyPath()}.
+     *
+     * @param mixed
+     *          NULL    => the entry for each key will be the entire entry in the array
+     *          string  => the entry for each key will be the valueForKey() of the passed key
+     *          array   => the entry for each key will be an associative array, the result of passing the argument to valuesForKeyPaths()
+     * @return array An associative array of the contained values hashed according to the parameters provided.
+     */
+    public function map($keyPath)
+    {
+        if (is_null($keyPath)) throw new WFException("Cannot call map with NULL argument. I think you're looking for WFArray::values().");
+        return $this->hash(NULL, $keyPath);
+    }
+
+    /**
+     * Get a subset of the array for the passed set of keys.
+     *
+     * @param array An array of keys to look for in the array.
+     * @return object WFArray A new associative array with all key/value pairs matching the passed-in set of keys.
+     */
+    public function subArrayWithKeys($keys)
+    {
+        $matchedArray = array();
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $this))
+            {
+                $matchedArray[$key] = $this[$key];
+            }
+        }
+        return new WFArray($matchedArray);
     }
 
     /**

@@ -57,6 +57,9 @@ class WFDieselSearch extends WFObject implements WFPagedData
     protected $hasRunQuery;
     protected $dpQueryStateParameterID;
 
+    // populated with the *actual* sort used by the search. we have to persist this since you cannot interrogate the "direction" of the search from DP (no api call).
+    protected $sortBy;
+
     // callback object loader
     protected $resultObjectLoaderCallback;
 
@@ -266,15 +269,23 @@ class WFDieselSearch extends WFObject implements WFPagedData
     /**
      *  Choose the Dieselpoint index to use for this query.
      *
-     *  @param string Filesystem path to the dieselpoint index to open.
+     *  @param mixed (string) Filesystem path to the dieselpoint index to open.
+     *               (object) Java Object from ({@link WFDieselSearch::index()})
      */
-    function setIndex($indexPath)
+    function setIndex($index)
     {
         try {
             if (!defined('DIESELPOINT_JAR_FILES')) throw( new Exception("DIESELPOINT_JAR_FILES must be defined, usually in your webapp.conf file.") );
             java_require(DIESELPOINT_JAR_FILES);
-            $Index = new JavaClass("com.dieselpoint.search.Index");
-            $this->index = $Index->getInstance($indexPath);
+            if (is_string($index))
+            {
+                $Index = new JavaClass("com.dieselpoint.search.Index");
+                $this->index = $Index->getInstance($index);
+            }
+            else
+            {
+                $this->index = $index;
+            }
             $this->searcher = new Java("com.dieselpoint.search.Searcher", $this->index);
         } catch (JavaException $e) {
             $this->handleJavaException($e);
@@ -305,7 +316,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
     {
         if (!$this->hasRunQuery()) throw( new WFException("Search has not been executed yet.") );
         try {
-            return $this->searcher->getQueryDescription(true, '', '');
+            return java_values($this->searcher->getQueryDescription(true, '', ''));
         } catch (JavaException $e) {
             $this->handleJavaException($e);
         }
@@ -377,7 +388,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
         } catch (JavaException $e) {
             $trace = new java("java.io.ByteArrayOutputStream");
             $e->printStackTrace(new java("java.io.PrintStream", $trace));
-            if (preg_match('/com.dieselpoint.query.ParseException/', $trace))
+            if (preg_match('/com.dieselpoint.query.(ParseException|SyntaxException)/', $trace))
             {   
                 throw( new WFDieselSearch_ParseException("Dieselpoint could not parse the query: " . $this->getQueryString() ."\n\nDieselpoint said: " . $trace) );
             }
@@ -543,6 +554,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
         return false;
     }
 
+    /**
+     * @return string The actual sort key sent to Dieselpoint, in form of "+/-sortkey".
+     */
+    function sortBy()
+    {
+        return $this->sortBy;
+    }
+
     // WFPagedData interface implementation
     // NOTE: Diesel sets are special in that if there is no query in the passed dieselSearch, then there are NO ITEMS. Can only show items once searching has started.
     function itemCount()
@@ -585,11 +604,13 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 }
             }
             $sortKeys = $sortKeysToUse;
+            $this->sortBy = self::SORT_BY_RELEVANCE;
             if (count($sortKeys) > 1) throw( new Exception("Only 1-key sorting supported at this time.") );
             else if (count($sortKeys) == 1)
             {
                 $sortKey = $sortKeys[0];
                 $sortAttr = substr($sortKey, 1);
+                $this->sortBy = $sortKey;
                 if (substr($sortKey, 0, 1) == '-')
                 {
                     $this->searcher->setSort($sortAttr, -1);
@@ -635,17 +656,6 @@ class WFDieselSearch extends WFObject implements WFPagedData
                 $c = new Criteria;
                 $c->add($this->getPrimaryKeyColumnFromPropelPeer($this->resultObjectLoaderCallbackPropelPeerName), $allIDs, Criteria::IN);
                 $tableName = eval( "return {$this->resultObjectLoaderCallbackPropelPeerName}::TABLE_NAME;" );
-                foreach ($sortKeys as $sortKey) {
-                    $sortAttr = substr($sortKey, 1);
-                    if (substr($sortKey, 0, 1) == '-')
-                    {
-                        $c->addDescendingOrderByColumn($tableName . '.' . $sortAttr);
-                    }
-                    else
-                    {
-                        $c->addAscendingOrderByColumn($tableName . '.' . $sortAttr);
-                    }
-                }
                 $propelObjects = call_user_func($propelCallback, $c);    // more efficient to grab all items in a single query
                 // map the propel objects back into the WFDieselHit's.
                 // we have to gracefully deal with the situation that an item in the index isn't in the database
@@ -881,8 +891,9 @@ class WFDieselSearchHelper extends WFObject
     const QUERY_STATE_SIMPLE_QUERY_ATTR_NAME            = 'simpleQuery';
     const QUERY_STATE_RESTRICT_DQL_QUERY_ATTR_NAME      = 'dpqlQuery';
 
-    const ATTRIBUTE_QUERY_ANY = "any";
-    const ATTRIBUTE_QUERY_ALL = "all";
+    const ATTRIBUTE_QUERY_ANY       = "any";
+    const ATTRIBUTE_QUERY_ALL       = "all";
+    const ATTRIBUTE_QUERY_RANGES    = "any";
 
     const QUERY_STATE_REGEX                             = '/^([A-Z]{2})_([^=]+)=(.+)$/';
 
@@ -1039,28 +1050,84 @@ class WFDieselSearchHelper extends WFObject
             }
             //print_r($attrQueryInfo);
             foreach ($attrQueryInfo as $attrID => $attrQueryInfo) {
-                $attrQueryItems = array();  // array of dpql queries on THIS attribute
-                foreach ($attrQueryInfo as $op => $opQueries) {
-                    $opSubQueries = array();
-                    foreach ($opQueries as $subQ) {
-                        if (!isset($this->legalComparatorList[$op]))
-                        {
-                            throw(new Exception("Unknown operator: '$op'"));
+                // for now, we allow only EQ's, or GE/LE, or GT/LT
+                $comparators = array_unique(array_keys($attrQueryInfo));
+                sort($comparators);
+
+                // EQ
+                if (isset($attrQueryInfo['EQ']))
+                {
+                    // EQ only allowed
+                    if (count($comparators) > 1) throw new Exception("attribute {$attrID} contains EQ and other comparators: " . print_r($comparators, true));
+                    // sensible default
+                    if (!isset($this->attributeQueryLogicalOperators[$attrID]))
+                    {
+                        $this->attributeQueryLogicalOperators[$attrID] = self::ATTRIBUTE_QUERY_ANY;
+                    }
+                    switch ($this->attributeQueryLogicalOperators[$attrID]) {
+                        case self::ATTRIBUTE_QUERY_ANY:
+                            $combiner = ' OR ';
+                            break;
+                        case self::ATTRIBUTE_QUERY_ALL:
+                            $combiner = ' AND ';
+                            break;
+                        default:
+                            throw new Exception("EQ logical must be ANY or ALL");
+                    }
+                    $compChr = $this->legalComparatorList['EQ'];
+                    $attrQueryItems = array();  // array of dpql queries on THIS attribute
+                    foreach ($attrQueryInfo as $op => $opQueries) {
+                        $opSubQueries = array();
+                        foreach ($opQueries as $subQ) {
+                            $opSubQueries[] = "{$attrID}{$compChr}\"{$subQ}\"";
                         }
-                        $opChr = $this->legalComparatorList[$op];
-                        $opSubQueries[] = "{$attrID}{$opChr}\"{$subQ}\"";
+                        $attrQueryItems[] = join($combiner, $opSubQueries);
                     }
-                    // @todo fold in support for attributeQueryLogicalOperators
-                    if ($op == 'EQ')
-                    {
-                        $attrQueryItems[] =  join(' OR ', $opSubQueries);
-                    }
-                    else
-                    {
-                        $attrQueryItems[] =  join(' AND ', $opSubQueries);
-                    }
+                    $dpqlItems[] = join(' AND ', $attrQueryItems);
                 }
-                $dpqlItems[] = join(' AND ', $attrQueryItems);
+                // GE/LE
+                else if ( (isset($attrQueryInfo['GE']) or isset($attrQueryInfo['LE'])) )
+                {
+                    // only GE/LE allowed
+                    if ( $comparators != array('GE', 'LE') ) throw new Exception("attribute {$attrID} contains something besides GE/LE: " . print_r($comparators, true));
+                    // sensible default
+                    if (!isset($this->attributeQueryLogicalOperators[$attrID]))
+                    {
+                        $this->attributeQueryLogicalOperators[$attrID] = self::ATTRIBUTE_QUERY_RANGES;
+                    }
+                    // sanity check
+                    if ($this->attributeQueryLogicalOperators[$attrID] !== self::ATTRIBUTE_QUERY_RANGES) throw new Exception("expected RANGE mode");
+
+                    // build DQL
+                    $min = min($attrQueryInfo['GE']);
+                    $minCompChr = $this->legalComparatorList['GE'];
+                    $max = max($attrQueryInfo['LE']);
+                    $maxCompChr = $this->legalComparatorList['LE'];
+                    $dpqlItems[] = " {$attrID} {$minCompChr} {$min} AND {$attrID} {$maxCompChr} {$max} ";
+                }
+                // GT/LT
+                else if ( (isset($attrQueryInfo['GT']) or isset($attrQueryInfo['LT'])) )
+                {
+                    // only GT/LT allowed
+                    if ( $comparators != array('GT', 'LT') ) throw new Exception("attribute {$attrID} contains something besides GT/LT: " . print_r($comparators, true));
+                    // sensible default
+                    if (!isset($this->attributeQueryLogicalOperators[$attrID]))
+                    {
+                        $this->attributeQueryLogicalOperators[$attrID] = self::ATTRIBUTE_QUERY_RANGES;
+                    }
+                    // sanity check
+                    if ($this->attributeQueryLogicalOperators[$attrID] !== self::ATTRIBUTE_QUERY_RANGES) throw new Exception("expected RANGE mode");
+
+                    $min = min($attrQueryInfo['GT']);
+                    $minCompChr = $this->legalComparatorList['GT'];
+                    $max = max($attrQueryInfo['LT']);
+                    $maxCompChr = $this->legalComparatorList['LT'];
+                    $dpqlItems[] = " {$attrID} {$minCompChr} {$min} AND {$attrID} {$maxCompChr} {$max} ";
+                }
+                else
+                {
+                    throw new Exception("WTF!");
+                }
             }
         }
 
@@ -1127,7 +1194,7 @@ class WFDieselSearchHelper extends WFObject
      */
     function setAttributeQueryMode($attribute, $mode)
     {
-        if (!in_array($mode, array(WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY, WFDieselSearchHelper::ATTRIBUTE_QUERY_ALL))) throw( new WFException("Invalid mode '{$mode}' for attribute '{$attribute}'.") );
+        if (!in_array($mode, array(WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY, WFDieselSearchHelper::ATTRIBUTE_QUERY_ALL, WFDieselSearchHelper::ATTRIBUTE_QUERY_RANGES))) throw( new WFException("Invalid mode '{$mode}' for attribute '{$attribute}'.") );
         $this->attributeQueryLogicalOperators[$attribute] = $mode;
     }
 
@@ -1140,20 +1207,51 @@ class WFDieselSearchHelper extends WFObject
      *  @throws object WFException If the comparator is invalid.
      *  @see WFDieselSearchHelper::$legalComparatorList
      */
-    function addAttributeQuery($attribute, $comparator, $query)
+    function addAttributeQuery($attribute, $comparator = NULL, $query = NULL)
     {
-        if (!in_array($comparator, array('EQ', 'GT', 'GE', 'LT', 'LE'))) throw( new WFException("Illegal comparator: " . $comparator) );
-        // don't add duplicates
-        $aq = "{$comparator}_{$attribute}={$query}";
-        if (!in_array($aq, $this->attributeQueries))
+        // look for EQ_attribute=query
+        if ($comparator === NULL and $query === NULL)
         {
-            $this->attributeQueries[] = $aq;
-            if ($comparator == 'EQ')
-            {
-                $this->setAttributeQueryMode($attribute, WFDieselSearchHelper::ATTRIBUTE_QUERY_ANY);    // default to "any" of the listed attribute values
-            }
-            //print "adding {$comparator}_{$attribute}={$query}<BR>";
+            extract($this->parseAttributeQuery($attribute));
         }
+
+        $aq = $this->buildAttributeQuery($attribute, $comparator, $query);
+        switch ($comparator) {
+            case 'GT':
+            case 'GE':
+            case 'LT':
+            case 'LE':
+                $this->attributeQueries[] = $aq;
+                break;
+            case 'EQ':
+                // don't add duplicates
+                if (!in_array($aq, $this->attributeQueries))
+                {
+                    $this->attributeQueries[] = $aq;
+                }
+                break;
+            default:
+                throw( new WFException("Illegal comparator: " . $comparator) );
+        }
+    }
+
+    private function buildAttributeQuery($attribute, $comparator, $query)
+    {
+        return "{$comparator}_{$attribute}={$query}";
+    }
+
+    private function parseAttributeQuery($aq)
+    {
+        $matches = array();
+        if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $aq, $matches) and count($matches) == 4)
+        {
+            return array(
+                'comparator'    => $matches[1],
+                'attribute'     => $matches[2],
+                'query'         => $matches[3]
+            );
+        }
+        throw new Exception("unrecognized attribute query '{$aq}'");
     }
 
     /**
@@ -1179,6 +1277,47 @@ class WFDieselSearchHelper extends WFObject
         }
         //print_r($newAttributeQueries);
         $this->attributeQueries = $newAttributeQueries;
+    }
+
+    /**
+     * Get an array of all "selected" attributeQueries for the given attribute.
+     */
+    function getSelectedAttributeQueries($attribute)
+    {
+        $selections = array();
+        foreach ($this->attributeQueries as $q) {
+            if (!$q) continue;  // not sure why q === '' sometimes
+
+            $aq = $this->parseAttributeQuery($q);
+            if ($attribute == $aq['attribute'])
+            {
+                $selections[] = $q;
+            }
+        }
+        return $selections;
+    }
+
+    function getAttributeSelectedValues($attribute)
+    {
+        $state = array();
+        foreach ($this->attributeQueries as $q) {
+            $matches = array();
+            if (preg_match(WFDieselSearchHelper::QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
+            {
+                $attr = $matches[2];
+                if ($attr == $attribute)
+                {
+                    $op = $matches[1];
+                    $val = $matches[3];
+                    $state[$op][] = $val;
+                }
+            }
+            else
+            {
+                throw new Exception("Couldn't parse attribute value for {$attribute}");
+            }
+        }
+        return $state['EQ'];
     }
 
     /**
@@ -1220,24 +1359,18 @@ class WFDieselSearchHelper extends WFObject
             {
                 $desc = join(', ', $state['EQ']);
             }
-            else if (in_array('GE', $ops))
+            //todo: need to sync this with the way the queries work -- min/max on things
+            else if (count(array_intersect($ops, array('LE', 'GE'))) > 0) //in_array('GE', $ops))
             {
-                $desc = $state['GE'][0];
-                if (in_array('LE', $ops) or in_array('LT', $ops))
-                {
-                    if (in_array('LE', $ops))
-                    {
-                        $desc .= ' - ' . $state['LE'][0];
-                    }
-                    else
-                    {
-                        $desc .= ' - ' . $state['LT'][0];
-                    }
-                }
-                else
-                {
-                    $desc .= "+";
-                }
+                $min = min($state['GE']);
+                $max = max($state['LE']);
+                $desc .= "{$min} - {$max}";
+            }
+            else if (count(array_intersect($ops, array('LT', 'GT'))) > 0) //in_array('GE', $ops))
+            {
+                $min = min($state['GT']);
+                $max = max($state['LT']);
+                $desc .= "{$min} - {$max}";
             }
 
             return $desc;
@@ -1338,10 +1471,32 @@ class WFDieselSearchHelper extends WFObject
         foreach ($newAttributeQueries as $q) {
             $state[] = $q;
         }
+        $state = array_map(array($this, 'encodeAttributeQuery'), $state);
         //WFLog::log("done building state: " . print_r($state, true));
         $rv =  join('|',$state);
         //WFLog::log("called u/j");
         return $rv;
+    }
+
+    /**
+     * Encode an attributeQuery chunk so that it can be concatenated into queryState without screwing things up (I'm looking at you |).
+     *
+     * @param string AttributeQuery Value
+     * @return string Encoded AttributeQuery Value
+     */
+    // @todo Need to use ATTRIBUTE_QUERY_DELIMITER all over the place in WFDiesel* and client code to make this cleaner for the future.
+    const ATTRIBUTE_QUERY_DELIMITER             = '|';
+    const ATTRIBUTE_QUERY_DELIMITER_ENCODED     = '-::-';
+    private function encodeAttributeQuery($q)
+    {
+        return str_replace(self::ATTRIBUTE_QUERY_DELIMITER, self::ATTRIBUTE_QUERY_DELIMITER_ENCODED, $q);
+    }
+    /**
+     * @see encodeAttributeQuery()
+     */
+    private function decodeAttributeQuery($q)
+    {
+        return str_replace(self::ATTRIBUTE_QUERY_DELIMITER_ENCODED, self::ATTRIBUTE_QUERY_DELIMITER, $q);
     }
 
     /**
@@ -1370,7 +1525,7 @@ class WFDieselSearchHelper extends WFObject
     {
         // Restore the query state indicated by the serialized state (this is the "initial" state, before any "changes" from form posts are processed)
         //print "Restoring querystate: $state<BR>";
-        $attrQueries = explode('|', $state);
+        $attrQueries = array_map(array($this, 'decodeAttributeQuery'), explode('|', $state));
         foreach ($attrQueries as $q) {
             //print "Extracting state from: $q<BR>";
             if (strncmp($q, WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME, strlen(WFDieselSearchHelper::QUERY_STATE_SIMPLE_QUERY_ATTR_NAME)) == 0)
@@ -1478,4 +1633,283 @@ class WFDieselSearchHelper extends WFObject
 }
 
 class WFDieselSearch_ParseException extends WFException {}
-?>
+
+class WFDieselSearch_FacetedAttribute extends WFObject
+{
+    protected $attributedId;
+    protected $dieselSearch;
+    protected $dieselSearchHelper;
+
+    protected $options = array();
+
+    /**
+     * @const boolean True to implement fake open-ended ranges corrections. With DP < 4.0, there is no range supprort, so we fake it with multi-value attr categories. IE Bedrooms 1+, 2+, 3+. 
+     *                The downside of this is that the facets don't adjust as choices are selected (b/c 3+ includes 1+ and 2+).
+     *                The fakeOpenEndedRange support will correct the facet display by eliminating choices less than the current value.
+     */
+    const OPT_FAKE_OPEN_ENDED_RANGE     = 'fake_open_ended_range';
+    /**
+     * @const int The number of ranges to show for the facet. Presently this will create N facets each containing approximately equal numbers of items. Default is 0, which disables range mode.
+     */
+    const OPT_RANGE_COUNT               = 'range_count';
+    /**
+     * @const int The maximum number of hits to count for each facet. Defaults to SHOW EXACT COUNT (Integer.MAX_VALUE). Set to a lower number if you don't care about more than a certain number, like 1000. Set to 1 for maxium performance. NOTE: setting showItemCounts to FALSE will automatically set maxHits to 1.
+     */
+    const OPT_MAX_HITS                  = 'max_hits';
+    /**
+     * @const int The maximum number of facets to show. Defaults to -1, which means SHOW ALL ROWS.
+     */
+    const OPT_MAX_ROWS                  = 'max_rows';
+    /**
+     * @const boolean If true, facets will be sorted by frequency of each facet. In this case, the facet with the most "hits" will be first, etc. If false, facets are sorted by the value they represent. Default is TRUE.
+     */
+    const OPT_SORT_BY_FREQUENCY         = 'sortByFrequency';
+    /**
+     * @const boolean If true, the number of items in each facet will be shown as well. Default is TRUE. Performance will be faster if this is set to FALSE.
+     */
+    const OPT_SHOW_ITEM_COUNTS          = 'showItemCounts';
+    /**
+     * @const boolean TRUE to enable multiple selection, false to only allow single selections. DEFAULT is TRUE.
+     */
+    const OPT_ALLOW_MULTIPLE_SELECTION  = 'multipleSelection';
+
+    /**
+     * @const object WFFormatter to format the facet labels.
+     */
+    const OPT_FORMATTER                 = 'formatter';
+
+    // ??
+    const OPT_TAXONOMY_PATH             = 'taxonomy_path';
+    const OPT_TAXONOMY_DEFAULT_PATH     = 'taxonomy_default_path';
+
+    const MAX_ROWS_UNLIMITED            = -1;
+
+
+    public function __construct($attributeId, $dieselSearchHelper, $options = array())
+    {
+        $defaultOptions = array(
+            self::OPT_FAKE_OPEN_ENDED_RANGE     => false,
+            self::OPT_RANGE_COUNT               => 0,
+            self::OPT_MAX_HITS                  => 10000000,    /* Integer.MAX_VALUE */
+            self::OPT_MAX_ROWS                  => self::MAX_ROWS_UNLIMITED,
+            self::OPT_SORT_BY_FREQUENCY         => true,
+            self::OPT_FORMATTER                 => NULL,
+            self::OPT_SHOW_ITEM_COUNTS          => true,
+            self::OPT_ALLOW_MULTIPLE_SELECTION  => true,
+        );
+        $this->options = array_merge($defaultOptions, $options);
+        $this->attributeId = $attributeId;
+        $this->dieselSearchHelper = $dieselSearchHelper;
+        $this->dieselSearch = $dieselSearchHelper->dieselSearch();
+
+        // optimization
+        if ($this->options[self::OPT_SHOW_ITEM_COUNTS] === false)
+        {
+            $this->options[self::OPT_MAX_HITS] = 1;
+        }
+    }
+
+    public function facetSearchOptions($includeAlternateFacets = false)
+    {
+        $this->prepareFacets();
+
+        $facetSearchOptions = array(
+            'currentSelection'          => $this->dieselSearchHelper->getSelectedAttributeQueries($this->attributeId),
+            'allowMultipleSelection'   => $this->options[self::OPT_ALLOW_MULTIPLE_SELECTION],
+            'queryBase'                 => $this->dieselSearchHelper->getQueryState($this->attributeId),
+            'hasMoreFacets'             => false,
+            'facets'                    => array(),
+        );
+
+        if (gettype($this->generatedFacetData) === 'object')
+        {
+            $Array = new JavaClass("java.lang.reflect.Array");
+            if ($this->options[self::OPT_MAX_ROWS] != self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::OPT_MAX_ROWS])
+            {
+                $facetSearchOptions['hasMoreFacets'] = true;
+            }
+            else if ($this->options[self::OPT_MAX_ROWS] == self::MAX_ROWS_UNLIMITED and $Array->getLength($this->generatedFacetData) == $this->options[self::OPT_MAX_ROWS])
+            {
+                $facetSearchOptions['hasMoreFacets'] = true;
+            }
+        }
+
+        // actual facet data
+        if (count($facetSearchOptions['currentSelection']) == 0)
+        {
+            $facetSearchOptions['facets'] = $this->facets();
+        }
+        else
+        {
+            if ($includeAlternateFacets)
+            {
+                $facetSearchOptions['facets'] = 'coming soon';
+                // set up a new search w/o this attribute and just get facets for this one.
+                $subDpSearch = new WFDieselSearch;
+                $subDpSearch->setIndex($this->dieselSearch->index());
+                $subDpSearchHelper = new WFDieselSearchHelper;
+                $subDpSearchHelper->setDieselSearch($subDpSearch);
+                $subDpSearchHelper->setQueryState($facetSearchOptions['queryBase']);
+                $subFacet = new WFDieselSearch_FacetedAttribute($this->attributeId, $subDpSearchHelper, $this->options);
+                $subFacetInfo = $subFacet->facetSearchOptions();
+                // copy data over from sub-query
+                $facetSearchOptions['facets'] = $subFacetInfo['facets'];
+                $facetSearchOptions['hasMoreFacets'] = $subFacetInfo['hasMoreFacets'];
+            }
+            else
+            {
+                $facetSearchOptions['facets'] = 'query for more';
+            }
+        }
+
+        return $facetSearchOptions;
+    }
+
+    private $facets = NULL;
+    public function facets()
+    {
+        if ($this->facets) return $this->facets;
+
+        $this->facets = array();
+        $this->prepareFacets();
+        foreach ($this->generatedFacetData as $facet) {
+            $localFacetData = array();
+
+            $attributeValue = java_values($facet->getAttributeValue());
+
+            // calculate label
+            $label = '';
+            if ($this->options[self::OPT_FORMATTER])
+            {
+                $label .= $this->options[self::OPT_FORMATTER]->stringForValue($attributeValue);
+            }
+            else
+            {
+                $label .= $attributeValue;
+            }
+            if ($this->options[self::OPT_RANGE_COUNT] and java_values($facet->getEndValue()))
+            {
+                $label .= ' - ';
+                if ($this->options[self::OPT_FORMATTER])
+                {
+                    $label .= $this->options[self::OPT_FORMATTER]->stringForValue(java_values($facet->getEndValue()));
+                }
+                else
+                {
+                    $label .= $facet->getEndValue();
+                }
+            }
+            $localFacetData['label'] = $label;
+
+            // calculate item counts
+            $itemCount = NULL;
+            if ($this->options[self::OPT_SHOW_ITEM_COUNTS])
+            {
+                $itemCount = $facet->getHits();
+            }
+            $localFacetData['itemCount'] = $itemCount;
+
+            // support for fake open-ended ranges with mutli-value hack
+            if ($this->options[self::OPT_FAKE_OPEN_ENDED_RANGE])
+            {
+                $currentVal = $this->dieselSearchHelper->getAttributeSelection($this->attributeId);
+                if ($attributeValue < $currentVal) continue;
+            }
+
+            $facetAttrQuery = array();
+            if ($this->options[self::OPT_RANGE_COUNT])
+            {
+                if ($facet->getEndValue())
+                {
+                    $facetAttrQuery[] = "GE_{$this->attributeId}=" . $attributeValue;
+                    $facetAttrQuery[] = "LE_{$this->attributeId}=" . $facet->getEndValue();
+                }
+                else
+                {
+                    $facetAttrQuery[] = "EQ_{$this->attributeId}=" . $attributeValue;
+                }
+            }
+            else
+            {
+                if ($this->isTaxonomyAttribute())
+                {
+                    $facetAttrQuery = array("EQ_{$this->attributeId}=" . java_values($facet->getPath()));
+                }
+                else
+                {
+                    $facetAttrQuery = array("EQ_{$this->attributeId}=" . $attributeValue);
+                }
+            }
+            $localFacetData['attributeQuery'] = join('|', $facetAttrQuery);
+
+            $this->facets[] = $localFacetData;
+        }
+        return $this->facets;
+    }
+
+    // cached for your pleasure
+    private $isTaxonomyAttribute = NULL;
+    private function isTaxonomyAttribute()
+    {
+        if (!is_null($this->isTaxonomyAttribute)) return $this->isTaxonomyAttribute;
+
+        $row = $this->dieselSearch->index()->getAttribute()->getRowByAttribute_id($this->attributeId);
+        if (!$row) throw( new Exception("Couldn't find attribute: {$this->attributeId}") );
+        $Attribute = new JavaClass('com.dieselpoint.search.Attribute');
+        $this->isTaxonomyAttribute = ($row->getDataType()->equals($Attribute->DATATYPE_TAXONOMY));
+
+        return $this->isTaxonomyAttribute;
+    }
+
+    private $generatedFacetData = NULL;
+    private function prepareFacets()
+    {
+        if ($this->generatedFacetData) return $this->generatedFacetData;
+
+        // load facet data
+        if ($this->isTaxonomyAttribute())
+        {
+            $facetGenerator = $this->dieselSearch->getGeneratorObject(true);
+            // determine "open branch"
+            $cVal = $this->options[self::OPT_TAXONOMY_PATH];
+            if ($cVal)
+            {
+                $openToBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal);
+            }
+            else if ($this->options[self::OPT_TAXONOMY_DEFAULT_PATH])
+            {
+                $openToBuf = new Java('com.dieselpoint.util.FastStringBuffer', $this->options[self::OPT_TAXONOMY_DEFAULT_PATH]);
+            }
+            else
+            {
+                $openToBuf = new Java('com.dieselpoint.util.FastStringBuffer', '');
+            }
+            $treeRootBuf = new Java('com.dieselpoint.util.FastStringBuffer', $cVal ? $cVal : "");
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
+            $facets = $facetGenerator->getTaxonomyTree($this->attributeId, $treeRootBuf, 3, $this->options[self::OPT_MAX_HITS]); // mouser facetgenerator (handles multiple depths)
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getTaxonomyTree(\"{$this->attributeId}\", \"{$openToBuf}\", \"{$treeRootBuf}\", {$this->maxHits}) for {$this->id}");
+            if (count($facets) == 1 and $facets[0]->getAttributeValue()->equals('')) // needed to extract facets from trees
+            {
+                $facets = $facets[0]->getChildren();
+            }
+            if (!$facets)
+            {
+                $facets = array();
+            }
+        }
+        else
+        {
+            $facetGenerator = $this->dieselSearch->getGeneratorObject();
+            if ($this->options[self::OPT_RANGE_COUNT])
+            {
+                $facetGenerator->setRangeCount($this->options[self::OPT_RANGE_COUNT]);
+            }
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->startTrackingTime();
+            $facets = $facetGenerator->getList($this->attributeId, $this->options[self::OPT_MAX_ROWS], $this->options[self::OPT_SORT_BY_FREQUENCY], $this->options[self::OPT_MAX_HITS]);
+            if ($this->dieselSearch->logPerformanceInfo()) $this->dieselSearch->stopTrackingTime("Generating facet with getList(\"{$this->attributeId}\", {$this->options[self::OPT_MAX_ROWS]}, " . ($this->options[self::OPT_SORT_BY_FREQUENCY] ? 'true' : 'false') . ", {$this->options[self::OPT_MAX_HITS]})");
+        }
+
+        $this->generatedFacetData = $facets;
+        return $this->generatedFacetData;
+    }
+}

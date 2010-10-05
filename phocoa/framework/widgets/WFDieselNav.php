@@ -13,9 +13,12 @@
  * 
  * This widget coordinates all WFDieselFacet widgets (which are its children). It provides the "cookie trail" of the search and the overall search form.
  *
- * IMPORTANT: Any module/page using a DieselNav needs to have as its last 4 parameters:
+ * IMPORTANT: Any module/page using a DieselNav needs to have as its last 2 parameters:
  *
- * 'dpQueryState', 'paginatorState', 'doPopup', 'treeViewPath'
+ * 'dpQueryState', 'paginatorState'
+ *
+ * The code presently assumes this "trailing" parameter order for constructing URLs to power ajax, links, etc.
+ * It's possible a future version could be smart enough to handle these params at arbitrary positions and zero them out as needed when constructing URLs.
  *
  * You can have additional parameters, at the beginning, used with setBaseParams().
  * 
@@ -135,7 +138,7 @@ class WFDieselNav extends WFWidget
                 $loading->setBody('<div style="padding: 10px; font-size: 20px; line-height: 25px;">Searching... please wait...</div><div class="phocoaWFDieselNav_Loading"></div>');
                 $loading->setWidth('400px');
                 $loading->setHeight('125px');
-                $loading->setFixedCenter(false);
+                $loading->setFixedCenter(true);
                 $loading->setClose(false);
                 $loading->setModal(true);
                 $loading->setDraggable(false);
@@ -146,7 +149,8 @@ class WFDieselNav extends WFWidget
 
             // set up popup container
             $popup = new WFYAHOO_widget_Panel("phocoaWFDieselNav_Popup_{$this->id}", $this->page);
-            $popup->setRenderTo("'{$this->id}'");
+            $popup->setRenderTo("'{$this->getForm()->id()}'");
+            $popup->setFixedCenter(true);
             $popup->setHeader('<div style="height: 10px"></div>');
             $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input " . ($this->showLoadingMessage ? 'onClick="cancelPopup(); showLoading();"' : NULL) . " type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
             $popup->setValueForKey('400px', 'width');
@@ -162,10 +166,13 @@ class WFDieselNav extends WFWidget
         PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').cfg.setProperty('context', ['{$this->id}', 'tl', 'tl']);
         PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').show();
         Element.update('phocoaWFDieselNav_PopupContent_{$this->id}', '<div style=\"padding: 10px; font-size: 20px; line-height: 25px;\">Loading... please wait...</div><div class=\"phocoaWFDieselNav_Loading\"></div>');
-        var url = '" . $this->baseURL() . "/' + dpQueryState + '//' + facetID + '|' + facetSelections.replace(/\//g, '%2F');
-        var pars = '';
-        var target = 'phocoaWFDieselNav_PopupContent_{$this->id}';
-        var myAjax = new Ajax.Updater(target, url, {method: 'get', parameters: pars, evalScripts: true});
+
+        // use the baseURL to *remove* the existing query state and use the passed-in one instead, which excludes the selection for facetID
+        var rpc = new PHOCOA.WFRPC('{$this->baseURL()}/' + dpQueryState, '#page#' + facetID, 'generatePopupHTML');
+        rpc.method = 'post';
+        rpc.callback.success = function() {};
+        rpc.callback.failure = function() { alert('Failed to load popup data.'); };
+        rpc.execute(encodeURIComponent(facetSelections), null);
     }
     function cancelPopup()
     {
@@ -270,7 +277,7 @@ class WFDieselNav extends WFWidget
             $renderedCount = 0;
             $moreChoicesListIDs = array();
             // render widgets
-            $html .= '<table border="0" cellpadding="5" cellspacing="0"><tr>';
+            $html .= '<ul class="phocoaWFDieselNav_FacetList">';
             // first do items in desired order
             foreach ($this->facetNavOrder as $id) {
                 if (isset($facetNavsByID[$id]))
@@ -288,7 +295,7 @@ class WFDieselNav extends WFWidget
                     $facetHTML = $facetNav->render();
                     if ($facetHTML)
                     {
-                        $html .= "\n<td>{$facetHTML}</td>";
+                        $html .= "\n<li class='phocoaWFDieselNav_Facet'>{$facetHTML}</li>";
                         $renderedCount++;
                     }
                     $renderedList[$id] = true;
@@ -313,18 +320,17 @@ class WFDieselNav extends WFWidget
                     $facetHTML = $facetNav->render();
                     if ($facetHTML)
                     {
-                        $html .= "\n<td>{$facetHTML}</td>";
+                        $html .= "\n<li class='phocoaWFDieselNav_Facet'>{$facetHTML}</li>";
                         $renderedCount++;
                     }
                     $renderedList[$id] = true;
                 }
             }
-            $html .= "\n</tr></table>\n";
 
             // 3. display "more choices" as needed
             if (count($moreChoicesListIDs))
             {
-                $html .= "<div class=\"phocoaWFDieselNav_MoreChoices\"><b>More Choices:</b>\n";
+                $html .= "<li class='phocoaWFDieselNav_MoreChoices'><b>More Choices:</b>\n";
                 $first = true;
                 foreach ($moreChoicesListIDs as $id => $nothing) {
                     // skip already rendered items
@@ -345,10 +351,10 @@ class WFDieselNav extends WFWidget
                     }
                     $first = false;
                 }
-                $html .= "\n</div>\n";
+                $html .= "\n</li>\n";
             }
             
-            $html .= "</div>";
+            $html .= "</ul></div>";
             return $html;
         }
     }

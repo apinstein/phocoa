@@ -6,7 +6,11 @@
  
 
 error_reporting(E_ALL);
-require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
+require_once getenv("PHOCOA_PROJECT_CONF");
+//require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
+
+// smarty does bad things if there is NO session info... fake it out.
+$_SESSION = array();
 
 class InvocationTest extends PHPUnit_Framework_TestCase
 {
@@ -91,6 +95,34 @@ class InvocationTest extends PHPUnit_Framework_TestCase
     function testInvocationAllPagesModuleInModule()
     {
         $this->executeAndAssert('test/invocationAllPages/moduleInModule', 'Module in module');
+    }
+
+    // parameterList options
+    function testParameterListSupportsDefaultValues()
+    {
+        $result = WFModuleInvocation::quickModule('test/invocation/default_parameter_values');
+        $parsedParams = eval("return {$result};");
+
+        $this->assertEquals(array('parameter1' => NULL, 'parameter2' => 'parameter2DefaultValue', 'parameter3' => 'parameter3DefaultValue'), $parsedParams);
+    }
+
+    function testParameterListDefaultValuesOverwrittenByPathInfoValues()
+    {
+        $result = WFModuleInvocation::quickModule('test/invocation/default_parameter_values//foo');
+        $parsedParams = eval("return {$result};");
+
+        $this->assertEquals(array('parameter1' => NULL, 'parameter2' => 'foo', 'parameter3' => 'parameter3DefaultValue'), $parsedParams);
+    }
+
+    function testParameterListGreedyModeWorks()
+    {
+        $result = WFModuleInvocation::quickModule('test/invocation/greedy');
+        $parsedParams = eval("return {$result};");
+        $this->assertEquals(array('parameter1' => 'parameter1DefaultValue'), $parsedParams);
+
+        $result = WFModuleInvocation::quickModule('test/invocation/greedy/1/2/3/4/5');
+        $parsedParams = eval("return {$result};");
+        $this->assertEquals(array('parameter1' => '1/2/3/4/5'), $parsedParams);
     }
 
 #   // REST + HTML

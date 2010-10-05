@@ -221,8 +221,9 @@ PHOCOA.WFRPC = function(url, target, action) {
     this.method = 'get';
     // yui-style callback
     this.callback = {
-            success: null,
-            failure: null,
+            success: null,      // http 2xx, no WFErrorsException
+            invalid: null,      // http 2xx, but WFErrorsException
+            failure: null,      // http 4xx, 5xx
             scope: null,
             argument: null
         };
@@ -235,19 +236,34 @@ PHOCOA.WFRPC = function(url, target, action) {
 
 PHOCOA.WFRPC.prototype = {
     successCallbackWrapper: function(o) {
+        // success is HTTP success; could indicate either PHOCOA success, or PHOCOA validation err
+        var isValidationError = false;
         o.argument = this.callback.argument;
-        if (o.getResponseHeader('Content-Type').strip() === 'application/x-json-phocoa-ui-updates')
+        switch (o.getResponseHeader('Content-Type').strip()) {
+            case 'application/x-json-phocoa-wferrorsexception':
+                isValidationError = true;
+            case 'application/x-json-phocoa-ui-updates':
+                try {
+                    this.doPhocoaUIUpdatesJSON(eval('(' + o.responseText + ')'));
+                } catch (e) {
+                    alert('WFRPC doPhocoaUIUpdatesJSON() failed: ' + e + ' processing: ' + o.responseText);
+                    return; // don't call success function
+                }
+                break;
+        }
+        if (isValidationError)
         {
-            try {
-                this.doPhocoaUIUpdatesJSON(eval('(' + o.responseText + ')'));
-            } catch (e) {
-                alert('WFRPC doPhocoaUIUpdatesJSON() failed: ' + e + ' processing: ' + o.responseText);
-                return; // don't call success function
+            if (typeof this.callback.invalid === 'function')
+            {
+                this.callback.invalid.call(this.callback.scope, o);
             }
         }
-        if (typeof this.callback.success === 'function')
+        else
         {
-            this.callback.success.call(this.callback.scope, o);
+            if (typeof this.callback.success === 'function')
+            {
+                this.callback.success.call(this.callback.scope, o);
+            }
         }
     },
 
@@ -438,13 +454,13 @@ PHOCOA.namespace('WFAction');
 PHOCOA.WFAction = function(elId, eventName) {
     this.elId = elId;
     this.eventName = eventName;
-    this.callback = PHOCOA.widgets[this.elId].events[this.eventName].handleEvent;
+    this.callback = null;
     this.rpc = null;
     this.stopsEvent = true;
     // if on windows and el is a checkbox and eventName is change, should mod to click
     var el = $(this.elId);
-    var elType = el.type.toLowerCase();
     var eventToObserve = this.eventName;
+    var elType = (typeof el.type !== 'undefined' ? el.type.toLowerCase() : null);
     if (Prototype.Browser.IE && this.eventName === 'change' && (elType === 'checkbox' || elType === 'radio'))
     {
         eventToObserve = 'click';
@@ -480,6 +496,10 @@ PHOCOA.WFAction.prototype = {
         // is the callback an RPC or just a js function?
         if (this.rpc)
         {
+            if (typeof this.callback !== 'function' && typeof PHOCOA.widgets[this.elId].events[this.eventName].handleEvent === 'function')
+            {
+                this.callback = PHOCOA.widgets[this.elId].events[this.eventName].handleEvent;
+            }
             // call the handleEvent function first, so that the client can do any cleanup or prep work (such as hiding divs)
             if (this.callback)
             {
@@ -497,7 +517,9 @@ PHOCOA.WFAction.prototype = {
             // the callback is called after the RPC completes
             // @todo The RPC callback should be our wrapper that parses out the result based on mime type and passes stuff on to ajaxSuccess
             this.rpc.callback.argument = jsCallbackArgs;
-            this.rpc.callback.success = this.rpcCallbackSuccess;
+            this.rpc.callback.success = this.rpcCallbackRouter.curry('ajaxSuccess');
+            this.rpc.callback.invalid = this.rpcCallbackRouter.curry('ajaxInvalid');
+            this.rpc.callback.failure = this.rpcCallbackRouter.curry('ajaxError');
             this.rpc.callback.scope = this;
             
             this.rpc.execute.apply(this.rpc, args);
@@ -521,8 +543,16 @@ PHOCOA.WFAction.prototype = {
         }
     },
 
-    // should the response parsing be in WFAction or WFRPC?
-    rpcCallbackSuccess: function(o) {
+    // Calls the specified callback function with the standard WFAction callback prototype: JsFunc(parsedResult, event, [$arg1, $arg2, ..])
+    rpcCallbackRouter: function(callbackName, o) {
+        var callbackF = null;
+        if (typeof PHOCOA.widgets[this.elId].events[this.eventName][callbackName] === 'function')
+        {
+            callbackF = PHOCOA.widgets[this.elId].events[this.eventName][callbackName];
+        }
+        if (!callbackF) return;
+
+        // process response
         var theResponse;
         // the callback for ajaxSucces in JS is of the prototype: JsFunc(parsedResult, event, [$arg1, $arg2, ..])
         // where parseResult is the text from a text/plain reponse, xml from a text/xml response, and a JS Object from a JSON response.
@@ -541,13 +571,9 @@ PHOCOA.WFAction.prototype = {
                 theResponse = o.responseText;
                 break;
         }
-        // call the right callback, if one is supplied
-        if (PHOCOA.widgets[this.elId].events[this.eventName].ajaxSuccess)
-        {
-            // use the argument data from the callback instead of the response object (works for both YUI response and Prototype response)
-            var cbArgs = this.rpc.callback.argument.slice(0);   // make a copy
-            cbArgs.splice(0, 0, theResponse);
-            PHOCOA.widgets[this.elId].events[this.eventName].ajaxSuccess.apply(null, cbArgs);
-        }
+        // use the argument data from the callback instead of the response object (works for both YUI response and Prototype response)
+        var cbArgs = this.rpc.callback.argument.slice(0);   // make a copy
+        cbArgs.splice(0, 0, theResponse);
+        callbackF.apply(null, cbArgs);;
     }
 };
