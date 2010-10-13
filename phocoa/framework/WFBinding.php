@@ -442,6 +442,13 @@ class WFBinding extends WFObject
         return $coalescedOptions[$name];
     }
 
+    function hasCoalescedOption($name)
+    {
+        $coalescedOptions = $this->coalescedOptions();
+        if (isset($coalescedOptions[$name])) return true;
+        return false;
+    }
+
     function option($name)
     {
         if (!isset($this->options[$name])) return NULL;
