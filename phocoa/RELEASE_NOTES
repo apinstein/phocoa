@@ -14,6 +14,7 @@ Version 0.3.9 - ??
         Form array('param1' => 'myDefaultValue', 'param2') allows you to optionally specify default values.
         Form array('param1' => array('defaultValue' => 'myDefaultValue', 'greedy' => true) allows you to specify other options, like greedy.
         Greedy is ignored on all but the LAST parameter, and has the effect of including the rest of the /-separated PATH_INFO in the last parameter.
+- [bugfix] WFPageDelegate.willPushBindings() is no longer called if pushBindings() doesn't run. Previously the willPushBindings() delegate method would run even on an initial page load.
 
 Version 0.3.8 - 9/15/2010
 - [new] add WFWebApplicationDelegate::rerouteInvocationPath() function to allow routing customizations.

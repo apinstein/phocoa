@@ -1607,6 +1607,8 @@ class WFPage extends WFObject
 
     function willPushBindings()
     {
+        if (!$this->hasSubmittedForm()) return; // pushBindings() doesn't run if no form submitted as nothing could have changed, thus we should skip the delegate call as well
+
         if ($this->delegate)
         {
             if (method_exists($this->delegate, 'willPushBindings'))
