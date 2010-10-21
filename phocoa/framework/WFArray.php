@@ -58,6 +58,35 @@ class WFArray extends ArrayObject
     /**
      * A convenience function to create a WFArray of WFArrays keyed by the valueForKeyPath of each object.
      *
+     * Whereas hash assumes that the hash key produces UNIQUE results, chunk assumes that the hash key produces mutliple results.
+     *
+     * Example:
+     * [
+     *  {
+     *    id: 1,
+     *    category: foo
+     *  },
+     *  {
+     *    id: 2,
+     *    category: foo
+     *  },
+     *  {
+     *    id: 3,
+     *    category: bar
+     *  },
+     *  {
+     *    id: 4,
+     *    category: bar
+     *  }
+     * ]
+     *
+     * WFArray::arrayWithArray($example)->chunk('category')
+     *
+     * {
+     *   foo: [obj1, obj2],
+     *   bar: [obj3, obj4]
+     * }
+     *
      * @param string The key to use on each array entry to generate the hash key for the entry.
      * @return array An associative array of the contained values hashed according to the parameters provided. All items whose valueForKeyPath match will be included in the chunk.
      */
@@ -66,7 +95,12 @@ class WFArray extends ArrayObject
         $chunked = new WFArray();
         foreach ($this as $entry)
         {
-            $chunked[$entry->valueForKeyPath($hashKey)][] = $entry;
+            $key = $entry->valueForKeyPath($hashKey);
+            if (!isset($chunked[$key]))
+            {
+                $chunked[$key] = new WFArray();
+            }
+            $chunked[$key][] = $entry;
         }
 
         return $chunked;

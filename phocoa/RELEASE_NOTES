@@ -19,6 +19,7 @@ Version 0.3.9 - 10/21/2010
 - [new] Add WFSpamHoneypot widget prevent form spam.
 - [bugfix] WFPageDelegate.willPushBindings() is no longer called if pushBindings() doesn't run. Previously the willPushBindings() delegate method would run even on an initial page load.
 - [bugfix] Fix for WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE which was accidentally causing a logic error even on widgets that did not use the feature. This caused bindings not to be pushed if the value was NULL. This broke many radio buttons, checkboxes, and dropdowns.
+- [new] Add optional error code injection into WFKeyValueValidators::validateUrl()
 
 Version 0.3.8 - 9/15/2010
 - [new] add WFWebApplicationDelegate::rerouteInvocationPath() function to allow routing customizations.

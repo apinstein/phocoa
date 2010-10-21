@@ -98,8 +98,10 @@ class WFKeyValueValidators extends WFObject
     public static function validateUrl(&$value, &$edited, &$errors, $options = array())
     {
         $options = array_merge(array(
-                                    'required' => true,
-                                    'key' => 'URL',
+                                    'required'          => true,
+                                    'key'               => 'URL',
+                                    'requiredErrorCode' => NULL,
+                                    'invalidErrorCode'  => NULL
                                     ), $options);
         
         // normalize
@@ -117,7 +119,7 @@ class WFKeyValueValidators extends WFObject
         {
             if ($options['required'])
             {
-                $errors[] = new WFError("{$options['key']} is required.");
+                $errors[] = new WFError("{$options['key']} is required.", $options['requiredErrorCode']);
                 return false;
             }
             else
@@ -136,7 +138,7 @@ class WFKeyValueValidators extends WFObject
             $okFilter = filter_var($value, FILTER_VALIDATE_URL);
             if (!$okFilter)
             {
-                $errors[] = new WFError("{$options['key']} is not valid.");
+                $errors[] = new WFError("{$options['key']} is not valid.", $options['invalidErrorCode']);
             }
         }
         else
