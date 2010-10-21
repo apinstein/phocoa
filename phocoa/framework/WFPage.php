@@ -1007,6 +1007,8 @@ class WFPage extends WFObject
                     WFLog::log("restoring state for widget id '$widgetID'", WFLog::TRACE_LOG);
                     $widget->restoreState();
                 }
+            } catch (WFRequestController_HTTPException $e) {
+                throw $e;
             } catch (Exception $e) {
                 WFLog::log("Error restoring state for widget '$widgetID'.", WFLog::TRACE_LOG);
             }

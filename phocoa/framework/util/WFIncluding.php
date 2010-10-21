@@ -123,6 +123,7 @@ class WFIncluding
                 'WFJumpSelect' => 'framework/widgets/WFJumpSelect.php',
                 'WFTimeSelect' => 'framework/widgets/WFTimeSelect.php',
                 'WFHidden' => 'framework/widgets/WFHidden.php',
+                'WFSpamHoneypot' => 'framework/widgets/WFSpamHoneypot.php',
                 'WFCheckbox' => 'framework/widgets/WFCheckbox.php',
                 'WFCheckboxGroup' => 'framework/widgets/WFCheckboxGroup.php',
                 'WFRadio' => 'framework/widgets/WFRadio.php',

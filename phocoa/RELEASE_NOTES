@@ -6,7 +6,9 @@ Legend:
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
 
-Version 0.3.9 - ??
+Version 0.4.0 - ??
+
+Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
 - [new] Add PhocoaControllerTestCase_PHPUnit as a PHPUnit TestCase subclass for testing controllers.
 - [bugfix] Fix bug in WFImage that caused WFAction's to not be placed in <script> tags.
@@ -14,6 +16,7 @@ Version 0.3.9 - ??
         Form array('param1' => 'myDefaultValue', 'param2') allows you to optionally specify default values.
         Form array('param1' => array('defaultValue' => 'myDefaultValue', 'greedy' => true) allows you to specify other options, like greedy.
         Greedy is ignored on all but the LAST parameter, and has the effect of including the rest of the /-separated PATH_INFO in the last parameter.
+- [new] Add WFSpamHoneypot widget prevent form spam.
 - [bugfix] WFPageDelegate.willPushBindings() is no longer called if pushBindings() doesn't run. Previously the willPushBindings() delegate method would run even on an initial page load.
 - [bugfix] Fix for WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE which was accidentally causing a logic error even on widgets that did not use the feature. This caused bindings not to be pushed if the value was NULL. This broke many radio buttons, checkboxes, and dropdowns.
 
