@@ -29,7 +29,7 @@
  * USING WFDieselSearch
  *
  * Setup:
- * 1. In your webapp.conf, you should configure DIESELPOINT_JAR_FILES to include paths to all of the DP jars that you need, typically diesel-3.5.1.jar and javax.servlet.jar and mfg.jar (a special FacetGenerator that can generate child counts for children so we know if it's a leaf node or not).
+ * 1. In your webapp.conf, you should configure DIESELPOINT to point to the install dir of the dieselpoint app.
  * 2. Instantiate a WFDieselSearch object in your module. The only required properties are {@link setIndex() index} and {@link resultObjectLoaderCallback()}.
  *
  * WFDieselSearch provides a WFPagedData interface as well, for pagination. WFDieselSearch is meant to be used only as the ID lookup for objects; the loading of the 
@@ -275,8 +275,14 @@ class WFDieselSearch extends WFObject implements WFPagedData
     function setIndex($index)
     {
         try {
-            if (!defined('DIESELPOINT_JAR_FILES')) throw( new Exception("DIESELPOINT_JAR_FILES must be defined, usually in your webapp.conf file.") );
-            java_require(DIESELPOINT_JAR_FILES);
+            if (!defined('DIESELPOINT')) throw( new Exception("DIESELPOINT must be defined, usually in your webapp.conf file.") );
+            java_require(join(';', glob(DIESELPOINT . '/lib/*.jar')));
+            $javaSystem = new JavaClass('java.lang.System');
+            if (!$javaSystem->getProperty("app.home"))
+            {
+                // setProperty doesn't seem to be idempotent, hard-crashes if we call it twice.
+                $javaSystem->setProperty("app.home", DIESELPOINT);
+            }
             if (is_string($index))
             {
                 $Index = new JavaClass("com.dieselpoint.search.Index");
