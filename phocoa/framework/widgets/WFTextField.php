@@ -70,19 +70,20 @@ class WFTextField extends WFWidget
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->class ? ' class="' . $this->class . '"' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
-            ($this->nullPlaceholder ? ' placeholder="' . $this->nullPlaceholder . '" ' : NULL) .
+            ($this->nullPlaceholder ? ' placeholder="' . htmlspecialchars($this->nullPlaceholder) . '" ' : NULL) .
             $this->getJSActions() . 
             '/>
             <script>'
             . $this->getListenerJS();
         if ($this->nullPlaceholder)
         {
+            $escapedNullPlaceholder = json_encode($this->nullPlaceholder);
             $html .= '
             PHOCOA.namespace("widgets.' . $this->id . '");
             PHOCOA.widgets.' . $this->id . '.hasFocus = false;
             PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
                 PHOCOA.widgets.' . $this->id . '.hasFocus = true;
-                if ($F(\'' . $this->id . '\') === \'' . $this->nullPlaceholder . '\')
+                if ($F(\'' . $this->id . '\') === ' . $escapedNullPlaceholder . ')
                 {
                     $(\'' . $this->id . '\').value = "";
                 }
@@ -97,7 +98,7 @@ class WFTextField extends WFWidget
                 {
                     if ($F(\'' . $this->id . '\') === \'\')
                     {
-                        $(\'' . $this->id . '\').value = \'' . $this->nullPlaceholder . '\';
+                        $(\'' . $this->id . '\').value = ' . $escapedNullPlaceholder . ';
                         $(\'' . $this->id . '\').addClassName("phocoaWFSearchField_PlaceholderText");
                     }
                 }
