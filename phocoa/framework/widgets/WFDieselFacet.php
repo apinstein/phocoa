@@ -745,7 +745,7 @@ END;
     {
         if (!is_null($this->isTaxonomyAttribute)) return $this->isTaxonomyAttribute;
 
-        $row = $this->dieselSearchHelper->dieselSearch()->index()->getAttribute()->getRowByAttribute_id($this->attributeID);
+        $row = $this->dieselSearchHelper->dieselSearch()->index()->getAttribute()->getRowByAttributeId($this->attributeID);
         if (!$row) throw( new Exception("Couldn't find attribute: {$this->attributeID}") );
         $Attribute = new JavaClass('com.dieselpoint.search.Attribute');
         $this->isTaxonomyAttribute = ($row->getDataType()->equals($Attribute->DATATYPE_TAXONOMY));

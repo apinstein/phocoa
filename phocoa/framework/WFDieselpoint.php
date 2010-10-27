@@ -277,6 +277,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
         try {
             if (!defined('DIESELPOINT')) throw( new Exception("DIESELPOINT must be defined, usually in your webapp.conf file.") );
             java_require(join(';', glob(DIESELPOINT . '/lib/*.jar')));
+            java_require(APP_ROOT . '/classes/dieselpoint/mfg.jar');
             $javaSystem = new JavaClass('java.lang.System');
             if (!$javaSystem->getProperty("app.home"))
             {
@@ -322,7 +323,9 @@ class WFDieselSearch extends WFObject implements WFPagedData
     {
         if (!$this->hasRunQuery()) throw( new WFException("Search has not been executed yet.") );
         try {
-            return java_values($this->searcher->getQueryDescription(true, '', ''));
+            return "needs dp 4.1 update";
+            $bc = new Java('com.dieselpoint.uiobjects.BreadCrumbs', $this->searcher->getSearchRequest());
+            return java_values($bc->getOutput());
         } catch (JavaException $e) {
             $this->handleJavaException($e);
         }
@@ -544,7 +547,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
     function itemsIDsOnPage()
     {
         if (!$this->hasRunQuery()) throw( new WFException("Search has already been executed. You cannot run a search more than once.") );
-        return $this->searcher->getItem_ids();
+        return $this->searcher->getItemIds();
     }
 
     /**
@@ -633,9 +636,9 @@ class WFDieselSearch extends WFObject implements WFPagedData
             $rs = $this->searcher->getResultSet();
             if (!$rs) throw( new Exception("Invalid ResultSet returned.") );
             while ($rs->next()) {
-                $itemID = java_values($rs->getItem_id());   // use java_values() to force conversion from java bridge string object to native PHP type. ALSO, getItem_id returns non-highlighted itemID.
+                $itemID = java_values($rs->getItemId());   // use java_values() to force conversion from java bridge string object to native PHP type. ALSO, getItemId returns non-highlighted itemID.
                 $allIDs[] = $itemID;
-                $hit = new WFDieselHit($itemID, java_values($rs->getRelevanceScore()));
+                $hit = new WFDieselHit($itemID, 0);//java_values($rs->getRelevanceScore()));
                 // load custom data
                 for ($i = 1; $i < count($this->loadTheseColumnsFromIndex); $i++) {
                     $hit->addData($this->loadTheseColumnsFromIndex[$i], java_values($rs->getString($i + 1)));
@@ -1859,7 +1862,7 @@ class WFDieselSearch_FacetedAttribute extends WFObject
     {
         if (!is_null($this->isTaxonomyAttribute)) return $this->isTaxonomyAttribute;
 
-        $row = $this->dieselSearch->index()->getAttribute()->getRowByAttribute_id($this->attributeId);
+        $row = $this->dieselSearch->index()->getAttribute()->getRowByAttributeId($this->attributeId);
         if (!$row) throw( new Exception("Couldn't find attribute: {$this->attributeId}") );
         $Attribute = new JavaClass('com.dieselpoint.search.Attribute');
         $this->isTaxonomyAttribute = ($row->getDataType()->equals($Attribute->DATATYPE_TAXONOMY));
