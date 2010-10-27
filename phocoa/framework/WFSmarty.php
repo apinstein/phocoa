@@ -51,6 +51,11 @@ class WFSmarty extends Smarty implements WFPageRendering
         parent::assign($name, $value);
     }
 
+    function get($name)
+    {
+        return $this->get_template_vars($name);
+    }
+
     function render($display = true)
     {
         if (!file_exists($this->template)) throw( new WFRequestController_NotFoundException("Template file '{$this->template}' could not be read.") );

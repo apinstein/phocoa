@@ -25,6 +25,12 @@ class WFArrayTest extends PHPUnit_Framework_TestCase
             new Person('joe', 'schmoe', 2),
             new Person('john', 'doe', 3),
         ));
+        $this->array['chunkData'] = new WFArray(array(
+            new Person('alan', 'pinstein', 1),
+            new Person('alan', 'schmoe',   2),
+            new Person('joe',  'schmoe',   3),
+            new Person('john', 'doe',      4),
+        ));
     }
 
     public function testHashObjects()
@@ -39,6 +45,27 @@ class WFArrayTest extends PHPUnit_Framework_TestCase
         $hash = $this->array['hashData']->hash(NULL);
         $this->assertEquals(array(0,1,2), array_keys($hash), "Hash keys didn't match.");
         $this->assertEquals($this->array['hashData']->values(), array_values($hash), "Hash values didn't match.");
+    }
+
+    public function testChunkObjects()
+    {
+        $chunked = $this->array['chunkData']->chunk('firstName');
+        $this->assertEquals(
+            new WFArray(array(
+                'alan' => array(
+                    $this->array['chunkData'][0],
+                    $this->array['chunkData'][1]
+                ),
+                'joe'  => array(
+                    $this->array['chunkData'][2]
+                ),
+                'john' => array(
+                    $this->array['chunkData'][3]
+                )
+            )),
+            $chunked,
+            "Chunked data didn't match"
+        );
     }
 
     public function testMap()

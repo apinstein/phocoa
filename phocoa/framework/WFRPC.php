@@ -452,6 +452,8 @@ class WFEvent extends WFObject
                 return new WFFocusEvent($action);
             case 'blur':
                 return new WFBlurEvent($action);
+            case 'keyup':
+                return new WFKeyupEvent($action);
             default:
                 throw( new WFException("Unknown event: " . $event) );
         }
@@ -555,6 +557,17 @@ class WFBlurEvent extends WFEvent
     {
         parent::__construct($action);
         $this->name = 'blur';
+    }
+}
+/**
+ * Maps to the DOM "keyup" event.
+ */
+class WFKeyupEvent extends WFEvent
+{
+    public function __construct($action = NULL)
+    {
+        parent::__construct($action);
+        $this->name = 'keyup';
     }
 }
 

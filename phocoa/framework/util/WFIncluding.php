@@ -123,6 +123,7 @@ class WFIncluding
                 'WFJumpSelect' => 'framework/widgets/WFJumpSelect.php',
                 'WFTimeSelect' => 'framework/widgets/WFTimeSelect.php',
                 'WFHidden' => 'framework/widgets/WFHidden.php',
+                'WFSpamHoneypot' => 'framework/widgets/WFSpamHoneypot.php',
                 'WFCheckbox' => 'framework/widgets/WFCheckbox.php',
                 'WFCheckboxGroup' => 'framework/widgets/WFCheckboxGroup.php',
                 'WFRadio' => 'framework/widgets/WFRadio.php',
@@ -185,6 +186,9 @@ class WFIncluding
                 'WFPagedPropelQuery' => 'framework/WFPagination.php',
                 'WFModelBuilderPropel' => 'framework/generator/WFGeneratorPropel12_13.php',
                 'WFModelBuilderPropel15' => 'framework/generator/WFGeneratorPropel15.php',
+
+                // PHPUnit
+                'PhocoaControllerTestCase_PHPUnit' => 'phpunit/PhocoaControllerTestCase_PHPUnit.php',
             );
         }
 

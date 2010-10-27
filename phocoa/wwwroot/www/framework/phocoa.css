@@ -121,3 +121,13 @@ div.phocoaWFDieselNav_Loading {
     position: relative;
     left: -10px;
 }
+
+/* WFSpamHoneypot */
+input[type=text].phocoaWFSpamHoneypot_input {
+    width: 2px;
+    height: 2px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    visibility: hidden;
+}

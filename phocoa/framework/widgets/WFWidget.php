@@ -751,7 +751,7 @@ abstract class WFWidget extends WFView
         if (is_null($binding)) return $value;
 
         // check OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE
-        if ($binding->coalescedOption(WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE) === $value)
+        if ($binding->hasCoalescedOption(WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE) and $binding->coalescedOption(WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE) === $value)
         {
             WFLog::log("propagateValueToBinding() skipping push for {$bindingName} since value matched OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE for for widget id '{$this->id}'", WFLog::TRACE_LOG);
             return $value;

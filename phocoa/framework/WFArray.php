@@ -23,7 +23,7 @@ class WFArray extends ArrayObject
      * @param string The key to use on each array entry to generate the hash key for the entry. NULL used sequential numerical indices rather than a hash key.
      * @param mixed
      *          NULL    => the entry for each key will be the entire entry in the array
-     *          string  => the entry for each key will be the valueForKey() of the passed key
+     *          string  => the entry for each key will be the valueForKeyPath() of the passed key path
      *          array   => the entry for each key will be an associative array, the result of passing the argument to valuesForKeyPaths()
      * @return array An associative array of the contained values hashed according to the parameters provided.
      */
@@ -37,7 +37,7 @@ class WFArray extends ArrayObject
             }
             else if (is_string($keyPath))
             {
-                $hashInfo = $entry->valueForKey($keyPath);
+                $hashInfo = $entry->valueForKeyPath($keyPath);
             }
             else if (is_array($keyPath))
             {
@@ -53,6 +53,57 @@ class WFArray extends ArrayObject
             }
         }
         return $hash;
+    }
+
+    /**
+     * A convenience function to create a WFArray of WFArrays keyed by the valueForKeyPath of each object.
+     *
+     * Whereas hash assumes that the hash key produces UNIQUE results, chunk assumes that the hash key produces mutliple results.
+     *
+     * Example:
+     * [
+     *  {
+     *    id: 1,
+     *    category: foo
+     *  },
+     *  {
+     *    id: 2,
+     *    category: foo
+     *  },
+     *  {
+     *    id: 3,
+     *    category: bar
+     *  },
+     *  {
+     *    id: 4,
+     *    category: bar
+     *  }
+     * ]
+     *
+     * WFArray::arrayWithArray($example)->chunk('category')
+     *
+     * {
+     *   foo: [obj1, obj2],
+     *   bar: [obj3, obj4]
+     * }
+     *
+     * @param string The key to use on each array entry to generate the hash key for the entry.
+     * @return array An associative array of the contained values hashed according to the parameters provided. All items whose valueForKeyPath match will be included in the chunk.
+     */
+    public function chunk($hashKey)
+    {
+        $chunked = new WFArray();
+        foreach ($this as $entry)
+        {
+            $key = $entry->valueForKeyPath($hashKey);
+            if (!isset($chunked[$key]))
+            {
+                $chunked[$key] = new WFArray();
+            }
+            $chunked[$key][] = $entry;
+        }
+
+        return $chunked;
     }
 
     /**
