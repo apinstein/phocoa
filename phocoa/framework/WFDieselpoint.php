@@ -1,6 +1,207 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
 
+class WFDieselSearch41 implements WFFacetedSearchService
+{
+    // dp instances
+    protected $dpSearchRequest;
+
+    // local setup
+    protected $facets;
+    protected $searchResults;
+    protected $loadIndexDataForColumns;
+    protected $indexes;
+
+    /**
+     * Instantiate a Dieselpoint Search Service (WFFacetedSearchService).
+     *
+     * @param string The path to the install location of dieselpoint
+     * @param mixed The index name, or an array of index names.
+     * @param array Options. NOTHING TO SEE HERE YET.
+     * @throws
+     */
+    public function __construct($dpLocation, $index, $options = array())
+    {
+        // normalize arguments
+        if (!is_array($index))
+        {
+            $index = array($index);
+        }
+        $this->indexes = $index;
+
+        // bootstrap dieselpoint
+        java_require(join(';', glob("{$dpLocation}/lib/*.jar")));
+        $javaSystem = new JavaClass('java.lang.System');
+        if (!$javaSystem->getProperty("app.home"))
+        {
+            // setProperty doesn't seem to be idempotent, hard-crashes if we call it twice.
+            $javaSystem->setProperty("app.home", $dpLocation);
+        }
+
+        // initialize instance vars
+        $this->dpSearchRequest = new Java('com.dieselpoint.search.server.SearchRequest');
+        $this->dpSearchRequest->setIndexNames($this->indexes);
+        $this->loadIndexDataForColumns = array();
+        $this->facets = array();
+    }
+
+    function setQuery($query)
+    {
+        $this->dpSearchRequest->setQueryString($query);
+        return $this;
+    }
+
+    function setLimit($limit)
+    {
+        $this->dpSearchRequest->setNumberOfItemsRequested($limit);
+    }
+
+    function setOffset($offset)
+    {
+        $this->dpSearchRequest->setStartingItem($offset);
+    }
+
+    function setSortBy($sortBy, $ascending = true)
+    {
+        $this->dpSearchRequest->setSort($sortBy);
+    }
+
+    function addFacetToGenerate(WFFacetedSearchFacet $facet)
+    {
+        $this->facets[] = $facet;
+    }
+
+    function setSelectDataFromSearchIndexForAttributes($attributes)
+    {
+        $this->loadIndexDataForColumns = $attributes;
+    }
+
+    protected $comparatorMap = array(
+        WFFacetedSearchNavigationQuery::COMP_EQ => '=',
+        WFFacetedSearchNavigationQuery::COMP_LT => '<',
+        WFFacetedSearchNavigationQuery::COMP_LE => '<=',
+        WFFacetedSearchNavigationQuery::COMP_GT => '>',
+        WFFacetedSearchNavigationQuery::COMP_GE => '>=',
+        WFFacetedSearchNavigationQuery::COMP_NE => 'NOT'
+    );
+    function convertNavigationQueryToNativeQuery($navQ)
+    {
+        if (!isset($this->comparatorMap[$navQ->comparator()])) throw new Exception("unsupported comparator {$navQ->comparator()}.");
+        $comparator = $this->comparatorMap[$navQ->comparator()];
+        return "[{$navQ->attribute()}] {$comparator} {$navQ->value()}";
+    }
+
+    protected $joinOperatorMap = array(
+            WFFacetedSearch::QUERY_OP_AND => 'AND',
+            WFFacetedSearch::QUERY_OP_OR  => 'OR',
+            WFFacetedSearch::QUERY_OP_NOT => 'NOT',
+    );
+    function joinNativeQueries($queries, $joinOperator)
+    {
+        if (!isset($this->joinOperatorMap[$joinOperator])) throw new Exception("unsupported comparator {$joinOperator}.");
+        $operator = $this->joinOperatorMap[$joinOperator];
+        return "(" . join(" {$operator} ", $queries) . ")";
+    }
+    function query() { return $this->dpSearchRequest->getQueryString(); }
+    function queryDescription() { return  "NOT YET IMPLEMENTED"; }
+
+    function find()
+    {
+        if ($this->searchResults) return $this->searchResults;
+
+        try {
+            // convert WFFacetedSearchFacet into DP objects
+            $facetMap = array();
+            foreach ($this->facets as $facet) {
+                $dpFacet = new Java('com.dieselpoint.facet.BaseFacet', $facet->attributeId());
+
+                $dpFacet->setIncludeZeroes($facet->includeZeroes());
+                $dpFacet->setIsTaxonomyAttr($facet->isTaxonomy());
+                $dpFacet->setMaxRows($facet->maxRows());
+
+                $this->dpSearchRequest->addFacet($dpFacet);
+
+                $facetMap[] = array('dpFacet' => $dpFacet, 'facet' => $facet);
+            }
+
+            // bootstrap server
+            $ssClass = new JavaClass('com.dieselpoint.search.server.SearchServer');
+            $ssServer = $ssClass->getServer();
+
+            // execute search
+            $dpSearchResults = $ssServer->getResults($this->dpSearchRequest);
+            $dpResultSet = $dpSearchResults->getResultSet();
+
+            // collect results
+            $resultRows = array();
+            while ($dpResultSet->next()) {
+                $row = $dpResultSet->getItemResult();
+
+                // load data from index
+                $rowIndexData = array();
+                foreach ($this->loadIndexDataForColumns as $c) {
+                    $rowIndexData[$c] = (string) $dpResultSet->getString($c);
+                }
+
+                // create WFFacetedSearchResultHit instance
+                $resultRows[] = new WFFacetedSearchResultHit((string) $row->getItemId(), (string) $row->getScore(), $rowIndexData);
+            }
+
+            $this->searchResults = new WFFacetedSearchResultSet($resultRows, $dpSearchResults->getTotalItems(), $dpSearchResults->getSearchTime());
+
+            // populate facet results
+            foreach ($facetMap as $f) {
+                $dpFacet = $f['dpFacet'];
+                $facetDef = $f['facet'];
+
+                $data = array();
+                foreach ($dpFacet->getFacetValues() as $fv) {
+                    $data[] = new WFFacetedSearchFacetValue($fv->getValue(), $fv->getItemCount(), $fv->getSecondValue()); // no children support yet...
+                }
+                $facetResultSet = new WFFacetedSearchFacetResultSet($data, $dpFacet->hasMore());
+
+                $facetDef->setResultSet($facetResultSet);
+            }
+        } catch (JavaException $e) {
+            $this->handleJavaException($e);
+        }
+
+        return $this->searchResults;
+    }
+
+    function resultSet()
+    {
+        return $this->searchResults;
+    }
+
+    function totalItems()
+    {
+        $itemCount = 0;
+        $dpIndexClass = new JavaClass('com.dieselpoint.search.Index');
+        foreach ($this->indexes as $index) {
+            $itemCount += $dpIndexClass->getInstance($index)->getItemCount();
+        }
+        return $itemCount;
+    }
+
+    /**
+     *  Convert a JavaException (from the bridge) into a human-readable PHP Exception.
+     *
+     *  Basically this just copies the stack trace of the java exception into the Exception's message and throws a normal Exception.
+     *
+     *  @param object JavaException The exception from the bridge.
+     *  @throws object Exception The PHP Exception with the java stack trace.
+     */
+    private function handleJavaException(JavaException $e)
+    {
+        $trace = new java("java.io.ByteArrayOutputStream");
+        $e->printStackTrace(new java("java.io.PrintStream", $trace));
+        throw( new Exception("java exception {$e->getMessage()}, stack trace:<pre> $trace </pre>\n") );
+    }
+}
+
+/************************ EVERYTHING BELOW IS DEPRECEATED ************************/
+
 /**
  * Dieselpoint helper object.
  *
@@ -277,7 +478,6 @@ class WFDieselSearch extends WFObject implements WFPagedData
         try {
             if (!defined('DIESELPOINT')) throw( new Exception("DIESELPOINT must be defined, usually in your webapp.conf file.") );
             java_require(join(';', glob(DIESELPOINT . '/lib/*.jar')));
-            java_require(APP_ROOT . '/classes/dieselpoint/mfg.jar');
             $javaSystem = new JavaClass('java.lang.System');
             if (!$javaSystem->getProperty("app.home"))
             {
@@ -702,7 +902,6 @@ class WFDieselSearch extends WFObject implements WFPagedData
         }
     }
 }
-
 
 /**
  *  The WFDieselHit object represents a result row from a WFDieselSearch.

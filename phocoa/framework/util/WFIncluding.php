@@ -98,12 +98,25 @@ class WFIncluding
                 'WFPagedArray' => 'framework/WFPagination.php',
                 'WFPagedCreoleQuery' => 'framework/WFPagination.php',
                 'WFPagedData' => 'framework/WFPagination.php',
+                // NEW DP
+                'WFDieselSearch41' => 'framework/WFDieselpoint.php',
+                'WFFacetedSearchService' => 'framework/WFFacetedSearch.php',
+                'WFFacetedSearch' => 'framework/WFFacetedSearch.php',
+                'WFFacetedSearchResultSet' => 'framework/WFFacetedSearch.php',
+                'WFFacetedSearchResultHit' => 'framework/WFFacetedSearch.php',
+                'WFFacetedSearchFacetValueRangeDefinition' => 'framework/WFFacetedSearch.php',
+                'WFFacetedSearchFacet' => 'framework/WFFacetedSearch.php',
+                'WFFacetedSearchFacetResultSet' => 'framework/WFFacetedSearch.php',
+                'WFFacetedSearchFacetValue' => 'framework/WFFacetedSearch.php',
+
+                // OLD DP
                 'WFDieselSearch' => 'framework/WFDieselpoint.php',
                 'WFDieselSearchHelper' => 'framework/WFDieselpoint.php',
                 'WFDieselKeyword' => 'framework/widgets/WFDieselKeyword.php',
                 'WFDieselNav' => 'framework/widgets/WFDieselNav.php',
                 'WFDieselSearchHelperStateTracking' => 'framework/WFDieselpoint.php',
                 'WFDieselFacet' => 'framework/widgets/WFDieselFacet.php',
+                // OLD DP
                 'WFWidget' => 'framework/widgets/WFWidget.php',
                 'WFDynarchMenu' => 'framework/widgets/WFDynarchMenu.php',
                 'WFDynamic' => 'framework/widgets/WFDynamic.php',

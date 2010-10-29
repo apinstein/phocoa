@@ -25,6 +25,7 @@ Version 0.4.0 - ??
                   setRequestData($data)
                   setFormData($formId, $formData, $formSubmitButton = NULL)
                   setExpectRedirectException($url, $class = 'WFRedirectRequestException')
+- [improved] Complete refactor of faceted navigation to isolate faceted navigation services from the the faceted navigation concept. Now we can use a single WFFacetedSearch interface for application development and have pluggable back-end faceted search providers.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
