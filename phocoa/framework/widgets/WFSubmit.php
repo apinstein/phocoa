@@ -16,7 +16,7 @@
  * <b>Required:</b><br>
  * - {@link WFLink::$label label} The label for the button.
  * - {@link WFLink::$postSubmitLabel postSubmitLabel} The label for the button that will be shown after the button is clicked. Requires JS. This does NOT prevent duplicate submission.
- * - {@link WFLink::$duplicateSubmitMessage duplicateSubmitMessage} The message that will be displayed if the submit button is pressed more than once. This also prevents duplicate submission. NOTE: with AJAX forms, you cannot prevent duplicate submission.
+ * - {@link WFLink::$duplicateSubmitMessage duplicateSubmitMessage} The message that will be displayed if the submit button is pressed more than once. This also prevents duplicate submission.
  * 
  * <b>Optional:</b><br>
  * - {@link WFLink::$class class} The class of the <a> tag.
@@ -161,6 +161,7 @@ class WFSubmit extends WFWidget
                 {
                     alert(duplicateSubmitMessage);
                     e.stop();
+                    return false;
                 }
                 if (postSubmitLabel)
                 {
