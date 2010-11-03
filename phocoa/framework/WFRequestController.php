@@ -218,13 +218,16 @@ class WFRequestController extends WFObject
      *
      * @return boolean
      */
+    private $isMobileBrowser = NULL;
     function isMobileBrowser()
     {
+        if ($this->isMobileBrowser !== NULL) return $this->isMobileBrowser;
+
         $op = (isset($_SERVER['HTTP_X_OPERAMINI_PHONE']) ? strtolower($_SERVER['HTTP_X_OPERAMINI_PHONE']) : '');
         $ua = (isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : '');
         $ac = (isset($_SERVER['HTTP_ACCEPT']) ? strtolower($_SERVER['HTTP_ACCEPT']) : '');
 
-        $isMobile =    strpos($ac, 'application/vnd.wap.xhtml+xml') !== false
+        $this->isMobileBrowser = strpos($ac, 'application/vnd.wap.xhtml+xml') !== false
                     || $op != ''
                     || strpos($ua, 'sony') !== false 
                     || strpos($ua, 'symbian') !== false 
@@ -269,7 +272,7 @@ class WFRequestController extends WFObject
                     || strpos($ua, 'wap1.') !== false
                     || strpos($ua, 'wap2.') !== false;
 
-        return $isMobile;
+        return $this->isMobileBrowser;
     }
 
     /**
