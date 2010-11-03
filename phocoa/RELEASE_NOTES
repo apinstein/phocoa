@@ -8,6 +8,7 @@ Legend:
 
 Version 0.4.0 - ??
 - [bugfix] WFSubmit.duplicateSubmitMessage now successfully prevents duplicate submission of AJAX forms.
+- [bugfix] WFSearchField detection of return key was not reliable and caused unexpected errors and/or submits in some browsers. Has been fixed now to better detect return key.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
