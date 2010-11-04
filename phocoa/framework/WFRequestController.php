@@ -215,7 +215,6 @@ class WFRequestController extends WFObject
     /**
      * Determine whether the current request is from a mobile browers
      *
-     *
      * @return boolean
      */
     private $isMobileBrowser = NULL;
@@ -273,6 +272,33 @@ class WFRequestController extends WFObject
                     || strpos($ua, 'wap2.') !== false;
 
         return $this->isMobileBrowser;
+    }
+
+    const SITE_VERSION_AUTO              = 'auto';
+    const SITE_VERSION_MOBILE            = 'mobile';
+    const SITE_VERSION_NORMAL            = 'normal';
+    const SESSION_NAMESPACE              = 'WFRequestController';
+    const SESSION_NAMESPACE_SITE_VERSION = 'siteVersionToShow';
+    function siteVersionToShow()
+    {
+        if (!isset($_SESSION[self::SESSION_NAMESPACE]))
+        {
+            $_SESSION[self::SESSION_NAMESPACE] = array();
+        }
+        if (!isset($_SESSION[self::SESSION_NAMESPACE][self::SESSION_NAMESPACE_SITE_VERSION]))
+        {
+            $_SESSION[self::SESSION_NAMESPACE][self::SESSION_NAMESPACE_SITE_VERSION] = self::SITE_VERSION_AUTO;
+        }
+        if (isset($_REQUEST[self::SESSION_NAMESPACE][self::SESSION_NAMESPACE_SITE_VERSION]) and in_array($_REQUEST[self::SESSION_NAMESPACE_SITE_VERSION], array(self::SITE_VERSION_AUTO, self::SITE_VERSION_MOBILE, self::SITE_VERSION_NORMAL)))
+        {
+            $_SESSION[self::SESSION_NAMESPACE][self::SESSION_NAMESPACE_SITE_VERSION] = $_REQUEST[self::SESSION_NAMESPACE_SITE_VERSION];
+        }
+
+        if ($_SESSION[self::SESSION_NAMESPACE][self::SESSION_NAMESPACE_SITE_VERSION] === self::SITE_VERSION_AUTO)
+        {
+            return $this->isMobileBrowser() ? self::SITE_VERSION_MOBILE : self::SITE_VERSION_NORMAL;
+        }
+        return $_SESSION[self::SESSION_NAMESPACE][self::SESSION_NAMESPACE_SITE_VERSION];
     }
 
     /**
