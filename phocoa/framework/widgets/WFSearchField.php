@@ -113,14 +113,18 @@ class WFSearchField extends WFTextField
             $(\'' . $this->id . '_search\').observe("click", function(e) {
                 $(\'' . $this->id . '\').fire("phocoa:WFSearchField:search");
             });
+            $(\'' . $this->id . '\').observe("keypress", function(e) {
+                if (e.keyCode === Event.KEY_RETURN || e.keyCode === 3)
+                {
+                    $(\'' . $this->id . '\').fire("phocoa:WFSearchField:search");
+                    e.stop();
+                    e.cancelBubble = true;
+                }
+            });
             $(\'' . $this->id . '\').observe("keyup", function(e) {
-                switch (e.keyCode) {
-                    case Event.KEY_RETURN:
-                        $(\'' . $this->id . '\').fire("phocoa:WFSearchField:search");
-                        break;
-                    case Event.KEY_ESC:
-                        PHOCOA.widgets.' . $this->id . '.handleClear();
-                        break;
+                if (e.keyCode === Event.KEY_ESC)
+                {
+                    PHOCOA.widgets.' . $this->id . '.handleClear();
                 }
             }); 
             </script>';
