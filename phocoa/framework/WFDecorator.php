@@ -31,6 +31,7 @@ class WFDecorator extends WFObject
     function __construct($decoratedObject)
     {
         parent::__construct();
+        if (!($decoratedObject instanceof WFObject)) throw new WFException("WFDecorator needs a WFObject subclass.");
         $this->decoratedObject = $decoratedObject;
     }
 
