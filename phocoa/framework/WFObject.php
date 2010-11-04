@@ -201,12 +201,6 @@ class WFObject implements WFKeyValueCoding
 
         $keyParts = explode('.', $keyPath);
         $keyPartCount = count($keyParts);
-        $modelKeyPath = NULL;
-        if ($keyPartCount > 0)
-        {
-            $modelKeyPath = join('.', array_slice($keyParts, 1));
-        }
-
 
         // walk keypath
         $keys = explode('.', $keyPath);
