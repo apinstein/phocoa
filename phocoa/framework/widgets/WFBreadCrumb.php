@@ -317,6 +317,11 @@ class WFBreadCrumbSetup extends WFObject
      */
     public function getBreadCrumb($object)
     {
+        // unroll decorated objects
+        while ($object instanceof WFDecorator) {
+            $object = $object->decoratedObject();
+        }
+
         $class = get_class($object);
         // must use array_key_exists b/c the value could be null
         if (!array_key_exists($class, $this->graph)) throw( new WFException("This breadcrumb setup doesn't know how to handle objects of class: {$class}.") );
