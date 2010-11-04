@@ -4,11 +4,16 @@
  * @package test
  */
  
-
 require_once(getenv('PHOCOA_PROJECT_CONF'));
 error_reporting(E_ALL);
 
 require_once "TestObjects.php";
+
+class TrivialDecorator extends WFDecorator
+{
+    public function decoratorLabel() { return 'decorator'; }
+}
+
 
 class KeyValueCodingTest extends PHPUnit_Framework_TestCase
 {
@@ -164,6 +169,25 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         self::assertTrue($result[0] == 'Daddy' and $result[1] == 'Aunt' and count($result) == 2);
     }
 
+    function testKeyPathWithDecorator()
+    {
+        $result = $this->objectHolder->valueForKeyPath('myObject[TrivialDecorator].decoratorLabel');
+        self::assertEquals('decorator', $result);
+    }
+
+    function testKeyPathWithDecoratorOnMagicArrayOperators()
+    {
+        $result = $this->nodeTree->valueForKeyPath('children[TrivialDecorator].@first.decoratorLabel');
+        $this->assertEquals('decorator', $result);
+    }
+
+    function testKeyPathWithDecoratorOnMagicArray()
+    {
+        $result = $this->nodeTree->valueForKeyPath('children[TrivialDecorator].decoratorLabel');
+        $this->assertEquals('decorator', $result[0]);
+        $this->assertEquals('decorator', $result[1]);
+    }
+
     function testSetValueForKey()
     {
         $this->parent->setValueForKey('My Last Name', 'lastName');
@@ -231,6 +255,7 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
 
     function testStaticKVCPropertyAccessFailsForProtectedMembers()
     {
+        $this->markTestIncomplete();
         $shouldBe = array(1,2,3);
         $this->setExpectedException('WFUndefinedKeyException'); // this can't work until PHP 5.3
         $this->assertEquals($shouldBe, StaticPerson::valueForStaticKeyPath('StaticPerson::kvcInaccessible'));

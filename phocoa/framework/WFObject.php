@@ -210,6 +210,15 @@ class WFObject implements WFKeyValueCoding
             $key = $keys[$keyI];
             $keyPartsLeft--;
 
+            // parse out decorate magic, if any
+            $decoratorClass = NULL;
+            $decoratorPos = strpos($key, '[');
+            if ($decoratorPos !== false and substr($key, -1) === ']')
+            {
+                $decoratorClass = substr($key, $decoratorPos + 1, -1);
+                $key = substr($key, 0, $decoratorPos);
+            }
+
             // determine target; use this if on first key, use result otherwise
             if ($keyI == 0)
             {
@@ -253,6 +262,13 @@ class WFObject implements WFKeyValueCoding
             {
                 $arrayMode = true;
             }
+            else
+            {
+                if ($decoratorClass)
+                {
+                    $result = new $decoratorClass($result);
+                }
+            }
 
             // IF the result of the a key is an array, we do some magic.
             // We CREATE a new array with the results of calling EACH object in the array with the rest of the path.
@@ -280,6 +296,10 @@ class WFObject implements WFKeyValueCoding
                     foreach ($result as $object) {
                         if (!is_object($object)) throw( new Exception("All array items must be OBJECTS THAT IMPLEMENT Key-Value Coding for KVC Magic Arrays to work.") );
                         if (!method_exists($object, 'valueForKey')) throw( new Exception("target is not Key-Value Coding compliant for valueForKey.") );
+                        if ($decoratorClass)
+                        {
+                            $object = new $decoratorClass($object);
+                        }
                         $magicArray[] = $object->valueForKeyPath($rightKeyPath);
                     }
                 }
