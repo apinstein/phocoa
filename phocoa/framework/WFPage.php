@@ -1045,10 +1045,11 @@ class WFPage extends WFObject
      * Helper function to propagate errors from WFErrorsException to widgets.
      *
      * @param object WFErrorsException
-     * @param array Either 1) An array of strings, each of which is the key and corresponding widgetId, or 2) A hash of key => widgetId
+     * @param array Either 1) An array of strings, each string being both the key and corresponding widgetId, or 2) A hash of key => widgetId. You can mix the two as well.
+     * @param boolean TRUE to prune the errors from the WFErrorCollection once propagated. Default: TRUE
      * @throws
      */
-    function propagateErrorsForKeysToWidgets($e, $keysAndWidgets, $prune = true)
+    function propagateErrorsForKeysToWidgets(WFErrorCollection $errors, $keysAndWidgets, $prune = true)
     {
         if (!is_array($keysAndWidgets)) throw new WFException("Array or Hash required.");
         foreach ($keysAndWidgets as $key => $widget) {
@@ -1060,7 +1061,28 @@ class WFPage extends WFObject
             {
                 $widget = $this->outlet($widget);
             }
-            $e->propagateErrorsForKeyToWidget($key, $widget, $prune);
+            $this->propagateErrorsForKeyToWidget($errors, $key, $widget, $prune);
+        }
+    }
+
+    /**
+     * Helper function to propagate errors from WFErrorsException to widgets.
+     *
+     * @param object WFErrorsException
+     * @param string The key to propagate errors for
+     * @param object WFWidget A widget object to propagate the errors to.
+     * @param boolean TRUE to prune the errors from the WFErrorCollection once propagated. Default: TRUE
+     * @throws
+     */
+    function propagateErrorsForKeyToWidget(WFErrorCollection $errors, $key, $widget, $prune = true)
+    {
+        foreach ($errors->errorsForKey($key) as $keyErr) {
+            $widget->addError($keyErr);
+        }
+        if ($prune && $errors->hasErrorsForKey($key))
+        {
+            $errors = $errors->errors();
+            unset($errors[$key]);
         }
     }
 
@@ -1383,7 +1405,7 @@ class WFPage extends WFObject
                 {
                     try {
                         $rpc->execute($this);
-                    } catch (WFErrorsException $e) {
+                    } catch (WFErrorCollection $e) {
                         $this->addErrors($e->allErrors());
                     }
                     if ($rpc->isAjax() and count($this->errors()))  // errors can also occur in the action method

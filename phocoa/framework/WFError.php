@@ -9,7 +9,7 @@
  */
 
 /** 
- * A generic error class.
+ * A generic error class for a single error.
  */
 class WFError extends WFObject
 {
@@ -48,6 +48,76 @@ class WFError extends WFObject
 }
 
 /**
+ * An interface for accessing collections of WFErrors.
+ *
+ * @see WFErrorsException
+ * @see WFErrorArray
+ * @see WFPropelException
+ */
+interface WFErrorCollection
+{
+    /**
+     * Get a WFErrorArray with all errors managed by the interface.
+     *
+     * @return object WFErrorArray
+     */
+    public function errors();
+
+    /**
+     * Get all errors, flattened. This removes the key association of the WFError objects.
+     *
+     * @return array An array of {@link WFError}.
+     */
+    public function allErrors();
+
+    /**
+     * Get all errors that are not associated with any key.
+     *
+     * @return array An array of {@link WFError}.
+     */
+    public function generalErrors();
+
+    /**
+     * Get all errors for a particular key.
+     *
+     * @return array An array of {@link WFError}.
+     */
+    public function errorsForKey($key);
+
+    /**
+     * Are there any errors?
+     *
+     * @return boolean
+     */
+    public function hasErrors();
+
+    /**
+     * Are there any errors for a particular key?
+     *
+     * @param string The key to look for errors in.
+     * @return boolean
+     */
+    public function hasErrorsForKey($key);
+
+    /**
+     * Checks for a certain error code across all errors.
+     *
+     * @param mixed The error code to look for.
+     * @return boolean
+     */
+    public function hasErrorWithCode($code);
+
+    /**
+     * Checks for a certain error code in the errors for a certain key.
+     *
+     * @param mixed The error code to look for.
+     * @param string The key to look for errors in.
+     * @return boolean
+     */
+    public function hasErrorWithCodeForKey($code, $key);
+}
+
+/**
  * WFErrorArray class can be used in lieu of array() for passing into KVC functions as the $errors parameter.
  *
  * WFErrorArray knows how to handle the multi-level error structure used by {@link WFKeyValueCoding::validateObject()}.
@@ -73,11 +143,16 @@ class WFError extends WFObject
  * Using WFErrorArray instead of a standard error will allow you to use the $errors array as an object and interrogate it
  * for things like particular error codes, all errors for a certain property, etc.
  */
-class WFErrorArray extends WFArray
+class WFErrorArray extends WFArray implements WFErrorCollection
 {
     public function __construct($array = array(), $flags = 0, $iterator_class = "ArrayIterator")
     {
         parent::__construct($array, $flags, $iterator_class);
+    }
+
+    public function errors()
+    {
+        return $this;
     }
 
     public function hasErrorWithCode($code)
@@ -87,6 +162,14 @@ class WFErrorArray extends WFArray
             if ($e->errorCode() == $code) return true;
         }
         return false;
+    }
+
+    public function hasErrorWithCodeForKey($code, $key)
+    {
+        if (!$this->hasErrorsForKey($key)) return false;
+
+        $errorCodesForKey = WFArray::arrayWithArray($this->errorsForKey($key))->map('errorCode');
+        return in_array($code, $errorCodesForKey);
     }
 
     public function hasErrors()
@@ -188,7 +271,7 @@ class WFErrorArray extends WFArray
  * WFErrorsException knows how to handle the multi-level error structure used by {@link WFKeyValueCoding::validateObject()}.
  * @see WFErrorArray
  */
-class WFErrorsException extends WFException
+class WFErrorsException extends WFException implements WFErrorCollection
 {
     protected $errors;
 
@@ -211,56 +294,15 @@ class WFErrorsException extends WFException
     }
 
     /**
-     * Get all errors in the format prescribed by {@link WFKeyValueCoding::validateObject()}
-     *
-     * @return array
-     */
-    public function errors()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * Get the errors that are not mapped to specific properties.
-     *
-     * @return array An array of WFError objects.
-     * @deprecated Use WFErrorsException->errors()->generalErrors()
-     */
-    public function generalErrors()
-    {
-        return $this->errors->generalErrors();
-    }
-
-    /**
-     * Get all errors in the current exception.
-     *
-     * @return array An array of all WFError objects.
-     * @deprecated Use WFErrorsException->errors()->allErrors()
-     */
-    public function allErrors()
-    {
-        return $this->errors->allErrors();
-    }
-
-    /**
-     * Get all errors for the given key.
-     *
-     * @return array An array of all WFError objects.
-     * @deprecated Use WFErrorsException->errors()->errorsForKey($key)
-     */
-    public function errorsForKey($key)
-    {
-        return $this->errors->errorsForKey($key);
-    }
-
-    /**
      * Get all error codes for the given key.
      *
      * @return array An array all codes for the WFError objects for the given key.
-     * @deprecated Use WFErrorsException->errors()->errorCodesForKey($key)
+     * @deprecated Use {@link WFErrorsException::hasErrorWithCodeForKey()}
      */
     public function errorCodesForKey($key)
     {
+        WF_LOG_DEPRECATED && WFLog::deprecated("WFErrorsException::errorCodesForKey() is deprecated. Use WFErrorsException::hasErrorWithCodeForKey().");
+
         return $this->errors->errorCodesForKey($key);
     }
 
@@ -276,6 +318,8 @@ class WFErrorsException extends WFException
      */
     public function propagateErrorsForKeyToWidget($key, $widget, $prune = true)
     {
+        WF_LOG_DEPRECATED && WFLog::deprecated("WFErrorsException::propagateErrorsForKeyToWidget() is deprecated. Use WFPage::propagateErrorsForKeysToWidgets() or WFPage::propagateErrorsForKeyToWidget().");
+
          foreach ($this->errorsForKey($key) as $keyErr) {
              $widget->addError($keyErr);
          }
@@ -288,5 +332,46 @@ class WFErrorsException extends WFException
     public function __toString()
     {
         return "WFErrorsException with errors: " . $this->errors;
+    }
+
+    /***************** WFErrorCollection Interface Pass-Thru ********************/
+    public function errors()
+    {
+        return $this->errors;
+    }
+
+    public function generalErrors()
+    {
+        return $this->errors->generalErrors();
+    }
+
+    public function allErrors()
+    {
+        return $this->errors->allErrors();
+    }
+
+    public function errorsForKey($key)
+    {
+        return $this->errors->errorsForKey($key);
+    }
+
+    public function hasErrors()
+    {
+        return $this->errors->hasErrors();
+    }
+
+    public function hasErrorsForKey($key)
+    {
+        return $this->errors->hasErrorsForKey($key);
+    }
+
+    public function hasErrorWithCode($code)
+    {
+        return $this->errors->hasErrorWithCode($code);
+    }
+
+    public function hasErrorWithCodeForKey($code, $key)
+    {
+        return $this->errors->hasErrorWithCodeForKey($code, $key);
     }
 }
