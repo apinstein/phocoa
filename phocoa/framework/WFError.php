@@ -50,6 +50,8 @@ class WFError extends WFObject
 /**
  * An interface for accessing collections of WFErrors.
  *
+ * NOTE: In any controller that catches WFErrorCollection (or WFErrorsException), the controller should always re-throw the exception after processing it (typically with propagateErrorsForKeyToWidget).
+ *
  * @see WFErrorsException
  * @see WFErrorArray
  * @see WFPropelException
