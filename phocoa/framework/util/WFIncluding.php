@@ -55,6 +55,7 @@ class WFIncluding
                 'WFKeyValueCoding' => 'framework/WFKeyValueCoding.php',
                 'WFKeyValueValidators' => 'framework/util/WFKeyValueValidators.php',
                 'WFRequestController' => 'framework/WFRequestController.php',
+                'WFRedirectRequestException' => 'framework/WFRequestController.php',
                 'WFRequestController_RedirectException' => 'framework/WFRequestController.php',
                 'WFRequestController_InternalRedirectException' => 'framework/WFRequestController.php',
                 'WFRequestController_NotFoundException' => 'framework/WFRequestController.php',

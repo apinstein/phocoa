@@ -2,8 +2,59 @@
 
 class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
 {
+    // input data
+    protected $invocationPath   = NULL;
+    protected $formId           = NULL;
+    protected $formData         = array();
+    protected $formSubmitButton = array();
+    protected $moduleData       = array();
+
+    // internal data
     protected $invocation;
     protected $module;
+    protected $pageOutput;
+
+    // exception asserting
+    protected $expectException    = NULL;
+    protected $expectExceptionUrl = NULL;
+
+    public function setExpectRedirectException($url, $class = 'WFRedirectRequestException')
+    {
+        $this->expectException = $class;
+        $this->expectExceptionUrl = WWW_ROOT . '/' . $url;
+
+        return $this;
+    }
+
+    public function setInvocationPath($invocationPath)
+    {
+        $this->invocationPath = $invocationPath;
+
+        return $this;
+    }
+
+    public function setFormData($formId, $formData, $formSubmitButton = NULL)
+    {
+        $this->formId = $formId;
+        $this->formData = $formData;
+        $this->formSubmitButton = $formSubmitButton;
+
+        return $this;
+    }
+
+    public function setRequestData($data)
+    {
+        $_REQUEST = $data;
+
+        return $this;
+    }
+
+    public function setModuleData($moduleData)
+    {
+        $this->moduleData = $moduleData;
+
+        return $this;
+    }
 
     /**
      * A Helper function that will execute an invocation path and store the resulting module locally for execution of asserts.
@@ -13,12 +64,59 @@ class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
      * @param string Invocation Path
      * @param array An array of data to "stuff" into the WFModule instance.
      */
-    public function executeInvocationPath($invocationPath, $moduleVars = array())
+    public function executeInvocationPath($invocationPath = NULL, $moduleVars = array())
     {
+        // set up
+        $invocationPath = ($invocationPath ? $invocationPath : $this->invocationPath);
+        $moduleData = array_merge($this->moduleData, $moduleVars);
+
+        if ($this->formId && count($this->formData))
+        {
+            // render the "requestPage" so we can pull out 
+            // setup invocation
+            $formInvocation = new WFModuleInvocation($invocationPath, NULL, NULL);
+            $formModule = $formInvocation->module();
+            // inject data
+            $formModule->setValuesForKeys($moduleData);
+            $formInvocation->execute();
+
+            // stuff appropriate data into our page under test
+            $requestPage = $formModule->requestPage();
+            $form = $requestPage->outlet($this->formId);
+            $formSubmitButtonId = ($this->formSubmitButton ? $this->formSubmitButton : $form->defaultSubmitID());
+            if (!$formSubmitButtonId) throw new Exception("No form submit id was specified, and the form doesn't have a defaultSubmitID configured.");
+            $formSubmitButton = $requestPage->outlet($formSubmitButtonId);
+
+            $submitAction = $formSubmitButton->submitAction();
+            $rpc = $submitAction->rpc();
+            $this->formData = array_merge($this->formData, $form->phocoaFormParameters());
+            $_REQUEST = array_merge($_REQUEST, $this->formData);
+        }
+
+        // set up invocation to test
         $this->invocation = new WFModuleInvocation($invocationPath, NULL, NULL);
         $this->module = $this->invocation->module();
-        $this->module->setValuesForKeys($moduleVars);
-        $result = $this->invocation->execute();
+
+        // inject data
+        $this->module->setValuesForKeys($moduleData);
+        // form -- automatic from $_REQUEST
+        // request -- automatic from $_REQUEST
+
+        // execute
+        try {
+            $this->pageOutput = $this->invocation->execute();
+        } catch (Exception $e) {
+            if ($this->expectException and $e instanceof $this->expectException)
+            {
+                $this->assertEquals($this->expectExceptionUrl, $e->getRedirectURL(), "Unexpected url for exception of type {$this->expectException}.");
+            }
+            else
+            {
+                throw $e;
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -28,10 +126,12 @@ class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
      *
      * @method PhocoaControllerTestCase_PHPUnit::assertEqualsFromTemplateVar($expectedVal, $actualFromTemplateVarName, $msg)
      * @method PhocoaControllerTestCase_PHPUnit::assertEqualsFromSharedInstance($expectedVal, $actualSharedInstanceName, $actualSharedInstanceKeyPath, $msg)
+     * @method PhocoaControllerTestCase_PHPUnit::assertRegExpFromPageOutput($expectedVal, $regex, $msg)
+     * @method PhocoaControllerTestCase_PHPUnit::assertEqualsFromResponseTemplate($expectedVal, $templateFileName, $msg)
      */
     public function __call($method, $args)
     {
-        if (preg_match('/^(assert.+)From(TemplateVar|SharedInstance)$/', $method, $matches))
+        if (preg_match('/^(assert.+)From(TemplateVar|SharedInstance|PageOutput|ResponseTemplate)$/', $method, $matches))
         {
             $assertComparator = $matches[1];
             $varGetterType = $matches[2];
@@ -45,6 +145,14 @@ class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
                     $sharedInstanceKeyPath = (isset($args[2]) ? $args[2] : NULL);
                     $actual = $this->_getSharedInstanceValue($sharedInstanceName, $sharedInstanceKeyPath);
                     return call_user_func_array(array($this, $assertComparator), $this->_buildPHPUnitAssertArgs($assertComparator, $args, $actual, 2));
+                case 'PageOutput':
+                    $actual = $this->pageOutput;
+                    return call_user_func_array(array($this, $assertComparator), $this->_buildPHPUnitAssertArgs($assertComparator, $args, $actual));
+                    break;
+                case 'ResponseTemplate':
+                    $actual = basename($this->module->responsePage()->template()->template());
+                    return call_user_func_array(array($this, $assertComparator), $this->_buildPHPUnitAssertArgs($assertComparator, $args, $actual));
+                    break;
             }
         }
 
@@ -57,7 +165,7 @@ class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
         $isBinaryAssert = true;
         if (in_array($assert, array('assertTrue', 'assertFalse', 'assertNull', 'assertNotNull')))
         {
-            $isBinaryAssert = true;
+            $isBinaryAssert = false;
         }
         $numRequiredArgs = ($isBinaryAssert ? 1 : 0) + $numExpectArguments;
 
