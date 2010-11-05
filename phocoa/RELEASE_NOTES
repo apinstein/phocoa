@@ -5,6 +5,9 @@ Legend:
 [new] - New feature.
 [BC-break] - Backwards-compatibility may be broken. Update your code to "the new way" as noted.
 [BC-deprecated] - Backwards-compatibility mode supported, but deprecated. Update your code to "the new way" as noted.
+                  NOTE: You can tell what deprecated features you're using by looking at wf.log ident "deprecated" on non-production hosts.
+                  DEVELOPERS: Be sure to fire deprecation notices like so:
+                              WF_LOG_DEPRECATED && WFLog::deprecated("MyObj::foo() is deprecated. Use MyObj::bar().");
 
 Version 0.4.0 - ??
 - [new] Add WFDecorator support to KVC. You can now use the [WFDecorator] syntax inside of KVC keyPaths to auto-wrap objects in decorators. Works on arrays as well.

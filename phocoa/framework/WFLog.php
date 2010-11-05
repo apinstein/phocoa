@@ -52,4 +52,9 @@ class WFLog extends WFObject
         if ($mask === NULL) $mask = Log::UPTO(WF_LOG_LEVEL);
         return ((1 << $level) & $mask) ? true : false;
     }
+
+    public function deprecated($message)
+    {
+        WFLog::log($message, 'deprecated', PEAR_LOG_NOTICE);
+    }
 }
