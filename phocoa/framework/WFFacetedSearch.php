@@ -76,10 +76,18 @@ interface WFFacetedSearchService
      * Turns array('foo=1', 'bar=2') into (foo=1 AND bar=2)
      *
      * @param array An array of queries in the native query language.
-     * @param string The query join operator, one of WFFacetedSearch::QUERY_JOIN_ANY, WFFacetedSearch::QUERY_JOIN_ALL.
+     * @param string The query join operator, one of WFFacetedSearch::QUERY_OP_AND, WFFacetedSearch::QUERY_OP_OR.
      * @return string
      */
     function joinNativeQueries($queries, $joinOperator);
+
+    /**
+     * Given a user-entered query string, wrap it as a native query so that it can be joined with the rest of the query string.
+     *
+     * @param string The user-entered query.
+     * @return string A native query that can be joined with other native queries.
+     */
+    function wrapUserQuery($userQuery);
 
     /**
      * Runs the query.
@@ -125,8 +133,6 @@ class WFFacetedSearchNavigationQueryCollection extends WFObject implements Itera
     const ANY               = 'any';
     const ALL               = 'all';
 
-    const QUERY_STATE_REGEX = '/^([A-Z]{2})_([^=]+)=(.+)$/';
-
     protected $navigationQueries;
     protected $navigationQueryMode;
 
@@ -138,7 +144,12 @@ class WFFacetedSearchNavigationQueryCollection extends WFObject implements Itera
         $this->clearCollection();
     }
 
-    private function clearCollection()
+    public function isEmpty()
+    {
+        return (count($this->navigationQueries) === 0);
+    }
+
+    public function clearCollection()
     {
         $this->navigationQueries = array();
         $this->navigationQueryMode = array();
@@ -168,6 +179,16 @@ class WFFacetedSearchNavigationQueryCollection extends WFObject implements Itera
         return $this;
     }
 
+    /**
+     * Get an array of all "selected" attributeQueries for the given attribute.
+     * @param string Attribute.
+     * @return array An array of {@link WFFacetedSearchNavigationQuery}
+     */
+    function navigationQueriesForAttribute($attribute)
+    {
+        return isset($this->navigationQueries[$attribute]) ? $this->navigationQueries[$attribute] : array();
+    }
+
     public function setNavigationQueryMode($attribute, $mode)
     {
         if (!in_array($mode, array(self::ANY, self::ALL))) throw new Exception("Mode must be ANY or ALL.");
@@ -180,43 +201,6 @@ class WFFacetedSearchNavigationQueryCollection extends WFObject implements Itera
     {
         if (!isset($this->navigationQueryMode[$attribute])) throw new WFException("Attribute {$attribute} does not exist.");
         return $this->navigationQueryMode[$attribute];
-    }
-
-    const NAVIGATION_QUERY_DELIMITER_ENCODED     = '-::-';
-    const NAVIGATION_QUERY_DELIMITER             = '|';
-    private function decodeNavigationQuery($q)
-    {
-        return str_replace(self::NAVIGATION_QUERY_DELIMITER_ENCODED, self::NAVIGATION_QUERY_DELIMITER, $q);
-    }
-
-    public function setNavigationQueryState($state)
-    {
-        $this->clearCollection();
-
-        $navigationQueries = array_map(array($this, 'decodeNavigationQuery'), explode('|', $state));
-        foreach ($navigationQueries as $q) {
-            $matches = array();
-            if (preg_match(self::QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
-            {
-                $cmp = $matches[1];
-                $attr = $matches[2];
-                $value = $matches[3];
-                $this->addNavigationQuery(new WFFacetedSearchNavigationQuery($attr, $cmp, $value));
-            }
-            else
-            {
-                throw new WFException("Couldn't parse navigationQuery in queryState: {$q}");
-                //print "Warning: couldn't parse attribute query: $qInfo.";
-            }
-        }
-
-        // allow registered widgets to affect the "initial" state
-        // WHY DOESN'T BINDINGS TAKE CARE OF THIS?
-//        foreach ($this->widgets as $widget) {
-//            $widget->dieselSearchRestoreState();
-//        }
-
-        return $this;
     }
 
     /**
@@ -289,27 +273,6 @@ class WFFacetedSearchNavigationQuery extends WFObject
 
     public function __construct($attribute, $comparator, $value)
     {
-        // legacy
-        switch ($comparator) {
-            case 'EQ':
-                $comparator = self::COMP_EQ;
-                break;
-            case 'LE':
-                $comparator = self::COMP_LE;
-                break;
-            case 'LT':
-                $comparator = self::COMP_LT;
-                break;
-            case 'GT':
-                $comparator = self::COMP_GT;
-                break;
-            case 'GE':
-                $comparator = self::COMP_GE;
-                break;
-            case 'NE':
-                $comparator = self::COMP_NE;
-                break;
-        }
         if (!in_array($comparator, array(self::COMP_EQ, self::COMP_GT, self::COMP_GE, self::COMP_LT, self::COMP_LE, self::COMP_NE))) throw new WFException("Unknown comparator {$comparator}.");
 
         parent::__construct();
@@ -330,18 +293,24 @@ class WFFacetedSearchNavigationQuery extends WFObject
 
 class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchService
 {
-    const SORT_BY_RELEVANCE  = '-relevance';
+    const SORT_BY_RELEVANCE                                            = '-relevance';
 
-    const QUERY_OP_AND       = 'AND';
-    const QUERY_OP_OR        = 'OR';
-    const QUERY_OP_NOT       = 'NOT';
+    const QUERY_OP_AND                                                 = 'AND';
+    const QUERY_OP_OR                                                  = 'OR';
+    const QUERY_OP_NOT                                                 = 'NOT';
 
-    protected $searchService = NULL;
+    const NAVIGATION_QUERY_STATE_USER_QUERY                            = 'userQuery';
+    const NAVIGATION_QUERY_STATE_DELIMITER_ENCODED                     = '-::-';
+    const NAVIGATION_QUERY_STATE_DELIMITER                             = '|';
+    const NAVIGATION_QUERY_STATE_REGEX                                 = '/^([A-Z]{2})_([^=]+)=(.+)$/';
 
-    protected $hiddenQueries = array();
+    protected $searchService                                           = NULL;
+
+    protected $hiddenQueries                                           = array();
+    protected $userQuery                                               = NULL;
     protected $navigationQueries;
 
-    protected $objectLoaderF = NULL;
+    protected $objectLoaderF                                           = NULL;
 
     public function __construct(WFFacetedSearchService $searchService)
     {
@@ -365,6 +334,21 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
     }
 
     /**
+     * Encode an attributeQuery chunk so that it can be concatenated into queryState without screwing things up (I'm looking at you |).
+     *
+     * @param string AttributeQuery Value
+     * @return string Encoded AttributeQuery Value
+     */
+    private function encodeAttributeQuery($q)
+    {
+        return str_replace(self::NAVIGATION_QUERY_STATE_DELIMITER, self::NAVIGATION_QUERY_STATE_DELIMITER_ENCODED, $q);
+    }
+    private function decodeNavigationQuery($q)
+    {
+        return str_replace(self::NAVIGATION_QUERY_STATE_DELIMITER_ENCODED, self::NAVIGATION_QUERY_STATE_DELIMITER, $q);
+    }
+
+    /**
      * Read the passed queryState (our internal DSL for specifying queries) and set the current search's WFFacetedSearchNavigationQueryCollection to represent the passed state.
      * 
      * @param string A querystate string
@@ -372,9 +356,117 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
      */
     function setNavigationQueryState($qs)
     {
-        $this->navigationQueries->setNavigationQueryState($qs);
+        $this->navigationQueries->clearCollection();
+
+        $navigationQueries = array_map(array($this, 'decodeNavigationQuery'), explode('|', $qs));
+        foreach ($navigationQueries as $q) {
+            // normalize out empties
+            $q = trim($q);
+            if ($q == '') continue;
+
+            if (strncmp($q, self::NAVIGATION_QUERY_STATE_USER_QUERY, strlen(self::NAVIGATION_QUERY_STATE_USER_QUERY)) == 0)
+            {
+                $this->setUserQuery(substr($q, strlen(self::NAVIGATION_QUERY_STATE_USER_QUERY) + 1));
+            }
+            else
+            {
+                $matches = array();
+                if (preg_match(self::NAVIGATION_QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
+                {
+                    $cmp = $matches[1];
+                    $attr = $matches[2];
+                    $value = $matches[3];
+
+                    // legacy
+                    switch ($cmp) {
+                        case 'EQ':
+                            $cmp = WFFacetedSearchNavigationQuery::COMP_EQ;
+                            break;
+                        case 'LE':
+                            $cmp = WFFacetedSearchNavigationQuery::COMP_LE;
+                            break;
+                        case 'LT':
+                            $cmp = WFFacetedSearchNavigationQuery::COMP_LT;
+                            break;
+                        case 'GT':
+                            $cmp = WFFacetedSearchNavigationQuery::COMP_GT;
+                            break;
+                        case 'GE':
+                            $cmp = WFFacetedSearchNavigationQuery::COMP_GE;
+                            break;
+                        case 'NE':
+                            $cmp = WFFacetedSearchNavigationQuery::COMP_NE;
+                            break;
+                    }
+
+                    $this->addNavigationQuery(new WFFacetedSearchNavigationQuery($attr, $cmp, $value));
+                }
+                else
+                {
+                    throw new WFException("Couldn't parse navigationQuery in queryState: {$q}");
+                    //print "Warning: couldn't parse attribute query: $qInfo.";
+                }
+            }
+        }
+
+        // allow registered widgets to affect the "initial" state
+        // WHY DOESN'T BINDINGS TAKE CARE OF THIS?
+//        foreach ($this->widgets as $widget) {
+//            $widget->dieselSearchRestoreState();
+//        }
 
         return $this;
+    }
+
+    /**
+     *  Get the queryState for the current instance.
+     *
+     *  The result is plain-text; it will need to be urlencode() as necessary.
+     *
+     *  @param string The attribute ID of an attribute to REMOVE from the current state (or NULL to preserve all). Useful for creating "remove" filter links.
+     *  @param array An array of new "attribute queries" to add to the current state. Useful for creating links to possible sub-queries.
+     *               The "attribute query" format is <op>_<attribute_id>=<query>
+     *  @return string
+     */
+    function getNavigationQueryState($excludeAttribute = NULL, $newNavigationQueries = array())
+    {
+        $state = array();
+        if ($this->userQuery and $excludeAttribute != self::NAVIGATION_QUERY_STATE_USER_QUERY)
+        {
+            $state[] = self::NAVIGATION_QUERY_STATE_USER_QUERY . '=' . $this->userQuery;
+        }
+        foreach ($this->navigationQueries as $attr => $queries) {
+            foreach ($queries as $q) {
+                $state[] = "{$q->attribute()}{$q->comparator()}{$q->value()}";
+            }
+        }
+        foreach ($newNavigationQueries as $q) {
+            $state[] = "{$q->attribute()}{$q->comparator()}{$q->value()}";
+        }
+        $state = array_map(array($this, 'encodeAttributeQuery'), $state);
+        //WFLog::log("done building state: " . print_r($state, true));
+        $rv =  join(self::NAVIGATION_QUERY_STATE_DELIMITER, $state);
+        //WFLog::log("called u/j");
+        return $rv;
+    }
+
+    /**
+     *  Get the queryState for the current instance, WITHOUT the simpleQuery filter.
+     *
+     *  The result is plain-text; it will need to be urlencode() as necessary.
+     *
+     *  This is just a shortcut for getNavigationQueryState() configured to exclude the user query.
+     *
+     *  @return string
+     */
+    function getNavigationQueryStateWithoutUserQuery()
+    {
+        return $this->getNavigationQueryState(self::NAVIGATION_QUERY_STATE_USER_QUERY);
+    }
+
+    function navigationQueries()
+    {
+        return $this->navigationQueries;
     }
 
     /**
@@ -411,17 +503,32 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
         return $this;
     }
 
+    /**
+     * Set the UserQuery for the search.
+     *
+     * The UserQuery is a "basic search" language that is intended as a full-text-search input for users.
+     *
+     * It is typically presented in the interface as a KEYWORD search or Google-like search box.
+     *
+     * @param string The user-entered query string.
+     * @return object WFFacetedSearch
+     */
+    function setUserQuery($userQuery)
+    {
+        $this->userQuery = $userQuery;
+
+        return $this;
+    }
+
+    function userQuery()
+    {
+        return $this->userQuery;
+    }
+
     // WFPagedData
     function itemCount()
     {
         return $this->resultSet()->totalHitCount();
-    }
-
-    private function buildQuery()
-    {
-        $allQueries = $this->hiddenQueries;
-        $allQueries[] = $this->navigationQueries->asNativeQueryString($this);
-        $this->setQuery($this->joinNativeQueries($allQueries, WFFacetedSearch::QUERY_OP_AND));
     }
 
     function itemsAtIndex($startIndex, $numItems, $sortKeys)
@@ -456,18 +563,63 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
         return $this->find();
     }
 
+    private function buildQuery()
+    {
+        $allQueries = $this->hiddenQueries;
+        if (!$this->navigationQueries->isEmpty())
+        {
+            $allQueries[] = $this->navigationQueries->asNativeQueryString($this);
+        }
+        if ($this->userQuery)
+        {
+            $allQueries[] = $this->wrapUserQuery($this->userQuery);
+        }
+
+        return $this->joinNativeQueries($allQueries, WFFacetedSearch::QUERY_OP_AND);
+    }
+
     // WFFacetedSearchService
-    function setQuery($query) { return $this->searchService->setQuery($query); }
-    function setLimit($limit) { return $this->searchService->setLimit($limit); }
-    function setOffset($offset) { return $this->searchService->setOffset($offset); }
-    function setSortBy($sortBy, $ascending = true) { return $this->searchService->setSortBy($sortBy, $ascending); }
-    function addFacetToGenerate(WFFacetedSearchFacet $facet) { return $this->searchService->addFacetToGenerate($facet); }
-    function setSelectDataFromSearchIndexForAttributes($attributes) { return $this->searchService->setSelectDataFromSearchIndexForAttributes($attributes); }
-    function convertNavigationQueryToNativeQuery($navQ) { return $this->searchService->convertNavigationQueryToNativeQuery($navQ); }
-    function joinNativeQueries($queries, $joinOperator) { return $this->searchService->joinNativeQueries($queries, $joinOperator); }
+    function setQuery($query)
+    {
+        $this->searchService->setQuery($query); return $this;
+    }
+    function setLimit($limit)
+    {
+        $this->searchService->setLimit($limit); return $this;
+    }
+    function setOffset($offset)
+    {
+        $this->searchService->setOffset($offset); return $this;
+    }
+    function setSortBy($sortBy, $ascending = true)
+    {
+        $this->searchService->setSortBy($sortBy, $ascending); return $this;
+    }
+    function addFacetToGenerate(WFFacetedSearchFacet $facet)
+    {
+        $facet->setFacetedSearch($this);
+        $this->searchService->addFacetToGenerate($facet); return $this;
+    }
+    function setSelectDataFromSearchIndexForAttributes($attributes)
+    {
+        $this->searchService->setSelectDataFromSearchIndexForAttributes($attributes); return $this;
+    }
+    function convertNavigationQueryToNativeQuery($navQ)
+    {
+        return $this->searchService->convertNavigationQueryToNativeQuery($navQ);
+    }
+    function joinNativeQueries($queries, $joinOperator)
+    {
+        return $this->searchService->joinNativeQueries($queries, $joinOperator);
+    }
+    function wrapUserQuery($userQuery)
+    {
+        return $this->searchService->wrapUserQuery($userQuery);
+    }
     function find()
     {
-        $this->buildQuery();
+        $queryString = $this->buildQuery();
+        $this->searchService->setQuery($queryString);
         $results = $this->searchService->find();
 
         // @todo munge result set to load objects...
@@ -491,10 +643,22 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
 
         return $results;
     }
-    function query() { return $this->searchService->query(); }
-    function queryDescription() { return $this->searchService->queryDescription(); }
-    function resultSet() { return $this->searchService->resultSet(); }
-    function totalItems() { return $this->searchService->totalItems(); }
+    function query()
+    {
+        return $this->searchService->query();
+    }
+    function queryDescription()
+    {
+        return $this->searchService->queryDescription();
+    }
+    function resultSet()
+    {
+        return $this->searchService->resultSet();
+    }
+    function totalItems()
+    {
+        return $this->searchService->totalItems();
+    }
 }
 
 /**
@@ -565,7 +729,7 @@ class WFFacetedSearchResultHit extends WFObject
     /**
      *  Set the custom object for this hit. 
      *
-     *  This will be set by the Propel dataloader or the custom dataloader.
+     *  This will be set by the {@link WFFacetedSearch::setObjectLoaderCallback() custom object loader}, if one is supplied.
      *
      *  @param mixed The object represented by this hit.
      */
@@ -616,23 +780,37 @@ class WFFacetedSearchResultHit extends WFObject
     }
 }
 
+class WFFacetedSearchFacetValueCollator
+{
+}
+
 class WFFacetedSearchFacetValueRangeDefinition
 {
-    const OPT_START_INCLUSIVE       = 'startInclusive';
-    const OPT_END_INCLUSIVE         = 'endInclusive';
+    const OPT_START_INCLUSIVE    = 'startInclusive';
+    const OPT_END_INCLUSIVE      = 'endInclusive';
+    const OPT_TYPE               = 'type';
+    const OPT_LOCALE             = 'locale';
 
-    const VALUE_OPEN_ENDED_RANGE    = NULL;
+    const VALUE_OPEN_ENDED_RANGE = NULL;
+
+    const TYPE_STRING            = 'string';
+    const TYPE_DATE              = 'date';
+    const TYPE_NUMERIC           = 'numeric';
 
     protected $startValue;
     protected $startInclusive;
     protected $endValue;
     protected $endInclusive;
+    protected $type;
+    protected $locale;
 
     public function __construct($startValue, $endValue, $options = array())
     {
         $defaultOptions = array(
-            self::OPT_START_INCLUSIVE           => true,
-            self::OPT_ENDINCLUSIVE              => true,
+                self::OPT_START_INCLUSIVE => true,
+                self::OPT_END_INCLUSIVE   => true,
+                self::OPT_TYPE            => self::TYPE_STRING,
+                self::OPT_LOCALE          => NULL,
         );
         $options = array_merge($defaultOptions, $options);
 
@@ -641,13 +819,16 @@ class WFFacetedSearchFacetValueRangeDefinition
 
         $this->startInclusive = $options[self::OPT_START_INCLUSIVE];
         $this->endInclusive = $options[self::OPT_END_INCLUSIVE];
+        $this->type = $options[self::OPT_TYPE];
+        $this->locale = $options[self::OPT_LOCALE];
     }
 
     public function startValue() { return $this->startValue; }
     public function endValue() { return $this->endValue; }
     public function startInclusiveValue() { return $this->startInclusiveValue; }
     public function endInclusiveValue() { return $this->endInclusiveValue; }
-    public function dataTypeValue() { return $this->dataTypeValue; }
+    public function type() { return $this->type; }
+    public function locale() { return $this->locale; }
 }
 
 /**
@@ -657,21 +838,43 @@ class WFFacetedSearchFacetValueRangeDefinition
  */
 class WFFacetedSearchFacet extends WFObject
 {
+    const MAX_ROWS_UNLIMITED = -1;
+
     protected $attributeId;
-    protected $isTaxonomy;
-    protected $maxRows;
-    protected $sortByFrequency;
+    protected $isTaxonomy              = false;
+    protected $taxonomyPath            = '';
+    protected $maxRows                 = self::MAX_ROWS_UNLIMITED;
+    protected $sortByFrequency         = true;
+    protected $generateHitCounts       = true;
     protected $enableApproximateCounts = false;
-    protected $includeZeroes;
+    protected $includeZeroes           = false;
 
     protected $ranges;
 
     protected $resultSet;
+    protected $facetedSearch;
 
-    public function __construct($attributeId)
+    public function __construct($attributeId, $options = array())
     {
         parent::__construct();
-        $this->attributeId = attributeId;
+        $this->attributeId = $attributeId;
+
+        foreach (array_intersect(array('isTaxonomy', 'taxonmomyPath', 'maxRows', 'sortByFrequency', 'generateHitCounts', 'enableApproximateCounts', 'includeZeroes', 'ranges'), array_keys($options)) as $optKey) {
+            $setter = "set{$optKey}";
+            $this->$setter($options[$optKey]);
+        }
+    }
+
+    public function setGenerateHitCounts($generateHitCounts)
+    {
+        $this->generateHitCounts = $generateHitCounts;
+        return $this;
+    }
+
+    public function setFacetedSearch($fs)
+    {
+        $this->facetedSearch = $fs;
+        return $this;
     }
 
     public function setEnableApproximateCounts($enable)
@@ -734,6 +937,11 @@ class WFFacetedSearchFacet extends WFObject
         return $this;
     }
 
+    public function generateHitCounts()
+    {
+        return $this->generateHitCounts;
+    }
+
     public function includeZeroes()
     {
         return $this->includeZeroes;
@@ -774,6 +982,74 @@ class WFFacetedSearchFacet extends WFObject
     {
         return $this->sortByFrequency;
     }
+
+    /**
+     * Get the range setup for this facet.
+     *
+     * @return mixed INTEGER - Create N equal-sized ranges.
+     *               {@link WFFacetedSearchFacetValueRangeDefinition} - Specified ranges.
+     */
+    public function ranges()
+    {
+        return $this->ranges;
+    }
+
+    public function facetSearchOptions($includeAlternateFacets = false)
+    {
+        $facetSearchOptions = array(
+                'currentSelection'       => $this->facetedSearch->navigationQueries()->navigationQueriesForAttribute($this->attributeId),
+                //'allowMultipleSelection' => $this->options[self::OPT_ALLOW_MULTIPLE_SELECTION],
+                'queryBase'              => $this->facetedSearch->getNavigationQueryState($this->attributeId),
+                'hasMoreFacets'          => $this->resultSet->hasMore(),
+                'facets'                 => array(),
+        );
+
+        // actual facet data
+        if (count($facetSearchOptions['currentSelection']) == 0)
+        {
+            foreach ($this->resultSet as $fv) {
+                $facetOptions = array(
+                        'label'          => $fv->label(),         // inject formatter
+                        'itemCount'      => $fv->hitCount(), // rename
+                        'attributeQuery' => array(),
+                );
+                // build attributeQueries
+                // @todo in the future this needs to account for range queries, both open-ended and normal, and different comparators as well
+                if ($fv->value())
+                {
+                    $facetOptions['attributeQuery'][] = "EQ_{$this->attributeId}={$fv->value()}";
+                }
+                // merge attributeQueries
+                $facetOptions['attributeQuery'] = join(WFFacetedSearch::NAVIGATION_QUERY_STATE_DELIMITER, $facetOptions['attributeQuery']);
+                $facetSearchOptions['facets'][] = $facetOptions;
+            }
+        }
+        else
+        {
+            if ($includeAlternateFacets)
+            {
+                // @todo DOES NOT WORK ON DP 4.1
+                $facetSearchOptions['facets'] = 'coming soon';
+                // set up a new search w/o this attribute and just get facets for this one.
+                $subDpSearch = new WFDieselSearch;
+                $subDpSearch->setIndex($this->dieselSearch->index());
+                $subDpSearchHelper = new WFDieselSearchHelper;
+                $subDpSearchHelper->setDieselSearch($subDpSearch);
+                $subDpSearchHelper->setQueryState($facetSearchOptions['queryBase']);
+                $subFacet = new WFDieselSearch_FacetedAttribute($this->attributeId, $subDpSearchHelper, $this->options);
+                $subFacetInfo = $subFacet->facetSearchOptions();
+                // copy data over from sub-query
+                $facetSearchOptions['facets'] = $subFacetInfo['facets'];
+                $facetSearchOptions['hasMoreFacets'] = $subFacetInfo['hasMoreFacets'];
+            }
+            else
+            {
+                $facetSearchOptions['facets'] = 'query for more';
+            }
+        }
+
+        return $facetSearchOptions;
+    }
 }
 
 /**
@@ -791,7 +1067,7 @@ class WFFacetedSearchFacetResultSet extends WFArray
         $this->hasMore = $hasMore;
     }
 
-    public function getHasMore()
+    public function hasMore()
     {
         return $this->hasMore;
     }
@@ -807,13 +1083,15 @@ class WFFacetedSearchFacetValue extends WFObject
     protected $value;
     protected $secondValue;
     protected $children;
+    protected $isRange;
     protected $hitCount;
     protected $totalHitCount;
 
-    public function __construct($value, $hitCount, $totalHitCount, $secondValue = NULL, $children = NULL)
+    public function __construct($value, $hitCount, $totalHitCount, $isRange = false, $secondValue = NULL, $children = NULL)
     {
         parent::__construct();
         $this->value = $value;
+        $this->isRange = $isRange;
         $this->hitCount = $hitCount;
         $this->totalHitCount = $totalHitCount;
         $this->secondValue = $secondValue;
@@ -835,7 +1113,7 @@ class WFFacetedSearchFacetValue extends WFObject
      */
     public function isRange() 
     {
-        return ($this->secondValue !== NULL);
+        return $this->isRange;
     }
 
     /**
@@ -889,9 +1167,9 @@ class WFFacetedSearchFacetValue extends WFObject
     public function label($options = array())
     {
         $defaultOptions = array(
-            OPT_LABEL_FORMATTER   => NULL,
-            OPT_RANGE_SEPARATOR   => ' - ',
-            OPT_SHOW_HIT_COUNT    => true,
+            self::OPT_LABEL_FORMATTER   => NULL,
+            self::OPT_RANGE_SEPARATOR   => ' - ',
+            self::OPT_SHOW_HIT_COUNT    => false,
         );
         $options = array_merge($defaultOptions, $options);
 
@@ -916,9 +1194,9 @@ class WFFacetedSearchFacetValue extends WFObject
                 $label .= $this->secondValue;
             }
         }
-        if ($options[self::OPT_SHOW_HIT_COUNT])
+        if ($options[self::OPT_SHOW_HIT_COUNT] && $this->hitCount() > 0)
         {
-            $label .= " ({$this->totalHitCount()})";
+            $label .= " ({$this->hitCount()})";
         }
         return $label;
     }

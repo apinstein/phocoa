@@ -54,26 +54,31 @@ class WFDieselSearch41 implements WFFacetedSearchService
     function setLimit($limit)
     {
         $this->dpSearchRequest->setNumberOfItemsRequested($limit);
+        return $this;
     }
 
     function setOffset($offset)
     {
         $this->dpSearchRequest->setStartingItem($offset);
+        return $this;
     }
 
     function setSortBy($sortBy, $ascending = true)
     {
         $this->dpSearchRequest->setSort($sortBy);
+        return $this;
     }
 
     function addFacetToGenerate(WFFacetedSearchFacet $facet)
     {
         $this->facets[] = $facet;
+        return $this;
     }
 
     function setSelectDataFromSearchIndexForAttributes($attributes)
     {
         $this->loadIndexDataForColumns = $attributes;
+        return $this;
     }
 
     protected $comparatorMap = array(
@@ -82,7 +87,7 @@ class WFDieselSearch41 implements WFFacetedSearchService
         WFFacetedSearchNavigationQuery::COMP_LE => '<=',
         WFFacetedSearchNavigationQuery::COMP_GT => '>',
         WFFacetedSearchNavigationQuery::COMP_GE => '>=',
-        WFFacetedSearchNavigationQuery::COMP_NE => 'NOT'
+        WFFacetedSearchNavigationQuery::COMP_NE => '!='
     );
     function convertNavigationQueryToNativeQuery($navQ)
     {
@@ -98,12 +103,18 @@ class WFDieselSearch41 implements WFFacetedSearchService
     );
     function joinNativeQueries($queries, $joinOperator)
     {
+        if (count($queries) === 0) return NULL;
+
         if (!isset($this->joinOperatorMap[$joinOperator])) throw new Exception("unsupported comparator {$joinOperator}.");
         $operator = $this->joinOperatorMap[$joinOperator];
         return "(" . join(" {$operator} ", $queries) . ")";
     }
-    function query() { return $this->dpSearchRequest->getQueryString(); }
-    function queryDescription() { return  "NOT YET IMPLEMENTED"; }
+    function wrapUserQuery($userQuery)
+    {
+        return "<USERQUERY>{$userQuery}</USERQUERY>";
+    }
+    function query() { return (string) $this->dpSearchRequest->getQueryString(); }
+    function queryDescription() { return $this->query(); }
 
     function find()
     {
@@ -113,11 +124,56 @@ class WFDieselSearch41 implements WFFacetedSearchService
             // convert WFFacetedSearchFacet into DP objects
             $facetMap = array();
             foreach ($this->facets as $facet) {
-                $dpFacet = new Java('com.dieselpoint.facet.BaseFacet', $facet->attributeId());
+                $dpFacet = new Java('com.dieselpoint.facet.StandardFacet', $facet->attributeId());
 
+                $dpFacet->setShowHitCount($facet->generateHitCounts());
                 $dpFacet->setIncludeZeroes($facet->includeZeroes());
                 $dpFacet->setIsTaxonomyAttr($facet->isTaxonomy());
                 $dpFacet->setMaxRows($facet->maxRows());
+
+                // deal with ranges
+                $ranges = $facet->ranges();
+                if (is_int($ranges))
+                {
+                    $nRangeFilter = new Java('com.dieselpoint.facet.FacetFilterDefinedCount');
+                    $nRangeFilter->setRangeCount($ranges);
+                    $dpFacet->setFacetFilter($nRangeFilter);
+                }
+                else if (is_array($ranges))
+                {
+                    $customRangeFilter = new Java('com.dieselpoint.facet.FacetFilterDefinedRanges');
+                    print_r($ranges);
+                    // WFFacetedSearchFacetValueRangeDefinition needs refactor...
+                    switch ($ranges[0]->type()) {
+                        case WFFacetedSearchFacetValueRangeDefinition::TYPE_DATE:
+                            $customRangeFilter->setDate(true);
+                            break;
+                        case WFFacetedSearchFacetValueRangeDefinition::TYPE_NUMERIC:
+                            $customRangeFilter->setNumeric(true);
+                            break;
+                    }
+                    if ($ranges[0]->locale())
+                    {
+                        @list($lang, $country, $variant) = explode('-', $ranges[0]->locale());
+                        if ($lang && $country && $variant)
+                        {
+                            $jLocale = new Java('java.util.Locale', $lang, $country, $variant);
+                        }
+                        else if ($lang && $country)
+                        {
+                            $jLocale = new Java('java.util.Locale', $lang, $country);
+                        }
+                        else
+                        {
+                            $jLocale = new Java('java.util.Locale', $lang);
+                        }
+                        $customRangeFilter->setLocale($jLocale);
+                    }
+                    foreach ($ranges as $rangeDef) {
+                        $customRangeFilter->addDefinedRange("{$rangeDef->startValue()} - {$rangeDef->endValue()}", $rangeDef->startValue(), $rangeDef->endValue());
+                    }
+                    $dpFacet->setFacetFilter($customRangeFilter);
+                }
 
                 $this->dpSearchRequest->addFacet($dpFacet);
 
@@ -155,9 +211,12 @@ class WFDieselSearch41 implements WFFacetedSearchService
                 $facetDef = $f['facet'];
 
                 $data = array();
-                foreach ($dpFacet->getFacetValues() as $fv) {
-                    $data[] = new WFFacetedSearchFacetValue($fv->getValue(), $fv->getItemCount(), $fv->getSecondValue()); // no children support yet...
+                //print $dpFacet->getOutput();
+                foreach ($dpFacet->getFacetValues()->getArray() as $fv) {
+                    if ($fv === NULL) continue;
+                    $data[] = new WFFacetedSearchFacetValue((string) $fv->getValue(), (int) $fv->getHits(), (int) $fv->getItemCount(), (boolean) $fv->isRange(), (string) $fv->getSecondValue()); // no children support yet...
                 }
+                    //print_r($data);
                 $facetResultSet = new WFFacetedSearchFacetResultSet($data, $dpFacet->hasMore());
 
                 $facetDef->setResultSet($facetResultSet);
@@ -194,11 +253,14 @@ class WFDieselSearch41 implements WFFacetedSearchService
      */
     private function handleJavaException(JavaException $e)
     {
-        $trace = new java("java.io.ByteArrayOutputStream");
-        $e->printStackTrace(new java("java.io.PrintStream", $trace));
-        throw( new Exception("java exception {$e->getMessage()}, stack trace:<pre> $trace </pre>\n") );
+        $phpTrace = $e->getTraceAsString();
+        $javaTrace = new java("java.io.ByteArrayOutputStream");
+        $e->printStackTrace(new java("java.io.PrintStream", $javaTrace));
+        throw( new PHPJavaBridgeException("<pre>Java Message: {$e->toString()}\n\nPHP Stack Trace:\n{$phpTrace}\n\nJava Stack Trace:\n{$javaTrace}</pre>\n") );
     }
 }
+
+class PHPJavaBridgeException extends Exception {}
 
 /************************ EVERYTHING BELOW IS DEPRECEATED ************************/
 
