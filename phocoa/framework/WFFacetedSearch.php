@@ -170,15 +170,23 @@ class WFFacetedSearchComposableQueryCollection extends WFObject implements Itera
     }
 
     /**
-     * Get an array of all "selected" attributeQueries for the given id.
+     * Get an array of all {@link WFFacetedSearchComposableQuery} for the given id.
+     *
      * @param string id.
-     * @return array An array of {@link WFFacetedSearchNavigationQuery}
+     * @return array An array of {@link WFFacetedSearchComposableQuery}
      */
-    function queriesForId($id)
+    public function queriesForId($id)
     {
         return isset($this->queriesById[$id]) ? $this->queriesById[$id] : array();
     }
 
+    /**
+     * Set the "combination" mode for the queries that are for the given ID.
+     *
+     * @param string One of WFFacetedSearchComposableQueryCollection::ANY, WFFacetedSearchComposableQueryCollection::ALL
+     * @param string id.
+     * @return object WFFacetedSearchComposableQueryCollection For fluent interface.
+     */
     public function setQueryCombinerModeForId($mode, $id)
     {
         if (!in_array($mode, array(self::ANY, self::ALL))) throw new Exception("Mode must be ANY or ALL.");
@@ -223,6 +231,21 @@ class WFFacetedSearchComposableQueryCollection extends WFObject implements Itera
             $nativeQueryParts[] = (count($nativeQueriesForId) === 1 ? $nativeQueriesForId[0] : $facetedSearchService->joinNativeQueries($nativeQueriesForId, $op));
         }
         return (count($nativeQueryParts) === 1 ? $nativeQueryParts[0] : $facetedSearchService->joinNativeQueries($nativeQueryParts, WFFacetedSearch::QUERY_OP_AND));
+    }
+
+    public function __toString()
+    {
+        $str = NULL;
+        $lastId = NULL;
+        foreach ($this->queriesById as $id => $queries) {
+            if ($lastId != $id)
+            {
+                $str .= "[id={$id} ({$this->queryMode[$id]})]\n";
+            }
+            $str .= "  " . join("\n  ", $queries);
+            $str .= "\n";
+        }
+        return $str;
     }
 
     // Iterator
@@ -294,7 +317,7 @@ class WFFacetedSearchNativeQuery extends WFFacetedSearchBaseComposableQuery
 
     public function __toString()
     {
-        return "[{$this->id}:" . ($this->hidden ? '(hidden)' : '') . "] {$this->query}";
+        return "[{$this->id}: (" . ($this->hidden ? 'hidden' : 'visible') . ")] {$this->query}";
     }
 }
 
@@ -315,7 +338,7 @@ class WFFacetedSearchUserQuery extends WFFacetedSearchBaseComposableQuery
 
     public function __toString()
     {
-        return "[{$this->id}:" . ($this->hidden ? '(hidden)' : '') . "] {$this->query}";
+        return "[{$this->id}: (" . ($this->hidden ? 'hidden' : 'visible') . ")] {$this->query}";
     }
 }
 
@@ -375,8 +398,8 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
     const NAVIGATION_QUERY_STATE_DELIMITER         = '|';
     const NAVIGATION_QUERY_STATE_REGEX             = '/^([A-Z]{2})_([^=]+)=(.+)$/';
 
-    const DEFAULT_NATIVE_QUERY_ID                  = '<nativeQuery>';
-    const DEFAULT_USER_QUERY_ID                    = '<userQuery>';
+    const DEFAULT_NATIVE_QUERY_ID                  = '<nativeQuery>';   // by default all WFFacetedSearchNativeQuery are aggregated under this id (hidden queries)
+    const DEFAULT_USER_QUERY_ID                    = '<userQuery>';     // by default all WFFacetedSearchUserQuery are aggregated under this id (user queries)
 
     protected $searchService                       = NULL;
 
@@ -472,6 +495,10 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
                     }
 
                     $this->addQuery(new WFFacetedSearchNavigationQuery($attr, $cmp, $value));
+                    if (in_array($cmp, array(WFFacetedSearchNavigationQuery::COMP_LE, WFFacetedSearchNavigationQuery::COMP_LT, WFFacetedSearchNavigationQuery::COMP_GT, WFFacetedSearchNavigationQuery::COMP_GE, WFFacetedSearchNavigationQuery::COMP_NE)))
+                    {
+                        $this->queries->setQueryCombinerModeForId(WFFacetedSearchComposableQueryCollection::ALL, $attr);
+                    }
                 }
                 else
                 {
@@ -530,14 +557,26 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
         return $this->getNavigationQueryState(self::NAVIGATION_QUERY_STATE_USER_QUERY);
     }
 
-    function navigationQueries()
+    function navigationQueries($id = NULL)
     {
         $nqs = array();
         foreach ($this->queries as $q) {
             if (!($q instanceof WFFacetedSearchNavigationQuery)) continue;
+            if ($id && $id !== $q->id()) continue;
+
             $nqs[] = $q;
         }
         return $nqs;
+    }
+
+    function navigationQueriesForId($id)
+    {
+        return $this->navigationQueries($id);
+    }
+
+    function queries()
+    {
+        return $this->queries;
     }
 
     /**
