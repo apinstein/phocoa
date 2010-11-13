@@ -93,7 +93,7 @@ class WFDieselSearch41 implements WFFacetedSearchService
     {
         if (!isset($this->comparatorMap[$navQ->comparator()])) throw new Exception("unsupported comparator {$navQ->comparator()}.");
         $comparator = $this->comparatorMap[$navQ->comparator()];
-        return "[{$navQ->attribute()}] {$comparator} {$navQ->value()}";
+        return "[{$navQ->attribute()}] {$comparator} \"" . addslashes($navQ->value()) . "\"";
     }
 
     protected $joinOperatorMap = array(

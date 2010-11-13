@@ -195,5 +195,8 @@ class WFFacetedSearchTest extends PHPUnit_Framework_TestCase
                                 new WFFacetedSearchNavigationQuery('price', WFFacetedSearchNavigationQuery::COMP_GE, 100000),
                                 new WFFacetedSearchNavigationQuery('price', WFFacetedSearchNavigationQuery::COMP_LE, 200000)
                             ), $this->fs->navigationQueriesForId('price'), "Wrong set of navigation queries returned.");
+        $this->assertEquals(array(
+                                new WFFacetedSearchUserQuery('renovated kitchen')
+                            ), $this->fs->navigationQueriesForId(WFFacetedSearch::DEFAULT_USER_QUERY_ID), "Wrong UserQuery returned.");
     }
 }

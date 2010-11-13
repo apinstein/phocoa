@@ -314,6 +314,10 @@ class WFFacetedSearchNativeQuery extends WFFacetedSearchBaseComposableQuery
     {
         return $this->query;
     }
+    public function query()
+    {
+        return $this->query;
+    }
 
     public function __toString()
     {
@@ -334,6 +338,11 @@ class WFFacetedSearchUserQuery extends WFFacetedSearchBaseComposableQuery
     public function asNativeQueryString(WFFacetedSearchService $facetedSearchService)
     {
         return $facetedSearchService->wrapUserQuery($this->query);
+    }
+
+    public function query()
+    {
+        return $this->query;
     }
 
     public function __toString()
@@ -359,7 +368,6 @@ class WFFacetedSearchNavigationQuery extends WFFacetedSearchBaseComposableQuery
 
     public function __construct($attribute, $comparator, $value, $id = NULL)
     {
-        xdebug_break();
         if (!in_array($comparator, array(self::COMP_EQ, self::COMP_GT, self::COMP_GE, self::COMP_LT, self::COMP_LE, self::COMP_NE))) throw new WFException("Unknown comparator {$comparator}.");
 
         $id = ($id ? $id : $attribute);
@@ -393,7 +401,6 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
     const QUERY_OP_OR                              = 'OR';
     const QUERY_OP_NOT                             = 'NOT';
 
-    const NAVIGATION_QUERY_STATE_USER_QUERY        = 'userQuery';
     const NAVIGATION_QUERY_STATE_DELIMITER_ENCODED = '-::-';
     const NAVIGATION_QUERY_STATE_DELIMITER         = '|';
     const NAVIGATION_QUERY_STATE_REGEX             = '/^([A-Z]{2})_([^=]+)=(.+)$/';
@@ -455,56 +462,10 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
     {
         $navigationQueries = array_map(array($this, 'decodeNavigationQuery'), explode('|', $qs));
         foreach ($navigationQueries as $q) {
-            // normalize out empties
-            $q = trim($q);
-            if ($q == '') continue;
-
-            if (strncmp($q, self::NAVIGATION_QUERY_STATE_USER_QUERY, strlen(self::NAVIGATION_QUERY_STATE_USER_QUERY)) == 0)
+            $composableQuery = $this->composableQueryForQueryState($q);
+            if ($composableQuery instanceof WFFacetedSearchComposableQuery)
             {
-                $this->setUserQuery(substr($q, strlen(self::NAVIGATION_QUERY_STATE_USER_QUERY) + 1));
-            }
-            else
-            {
-                $matches = array();
-                if (preg_match(self::NAVIGATION_QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
-                {
-                    $cmp = $matches[1];
-                    $attr = $matches[2];
-                    $value = $matches[3];
-
-                    // legacy
-                    switch ($cmp) {
-                        case 'EQ':
-                            $cmp = WFFacetedSearchNavigationQuery::COMP_EQ;
-                            break;
-                        case 'LE':
-                            $cmp = WFFacetedSearchNavigationQuery::COMP_LE;
-                            break;
-                        case 'LT':
-                            $cmp = WFFacetedSearchNavigationQuery::COMP_LT;
-                            break;
-                        case 'GT':
-                            $cmp = WFFacetedSearchNavigationQuery::COMP_GT;
-                            break;
-                        case 'GE':
-                            $cmp = WFFacetedSearchNavigationQuery::COMP_GE;
-                            break;
-                        case 'NE':
-                            $cmp = WFFacetedSearchNavigationQuery::COMP_NE;
-                            break;
-                    }
-
-                    $this->addQuery(new WFFacetedSearchNavigationQuery($attr, $cmp, $value));
-                    if (in_array($cmp, array(WFFacetedSearchNavigationQuery::COMP_LE, WFFacetedSearchNavigationQuery::COMP_LT, WFFacetedSearchNavigationQuery::COMP_GT, WFFacetedSearchNavigationQuery::COMP_GE, WFFacetedSearchNavigationQuery::COMP_NE)))
-                    {
-                        $this->queries->setQueryCombinerModeForId(WFFacetedSearchComposableQueryCollection::ALL, $attr);
-                    }
-                }
-                else
-                {
-                    throw new WFException("Couldn't parse navigationQuery in queryState: {$q}");
-                    //print "Warning: couldn't parse attribute query: $qInfo.";
-                }
+                $this->addQuery($composableQuery);
             }
         }
 
@@ -531,10 +492,10 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
     {
         $state = array();
         foreach ($this->navigationQueries() as $q) {
-            $state[] = "{$q->attribute()}{$q->comparator()}{$q->value()}";
+            $state[] = $this->queryStateForComposableQuery($q);
         }
         foreach ($newNavigationQueries as $q) {
-            $state[] = "{$q->attribute()}{$q->comparator()}{$q->value()}";
+            $state[] = $this->queryStateForComposableQuery($q);
         }
         $state = array_map(array($this, 'encodeAttributeQuery'), $state);
         //WFLog::log("done building state: " . print_r($state, true));
@@ -543,25 +504,76 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
         return $rv;
     }
 
-    /**
-     *  Get the queryState for the current instance, WITHOUT the simpleQuery filter.
-     *
-     *  The result is plain-text; it will need to be urlencode() as necessary.
-     *
-     *  This is just a shortcut for getNavigationQueryState() configured to exclude the user query.
-     *
-     *  @return string
-     */
-    function getNavigationQueryStateWithoutUserQuery()
+    private function queryStateForComposableQuery($q)
     {
-        return $this->getNavigationQueryState(self::NAVIGATION_QUERY_STATE_USER_QUERY);
+        $qClass = get_class($q);
+        switch ($qClass) {
+            case 'WFFacetedSearchUserQuery':
+                return WFFacetedSearch::DEFAULT_USER_QUERY_ID . "=" . $q->query();
+            case 'WFFacetedSearchNavigationQuery':
+                return "{$q->attribute()}{$q->comparator()}{$q->value()}";
+            default:
+                throw new Exception("{$qClass} not yet supported for queryStateForComposableQuery().");
+        }
+    }
+
+    /**
+     * @param string A single QueryState chunk.
+     * @return object WFFacetedSearchComposableQuery A WFFacetedSearchComposableQuery or NULL if empty.
+     * @throws object WFException If there was an error parsing the query state.
+     */
+    private function composableQueryForQueryState($q)
+    {
+        // normalize out empties
+        $q = trim($q);
+        if ($q == '') return NULL;
+
+        if (strncmp($q, self::DEFAULT_USER_QUERY_ID, strlen(self::DEFAULT_USER_QUERY_ID)) == 0)
+        {
+            $userQuery = substr($q, strlen(self::DEFAULT_USER_QUERY_ID) + 1);
+            return new WFFacetedSearchUserQuery($userQuery, self::DEFAULT_USER_QUERY_ID, false);
+        }
+        else
+        {
+            $matches = array();
+            if (preg_match(self::NAVIGATION_QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
+            {
+                $cmp = $matches[1];
+                $attr = $matches[2];
+                $value = $matches[3];
+
+                // legacy
+                switch ($cmp) {
+                    case 'EQ':
+                        $cmp = WFFacetedSearchNavigationQuery::COMP_EQ;
+                        break;
+                    case 'LE':
+                        $cmp = WFFacetedSearchNavigationQuery::COMP_LE;
+                        break;
+                    case 'LT':
+                        $cmp = WFFacetedSearchNavigationQuery::COMP_LT;
+                        break;
+                    case 'GT':
+                        $cmp = WFFacetedSearchNavigationQuery::COMP_GT;
+                        break;
+                    case 'GE':
+                        $cmp = WFFacetedSearchNavigationQuery::COMP_GE;
+                        break;
+                    case 'NE':
+                        $cmp = WFFacetedSearchNavigationQuery::COMP_NE;
+                        break;
+                }
+                return new WFFacetedSearchNavigationQuery($attr, $cmp, $value);
+            }
+        }
+        throw new WFException("Couldn't parse queryState: {$q}");
     }
 
     function navigationQueries($id = NULL)
     {
         $nqs = array();
         foreach ($this->queries as $q) {
-            if (!($q instanceof WFFacetedSearchNavigationQuery)) continue;
+            if ($q->hidden()) continue;
             if ($id && $id !== $q->id()) continue;
 
             $nqs[] = $q;
@@ -705,6 +717,7 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
             $allIds = $results->map('itemId');
             $objectsForIds = call_user_func($this->objectLoaderF, $allIds);
             $objectsById = WFArray::arrayWithArray($objectsForIds)->hash('mlsPropertyId');
+            $pruneIds = array();
             foreach ($results as $index => $hit) {
                 $itemId = $hit->itemId();
                 if (isset($objectsById[$itemId]))
@@ -713,8 +726,11 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
                 }
                 else
                 {
-                    $results->offsetUnset($index);
+                    $pruneIds[] = $index;
                 }
+            }
+            foreach ($pruneIds as $pruneId) {
+                $results->offsetUnset($pruneId);
             }
         }
 
