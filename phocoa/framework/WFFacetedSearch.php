@@ -275,6 +275,7 @@ interface WFFacetedSearchComposableQuery
 {
     public function asNativeQueryString(WFFacetedSearchService $facetedSearchService);
     public function hidden();
+    public function visible();
     public function id();
 }
 
@@ -296,6 +297,10 @@ abstract class WFFacetedSearchBaseComposableQuery extends WFObject implements WF
     public function hidden()
     {
         return $this->hidden;
+    }
+    public function visible()
+    {
+        return !$this->hidden;
     }
 }
 
@@ -403,7 +408,8 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
 
     const NAVIGATION_QUERY_STATE_DELIMITER_ENCODED = '-::-';
     const NAVIGATION_QUERY_STATE_DELIMITER         = '|';
-    const NAVIGATION_QUERY_STATE_REGEX             = '/^([A-Z]{2})_([^=]+)=(.+)$/';
+    const NAVIGATION_QUERY_STATE_REGEX             = '/^([A-Za-z_-]+)(=|!=|>|>=|<|<=)(.+)$/';
+    const NAVIGATION_QUERY_STATE_REGEX_LEGACY      = '/^([A-Z]{2})_([^=]+)=(.+)$/';
 
     const DEFAULT_NATIVE_QUERY_ID                  = '<nativeQuery>';   // by default all WFFacetedSearchNativeQuery are aggregated under this id (hidden queries)
     const DEFAULT_USER_QUERY_ID                    = '<userQuery>';     // by default all WFFacetedSearchUserQuery are aggregated under this id (user queries)
@@ -504,7 +510,20 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
         return $rv;
     }
 
-    private function queryStateForComposableQuery($q)
+    function selectedQueryStatesForId($id)
+    {
+        $selections = array();
+        foreach ($this->queries->queriesForId($id) as $q) {
+            if ($q->visible())
+            {
+                $selections[] = $this->queryStateForComposableQuery($q);
+            }
+        }
+        return $selections;
+    }
+        
+
+    public function queryStateForComposableQuery($q)
     {
         $qClass = get_class($q);
         switch ($qClass) {
@@ -522,7 +541,7 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
      * @return object WFFacetedSearchComposableQuery A WFFacetedSearchComposableQuery or NULL if empty.
      * @throws object WFException If there was an error parsing the query state.
      */
-    private function composableQueryForQueryState($q)
+    public function composableQueryForQueryState($q)
     {
         // normalize out empties
         $q = trim($q);
@@ -536,7 +555,7 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
         else
         {
             $matches = array();
-            if (preg_match(self::NAVIGATION_QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
+            if (preg_match(self::NAVIGATION_QUERY_STATE_REGEX_LEGACY, $q, $matches) and count($matches) == 4)
             {
                 $cmp = $matches[1];
                 $attr = $matches[2];
@@ -563,6 +582,14 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
                         $cmp = WFFacetedSearchNavigationQuery::COMP_NE;
                         break;
                 }
+                return new WFFacetedSearchNavigationQuery($attr, $cmp, $value);
+            }
+            else if (preg_match(self::NAVIGATION_QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
+            {
+                $cmp = $matches[2];
+                $attr = $matches[1];
+                $value = $matches[3];
+
                 return new WFFacetedSearchNavigationQuery($attr, $cmp, $value);
             }
         }
@@ -1090,8 +1117,9 @@ class WFFacetedSearchFacet extends WFObject
 
     public function facetSearchOptions($includeAlternateFacets = false)
     {
+        xdebug_break();
         $facetSearchOptions = array(
-                'currentSelection'       => $this->facetedSearch->queries()->queriesForId($this->id),
+                'currentSelection'       => $this->facetedSearch->selectedQueryStatesForId($this->id),
                 //'allowMultipleSelection' => $this->options[self::OPT_ALLOW_MULTIPLE_SELECTION],
                 'queryBase'              => $this->facetedSearch->getNavigationQueryState($this->id),
                 'hasMoreFacets'          => $this->resultSet->hasMore(),
@@ -1111,7 +1139,7 @@ class WFFacetedSearchFacet extends WFObject
                 // @todo in the future this needs to account for range queries, both open-ended and normal, and different comparators as well
                 if ($fv->value())
                 {
-                    $facetOptions['attributeQuery'][] = "EQ_{$this->attributeId}={$fv->value()}";
+                    $facetOptions['attributeQuery'][] = $this->facetedSearch->queryStateForComposableQuery(new WFFacetedSearchNavigationQuery($this->attributeId, WFFacetedSearchNavigationQuery::COMP_EQ, $fv->value()));
                 }
                 // merge attributeQueries
                 $facetOptions['attributeQuery'] = join(WFFacetedSearch::NAVIGATION_QUERY_STATE_DELIMITER, $facetOptions['attributeQuery']);
