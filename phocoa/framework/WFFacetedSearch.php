@@ -304,7 +304,6 @@ abstract class WFFacetedSearchBaseComposableQuery extends WFObject implements WF
     }
 }
 
-
 // Used for hidden queries (with hidden=true) or "Advanced Search" (with hidden=false).
 class WFFacetedSearchNativeQuery extends WFFacetedSearchBaseComposableQuery
 {
@@ -900,55 +899,57 @@ class WFFacetedSearchResultHit extends WFObject
     }
 }
 
-class WFFacetedSearchFacetValueCollator
+class WFFacetedSearchFacetBehavior extends WFObject {}
+
+class WFFacetedSearchFacetBehavior_NRanges extends WFFacetedSearchFacetBehavior
 {
-}
+    protected $rangeCount;
 
-class WFFacetedSearchFacetValueRangeDefinition
-{
-    const OPT_START_INCLUSIVE    = 'startInclusive';
-    const OPT_END_INCLUSIVE      = 'endInclusive';
-    const OPT_TYPE               = 'type';
-    const OPT_LOCALE             = 'locale';
-
-    const VALUE_OPEN_ENDED_RANGE = NULL;
-
-    const TYPE_STRING            = 'string';
-    const TYPE_DATE              = 'date';
-    const TYPE_NUMERIC           = 'numeric';
-
-    protected $startValue;
-    protected $startInclusive;
-    protected $endValue;
-    protected $endInclusive;
-    protected $type;
-    protected $locale;
-
-    public function __construct($startValue, $endValue, $options = array())
+    public function __construct($rangeCount)
     {
-        $defaultOptions = array(
-                self::OPT_START_INCLUSIVE => true,
-                self::OPT_END_INCLUSIVE   => true,
-                self::OPT_TYPE            => self::TYPE_STRING,
-                self::OPT_LOCALE          => NULL,
-        );
-        $options = array_merge($defaultOptions, $options);
-
-        $this->startValue = $startValue;
-        $this->endValue = $endValue;
-
-        $this->startInclusive = $options[self::OPT_START_INCLUSIVE];
-        $this->endInclusive = $options[self::OPT_END_INCLUSIVE];
-        $this->type = $options[self::OPT_TYPE];
-        $this->locale = $options[self::OPT_LOCALE];
+        $this->rangeCount = $rangeCount;
     }
 
-    public function startValue() { return $this->startValue; }
-    public function endValue() { return $this->endValue; }
-    public function startInclusiveValue() { return $this->startInclusiveValue; }
-    public function endInclusiveValue() { return $this->endInclusiveValue; }
-    public function type() { return $this->type; }
-    public function locale() { return $this->locale; }
+    public function rangeCount()
+    {
+        return $this->rangeCount;
+    }
+}
+
+class WFFacetedSearchFacetBehavior_DefinedRanges extends WFFacetedSearchFacetBehavior
+{
+    protected $ranges;
+
+    public function __construct($ranges = array())
+    {
+        $this->ranges = array();
+        if (!empty($ranges))
+        {
+            foreach ($ranges as $r) {
+                call_user_func_array(array($this, 'addRange'), $r);
+            }
+        }
+    }
+
+    public function ranges()
+    {
+        return $this->ranges;
+    }
+
+    /**
+     * @param mixed The start value (inclusive).
+     * @param mixed The end value (exclusive).
+     */
+    public function addRange($startVal, $endVal, $label = NULL)
+    {
+        if ($label === NULL)
+        {
+            $label = "{$startVal} - {$endVal}";
+        }
+        $this->ranges[] = array($startVal, $endVal, $label);
+        
+        return $this;
+    }
 }
 
 /**
@@ -960,8 +961,13 @@ class WFFacetedSearchFacet extends WFObject
 {
     const MAX_ROWS_UNLIMITED = -1;
 
+    const TYPE_AUTO          = 'auto';
+    const TYPE_STRING        = 'string';
+    const TYPE_DATE          = 'date';
+    const TYPE_NUMERIC       = 'numeric';
+
     protected $id;
-    protected $attributeId;
+    protected $attribute;
     protected $isTaxonomy              = false;
     protected $taxonomyPath            = '';
     protected $maxRows                 = self::MAX_ROWS_UNLIMITED;
@@ -969,21 +975,36 @@ class WFFacetedSearchFacet extends WFObject
     protected $generateHitCounts       = true;
     protected $enableApproximateCounts = false;
     protected $includeZeroes           = false;
+    protected $type                    = self::TYPE_AUTO;
+    protected $locale                  = NULL;
+    protected $formatter               = NULL;
 
-    protected $ranges;
+    protected $behavior;
 
     protected $resultSet;
     protected $facetedSearch;
 
-    public function __construct($attributeId, $options = array())
+    public function __construct($attribute, $options = array())
     {
         parent::__construct();
-        $this->attributeId = $this->id = $attributeId;
+        $this->attribute = $this->id = $attribute;
 
-        foreach (array_intersect(array('id', 'isTaxonomy', 'taxonmomyPath', 'maxRows', 'sortByFrequency', 'generateHitCounts', 'enableApproximateCounts', 'includeZeroes', 'ranges'), array_keys($options)) as $optKey) {
+        foreach (array_intersect(array('id', 'isTaxonomy', 'taxonmomyPath', 'maxRows', 'sortByFrequency', 'generateHitCounts', 'enableApproximateCounts', 'includeZeroes', 'type', 'locale', 'behavior', 'formatter'), array_keys($options)) as $optKey) {
             $setter = "set{$optKey}";
             $this->$setter($options[$optKey]);
         }
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function setFormatter(WFFormatter $f)
+    {
+        $this->formatter = $f;
+        return $this;
     }
 
     public function setGenerateHitCounts($generateHitCounts)
@@ -998,22 +1019,27 @@ class WFFacetedSearchFacet extends WFObject
         return $this;
     }
 
-    public function setEnableApproximateCounts($enable)
+    public function setBehavior($b)
     {
-        $this->enableApproximateCounts = $enable;
+        $this->behavior = $b;
         return $this;
     }
 
-    public function setRanges($in)
+    public function setType($type)
     {
-        if (is_numeric($in))
-        {
-            $this->ranges = (int) $in;
-        }
-        else if (is_array($in))
-        {
-            $this->ranges = $in;
-        }
+        $this->type = $type;
+        return $this;
+    }
+
+    public function setLocale($locale)
+    {
+        $this->locale = $locale;
+        return $this;
+    }
+
+    public function setEnableApproximateCounts($enable)
+    {
+        $this->enableApproximateCounts = $enable;
         return $this;
     }
 
@@ -1044,6 +1070,7 @@ class WFFacetedSearchFacet extends WFObject
     public function setSortByFrequency($sortByFrequency)
     {
         $this->sortByFrequency = $sortByFrequency;
+        return $this;
     }
 
     public function setIncludeZeroes($include)
@@ -1056,6 +1083,11 @@ class WFFacetedSearchFacet extends WFObject
     {
         $this->resultSet = $rs;
         return $this;
+    }
+
+    public function formatter()
+    {
+        return $this->formatter;
     }
 
     public function generateHitCounts()
@@ -1072,9 +1104,9 @@ class WFFacetedSearchFacet extends WFObject
      * Return the id of the attribute that this facet is built on.
      * @return
      */
-    public function attributeId()
+    public function attribute()
     {
-        return $this->attributeId;
+        return $this->attribute;
     }
 
     /**
@@ -1104,20 +1136,23 @@ class WFFacetedSearchFacet extends WFObject
         return $this->sortByFrequency;
     }
 
-    /**
-     * Get the range setup for this facet.
-     *
-     * @return mixed INTEGER - Create N equal-sized ranges.
-     *               {@link WFFacetedSearchFacetValueRangeDefinition} - Specified ranges.
-     */
-    public function ranges()
+    public function behavior()
     {
-        return $this->ranges;
+        return $this->behavior;
+    }
+
+    public function type()
+    {
+        return $this->type;
+    }
+
+    public function locale()
+    {
+        return $this->locale;
     }
 
     public function facetSearchOptions($includeAlternateFacets = false)
     {
-        xdebug_break();
         $facetSearchOptions = array(
                 'currentSelection'       => $this->facetedSearch->selectedQueryStatesForId($this->id),
                 //'allowMultipleSelection' => $this->options[self::OPT_ALLOW_MULTIPLE_SELECTION],
@@ -1131,7 +1166,11 @@ class WFFacetedSearchFacet extends WFObject
         {
             foreach ($this->resultSet as $fv) {
                 $facetOptions = array(
-                        'label'          => $fv->label(),         // inject formatter
+                        'label'          => $fv->label(array(
+                                                                WFFacetedSearchFacetValue::OPT_LABEL_FORMATTER => $this->formatter,
+                                                                WFFacetedSearchFacetValue::OPT_SHOW_HIT_COUNT => $this->generateHitCounts,
+                                                            )
+                                                      ),
                         'itemCount'      => $fv->hitCount(), // rename
                         'attributeQuery' => array(),
                 );
@@ -1139,7 +1178,7 @@ class WFFacetedSearchFacet extends WFObject
                 // @todo in the future this needs to account for range queries, both open-ended and normal, and different comparators as well
                 if ($fv->value())
                 {
-                    $facetOptions['attributeQuery'][] = $this->facetedSearch->queryStateForComposableQuery(new WFFacetedSearchNavigationQuery($this->attributeId, WFFacetedSearchNavigationQuery::COMP_EQ, $fv->value()));
+                    $facetOptions['attributeQuery'][] = $this->facetedSearch->queryStateForComposableQuery(new WFFacetedSearchNavigationQuery($this->attribute, WFFacetedSearchNavigationQuery::COMP_EQ, $fv->value()));
                 }
                 // merge attributeQueries
                 $facetOptions['attributeQuery'] = join(WFFacetedSearch::NAVIGATION_QUERY_STATE_DELIMITER, $facetOptions['attributeQuery']);
@@ -1158,7 +1197,7 @@ class WFFacetedSearchFacet extends WFObject
                 $subDpSearchHelper = new WFDieselSearchHelper;
                 $subDpSearchHelper->setDieselSearch($subDpSearch);
                 $subDpSearchHelper->setQueryState($facetSearchOptions['queryBase']);
-                $subFacet = new WFDieselSearch_FacetedAttribute($this->attributeId, $subDpSearchHelper, $this->options);
+                $subFacet = new WFDieselSearch_FacetedAttribute($this->attribute, $subDpSearchHelper, $this->options);
                 $subFacetInfo = $subFacet->facetSearchOptions();
                 // copy data over from sub-query
                 $facetSearchOptions['facets'] = $subFacetInfo['facets'];
@@ -1295,10 +1334,12 @@ class WFFacetedSearchFacetValue extends WFObject
         );
         $options = array_merge($defaultOptions, $options);
 
+
         $label = "";
         if ($options[self::OPT_LABEL_FORMATTER])
         {
-            $label .= $options[self::OPT_LABEL_FORMATTER]->formattedValue($this->value);
+
+            $label .= $options[self::OPT_LABEL_FORMATTER]->stringForValue($this->value);
         }
         else
         {
@@ -1309,7 +1350,7 @@ class WFFacetedSearchFacetValue extends WFObject
             $label .= $options[self::OPT_RANGE_SEPARATOR];
             if ($options[self::OPT_LABEL_FORMATTER])
             {
-                $label .= $options[self::OPT_LABEL_FORMATTER]->formattedValue($this->secondValue);
+                $label .= $options[self::OPT_LABEL_FORMATTER]->stringForValue($this->secondValue);
             }
             else
             {

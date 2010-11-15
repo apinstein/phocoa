@@ -124,7 +124,7 @@ class WFDieselSearch41 implements WFFacetedSearchService
             // convert WFFacetedSearchFacet into DP objects
             $facetMap = array();
             foreach ($this->facets as $facet) {
-                $dpFacet = new Java('com.dieselpoint.facet.StandardFacet', $facet->attributeId());
+                $dpFacet = new Java('com.dieselpoint.facet.StandardFacet', $facet->attribute());
 
                 $dpFacet->setShowHitCount($facet->generateHitCounts());
                 $dpFacet->setIncludeZeroes($facet->includeZeroes());
@@ -132,47 +132,48 @@ class WFDieselSearch41 implements WFFacetedSearchService
                 $dpFacet->setMaxRows($facet->maxRows());
 
                 // deal with ranges
-                $ranges = $facet->ranges();
-                if (is_int($ranges))
+                $behavior = $facet->behavior();
+                if ($behavior)
                 {
-                    $nRangeFilter = new Java('com.dieselpoint.facet.FacetFilterDefinedCount');
-                    $nRangeFilter->setRangeCount($ranges);
-                    $dpFacet->setFacetFilter($nRangeFilter);
-                }
-                else if (is_array($ranges))
-                {
-                    $customRangeFilter = new Java('com.dieselpoint.facet.FacetFilterDefinedRanges');
-                    print_r($ranges);
-                    // WFFacetedSearchFacetValueRangeDefinition needs refactor...
-                    switch ($ranges[0]->type()) {
-                        case WFFacetedSearchFacetValueRangeDefinition::TYPE_DATE:
-                            $customRangeFilter->setDate(true);
+                    switch (get_class($behavior)) {
+                        case 'WFFacetedSearchFacetBehavior_NRanges':
+                            $nRangeFilter = new Java('com.dieselpoint.facet.FacetFilterDefinedCount');
+                            $nRangeFilter->setRangeCount($behavior->rangeCount());
+                            $dpFacet->setFacetFilter($nRangeFilter);
                             break;
-                        case WFFacetedSearchFacetValueRangeDefinition::TYPE_NUMERIC:
-                            $customRangeFilter->setNumeric(true);
-                            break;
+                        case 'WFFacetedSearchFacetBehavior_DefinedRanges':
+                            $customRangeFilter = new Java('com.dieselpoint.facet.FacetFilterDefinedRanges');
+                            switch ($facet->type()) {
+                                case WFFacetedSearchFacet::TYPE_DATE:
+                                    $customRangeFilter->setDate(true);
+                                    break;
+                                case WFFacetedSearchFacet::TYPE_NUMERIC:
+                                    $customRangeFilter->setNumeric(true);
+                                    break;
+                            }
+                            if ($facet->locale())
+                            {
+                                @list($lang, $country, $variant) = explode('-', $ranges[0]->locale());
+                                if ($lang && $country && $variant)
+                                {
+                                    $jLocale = new Java('java.util.Locale', $lang, $country, $variant);
+                                }
+                                else if ($lang && $country)
+                                {
+                                    $jLocale = new Java('java.util.Locale', $lang, $country);
+                                }
+                                else
+                                {
+                                    $jLocale = new Java('java.util.Locale', $lang);
+                                }
+                                $customRangeFilter->setLocale($jLocale);
+                            }
+                            foreach ($behavior->ranges() as $rangeDef) {
+                                list($startValue, $endValue, $label) = $rangeDef;
+                                $customRangeFilter->addDefinedRange($label, $startValue, $endValue);
+                            }
+                            $dpFacet->setFacetFilter($customRangeFilter);
                     }
-                    if ($ranges[0]->locale())
-                    {
-                        @list($lang, $country, $variant) = explode('-', $ranges[0]->locale());
-                        if ($lang && $country && $variant)
-                        {
-                            $jLocale = new Java('java.util.Locale', $lang, $country, $variant);
-                        }
-                        else if ($lang && $country)
-                        {
-                            $jLocale = new Java('java.util.Locale', $lang, $country);
-                        }
-                        else
-                        {
-                            $jLocale = new Java('java.util.Locale', $lang);
-                        }
-                        $customRangeFilter->setLocale($jLocale);
-                    }
-                    foreach ($ranges as $rangeDef) {
-                        $customRangeFilter->addDefinedRange("{$rangeDef->startValue()} - {$rangeDef->endValue()}", $rangeDef->startValue(), $rangeDef->endValue());
-                    }
-                    $dpFacet->setFacetFilter($customRangeFilter);
                 }
 
                 $this->dpSearchRequest->addFacet($dpFacet);
@@ -216,7 +217,6 @@ class WFDieselSearch41 implements WFFacetedSearchService
                     if ($fv === NULL) continue;
                     $data[] = new WFFacetedSearchFacetValue((string) $fv->getValue(), (int) $fv->getHits(), (int) $fv->getItemCount(), (boolean) $fv->isRange(), (string) $fv->getSecondValue()); // no children support yet...
                 }
-                    //print_r($data);
                 $facetResultSet = new WFFacetedSearchFacetResultSet($data, $dpFacet->hasMore());
 
                 $facetDef->setResultSet($facetResultSet);
