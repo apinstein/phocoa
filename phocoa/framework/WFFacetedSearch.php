@@ -1,63 +1,19 @@
 <?php
 
-/**
- * @todo HitObjectLoader?
- * @todo queryDescription? breadcrumb?
- */
-
 interface WFFacetedSearchService
 {
     /**
-     * Set the query do be used for the search in the Search Service's native query language.
-     *
-     * @param string A query in the Search Service's native query language.
-     * @return object WFFacetedSearchService Fluent interface.
-     * @throws
+     * Get the total number of items in the search database.
+     * @return int Number of items.
      */
-    function setQuery($query);
+    function totalItems();
 
     /**
-     * Set the page size.
-     *
-     * @param integer Page size for the results.
-     * @return object WFFacetedSearchService Fluent interface.
-     * @throws
+     * Get the native query language query to show ALL items.
+     * 
+     * @return string
      */
-    function setLimit($limit);
-
-    /**
-     * Set the offset.
-     *
-     * @param integer Starting item, 0-based.
-     * @return object WFFacetedSearchService Fluent interface.
-     * @throws
-     */
-    function setOffset($offset);
-
-    /**
-     * Set the sortBy field.
-     * @param string An attribute to sort by.
-     * @param boolean Sort ascending, default TRUE.
-     */
-    function setSortBy($sortBy, $ascending = true);
-
-    /**
-     * Add a facet to the list of facet data to generate for this search.
-     *
-     * @param object WFFacetedSearchFacet A facet to add to the search request.
-     * @return object WFFacetedSearchService Fluent interface.
-     * @throws
-     */
-    function addFacetToGenerate(WFFacetedSearchFacet $facet);
-
-    /**
-     * Set the list of attributes of data to include in the result data.
-     *
-     * @param array An aray of attributes names.
-     * @return object WFFacetedSearchService Fluent interface.
-     * @throws
-     */
-    function setSelectDataFromSearchIndexForAttributes($attributes);
+    function nativeQueryToShowAll();
 
     /**
      * Convert a navigation query to the native language.
@@ -91,40 +47,11 @@ interface WFFacetedSearchService
     /**
      * Runs the query.
      *
+     * @param object WFFacetedSearch
      * @return object WFFacetedSearchResultSet Fluent interface.
      * @throws
      */
-    function find();
-
-    /**
-     * Get the executed query string.
-     *
-     * @return string The query string that was executed in the native language.
-     * @throws
-     */
-    function query();
-
-    /**
-     * A human-readable version of the executed query.
-     *
-     * @return string
-     * @throws
-     */
-    function queryDescription();
-
-    /**
-     * Returns the result set of the query, subject to offset/limit/sort, etc.
-     *
-     * @return object WFFacetedSearchResultSet
-     * @throws
-     */
-    function resultSet();
-
-    /**
-     * Get the total number of items in the search database.
-     * @return int Number of items.
-     */
-    function totalItems();
+    function find(WFFacetedSearch $fs);
 }
 
 class WFFacetedSearchComposableQueryCollection extends WFObject implements Iterator
@@ -147,6 +74,21 @@ class WFFacetedSearchComposableQueryCollection extends WFObject implements Itera
         $this->queries     = array();
         $this->queriesById = array();
         $this->queryMode   = array();
+    }
+
+    public function clearQueriesForId($id)
+    {
+        if (isset($this->queriesById[$id]))
+        {
+            unset($this->queriesById[$id]);
+            unset($this->queryMode[$id]);
+            foreach ($this->queries as $q) {
+                if ($q->id() == $id)
+                {
+                    unset($this->queries[key($this->queries)]);
+                }
+            }
+        }
     }
 
     public function isEmpty()
@@ -397,7 +339,7 @@ class WFFacetedSearchNavigationQuery extends WFFacetedSearchBaseComposableQuery
     }
 }
 
-class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchService
+class WFFacetedSearch extends WFObject implements WFPagedData
 {
     const SORT_BY_RELEVANCE                        = '-relevance';
 
@@ -417,14 +359,31 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
 
     protected $searchService                       = NULL;
 
-    protected $queries;
-
+    // query info
+    protected $queries                             = NULL;
     protected $objectLoaderF                       = NULL;
+    protected $query                               = NULL;
+    protected $limit                               = 50;
+    protected $offset                              = 0;
+    protected $sortBy                              = NULL;
+
+    protected $facets                              = array();
+    protected $attributesToLoadFromSearchIndex     = array();
+
+    protected $resultSet                           = NULL;
+
+    // ????
+    protected $widgets                             = array();
 
     public function __construct(WFFacetedSearchService $searchService)
     {
         $this->searchService = $searchService;
         $this->queries = new WFFacetedSearchComposableQueryCollection;
+    }
+
+    public function searchService()
+    {
+        return $this->searchService;
     }
 
     /**
@@ -441,6 +400,14 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
 
         return $this;
     }
+
+    public function registerWidget($widget)
+    {
+        $this->widgets[] = $widget;
+
+        return $this;
+    }
+
 
     /**
      * Encode an attributeQuery chunk so that it can be concatenated into queryState without screwing things up (I'm looking at you |).
@@ -482,6 +449,13 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
 //            $widget->dieselSearchRestoreState();
 //        }
 
+        return $this;
+    }
+
+    public function setQueries($q)
+    {
+        if (!($q instanceof WFFacetedSearchComposableQueryCollection)) throw new WFException("WFFacetedSearchComposableQueryCollection required.");
+        $this->queries = $q;
         return $this;
     }
 
@@ -559,7 +533,7 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
         else
         {
             $matches = array();
-            if (preg_match(self::NAVIGATION_QUERY_STATE_REGEX_LEGACY, $q, $matches) and count($matches) == 4)
+            if (preg_match(self::LEGACY_NAVIGATION_QUERY_STATE_REGEX, $q, $matches) and count($matches) == 4)
             {
                 $cmp = $matches[1];
                 $attr = $matches[2];
@@ -664,8 +638,8 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
 
     function itemsAtIndex($startIndex, $numItems, $sortKeys)
     {
-        $this->searchService->setOffset($startIndex);
-        $this->searchService->setLimit($numItems);
+        $this->setOffset($startIndex);
+        $this->setLimit($numItems);
 
         // calculate sort key
         // remove the SORT_BY_RELEVANCE sortKey -- relevance sorting is triggered by the ABSENCE of a "setSort" call
@@ -689,13 +663,13 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
                 $sortDirAscending = false;
             }
         }
-        $this->searchService->setSortBy($sortByAttr, $sortDirAscending);
+        $this->setSortBy($sortByAttr, $sortDirAscending);
 
-        return $this->find();
+        return $this->find($this);
     }
 
-    // WFFacetedSearchService
-    function setQuery($queryString)
+    // helper function for generalized querying
+    function setNativeQueryString($queryString)
     {
         // clear all other queries then add the passed query as a native query
         $this->queries->clearCollection();
@@ -705,25 +679,57 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
     }
     function setLimit($limit)
     {
-        $this->searchService->setLimit($limit); return $this;
+        $this->limit = $limit;
+        return $this;
     }
+    
+    function limit()
+    {
+        return $this->limit;
+    }
+
     function setOffset($offset)
     {
-        $this->searchService->setOffset($offset); return $this;
+        $this->offset = $offset;
+        return $this;
     }
+
+    function offset()
+    {
+        return $this->offset;
+    }
+
     function setSortBy($sortBy, $ascending = true)
     {
-        $this->searchService->setSortBy($sortBy, $ascending); return $this;
+        $this->sortBy = $sortBy;
+        return $this;
     }
+
+    function sortBy()
+    {
+        return $this->sortBy;
+    }
+
     function addFacetToGenerate(WFFacetedSearchFacet $facet)
     {
         $facet->setFacetedSearch($this);
-        $this->searchService->addFacetToGenerate($facet); return $this;
+        $this->facets[] = $facet;
+        return $this;
     }
-    function setSelectDataFromSearchIndexForAttributes($attributes)
+    function facets()
     {
-        $this->searchService->setSelectDataFromSearchIndexForAttributes($attributes); return $this;
+        return $this->facets;
     }
+    function setAttributesToLoadFromSearchIndex($attributes)
+    {
+        $this->attributesToLoadFromSearchIndex = $attributes;
+        return $this;
+    }
+    function attributesToLoadFromSearchIndex()
+    {
+        return $this->attributesToLoadFromSearchIndex;
+    }
+
     function convertNavigationQueryToNativeQuery($navQ)
     {
         return $this->searchService->convertNavigationQueryToNativeQuery($navQ);
@@ -738,11 +744,10 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
     }
     function find()
     {
-        $queryString = $this->queries->asNativeQueryString($this);
-        $this->searchService->setQuery($queryString);
-        $results = $this->searchService->find();
+        if ($this->resultSet) throw new Exception("Can only call find once per instance.");
 
-        // @todo munge result set to load objects...
+        $results = $this->searchService->find($this);
+
         if ($this->objectLoaderF)
         {
             $allIds = $results->map('itemId');
@@ -765,19 +770,20 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
             }
         }
 
-        return $results;
+        $this->resultSet = $results;
+        return $this->resultSet;
     }
     function query()
     {
-        return $this->searchService->query();
+        return $this->queries->asNativeQueryString($this->searchService);
     }
     function queryDescription()
     {
-        return $this->searchService->queryDescription();
+        return $this->query();
     }
     function resultSet()
     {
-        return $this->searchService->resultSet();
+        return $this->resultSet;
     }
     function totalItems()
     {
@@ -978,11 +984,13 @@ class WFFacetedSearchFacet extends WFObject
     protected $maxRows                 = self::MAX_ROWS_UNLIMITED;
     protected $sortByFrequency         = true;
     protected $generateHitCounts       = true;
+    protected $showHitCounts           = false;
     protected $enableApproximateCounts = false;
     protected $includeZeroes           = false;
     protected $type                    = self::TYPE_AUTO;
     protected $locale                  = NULL;
     protected $formatter               = NULL;
+    protected $allowMultipleSelection  = false;
 
     protected $behavior;
 
@@ -994,15 +1002,27 @@ class WFFacetedSearchFacet extends WFObject
         parent::__construct();
         $this->attribute = $this->id = $attribute;
 
-        foreach (array_intersect(array('id', 'isTaxonomy', 'taxonmomyPath', 'maxRows', 'sortByFrequency', 'generateHitCounts', 'enableApproximateCounts', 'includeZeroes', 'type', 'locale', 'behavior', 'formatter'), array_keys($options)) as $optKey) {
+        foreach (array_intersect(array('id', 'isTaxonomy', 'taxonmomyPath', 'maxRows', 'sortByFrequency', 'generateHitCounts', 'showHitCounts', 'enableApproximateCounts', 'includeZeroes', 'type', 'locale', 'behavior', 'formatter', 'allowMultipleSelection'), array_keys($options)) as $optKey) {
             $setter = "set{$optKey}";
             $this->$setter($options[$optKey]);
         }
     }
 
+    public function __clone()
+    {
+        $this->resultSet = NULL;
+        $this->facetedSearch = NULL;
+    }
+
     public function setId($id)
     {
         $this->id = $id;
+        return $this;
+    }
+
+    public function setShowHitCounts($b)
+    {
+        $this->showHitCounts = $b;
         return $this;
     }
 
@@ -1065,6 +1085,12 @@ class WFFacetedSearchFacet extends WFObject
     public function setMaxRows($maxRows)
     {
         $this->maxRows = $maxRows;
+        return $this;
+    }
+
+    public function setAllowMultipleSelection($b)
+    {
+        $this->allowMultipleSelection = $b;
         return $this;
     }
 
@@ -1156,11 +1182,12 @@ class WFFacetedSearchFacet extends WFObject
         return $this->locale;
     }
 
+    const GENERATE_NO_SELECTION_ALTERNATES = true;
     public function facetSearchOptions($includeAlternateFacets = false)
     {
         $facetSearchOptions = array(
                 'currentSelection'       => $this->facetedSearch->selectedQueryStatesForId($this->id),
-                //'allowMultipleSelection' => $this->options[self::OPT_ALLOW_MULTIPLE_SELECTION],
+                'allowMultipleSelection' => $this->allowMultipleSelection,
                 'queryBase'              => $this->facetedSearch->getNavigationQueryState($this->id),
                 'hasMoreFacets'          => $this->resultSet->hasMore(),
                 //'debugOutput'            => $this->resultSet->debugOutput,
@@ -1168,13 +1195,13 @@ class WFFacetedSearchFacet extends WFObject
         );
 
         // actual facet data
-        if (count($facetSearchOptions['currentSelection']) == 0)
+        if (count($facetSearchOptions['currentSelection']) == 0 or $includeAlternateFacets === false)
         {
             foreach ($this->resultSet as $fv) {
                 $facetOptions = array(
                         'label'          => $fv->label(array(
                                                                 WFFacetedSearchFacetValue::OPT_LABEL_FORMATTER => $this->formatter,
-                                                                WFFacetedSearchFacetValue::OPT_SHOW_HIT_COUNT => $this->generateHitCounts,
+                                                                WFFacetedSearchFacetValue::OPT_SHOW_HIT_COUNT => $this->showHitCounts,
                                                             )
                                                       ),
                         'itemCount'      => $fv->hitCount(), // rename
@@ -1191,28 +1218,27 @@ class WFFacetedSearchFacet extends WFObject
                 $facetSearchOptions['facets'][] = $facetOptions;
             }
         }
+        else if ($includeAlternateFacets)
+        {
+            // set up a new search w/o this attribute and just get facets for this one.
+            $facetClone = clone($this);
+            $queries = clone($this->facetedSearch->queries());
+            $queries->clearQueriesForId($this->id);
+
+            xdebug_break();
+            $subSearch = new WFFacetedSearch($this->facetedSearch->searchService());
+            $subSearch->setQueries($queries)
+                      ->addFacetToGenerate($facetClone)
+                      ->find();
+
+            $subFacetInfo = $facetClone->facetSearchOptions();
+            // copy data over from sub-query
+            $facetSearchOptions['facets'] = $subFacetInfo['facets'];
+            $facetSearchOptions['hasMoreFacets'] = $subFacetInfo['hasMoreFacets'];
+        }
         else
         {
-            if ($includeAlternateFacets)
-            {
-                // @todo DOES NOT WORK ON DP 4.1
-                $facetSearchOptions['facets'] = 'coming soon';
-                // set up a new search w/o this attribute and just get facets for this one.
-                $subDpSearch = new WFDieselSearch;
-                $subDpSearch->setIndex($this->dieselSearch->index());
-                $subDpSearchHelper = new WFDieselSearchHelper;
-                $subDpSearchHelper->setDieselSearch($subDpSearch);
-                $subDpSearchHelper->setQueryState($facetSearchOptions['queryBase']);
-                $subFacet = new WFDieselSearch_FacetedAttribute($this->attribute, $subDpSearchHelper, $this->options);
-                $subFacetInfo = $subFacet->facetSearchOptions();
-                // copy data over from sub-query
-                $facetSearchOptions['facets'] = $subFacetInfo['facets'];
-                $facetSearchOptions['hasMoreFacets'] = $subFacetInfo['hasMoreFacets'];
-            }
-            else
-            {
-                $facetSearchOptions['facets'] = 'query for more';
-            }
+            throw("this should never happen");
         }
 
         return $facetSearchOptions;

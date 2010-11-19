@@ -3,13 +3,7 @@
 
 class WFDieselSearch41 implements WFFacetedSearchService
 {
-    // dp instances
-    protected $dpSearchRequest;
-
     // local setup
-    protected $facets;
-    protected $searchResults;
-    protected $loadIndexDataForColumns;
     protected $indexes;
 
     /**
@@ -37,48 +31,11 @@ class WFDieselSearch41 implements WFFacetedSearchService
             // setProperty doesn't seem to be idempotent, hard-crashes if we call it twice.
             $javaSystem->setProperty("app.home", $dpLocation);
         }
-
-        // initialize instance vars
-        $this->dpSearchRequest = new Java('com.dieselpoint.search.server.SearchRequest');
-        $this->dpSearchRequest->setIndexNames($this->indexes);
-        $this->loadIndexDataForColumns = array();
-        $this->facets = array();
     }
 
-    function setQuery($query)
+    function nativeQueryToShowAll()
     {
-        $this->dpSearchRequest->setQueryString($query);
-        return $this;
-    }
-
-    function setLimit($limit)
-    {
-        $this->dpSearchRequest->setNumberOfItemsRequested($limit);
-        return $this;
-    }
-
-    function setOffset($offset)
-    {
-        $this->dpSearchRequest->setStartingItem($offset);
-        return $this;
-    }
-
-    function setSortBy($sortBy, $ascending = true)
-    {
-        $this->dpSearchRequest->setSort($sortBy);
-        return $this;
-    }
-
-    function addFacetToGenerate(WFFacetedSearchFacet $facet)
-    {
-        $this->facets[] = $facet;
-        return $this;
-    }
-
-    function setSelectDataFromSearchIndexForAttributes($attributes)
-    {
-        $this->loadIndexDataForColumns = $attributes;
-        return $this;
+        return '*';
     }
 
     protected $comparatorMap = array(
@@ -113,17 +70,20 @@ class WFDieselSearch41 implements WFFacetedSearchService
     {
         return "<USERQUERY>{$userQuery}</USERQUERY>";
     }
-    function query() { return (string) $this->dpSearchRequest->getQueryString(); }
-    function queryDescription() { return $this->query(); }
 
-    function find()
+    function find(WFFacetedSearch $fs)
     {
-        if ($this->searchResults) return $this->searchResults;
-
         try {
+            $dpSearchRequest = new Java('com.dieselpoint.search.server.SearchRequest');
+            $dpSearchRequest->setIndexNames($this->indexes);
+            $dpSearchRequest->setQueryString($fs->query());
+            $dpSearchRequest->setStartingItem($fs->offset());
+            $dpSearchRequest->setNumberOfItemsRequested($fs->limit());
+            $dpSearchRequest->setSort($fs->sortBy());
+
             // convert WFFacetedSearchFacet into DP objects
             $facetMap = array();
-            foreach ($this->facets as $facet) {
+            foreach ($fs->facets() as $facet) {
                 $dpFacet = new Java('com.dieselpoint.facet.StandardFacet', $facet->attribute());
 
                 $dpFacet->setShowHitCount($facet->generateHitCounts());
@@ -148,6 +108,7 @@ class WFDieselSearch41 implements WFFacetedSearchService
                                     $customRangeFilter->setDate(true);
                                     break;
                                 case WFFacetedSearchFacet::TYPE_NUMERIC:
+                                    //print "customRangeFilter->setNumeric(true)\n";
                                     $customRangeFilter->setNumeric(true);
                                     break;
                             }
@@ -170,13 +131,14 @@ class WFDieselSearch41 implements WFFacetedSearchService
                             }
                             foreach ($behavior->ranges() as $rangeDef) {
                                 list($startValue, $endValue, $label) = $rangeDef;
+                                //print "customRangeFilter->addDefinedRange($label, $startValue, $endValue)\n";
                                 $customRangeFilter->addDefinedRange($label, $startValue, $endValue);
                             }
                             $dpFacet->setFacetFilter($customRangeFilter);
                     }
                 }
 
-                $this->dpSearchRequest->addFacet($dpFacet);
+                $dpSearchRequest->addFacet($dpFacet);
 
                 $facetMap[] = array('dpFacet' => $dpFacet, 'facet' => $facet);
             }
@@ -186,7 +148,7 @@ class WFDieselSearch41 implements WFFacetedSearchService
             $ssServer = $ssClass->getServer();
 
             // execute search
-            $dpSearchResults = $ssServer->getResults($this->dpSearchRequest);
+            $dpSearchResults = $ssServer->getResults($dpSearchRequest);
             $dpResultSet = $dpSearchResults->getResultSet();
 
             // collect results
@@ -196,7 +158,7 @@ class WFDieselSearch41 implements WFFacetedSearchService
 
                 // load data from index
                 $rowIndexData = array();
-                foreach ($this->loadIndexDataForColumns as $c) {
+                foreach ($fs->attributesToLoadFromSearchIndex() as $c) {
                     $rowIndexData[$c] = (string) $dpResultSet->getString($c);
                 }
 
@@ -204,9 +166,10 @@ class WFDieselSearch41 implements WFFacetedSearchService
                 $resultRows[] = new WFFacetedSearchResultHit((string) $row->getItemId(), (string) $row->getScore(), $rowIndexData);
             }
 
-            $this->searchResults = new WFFacetedSearchResultSet($resultRows, $dpSearchResults->getTotalItems(), $dpSearchResults->getSearchTime());
+            $searchResults = new WFFacetedSearchResultSet($resultRows, $dpSearchResults->getTotalItems(), $dpSearchResults->getSearchTime());
 
             // populate facet results
+            xdebug_break();
             foreach ($facetMap as $f) {
                 $dpFacet = $f['dpFacet'];
                 $facetDef = $f['facet'];
@@ -218,6 +181,7 @@ class WFDieselSearch41 implements WFFacetedSearchService
                     $data[] = new WFFacetedSearchFacetValue((string) $fv->getValue(), (int) $fv->getHits(), (int) $fv->getItemCount(), (boolean) $fv->isRange(), (string) $fv->getSecondValue()); // no children support yet...
                 }
                 $facetResultSet = new WFFacetedSearchFacetResultSet($data, $dpFacet->hasMore());
+                $facetResultSet->debugOutput = (string) $dpFacet->getOutput();
 
                 $facetDef->setResultSet($facetResultSet);
             }
@@ -225,12 +189,7 @@ class WFDieselSearch41 implements WFFacetedSearchService
             $this->handleJavaException($e);
         }
 
-        return $this->searchResults;
-    }
-
-    function resultSet()
-    {
-        return $this->searchResults;
+        return $searchResults;
     }
 
     function totalItems()

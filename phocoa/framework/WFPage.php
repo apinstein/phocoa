@@ -636,7 +636,7 @@ class WFPage extends WFObject
                 {
                     $module_prop_name = substr($value, 8);
                     WFLog::log("Setting '$id' property, $keyPath => shared object: $module_prop_name", WFLog::TRACE_LOG);
-                    $object->setValueForKeyPath($this->module->valueForKey($module_prop_name), $keyPath);
+                    $object->setValueForKeyPath($this->module->valueForKeyPath($module_prop_name), $keyPath);
                 }
                 else
                 {

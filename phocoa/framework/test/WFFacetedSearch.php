@@ -10,13 +10,9 @@ class MockFacetedSearchService implements WFFacetedSearchService
 {
     protected $query;
 
-    function setQuery($query) { $this->query = $query; }
-    function setLimit($limit) {}
-    function setOffset($offset) {}
-    function setSortBy($sortBy, $ascending = true) {}
-    function addFacetToGenerate(WFFacetedSearchFacet $facet) {}
-    function setSelectDataFromSearchIndexForAttributes($attributes) {}
-    function find() {}
+    function nativeQueryToShowAll() { return "*"; }
+    function totalItems() { return 100000; }
+    function find(WFFacetedSearch $fs) {}
     function resultSet()
     {
         $resultRows = array(); 
@@ -27,10 +23,7 @@ class MockFacetedSearchService implements WFFacetedSearchService
         $rs = new WFFacetedSearchResultSet($resultRows, 100, 1);
         return $rs;
     }
-    function totalItems() { return 1000; }
     function convertNavigationQueryToNativeQuery($navQ) { return "{$navQ->attribute()}{$navQ->comparator()}{$navQ->value()}"; }
-    function query() { return $this->query; }
-    function queryDescription() { return "QUERY DESCRIPTION"; }
     function joinNativeQueries($queries, $joinOperator)
     {
         return "(" . join(" {$joinOperator} ", $queries) . ")";
