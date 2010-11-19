@@ -357,11 +357,14 @@ class WFFacetedSearch extends WFObject implements WFPagedData
     const DEFAULT_NATIVE_QUERY_ID                  = '<nativeQuery>';   // by default all WFFacetedSearchNativeQuery are aggregated under this id (hidden queries)
     const DEFAULT_USER_QUERY_ID                    = '<userQuery>';     // by default all WFFacetedSearchUserQuery are aggregated under this id (user queries)
 
+    const OBJECT_LOADER_THRESHOLD_DISABLED         = 10000000; // very high
+
     protected $searchService                       = NULL;
 
     // query info
     protected $queries                             = NULL;
     protected $objectLoaderF                       = NULL;
+    protected $objectLoaderSkipIfMoreThanNResults  = self::OBJECT_LOADER_THRESHOLD_DISABLED;
     protected $query                               = NULL;
     protected $limit                               = 50;
     protected $offset                              = 0;
@@ -394,9 +397,10 @@ class WFFacetedSearch extends WFObject implements WFPagedData
      * @param callback
      * @return object WFFacetedSearch
      */
-    public function setObjectLoaderCallback($callback)
+    public function setObjectLoaderCallback($callback, $objectLoaderSkipIfMoreThanNResults = self::OBJECT_LOADER_THRESHOLD_DISABLED)
     {
         $this->objectLoaderF = $callback;
+        $this->objectLoaderSkipIfMoreThanNResults = $objectLoaderSkipIfMoreThanNResults;
 
         return $this;
     }
@@ -748,7 +752,7 @@ class WFFacetedSearch extends WFObject implements WFPagedData
 
         $results = $this->searchService->find($this);
 
-        if ($this->objectLoaderF)
+        if ($this->objectLoaderF && $results->totalHitCount() <= $this->objectLoaderSkipIfMoreThanNResults)
         {
             $allIds = $results->map('itemId');
             $objectsForIds = call_user_func($this->objectLoaderF, $allIds);
