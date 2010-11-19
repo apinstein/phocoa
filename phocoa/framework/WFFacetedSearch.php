@@ -408,7 +408,9 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
     const NAVIGATION_QUERY_STATE_DELIMITER_ENCODED = '-::-';
     const NAVIGATION_QUERY_STATE_DELIMITER         = '|';
     const NAVIGATION_QUERY_STATE_REGEX             = '/^([A-Za-z_-]+)(=|!=|>|>=|<|<=)(.+)$/';
-    const NAVIGATION_QUERY_STATE_REGEX_LEGACY      = '/^([A-Z]{2})_([^=]+)=(.+)$/';
+
+    const LEGACY_NAVIGATION_QUERY_STATE_REGEX      = '/^([A-Z]{2})_([^=]+)=(.+)$/';
+    const LEGACY_DEFAULT_USER_QUERY_ID             = 'simpleQuery';
 
     const DEFAULT_NATIVE_QUERY_ID                  = '<nativeQuery>';   // by default all WFFacetedSearchNativeQuery are aggregated under this id (hidden queries)
     const DEFAULT_USER_QUERY_ID                    = '<userQuery>';     // by default all WFFacetedSearchUserQuery are aggregated under this id (user queries)
@@ -546,7 +548,10 @@ class WFFacetedSearch extends WFObject implements WFPagedData, WFFacetedSearchSe
         $q = trim($q);
         if ($q == '') return NULL;
 
-        if (strncmp($q, self::DEFAULT_USER_QUERY_ID, strlen(self::DEFAULT_USER_QUERY_ID)) == 0)
+        if (
+            strncmp($q, self::DEFAULT_USER_QUERY_ID, strlen(self::DEFAULT_USER_QUERY_ID)) == 0
+            or strncmp($q, self::LEGACY_DEFAULT_USER_QUERY_ID, strlen(self::DEFAULT_USER_QUERY_ID)) == 0
+           )
         {
             $userQuery = substr($q, strlen(self::DEFAULT_USER_QUERY_ID) + 1);
             return new WFFacetedSearchUserQuery($userQuery, self::DEFAULT_USER_QUERY_ID, false);
@@ -1158,6 +1163,7 @@ class WFFacetedSearchFacet extends WFObject
                 //'allowMultipleSelection' => $this->options[self::OPT_ALLOW_MULTIPLE_SELECTION],
                 'queryBase'              => $this->facetedSearch->getNavigationQueryState($this->id),
                 'hasMoreFacets'          => $this->resultSet->hasMore(),
+                //'debugOutput'            => $this->resultSet->debugOutput,
                 'facets'                 => array(),
         );
 
@@ -1221,6 +1227,7 @@ class WFFacetedSearchFacet extends WFObject
 class WFFacetedSearchFacetResultSet extends WFArray
 {
     protected $hasMore;
+    public $debugOutput;
 
     public function __construct($data, $hasMore)
     {
