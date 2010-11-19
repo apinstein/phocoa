@@ -342,6 +342,8 @@ class WFFacetedSearchNavigationQuery extends WFFacetedSearchBaseComposableQuery
 class WFFacetedSearch extends WFObject implements WFPagedData
 {
     const SORT_BY_RELEVANCE                        = '-relevance';
+    const SORT_ASCENDING                           = 'asc';
+    const SORT_DESCENDING                          = 'desc';
 
     const QUERY_OP_AND                             = 'AND';
     const QUERY_OP_OR                              = 'OR';
@@ -368,7 +370,8 @@ class WFFacetedSearch extends WFObject implements WFPagedData
     protected $query                               = NULL;
     protected $limit                               = 50;
     protected $offset                              = 0;
-    protected $sortBy                              = NULL;
+    protected $sortBy                              = self::SORT_BY_RELEVANCE;
+    protected $sortByOrder                         = self::SORT_DESCENDING;
 
     protected $facets                              = array();
     protected $attributesToLoadFromSearchIndex     = array();
@@ -644,31 +647,7 @@ class WFFacetedSearch extends WFObject implements WFPagedData
     {
         $this->setOffset($startIndex);
         $this->setLimit($numItems);
-
-        // calculate sort key
-        // remove the SORT_BY_RELEVANCE sortKey -- relevance sorting is triggered by the ABSENCE of a "setSort" call
-        $sortKeysToUse = array();
-        foreach ($sortKeys as $key) {
-            if ($key != self::SORT_BY_RELEVANCE)
-            {
-                $sortKeysToUse[] = $key;
-            }
-        }
-        $sortKeys = $sortKeysToUse;
-        $this->sortBy = self::SORT_BY_RELEVANCE;
-        if (count($sortKeys) > 1) throw( new WFException("Only 1-key sorting supported at this time.") );
-        else if (count($sortKeys) == 1)
-        {
-            $sortKey = $sortKeys[0];
-            $sortByAttr = substr($sortKey, 1);
-            $sortDirAscending = true;
-            if (substr($sortKey, 0, 1) == '-')
-            {
-                $sortDirAscending = false;
-            }
-        }
-        $this->setSortBy($sortByAttr, $sortDirAscending);
-
+        $this->setSortBy($sortKeys[0]); // only 1-key sort supported at this time.
         return $this->find($this);
     }
 
@@ -703,15 +682,26 @@ class WFFacetedSearch extends WFObject implements WFPagedData
         return $this->offset;
     }
 
-    function setSortBy($sortBy, $ascending = true)
+    function setSortBy($sortBy, $sortByOrder = self::SORT_ASCENDING)
     {
+        if (in_array($sortBy[0], array('-','+')))
+        {
+            $sortByOrder = ($sortBy[0] === '-' ? self::SORT_DESCENDING : self::SORT_ASCENDING);
+            $sortBy = substr($sortBy, 1);
+        }
         $this->sortBy = $sortBy;
+        $this->sortByOrder = $sortByOrder;
         return $this;
     }
 
     function sortBy()
     {
         return $this->sortBy;
+    }
+
+    function sortByOrder()
+    {
+        return $this->sortByOrder;
     }
 
     function addFacetToGenerate(WFFacetedSearchFacet $facet)
@@ -1229,7 +1219,6 @@ class WFFacetedSearchFacet extends WFObject
             $queries = clone($this->facetedSearch->queries());
             $queries->clearQueriesForId($this->id);
 
-            xdebug_break();
             $subSearch = new WFFacetedSearch($this->facetedSearch->searchService());
             $subSearch->setQueries($queries)
                       ->addFacetToGenerate($facetClone)

@@ -79,7 +79,15 @@ class WFDieselSearch41 implements WFFacetedSearchService
             $dpSearchRequest->setQueryString($fs->query());
             $dpSearchRequest->setStartingItem($fs->offset());
             $dpSearchRequest->setNumberOfItemsRequested($fs->limit());
-            $dpSearchRequest->setSort($fs->sortBy());
+            $sortKey = $fs->sortBy();
+            if ($sortKey !== WFFacetedSearch::SORT_BY_RELEVANCE)
+            {
+                if ($fs->sortByOrder() === WFFacetedSearch::SORT_DESCENDING)
+                {
+                    $sortKey .= " desc";
+                }
+                $dpSearchRequest->setSort($sortKey);
+            }
 
             // convert WFFacetedSearchFacet into DP objects
             $facetMap = array();
@@ -169,7 +177,6 @@ class WFDieselSearch41 implements WFFacetedSearchService
             $searchResults = new WFFacetedSearchResultSet($resultRows, $dpSearchResults->getTotalItems(), $dpSearchResults->getSearchTime());
 
             // populate facet results
-            xdebug_break();
             foreach ($facetMap as $f) {
                 $dpFacet = $f['dpFacet'];
                 $facetDef = $f['facet'];
