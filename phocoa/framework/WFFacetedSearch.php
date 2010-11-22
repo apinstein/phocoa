@@ -341,7 +341,7 @@ class WFFacetedSearchNavigationQuery extends WFFacetedSearchBaseComposableQuery
 
 class WFFacetedSearch extends WFObject implements WFPagedData
 {
-    const SORT_BY_RELEVANCE                        = '-relevance';
+    const SORT_BY_RELEVANCE                        = 'relevance';
     const SORT_ASCENDING                           = 'asc';
     const SORT_DESCENDING                          = 'desc';
 
