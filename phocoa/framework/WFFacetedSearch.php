@@ -408,11 +408,20 @@ class WFFacetedSearch extends WFObject implements WFPagedData
         return $this;
     }
 
+    // @todo Make an interface for UX widgets -- should include this function
     public function registerWidget($widget)
     {
         $this->widgets[] = $widget;
+        $widget->setFacetedSearch($this);
 
         return $this;
+    }
+
+    public function readStateFromRegisteredWidgets()
+    {
+        foreach ($this->widgets as $widget) {
+            $widget->addQueries($this->queries);
+        }
     }
 
 
@@ -449,12 +458,6 @@ class WFFacetedSearch extends WFObject implements WFPagedData
                 $this->addQuery($composableQuery);
             }
         }
-
-        // allow registered widgets to affect the "initial" state
-        // WHY DOESN'T BINDINGS TAKE CARE OF THIS?
-//        foreach ($this->widgets as $widget) {
-//            $widget->dieselSearchRestoreState();
-//        }
 
         return $this;
     }
@@ -699,6 +702,11 @@ class WFFacetedSearch extends WFObject implements WFPagedData
         return $this->sortBy;
     }
 
+    function isRelevanceSort()
+    {
+        return $this->sortBy === self::SORT_BY_RELEVANCE;
+    }
+
     function sortByOrder()
     {
         return $this->sortByOrder;
@@ -740,6 +748,11 @@ class WFFacetedSearch extends WFObject implements WFPagedData
     {
         if ($this->resultSet) throw new Exception("Can only call find once per instance.");
 
+        // defaul to show all
+        if ($this->queries->isEmpty())
+        {
+            $this->addQuery(new WFFacetedSearchNativeQuery($this->searchService->nativeQueryToShowAll()));
+        }
         $results = $this->searchService->find($this);
 
         if ($this->objectLoaderF && $results->totalHitCount() <= $this->objectLoaderSkipIfMoreThanNResults)

@@ -36,7 +36,7 @@
  * @todo $facet used throughout our WFDieselFacet is actual an AttributeValue object. Confusing; need to re-name.
  * @todo treeRoot cookie trail linking isn't quite perfect yet...
  */
-class WFDieselFacet extends WFWidget
+class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTracking
 {
     const STYLE_LIST = 'list';
     const STYLE_MENU = 'menu';

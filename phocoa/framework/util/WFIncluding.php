@@ -110,6 +110,7 @@ class WFIncluding
                 'WFFacetedSearchFacet' => 'framework/WFFacetedSearch.php',
                 'WFFacetedSearchFacetResultSet' => 'framework/WFFacetedSearch.php',
                 'WFFacetedSearchFacetValue' => 'framework/WFFacetedSearch.php',
+                'WFFacetNavUserQuery' => 'framework/widgets/WFFacetNavUserQuery.php',
 
                 // OLD DP
                 'WFDieselSearch' => 'framework/WFDieselpoint.php',

@@ -15,7 +15,7 @@
  * default sort will be set to sort by relevance instead of whatever the existing default is. Of course
  * this can be overridden with the Paginator Sort controls.
  */
-class WFDieselKeyword extends WFWidget
+class WFDieselKeyword extends WFWidget implements WFDieselSearchHelperStateTracking
 {
     protected $maxLength;
     protected $size;
