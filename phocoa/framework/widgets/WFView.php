@@ -32,7 +32,7 @@
  * 
  * WFView contains the basic infrastructure support the YUI library, which is PHOCOA's Javascript and AJAX layer.
  */
-abstract class WFView extends WFObject
+abstract class WFView extends WFObject implements IteratorAggregate
 {
     /**
       * @var string The ID of the view. Used both internally {@link outlet} and externally as in the HTML id.
@@ -576,6 +576,26 @@ abstract class WFView extends WFObject
     }
 
     /**
+     * Get *all* children (including children of children).
+     * 
+     * @return object RecursiveIteratorIterator
+     */
+    function allChildren()
+    {
+        return new RecursiveIteratorIterator(new WFViewRecursiveIterator($this));
+    }
+
+    /**
+     * Get an iterator for the children.
+     * 
+     * @return object ArrayIterator
+     */
+    function getIterator()
+    {
+        return new ArrayIterator($this->children);
+    }
+
+    /**
       * Render the view into HTML.
       *
       * Subclasses need to start their output with the result of the super's render() method.
@@ -598,4 +618,53 @@ abstract class WFView extends WFObject
     function allConfigFinishedLoading() {}
 }
 
-?>
+/**
+ * Helper class to do recursive iteration of children.
+ */
+class WFViewRecursiveIterator implements RecursiveIterator
+{
+    private $view;
+    private $childrenIterator;
+
+    public function __construct($view)
+    {
+        if (!($view instanceof WFView)) throw new WFException("WFView required to create a WFViewRecursiveIterator.");
+        $this->view = $view;
+        $this->childrenIterator = $view->getIterator();
+    }
+
+    public function hasChildren()
+    {
+        return count($this->current()->children());
+    }
+
+    public function getChildren()
+    {
+        return new WFViewRecursiveIterator($this->current());
+    }
+
+    public function current()
+    {
+        return $this->childrenIterator->current();
+    }
+
+    public function key()
+    {
+        return $this->childrenIterator->key();
+    }
+
+    public function next()
+    {
+        return $this->childrenIterator->next();
+    }
+
+    public function rewind()
+    {
+        return $this->childrenIterator->rewind();
+    }
+
+    public function valid()
+    {
+        return $this->childrenIterator->valid();
+    }
+}
