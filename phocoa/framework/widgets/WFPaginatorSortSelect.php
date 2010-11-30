@@ -111,8 +111,8 @@ class WFPaginatorSortSelect extends WFWidget
         else
         {
             $libraryJS .= '
-                            jsCode = select.options[index].value; 
-                            eval(jsCode);
+                            stateWithNewSort = select.options[index].value; 
+                            ' . $this->paginator->jsPaginatorStateModeFormGoToStateFunctionName() . '(stateWithNewSort);
             ';
         }
         $libraryJS .= '
@@ -145,8 +145,7 @@ class WFPaginatorSortSelect extends WFWidget
                 }
                 else
                 {
-                    throw( new Exception('untested... please test!'));
-                    $html .= '<option value="' . $this->paginator->jsForState($this->paginator->paginatorState(0, NULL, array($opt))) . '"' . $selectedAttribute . '>' . $label . '</option>';
+                    $html .= '<option value="' . $this->paginator->paginatorState(0, NULL, array($opt)) . '"' . $selectedAttribute . '>' . $label . '</option>';
                 }
             }
             else
@@ -160,5 +159,3 @@ class WFPaginatorSortSelect extends WFWidget
 
     function canPushValueBinding() { return false; }
 }
-
-?>
