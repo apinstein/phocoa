@@ -25,6 +25,7 @@ Version 0.4.0 - ??
                   setRequestData($data)
                   setFormData($formId, $formData, $formSubmitButton = NULL)
                   setExpectRedirectException($url, $class = 'WFRedirectRequestException')
+- [new] Added support for coalescing KVC. You can now separate keyPaths with ; and the first non-null value will be used. The string after the final ; is used if all keyPaths return null.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()

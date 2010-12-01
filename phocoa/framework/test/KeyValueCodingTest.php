@@ -309,4 +309,20 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($p->validatedSetValueForKeyPath($invalidValue, 'firstName', $edited, $errors));
         $this->assertEquals($p->valueForKey('firstName'), $validValue);   // still previous first name
     }
+
+    function testCoalescingKeyPathsUseSemiColonAsDelimeter()
+    {
+        $p = new Person('Alan', 'Pinstein', 1);
+        $this->assertNull($p->valueForKeyPath('alwaysNull'), "Coalescing doesn't run without a ; delimiter in the keyPath.");
+        $this->assertEquals('', $p->valueForKeyPath('alwaysNull;'), "Default default defaults to empty string.");
+        $this->assertEquals('No Name', $p->valueForKeyPath('alwaysNull;No Name'), "Uses default default value if key return null.");
+        $this->assertEquals('No Name', $p->valueForKeyPath('alwaysNull;alwaysNull;No Name'), "Uses default default value if keys return null.");
+        $this->assertEquals('ok;escaped delimeter', $p->valueForKeyPath('alwaysNull;ok\;escaped delimeter'), "SemiColon can be used in default default if escaped with backslash.");
+    }
+    function testCoalescingKeyPaths()
+    {
+        $p = new Person('Alan', 'Pinstein', 1);
+        $this->assertEquals('Alan', $p->valueForKeyPath('firstName;No Name'), "Uses First Non-Null Value.");
+        $this->assertEquals('Alan', $p->valueForKeyPath('alwaysNull;firstName;No Name'), "Uses First Non-Null Value.");
+    }
 }
