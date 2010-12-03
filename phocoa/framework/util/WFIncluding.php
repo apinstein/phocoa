@@ -88,6 +88,7 @@ class WFIncluding
                 'WFAuthorizationInfo' => 'framework/WFAuthorization.php',
                 'WFAuthorizationException' => 'framework/WFAuthorization.php',
                 'WFAuthorizationManager' => 'framework/WFAuthorization.php',
+                'WFFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFBooleanFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFDateTimeFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFUNIXDateFormatter' => 'framework/widgets/WFFormatter.php',
