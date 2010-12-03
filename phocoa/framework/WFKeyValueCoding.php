@@ -68,6 +68,7 @@ interface WFKeyValueCoding
      * valueForKeypath's default implementation is in {@link WFObject}.
      *
      * The default implementation does some very special things...
+     *
      * 1. Magic Arrays<br>
      *    Magic arrays are a way of returning an array of values calculated from an array of objects.
      *    For instance, let's say you have an array of Person objects, for instance in an addressBook application, and that each person has a unique ID.
@@ -77,8 +78,8 @@ interface WFKeyValueCoding
      *    $arrayOfPersonIDs = $addressBook->valueForKeyPath("people.id")
      *    </code>
      *    And afterwards, arrayOfPersonIDs will have an array containing the ID for each person in the address book, in the same order that the Person objects appear in the array.
-     * 2. Array Operators, based on: http://developer.apple.com/documentation/Cocoa/Conceptual/KeyValueCoding/Concepts/ArrayOperators.html
      *
+     * 2. Array Operators, based on: http://developer.apple.com/documentation/Cocoa/Conceptual/KeyValueCoding/Concepts/ArrayOperators.html
      *    In a given keyPath, you can include an operator to perform a calculation on the keyPath to that point, provided that the result is an array: "transactions.@sum.amount"<br>
      *    Operators are preceeded by @:<br>
      *    count - Count of items specified by remainder of keypath.<br>
@@ -95,6 +96,21 @@ interface WFKeyValueCoding
      * 3. Static Method/Property access<br>
      *    If the first part of the keypath contains '::', then "static" mode will be enabled, which allows you to use KVC on an instance of an object to access static methods.
      *    Note that at present all static access must be done with {@link valueForStaticKeyPath()}. This may become more flexible in the future.
+     *
+     * 4. Inline Decorators<br>
+     *    If you want to use a decorator to wrap an object returned in a keyPath, you can use this syntax:
+     *    <code>
+     *      "parent[MyParentDecorator].fullName"
+     *    </code>
+     *    This will wrap the object returned by parent in a MyParentDecorator class before calling fullName.
+     *
+     * 5. Coalescing keyPaths<br>
+     *    With valueForKeyPath you can provide multiple keys separated by ; and the first key returning a non-null value will be used. If no key returns a non-null value, the string
+     *    after the final ; will be returned.
+     *    <code>
+     *      "parent.firstName;parent.lastName;No Name"
+     *    </code>
+     *    If you want to use a literal ; in your default value, escape it with "\;".
      *
      * @see valueForKey()
      * @param string The keyPath to retrive the value for.

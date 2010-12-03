@@ -183,6 +183,9 @@ class WFObject implements WFKeyValueCoding
 
     /**
      * Helper function for implementing KVC.
+     * 
+     * Supports "coalescing" KVC by using ; separated keyPaths. The first non-null value returned will be used.
+     * The *last* keypath is actually the "default default" which is used if all keyPaths return NULL.
      *
      * This is public so that other objects that don't subclass WFObject can leverage this codebase to implement KVC.
      *
@@ -191,7 +194,32 @@ class WFObject implements WFKeyValueCoding
      * @return mixed
      * @throws Exception, WFUndefinedKeyException
      */
-    public static function valueForTargetAndKeyPath($keyPath, $rootObject = NULL)
+    public static function valueForTargetAndKeyPath($inKeyPath, $rootObject = NULL)
+    {
+        // detect coalescing keypath
+        if (strpos($inKeyPath, ';') !== false)
+        {
+            $coalescingKeyPaths = preg_split('/(?<!\\\\);/', $inKeyPath);
+            if (count($coalescingKeyPaths) < 2) throw new WFException("Error parsing coalescing keypath: {$inKeyPath}");
+            $coalesceDefault = str_replace('\\;', ';', array_pop($coalescingKeyPaths));
+
+            $val = NULL;
+            while ($val === NULL && ($keyPath = array_shift($coalescingKeyPaths))) {
+                $val = self::valueForTargetAndKeyPathSingle($keyPath, $rootObject);
+            }
+            if ($val === NULL)
+            {
+                $val = $coalesceDefault;
+            }
+            return $val;
+        }
+        else
+        {
+            return self::valueForTargetAndKeyPathSingle($inKeyPath, $rootObject);
+        }
+    }
+
+    private static function valueForTargetAndKeyPathSingle($keyPath, $rootObject = NULL)
     {
         if ($keyPath == NULL) throw( new Exception("NULL keyPath Exception") );
         $staticMode = ($rootObject === NULL);
