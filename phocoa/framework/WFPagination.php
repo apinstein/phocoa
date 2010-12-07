@@ -932,6 +932,54 @@ class WFPagedPropelQuery implements WFPagedData
 }
 
 /**
+ * A WFPagedData implementation for Propel 1.5's ModelQuery (ModelCriteria) architecture.
+ *
+ * Sorting support: The sortKeys should be the "XXXPeer::COLUMN" with +/- prepended.
+ */
+class WFPagedPropelModelCriteria implements WFPagedData
+{
+    protected $criteria;
+    protected $con;
+
+    /**
+     *  Constructor.
+     *
+     *  @param object Criteria The Propel ModelCriteria for the query.
+     *  @param object PropelPDO An optional connection object to us.
+     */
+    function __construct($criteria, $con = NULL)
+    {
+        if (!($criteria instanceof ModelCriteria)) throw new WFException("WFPagedPropelModelCriteria requires a ModelCriteria.");
+        $this->criteria = $criteria;
+        $this->con = $con;
+    }
+    function itemCount()
+    {
+        return $this->criteria->count();
+    }
+    function itemsAtIndex($startIndex, $numItems, $sortKeys)
+    {
+        $criteria = clone $this->criteria;
+        $criteria->setOffset($startIndex - 1);
+        if ($numItems !== WFPaginator::PAGINATOR_PAGESIZE_ALL)
+        {
+            $criteria->setLimit($numItems);
+        }
+        foreach ($sortKeys as $sortKey) {
+            if (substr($sortKey, 0, 1) == '-')
+            {
+                $criteria->addDescendingOrderByColumn(substr($sortKey, 1));
+            }
+            else
+            {
+                $criteria->addAscendingOrderByColumn(substr($sortKey, 1));
+            }
+        }
+        return $criteria->find($this->con);
+    }
+}
+
+/**
  * A WFPagedData implementation for a Creole query.
  *
  * Sorting support: The sortKeys should be the acutal SQL token to use in the order by clause (ie "table.column") with +/- prepended.

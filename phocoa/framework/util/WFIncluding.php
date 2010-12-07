@@ -185,10 +185,11 @@ class WFIncluding
                 'FCKEditor' => FRAMEWORK_DIR . '/wwwroot/www/framework/FCKEditor/fckeditor.php',
 
                 // propel
-                'WFPagedPropelQuery'     => 'framework/WFPagination.php',
-                'WFModelBuilderPropel'   => 'framework/generator/WFGeneratorPropel12_13.php',
-                'WFModelBuilderPropel15' => 'framework/generator/WFGeneratorPropel15.php',
-                'WFPropelException'      => 'framework/util/WFPropelIntegration.php',
+                'WFPagedPropelQuery'         => 'framework/WFPagination.php',
+                'WFPagedPropelModelCriteria' => 'framework/WFPagination.php',
+                'WFModelBuilderPropel'       => 'framework/generator/WFGeneratorPropel12_13.php',
+                'WFModelBuilderPropel15'     => 'framework/generator/WFGeneratorPropel15.php',
+                'WFPropelException'          => 'framework/util/WFPropelIntegration.php',
 
                 // PHPUnit
                 'PhocoaControllerTestCase_PHPUnit' => 'phpunit/PhocoaControllerTestCase_PHPUnit.php',
