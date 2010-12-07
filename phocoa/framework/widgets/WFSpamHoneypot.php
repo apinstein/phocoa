@@ -11,6 +11,7 @@
  * A Spam Honeypot widget for our framework.
  *
  * To use, simply add an instance to your form.
+ * @todo Upgrade this to use info from the CSRF protection in the honeypotName so that it isn't easy for bots to hard-code around the honeypot field.
  */
 class WFSpamHoneypot extends WFTextField
 {
