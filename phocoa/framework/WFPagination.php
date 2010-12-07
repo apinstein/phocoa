@@ -939,23 +939,26 @@ class WFPagedPropelQuery implements WFPagedData
 class WFPagedPropelModelCriteria implements WFPagedData
 {
     protected $criteria;
+    protected $countCriteria;
     protected $con;
 
     /**
      *  Constructor.
      *
-     *  @param object Criteria The Propel ModelCriteria for the query.
+     *  @param object ModelCriteria The Propel ModelCriteria for the query.
+     *  @param object ModelCriteria The Propel ModelCriteria for the COUNT query. OPTIONAL. Useful for complex primary criteria which could have more efficient count queries.
      *  @param object PropelPDO An optional connection object to us.
      */
-    function __construct($criteria, $con = NULL)
+    function __construct($criteria, $countCriteria = NULL, $con = NULL)
     {
         if (!($criteria instanceof ModelCriteria)) throw new WFException("WFPagedPropelModelCriteria requires a ModelCriteria.");
         $this->criteria = $criteria;
+        $this->countCriteria = ($countCriteria === NULL ? $criteria : $countCriteria);
         $this->con = $con;
     }
     function itemCount()
     {
-        return $this->criteria->count();
+        return $this->countCriteria->count();
     }
     function itemsAtIndex($startIndex, $numItems, $sortKeys)
     {
