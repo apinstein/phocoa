@@ -178,6 +178,7 @@ class WFIncluding
                 'WFError' => 'framework/WFError.php',
                 'WFErrorArray' => 'framework/WFError.php',
                 'WFErrorsException' => 'framework/WFError.php',
+                'WFErrorCollection' => 'framework/WFError.php',
                 'WFExceptionReporting' => 'framework/WFExceptionReporting.php',
                 'WFUnixDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFSQLDateFormatter' => 'framework/widgets/WFFormatter.php',
@@ -190,6 +191,7 @@ class WFIncluding
                 'WFModelBuilderPropel'       => 'framework/generator/WFGeneratorPropel12_13.php',
                 'WFModelBuilderPropel15'     => 'framework/generator/WFGeneratorPropel15.php',
                 'WFPropelException'          => 'framework/util/WFPropelIntegration.php',
+                'WFObject_Propel'            => 'framework/util/WFPropelIntegration.php',
 
                 // PHPUnit
                 'PhocoaControllerTestCase_PHPUnit' => 'phpunit/PhocoaControllerTestCase_PHPUnit.php',

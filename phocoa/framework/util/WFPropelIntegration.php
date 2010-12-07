@@ -2,6 +2,7 @@
 
 // @todo Refactor all Propel-related classes into this file.
 
+// A wrapper for PropelException that acts as WFErrorCollection as well so that the phocoa controllers can catch propel errors directly.
 class WFPropelException extends PropelException implements WFErrorCollection
 {
     protected $errors;
@@ -51,5 +52,19 @@ class WFPropelException extends PropelException implements WFErrorCollection
     public function hasErrorWithCodeForKey($code, $key)
     {
         return $this->errors->hasErrorWithCodeForKey($code, $key);
+    }
+}
+
+// A subclass of WFObject to add support for VirtualColumns and other dynamic elements of Propel for KVC.
+class WFObject_Propel extends WFObject
+{
+    function valueForUndefinedKey($key)
+    {
+        if ($this->hasVirtualColumn($key))
+        {
+            return $this->getVirtualColumn($key);
+        }
+        // default implementation will throw
+        parent::valueForUndefinedKey($key);
     }
 }
