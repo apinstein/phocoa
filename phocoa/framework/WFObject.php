@@ -421,6 +421,19 @@ class WFObject implements WFKeyValueCoding
         return self::valueForStaticKeyPath($key);
     }
 
+    /**
+     * Returns the current object.
+     *
+     * Useful for KVC "hacking" in cases where you need to use KVC magic on the "current" object.
+     * Examples: this[MyDecorator].name, this.@first (for an array), etc.
+     *
+     * @return object WFObject
+     */
+    public function this()
+    {
+        return $this;
+    }
+
 
     function setValueForKey($value, $key)
     {

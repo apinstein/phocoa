@@ -28,6 +28,7 @@ Version 0.4.0 - ??
 - [new] Added support for coalescing KVC. You can now separate keyPaths with ; and the first non-null value will be used. The string after the final ; is used if all keyPaths return null.
 - [new] Added a WFPagedPropelModelCriteria to add phocoa pagination support for Propel 1.5's new query infrastructure.
 - [new] Added WFAuthorizationInfo->loginAsAuthorizationInfo($authInfo) function to make it easy to implement SSO or user-switching functionality.
+- [new] Add this() function to WFObject to make it easier to use KVC magic on "current" object.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
