@@ -329,6 +329,7 @@ class WFSelect extends WFWidget
 
     function setContentValues($values)
     {
+        if (!is_array($values) && !$values instanceof ArrayObject) throw new WFException("Expected an array");
         $this->contentValues = $values;
     }
 
@@ -339,6 +340,7 @@ class WFSelect extends WFWidget
     
     function setContentLabels($labels)
     {
+        if (!is_array($labels) && !$labels instanceof ArrayObject) throw new WFException("Expected an array");
         $this->contentLabels = $labels;
     }
 
