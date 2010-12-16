@@ -165,7 +165,7 @@ class WFObject implements WFKeyValueCoding
      */
     function valueForUndefinedKey($key)
     {
-        throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
+        throw( new WFUndefinedKeyException("Unknown key '$key' (" . gettype($key) . ") requested for object '" . get_class($this) . "'.") );
     }
 
     /**
@@ -460,7 +460,7 @@ class WFObject implements WFKeyValueCoding
 
         if (!$performed)
         {
-            throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
+            throw( new WFUndefinedKeyException("Unknown key '$key' (" . gettype($key) . ") requested for object '" . get_class($this) . "'.") );
         }
     }
 
