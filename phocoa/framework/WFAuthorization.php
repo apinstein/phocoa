@@ -435,6 +435,16 @@ class WFAuthorizationManager extends WFObject
     }
 
     /**
+      * Get the WFAuthorizationDelegate set for the WFAuthorizationManager.
+      *
+      * @return object An object that implements WFAuthorizationDelegate.
+      */
+    function delegate()
+    {
+        return $this->authorizationDelegate;
+    }
+
+    /**
       * Logout the current session.
       */
     function logout()
