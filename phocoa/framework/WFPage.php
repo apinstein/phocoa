@@ -602,7 +602,7 @@ class WFPage extends WFObject
         // we want to see if the class is a WFView subclass before instantiating (so that we can be sure our 'new' call below calls an existing prototype).
         // bug in PHP's is_subclass_of() causes segfault sometimes if the class needs to be autoloaded, so in 5.1.0 PHP stops calling autoload.
         // Thus, the fix is to load the class ourselves if needed before checking the inheritance.
-        if (!class_exists($class))
+        if (!class_exists($class) && function_exists('__autoload'))
         {
             __autoload($class);
         }
