@@ -40,7 +40,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     /**
      * @var string The css height of the input. Remember to specify like "200px" or "15em". Only used for INPUT_TYPE_TEXTAREA. Default: 50px.
      */
-    protected $height = '50px';
+    protected $height = '1em';
     /**
      * @var string The css width of the autocomplete box. Remeber to specify like "100px" or "80%". Default: 100%.
      */
@@ -340,16 +340,19 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     position: relative;
     width: {$this->width};
     margin-right: 12px; /* to compensate for browser dressing of input  */
-    " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : 'height: 2.5em;') . "
+    height: {$this->height};
 }
 #{$this->id} {
     width: 100%;
-    " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : '') . "
+    height: {$this->height};
 }
 #{$this->id}_acToggle {
     position: absolute;
     left: {$this->width};
     padding-left: 5px;
+}
+#{$myAutoCompleteContainer} {
+    top: {$this->height};
 }
 .yui-ac .yui-button {vertical-align:middle; }
 .yui-ac .yui-button button {
