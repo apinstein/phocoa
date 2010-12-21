@@ -109,6 +109,10 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
      * @var boolean True to show the container even if there is no text entered. Default: false. Useful in conjunction with {@link WFYAHOO_widget_AutoComplete::$minQueryLength minQueryLength}.
      */
     protected $alwaysShowContainer = NULL;
+    /**
+     * @var string A NULL placeholder
+     */
+    protected $nullPlaceholder = NULL;
 
     /**
      * @var integer Which of the DATASOURCE_* methods will be used for this instance.
@@ -142,6 +146,12 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         $this->yuiloader()->yuiRequire('autocomplete');
 
         $this->initializeWaitsForID = "WFYAHOO_widget_AutoComplete_{$this->id}_container";
+        $this->nullPlaceholder = NULL;
+    }
+
+    public function setNullPlaceholder($v)
+    {
+        $this->nullPlaceholder = $v;
     }
 
     /**
@@ -277,6 +287,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             'datasourceQueryMatchCase' => array('true', 'false'),
             'datasourceQueryMatchContains' => array('true', 'false'),
             'datasourceQueryMatchSubset' => array('true', 'false'),
+            'nullPlaceholder',
             ));
     }
 
@@ -296,7 +307,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         parent::restoreState();
 
         // look for the things in the form I need to restore state...
-        if (isset($_REQUEST[$this->name]))
+        if (isset($_REQUEST[$this->name]) and $this->nullPlaceholder !== $_REQUEST[$this->name])
         {
             $this->value = $_REQUEST[$this->name];
         }
@@ -312,6 +323,12 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         {
             // sanity checks
             if ($this->datasource === NULL) throw( new WFException("No datasource defined.") );
+
+            if ($this->nullPlaceholder)
+            {
+                $this->setOnEvent('focus do j:PHOCOA.widgets.' . $this->id . '.handleFocus()');
+                $this->setOnEvent('blur do j:PHOCOA.widgets.' . $this->id . '.handleBlur()');
+            }
 
             $html = parent::render($blockContent);
 
@@ -345,7 +362,9 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             <div id=\"{$this->initializeWaitsForID}\">";
             if ($this->inputType == self::INPUT_TYPE_TEXTFIELD)
             {
-                $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"" . htmlspecialchars($this->value) ."\" " . $this->classHTML() . " />";
+                $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"" . htmlspecialchars($this->value) ."\" " .
+                         ($this->nullPlaceholder ? ' placeholder="' . htmlspecialchars($this->nullPlaceholder) . '" ' : NULL) .
+                         $this->classHTML() . " />";
             }
             else if ($this->inputType == self::INPUT_TYPE_TEXTAREA)
             {
@@ -361,6 +380,48 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             }
             $html .= "<div id=\"{$myAutoCompleteContainer}\"></div>
             </div>";
+            if ($this->nullPlaceholder)
+            {
+                $escapedNullPlaceholder = json_encode($this->nullPlaceholder);
+                $html .= '<script>
+                PHOCOA.namespace("widgets.' . $this->id . '");
+                PHOCOA.widgets.' . $this->id . '.hasFocus = false;
+                PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
+                    PHOCOA.widgets.' . $this->id . '.hasFocus = true;
+                    if ($F(\'' . $this->id . '\') === ' . $escapedNullPlaceholder . ')
+                    {
+                        $(\'' . $this->id . '\').value = "";
+                    }
+                    $(\'' . $this->id . '\').removeClassName("phocoaWFSearchField_PlaceholderText");
+                };
+                PHOCOA.widgets.' . $this->id . '.handleBlur = function(e) {
+                    PHOCOA.widgets.' . $this->id . '.hasFocus = false;
+                    PHOCOA.widgets.' . $this->id . '.handlePlaceholder();
+                };
+                PHOCOA.widgets.' . $this->id . '.handlePlaceholder = function() {
+                    if (!PHOCOA.widgets.' . $this->id . '.hasFocus)
+                    {
+                        if ($F(\'' . $this->id . '\') === \'\')
+                        {
+                            $(\'' . $this->id . '\').value = ' . $escapedNullPlaceholder . ';
+                            $(\'' . $this->id . '\').addClassName("phocoaWFSearchField_PlaceholderText");
+                        }
+                    }
+                };
+                PHOCOA.widgets.' . $this->id . '.getValue = function() {
+                    var qField = $(\'' . $this->id . '\');
+                    var qVal = null;
+                    if (qField.getAttribute("placeholder") !== $F(qField))
+                    {
+                        qVal = $F(qField);
+                    }
+                    return qVal;
+                };
+                // perform initial check on search field value
+                PHOCOA.widgets.' . $this->id . '.handlePlaceholder();'
+                . $this->getListenerJS() . 
+                '</script>';
+            }
             return $html;
         }
     }

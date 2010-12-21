@@ -30,6 +30,7 @@ Version 0.4.0 - ??
 - [new] Added WFAuthorizationInfo->loginAsAuthorizationInfo($authInfo) function to make it easy to implement SSO or user-switching functionality.
 - [new] Add this() function to WFObject to make it easier to use KVC magic on "current" object.
 - [new] Add a smarty modifier plugin to json encode data.
+- [new] Add nullPlaceholder support to WFYAHOO_widget_AutoComplete.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
