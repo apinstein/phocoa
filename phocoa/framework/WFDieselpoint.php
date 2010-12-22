@@ -1004,6 +1004,11 @@ class WFDieselSearchHelper extends WFObject
         return $this->dieselSearch;
     }
 
+    function hasAttributeQueries()
+    {
+        return count($this->attributeQueries) > 0;
+    }
+
     /**
      *  Convert the query represented by this instance into DQL and set it up with the associated WFDieselSearch.
      */
@@ -1028,7 +1033,7 @@ class WFDieselSearchHelper extends WFObject
             $dpqlItems[] = $this->restrictDQL;
         }
 
-        if (count($this->attributeQueries))
+        if ($this->hasAttributeQueries())
         {
             //print_r($this->attributeQueries);
             $attrQueryInfo = array();
