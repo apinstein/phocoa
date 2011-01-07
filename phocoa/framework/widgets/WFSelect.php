@@ -399,6 +399,7 @@ class WFSelect extends WFWidget
                     ($this->enabled() ? '' : ' disabled readonly ') .
                     ($this->class ? ' class="' . $this->class . '"' : '') .
                     ($this->width ? ' style="width: ' . $this->width . ';" ' : '') . 
+                    ($this->tabIndex ? ' tabIndex="' . $this->tabIndex . '" ' : NULL) .
                     $this->getJSActions() . 
                     '>';
 

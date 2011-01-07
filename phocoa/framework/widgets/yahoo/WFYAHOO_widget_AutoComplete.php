@@ -367,6 +367,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             {
                 $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"" . htmlspecialchars($this->value) ."\" " .
                          ($this->nullPlaceholder ? ' placeholder="' . htmlspecialchars($this->nullPlaceholder) . '" ' : NULL) .
+                         ($this->tabIndex ? ' tabIndex="' . $this->tabIndex . '" ' : NULL) .
                          $this->classHTML() . " />";
             }
             else if ($this->inputType == self::INPUT_TYPE_TEXTAREA)

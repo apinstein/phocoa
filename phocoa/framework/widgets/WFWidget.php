@@ -88,6 +88,10 @@ abstract class WFWidget extends WFView
      * @see WFWidgets::setWidgetLabel()
      */
     protected $widgetLabel;
+    /**
+     * @var integer The tabindex of the control (defaults to NULL)
+     */
+    protected $tabIndex;
 
     /**
       * Constructor.
@@ -107,6 +111,7 @@ abstract class WFWidget extends WFView
         $this->hidden = false;
         $this->class = NULL;
         $this->widgetLabel = NULL;
+        $this->tabIndex = NULL;
     }
 
     public static function exposedProperties()
@@ -283,6 +288,8 @@ abstract class WFWidget extends WFView
         $enSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
         $enSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND);
         $myBindings[] = $enSetup;
+        $tabIndexSetup = new WFBindingSetup('tabIndex', 'The current tabIndex.');
+        $myBindings[] = $tabIndexSetup;
         return $myBindings;
     }
 

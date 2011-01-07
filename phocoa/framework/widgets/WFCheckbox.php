@@ -233,6 +233,7 @@ class WFCheckbox extends WFWidget
                     'value="' . $this->checkedValue() . '" ' .
                     ($this->checked() ? ' checked="checked" ' : '') .
                     ($this->enabled() ? '' : ' disabled readonly ') .
+                    ($this->tabIndex ? ' tabIndex="' . $this->tabIndex . '" ' : NULL) .
                     ' />' . 
                     $labelRight .
                     $this->getListenerJSInScriptTag();
