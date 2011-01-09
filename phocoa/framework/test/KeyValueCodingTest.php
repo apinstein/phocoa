@@ -105,6 +105,16 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         self::assertEquals($this->nodeTree->valueForKeyPath('children.@first.children.@first.name'), 'Grandkid1');
     }
 
+    function testFirstNotNullOperator()
+    {
+        $a = new Node;
+        $a->name = NULL;
+        $b = new Node;
+        $b->name = "Name";
+        $array = new WFArray(array($a, $b));
+        $this->assertEquals("Name", $array->valueForKeyPath('values.@firstNotNull.name'));
+    }
+
     // test @sum
     function testSumOperator()
     {

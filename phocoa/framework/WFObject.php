@@ -316,7 +316,7 @@ class WFObject implements WFKeyValueCoding
             {
                 $nextPart = $keys[$keyI + 1];
                 // are we in operator mode as well?
-                if (in_array($nextPart, array('@count', '@first', '@sum', '@max', '@min', '@avg', '@unionOfArrays', '@unionOfObjects', '@distinctUnionOfArrays', '@distinctUnionOfObjects')))
+                if (in_array($nextPart, array('@count', '@first', '@firstNotNull', '@sum', '@max', '@min', '@avg', '@unionOfArrays', '@unionOfObjects', '@distinctUnionOfArrays', '@distinctUnionOfObjects')))
                 {
                     $operator = $nextPart;
                     $rightKeyPath = join('.', array_slice($keyParts, $keyI + 2));
@@ -361,6 +361,16 @@ class WFObject implements WFKeyValueCoding
                             else
                             {
                                 $result = null;
+                            }
+                            break;
+                        case '@firstNotNull':
+                            $result = null;
+                            foreach ($magicArray as $v) {
+                                if ($v !== NULL)
+                                {
+                                    $result = $v;
+                                    break;
+                                }
                             }
                             break;
                         case '@sum':

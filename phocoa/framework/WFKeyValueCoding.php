@@ -84,6 +84,7 @@ interface WFKeyValueCoding
      *    Operators are preceeded by @:<br>
      *    count - Count of items specified by remainder of keypath.<br>
      *    first - Return the first item in the array, or NULL<BR>
+     *    firstNotNull - Return the first non-null item in the array, or NULL<BR>
      *    sum - Sum of items specified by remainder of keypath.<br>
      *    max - Maximum value of items specified by remainder of keypath.<br>
      *    min - Minimum value of items specified by remainder of keypath.<br>

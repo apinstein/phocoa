@@ -33,6 +33,7 @@ Version 0.4.0 - ??
 - [new] Add nullPlaceholder support to WFYAHOO_widget_AutoComplete.
 - [new] Add support for tabIndex to WFWidget. Add to WFCheckbox, WFTextField, WFSelect.
 - [new] Added an "escape hatch" modifier to KVC. "relatedObject^.foo" will now return NULL rather than throwing a WFUndefinedKeyException.
+- [new] Add an new KVC magic array operator: @firstNotNull which returns the first non-null result from the array.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
