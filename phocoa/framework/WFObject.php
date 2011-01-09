@@ -238,6 +238,15 @@ class WFObject implements WFKeyValueCoding
             $key = $keys[$keyI];
             $keyPartsLeft--;
 
+            // look for escape hatch
+            $escapeHatch = false;
+            $lastChrModifier = substr($key, -1);
+            if ($lastChrModifier === '^')
+            {
+                $escapeHatch = true;
+                $key = substr($key, 0, strlen($key)-1);
+            }
+
             // parse out decorate magic, if any
             $decoratorClass = NULL;
             $decoratorPos = strpos($key, '[');
@@ -292,6 +301,8 @@ class WFObject implements WFKeyValueCoding
             }
             else
             {
+                if ($escapeHatch and $result === NULL and $keyPartsLeft) return NULL;
+
                 if ($decoratorClass)
                 {
                     $result = new $decoratorClass($result);

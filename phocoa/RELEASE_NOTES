@@ -32,6 +32,7 @@ Version 0.4.0 - ??
 - [new] Add a smarty modifier plugin to json encode data.
 - [new] Add nullPlaceholder support to WFYAHOO_widget_AutoComplete.
 - [new] Add support for tabIndex to WFWidget. Add to WFCheckbox, WFTextField, WFSelect.
+- [new] Added an "escape hatch" modifier to KVC. "relatedObject^.foo" will now return NULL rather than throwing a WFUndefinedKeyException.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()

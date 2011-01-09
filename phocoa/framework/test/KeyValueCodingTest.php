@@ -325,4 +325,12 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('Alan', $p->valueForKeyPath('firstName;No Name'), "Uses First Non-Null Value.");
         $this->assertEquals('Alan', $p->valueForKeyPath('alwaysNull;firstName;No Name'), "Uses First Non-Null Value.");
     }
+    function testEscapeHatch()
+    {
+        $node = new Node;
+        $node->name = 'Some name.';
+        $node->value = NULL;
+
+        $this->assertNull($node->valueForKeyPath('value^.whatever'), "Escape hatch failed to detect null for scalar.");
+    }
 }

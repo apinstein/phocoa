@@ -111,6 +111,12 @@ interface WFKeyValueCoding
      *      "parent.firstName;parent.lastName;No Name"
      *    </code>
      *    If you want to use a literal ; in your default value, escape it with "\;".
+     * 6. Escape Hatch<br>
+     *    With valueForKeyPath you sometimes end up where a value in the middle of the keyPath can be NULL. By default this will throw a WFUndefinedKeyException.
+     *    However, if you prefer to just get back NULL in this case, you can use the escapeHatch.
+     *    <code>
+     *      "getRelatedObject^.name" - Will return NULL if getRelatedObject is NULL rather than throwing a WFUndefinedKeyException.
+     *    </code>
      *
      * @see valueForKey()
      * @param string The keyPath to retrive the value for.
