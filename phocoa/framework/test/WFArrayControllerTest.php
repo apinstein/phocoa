@@ -339,6 +339,16 @@ class WFArrayControllerTest extends PHPUnit_Framework_TestCase
         $result = $this->ac->selectedObjects();
         self::assertTrue(count($result) == 2 and $result[0]->issuingState == 'GA' and $result[1]->issuingState == 'NY');
     }
-}
 
-?>
+    public function testClearContent()
+    {
+        // setup
+        $this->ac->setClass('Person');
+        $this->ac->setClassIdentifiers('uid');
+        $this->ac->setContent($this->personArray);
+        $this->assertNotEquals(0, $this->ac->arrangedObjectCount());
+
+        $this->ac->clearContent();
+        $this->assertEquals(0, $this->ac->arrangedObjectCount());
+    }
+}

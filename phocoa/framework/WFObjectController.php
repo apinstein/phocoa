@@ -164,6 +164,14 @@ class WFObjectController extends WFObject
     }
 
     /**
+     * Clear the content.
+     */
+    function clearContent()
+    {
+        $this->content = NULL;
+    }
+
+    /**
      * Get an array with the selected objects.
      * @return An array containing the selected objects, or an empty array if there is no selection.
      */
