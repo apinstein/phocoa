@@ -869,6 +869,11 @@ class WFPagedArray implements WFPagedData
                 rsort($this->data);
             }
         }
+
+        // If you pass -1 as the last argument of array_slice,
+        // return you all EXCEPT the last item (not what we want)
+        if ($numItems == -1) $numItems = NULL;
+
         return array_slice($this->data, $startIndex - 1, $numItems);
     }
 }
