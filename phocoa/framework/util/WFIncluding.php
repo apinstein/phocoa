@@ -175,6 +175,7 @@ class WFIncluding
                 'WFObjectController' => 'framework/WFObjectController.php',
                 'WFArrayController' => 'framework/WFArrayController.php',
                 'WFArray' => 'framework/WFArray.php',
+                'WFDictionary' => 'framework/WFDictionary.php',
                 'WFError' => 'framework/WFError.php',
                 'WFErrorArray' => 'framework/WFError.php',
                 'WFErrorsException' => 'framework/WFError.php',
