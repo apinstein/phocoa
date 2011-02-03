@@ -36,6 +36,7 @@ Version 0.4.0 - ??
 - [new] Add an new KVC magic array operator: @firstNotNull which returns the first non-null result from the array.
 - [new] Add WFDictionary object, a KVC-compliant hash object -- great for using widgets with transient data structures.
 - [improved] WFViewHiddenHelper and WFShowErrors have been updated to automagically work for WFDynamic's with oneShotMode enabled.
+- [bugfix] Fix nullPlaceholders in WFTextField and WFTextArea. They weren't italicizing on initial load or if the value was the same as the nullPlaceholder.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
