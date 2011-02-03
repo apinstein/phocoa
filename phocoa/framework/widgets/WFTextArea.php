@@ -37,14 +37,26 @@ class WFTextArea extends WFWidget
         $this->nullPlaceholder = NULL;
     }
 
+    private function normalizeLineEndings($text)
+    {
+        $text = str_replace("\r\n", "\n", $text);   // win -> un*x
+        $text = str_replace("\r", "\n", $text);     // mac -> un*x
+        return $text;
+    }
     function restoreState()
     {
         //  must call super
         parent::restoreState();
 
-        if (isset($_REQUEST[$this->name]) and $this->nullPlaceholder !== $_REQUEST[$this->name])
+        if (isset($_REQUEST[$this->name]))
         {
-            $this->setValue($_REQUEST[$this->name]);
+            $reqVal = $this->normalizeLineEndings($_REQUEST[$this->name]);
+            $nullPlaceholder = $this->normalizeLineEndings($this->nullPlaceholder);
+
+            if ($reqVal !== $nullPlaceholder)
+            {
+                $this->setValue($_REQUEST[$this->name]);
+            }
         }
     }
 
