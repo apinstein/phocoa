@@ -57,7 +57,7 @@ class WFImage extends WFWidget
       */
     protected $height;
     /**
-      * @var integer The border to use (css-style: 1px solid blue). Default 0.
+      * @var integer The border to use (css-style: "1px solid blue"). Default "0".
       */
     protected $border;
     /**
@@ -115,7 +115,7 @@ class WFImage extends WFWidget
         $this->baseDir = NULL;
         $this->width = NULL;
         $this->height = NULL;
-        $this->border = 'border: 0;';
+        $this->border = '0';
         $this->align = NULL;
         $this->link = NULL;
         $this->linkTarget = NULL;
@@ -309,7 +309,7 @@ class WFImage extends WFWidget
             ' style="' .
             ($cssWidth ? "width: {$cssWidth}; " : '') .
             ($cssHeight ? "height: {$cssHeight}; " : '') .
-            ($this->border ? "border: {$this->border}; " : '') .
+            ($this->border !== NULL ? "border: {$this->border}; " : '') .
             '" />'
             . $this->getListenerJSInScriptTag();
         if ($this->link)
