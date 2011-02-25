@@ -4,7 +4,11 @@ class WFYaml
 {
     public static function loadFile($file)
     {
-        if (function_exists('syck_load'))
+        if (function_exists('yaml_parse_file'))
+        {
+            return yaml_parse_file($file);
+        }
+        else if (function_exists('syck_load'))
         {
             // php-lib-c version, much faster!
             // ******* NOTE: if using libsyck with PHP, you should install from pear/pecl (http://trac.symfony-project.com/wiki/InstallingSyck)
@@ -39,7 +43,11 @@ class WFYaml
      */
     public static function loadString($string)
     {
-        if (function_exists('syck_load'))
+        if (function_exists('yaml_parse'))
+        {
+            return yaml_parse($string);
+        }
+        else if (function_exists('syck_load'))
         {
             // extension version
             $file = tempnam("/tmp", 'syck_yaml_tmp_');
@@ -69,7 +77,11 @@ class WFYaml
      */
     public static function dump($phpData)
     {
-        if (function_exists('syck_dump'))
+        if (function_exists('yaml_emit'))
+        {
+            return yaml_emit($phpData);
+        }
+        else if (function_exists('syck_dump'))
         {
             // php-lib-c version, much faster!
             return syck_dump($phpData);
@@ -81,5 +93,3 @@ class WFYaml
         }
     }
 }
-
-?>

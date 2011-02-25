@@ -6,7 +6,8 @@
  
 
 error_reporting(E_ALL);
-require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
+//require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
+require_once getenv('PHOCOA_PROJECT_CONF');
 
 class WFYamlTest extends PHPUnit_Framework_TestCase
 {
