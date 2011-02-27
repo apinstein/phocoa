@@ -521,7 +521,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         }
         // _nogo is to prevent browser from "scrolling" to this link; _nogo isn't a valid id.
         // return false on the onClick to prevent the js action from adding to the browser history
-        return "<a href=\"#{$this->id}_nogo\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . "', '" . addslashes($this->dieselSearchHelper->getAttributeSelection($this->attributeID())) . "'); return false;\">{$linkText}</a>";
+        return "<a href=\"#{$this->id}_nogo\" {$class} onClick=\"doPopup('" . $this->id() . "', '" . urlencode($this->dieselSearchHelper->getQueryState($this->attributeID())) . "', '" . addslashes($this->dieselSearchHelper->getAttributeSelection($this->attributeID())) . "', this); return false;\">{$linkText}</a>";
     }
 
     private function facetMenuHTML($facets)
