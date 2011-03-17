@@ -180,16 +180,37 @@ class WFImage extends WFWidget
     function setBaseDir($path)
     {
         $this->baseDir = $path;
+        return $this;
     }
 
     function setSrcWidth($w)
     {
         $this->srcWidth = $w;
+        return $this;
     }
 
     function setSrcHeight($h)
     {
         $this->srcHeight = $h;
+        return $this;
+    }
+
+    function setFitToBox($b)
+    {
+        $this->fitToBox = $b;
+        return $this;
+    }
+
+    function setWidth($v)
+    {
+        $this->width = $v;
+        return $this;
+    }
+
+    function setHeight($v)
+    {
+        $this->height = $v;
+        return $this;
     }
 
     private function doFitToBox(&$pxWidth, &$pxHeight)
