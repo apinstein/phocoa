@@ -61,6 +61,10 @@ class WFCheckbox extends WFWidget
      * @var string The position of the labels in HTML. 'left' will put the <label> first; 'right' will put it after the checkbox.
      */
     protected $labelPosition;
+    /**
+     * @var string The "title" attribute. HTML standard tooltip.
+     */
+    protected $title;
 
     /**
       * Constructor.
@@ -74,6 +78,7 @@ class WFCheckbox extends WFWidget
         $this->groupMode = false;
         $this->label = '';
         $this->labelPosition = 'right';
+        $this->title = '';
     }
 
     function setGroupMode($enabled)
@@ -237,6 +242,7 @@ class WFCheckbox extends WFWidget
                     ($this->checked() ? ' checked="checked" ' : '') .
                     ($this->enabled() ? '' : ' disabled readonly ') .
                     ($this->tabIndex ? ' tabIndex="' . $this->tabIndex . '" ' : NULL) .
+                    ($this->title ? ' title="' . $this->title . '" ' : NULL) .
                     ' />' . 
                     $labelRight .
                     $this->getListenerJSInScriptTag();
