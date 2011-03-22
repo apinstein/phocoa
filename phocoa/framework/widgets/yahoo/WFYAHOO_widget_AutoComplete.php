@@ -10,6 +10,16 @@
 
 /**
  * A YAHOO AutoComplete widget for our framework. This widget acts like a ComboBox: it is a text field with a pick-list and OPTIONAL custom entry.
+ *
+ * Must call either {@link WFYAHOO_widget_AutoComplete::setDatasourceJSArray() setDatasourceJSArray} (for static lists) or {@link WFYAHOO_widget_AutoComplete::setDynamicDataLoader() setDynamicDataLoader} (for dynamic lookup of autocomplete options) to complete configuration.
+ *
+ * If you are using dynamic lookups, you will need to implement a page delegate function with the name passed to setDynamicDataLoader.
+ * This function should return an array of arrays; if you are not using a custom schema, should be array(array('ac 1'), array('ac 2'), ...).
+ * For custom schemas, the inner arrays should have 1 element for each item in the schema.
+ *
+ * By default the prototype for the callback function is myDataLoader($page, $params, $query) where $query is the partially-entered data.
+ * If you need additional arguments for the callback, define a PHOCOA.widgets.<acId>.yuiDelegate.dynamicDataLoaderCollectArguments function that returns an array of additional arguments
+ * which will be passed in like so: myDataLoader($page, $params, $query, $additionalArg1, $additionalArg2, ...)
  * 
  * <b>PHOCOA Builder Setup:</b>
  *
@@ -18,7 +28,6 @@
  * 
  * <b>Optional:</b><br>
  *
- * @todo AJAX lookups seem to be failing... JSON is getting returned but no results displayed.
  */
 class WFYAHOO_widget_AutoComplete extends WFYAHOO
 {
@@ -202,12 +211,12 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         $this->dynamicDataLoaderSchema = $schema;
     }
 
-    public function ajaxLoadData($page, $params)
+    public function ajaxLoadData()
     {
-        if (!isset($_REQUEST['query'])) throw( new WFException("No query passed to ajaxLoadData.") );
+        $callbackArgs = func_get_args();    // $page, $params, $query, ... <custom args>
 
         // perform query
-        $callbackResults = call_user_func($this->dynamicDataLoader, $page, $params, $_REQUEST['query']);
+        $callbackResults = call_user_func_array($this->dynamicDataLoader, $callbackArgs);
 
         // initialize results structure
         $results = array();
@@ -480,7 +489,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
                     $schema[] = array('key' => $field);
                 }
                 $html .= "
-                    var acDatasource = new YAHOO.util.XHRDataSource(acXHRRPC.actionURL() + '?' + acXHRRPC.actionURLParams() + '&');
+                    var acDatasource = new YAHOO.util.XHRDataSource();
                     acDatasource.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;
                     acDatasource.responseSchema = {
                         resultsList: 'results',
@@ -496,6 +505,22 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         // set up widget
         $html .= "\nvar AutoCompleteWidget = new YAHOO.widget.AutoComplete('{$this->id}','{$myAutoCompleteContainer}', acDatasource);\n";
         $html .= "\nAutoCompleteWidget.queryQuestionMark = false;\n";
+        if ($this->datasource === WFYAHOO_widget_AutoComplete::DATASOURCE_XHR)
+        {
+            $html .= "\n
+var urlGenerator = function(query) {
+    var phocoaArgs = [query];
+    if (PHOCOA.widgets['{$this->id()}'] && PHOCOA.widgets['{$this->id()}'].yuiDelegate && PHOCOA.widgets['{$this->id()}'].yuiDelegate.dynamicDataLoaderCollectArguments)
+    {
+        phocoaArgs.push(PHOCOA.widgets['{$this->id()}'].yuiDelegate.dynamicDataLoaderCollectArguments());
+    }
+    phocoaArgs = phocoaArgs.flatten();
+    var url =  acXHRRPC.actionAsURL(phocoaArgs);
+    return url;
+};
+AutoCompleteWidget.generateRequest = urlGenerator;
+";
+        }
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animVert', $this->animVert);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animHoriz', $this->animHoriz);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animSpeed', $this->animSpeed);

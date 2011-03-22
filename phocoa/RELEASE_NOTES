@@ -38,6 +38,7 @@ Version 0.4.0 - ??
 - [improved] WFViewHiddenHelper and WFShowErrors have been updated to automagically work for WFDynamic's with oneShotMode enabled.
 - [bugfix] Fix nullPlaceholders in WFTextField and WFTextArea. They weren't italicizing on initial load or if the value was the same as the nullPlaceholder.
 - [improved] Make WFCheckbox.label support multi-value pattern bindings.
+- [improved] YAHOO_widget_AutoComplete now supports passing back additional arguments into the callback via a PHOCOA.widgets.<acId>.yuiDelegate.dynamicDataLoaderCollectArguments function.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
