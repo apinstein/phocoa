@@ -390,6 +390,17 @@ class WFYAHOO_widget_TabView extends WFYAHOO
             $i++;
         }
         $html .= "
+            tabView.goToTab = function(tabId) {
+                tabId = '#' + tabId;
+                for (var i = 0; i < tabView.getAttributeConfig('tabs').value.length; i++) {
+                    if (tabView.getTab(i).getAttributeConfig('href').value === tabId)
+                    {
+                        tabView.selectTab(i);
+                        return;
+                    }
+                }
+                throw new Error('TabId ' + tabId + ' does not exist.');
+            };
             PHOCOA.runtime.addObject(tabView, '{$this->id}');
         };
         ";
