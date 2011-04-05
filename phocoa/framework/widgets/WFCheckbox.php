@@ -204,7 +204,7 @@ class WFCheckbox extends WFWidget
     {
         $myBindings = parent::setupExposedBindings();
         $myBindings[] = new WFBindingSetup('value', 'The value of the checkbox -- this will be either checkedValue or uncheckedValue depending on the checked status.');
-        $label = new WFBindingSetup('label', 'The label for the checkbox -- Text to label the checkbox with, or empty.');
+        $label = new WFBindingSetup('label', 'The label for the checkbox -- Text to label the checkbox with, or empty.', array(WFBinding::OPTION_VALUE_PATTERN => WFBinding::OPTION_VALUE_PATTERN_DEFAULT_PATTERN));
         $label->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $label->setReadOnly(true);
         $myBindings[] = $label;

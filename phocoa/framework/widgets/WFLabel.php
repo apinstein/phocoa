@@ -63,7 +63,7 @@ class WFLabel extends WFWidget
     {
         $myBindings = parent::setupExposedBindings();
         // do we need this custom binding setup here? wasn't WFBINDINGTYPE_MULTIPLE_PATTERN moved to WFView?
-        $newValBinding = new WFBindingSetup('value', 'The selected value for non-multiple select boxes.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding = new WFBindingSetup('value', 'The selected value for non-multiple select boxes.', array(WFBinding::OPTION_VALUE_PATTERN => WFBinding::OPTION_VALUE_PATTERN_DEFAULT_PATTERN));
         $newValBinding->setReadOnly(true);
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $myBindings[] = $newValBinding;
