@@ -9,7 +9,7 @@ class WFPropelException extends PropelException implements WFErrorCollection
 
     public function __construct(WFErrorArray $errors, $p1, $p2 = null)
     {
-        parent::__construct($p1, $p1);
+        parent::__construct($p1, $p2);
         $this->errors = $errors;
     }
 
