@@ -181,6 +181,7 @@ class WFIncluding
                 'WFErrorsException' => 'framework/WFError.php',
                 'WFErrorCollection' => 'framework/WFError.php',
                 'WFExceptionReporting' => 'framework/WFExceptionReporting.php',
+                'WFFunction' => 'framework/WFFunction.php',
                 'WFUnixDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFSQLDateFormatter' => 'framework/widgets/WFFormatter.php',
                 'WFNumberFormatter' => 'framework/widgets/WFFormatter.php',
