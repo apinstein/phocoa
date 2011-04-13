@@ -7,8 +7,19 @@ class WFPropelException extends PropelException implements WFErrorCollection
 {
     protected $errors;
 
-    public function __construct(WFErrorArray $errors, $p1, $p2 = null)
+    public function __construct($errors, $p1, $p2 = null)
     {
+        if (!$errors instanceof WFErrorCollection && !is_array($errors))
+        {
+            throw new Exception("Invalid error collection passed to WFPropelException");
+        }
+
+        // Convert array of errors into a WFErrorCollection
+        if (is_array($errors))
+        {
+            $errors = new WFErrorArray($errors);
+        }
+
         parent::__construct($p1, $p2);
         $this->errors = $errors;
     }
