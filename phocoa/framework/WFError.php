@@ -80,11 +80,31 @@ interface WFErrorCollection
     public function generalErrors();
 
     /**
+     * Add an error that is not associated with a key.
+     *
+     * @param object WFError A WFError object to add.
+     * @return WFErrorCollection This error collection object (for fluent interface).
+     */
+    public function addGeneralError($error);
+
+    /**
      * Get all errors for a particular key.
      *
      * @return array An array of {@link WFError}.
      */
     public function errorsForKey($key);
+
+    /**
+     * Add an error for a particular key
+     *
+     * Note for implementers: Make sure to check whether
+     * the key exists in the error collection.
+     *
+     * @param object WFError A WFError object to add.
+     * @param string The key to add the error to.
+     * @return WFErrorCollection This error collection object (for fluent interface).
+     */
+    public function addErrorForKey($error, $key);
 
     /**
      * Are there any errors?
@@ -218,6 +238,18 @@ class WFErrorArray extends WFArray implements WFErrorCollection
     }
 
     /**
+     * Add an error that is not associated with a key.
+     *
+     * @param object WFError A WFError object to add.
+     * @return WFErrorArray This error collection object (for fluent interface).
+     */
+    public function addGeneralError($error)
+    {
+        $this[] = $error;
+        return $this;
+    }
+
+    /**
      * Get all errors for the given key.
      *
      * @return array An array of all WFError objects.
@@ -229,6 +261,27 @@ class WFErrorArray extends WFArray implements WFErrorCollection
             return $this[$key];
         }
         return array();
+    }
+
+    /**
+     * Add an error for a particular key
+     *
+     * Note for implementers: Make sure to check whether
+     * the key exists in the error collection.
+     *
+     * @param object WFError A WFError object to add.
+     * @param string The key to add the error to.
+     * @return WFErrorArray This error collection object (for fluent interface).
+     */
+    public function addErrorForKey($error, $key)
+    {
+        if (!isset($this[$key]))
+        {
+            $this[$key] = array();
+        }
+
+        $this[$key][] = $error;
+        return $this;
     }
 
     /**
@@ -263,6 +316,19 @@ class WFErrorArray extends WFArray implements WFErrorCollection
         }
         return $str;
     }
+
+    /**
+     * Convenience method to allow for a fluent interface.
+     * e.g...
+     *
+     * WFConcreteErrorCollection::create()
+     *      ->addGeneralError(...);
+     */
+    public static function create()
+    {
+        return new self();
+    }
+
 }
 
 /**
@@ -277,13 +343,9 @@ class WFErrorsException extends WFException implements WFErrorCollection
 {
     protected $errors;
 
-    function __construct($errors)
+    function __construct($errors = array())
     {
         if (!is_array($errors) and !($errors instanceof WFErrorArray)) throw( new WFException("WFErrorsException requires an array of WFError objects, was passed: " . $errors) );
-        if (count($errors) === 0)
-        {
-            throw( new WFException("WFErrorsException must contain errors!") );
-        }
 
         if (!($errors instanceof WFErrorArray))
         {
@@ -291,7 +353,11 @@ class WFErrorsException extends WFException implements WFErrorCollection
         }
         $this->errors = $errors;
 
-        $message = join(',', $this->errors->valueForKeyPath('allErrors.errorMessage'));
+        $message = '';
+        if ($errors)
+        {
+            $message = join(',', $this->errors->valueForKeyPath('allErrors.errorMessage'));
+        }
         parent::__construct($message);
     }
 
@@ -347,6 +413,18 @@ class WFErrorsException extends WFException implements WFErrorCollection
         return $this->errors->generalErrors();
     }
 
+    /**
+     * Add an error that is not associated with a key.
+     *
+     * @param object WFError A WFError object to add.
+     * @return WFErrorsException This error collection object (for fluent interface).
+     */
+    public function addGeneralError($error)
+    {
+        $this->errors[] = $error;
+        return $this;
+    }
+
     public function allErrors()
     {
         return $this->errors->allErrors();
@@ -355,6 +433,27 @@ class WFErrorsException extends WFException implements WFErrorCollection
     public function errorsForKey($key)
     {
         return $this->errors->errorsForKey($key);
+    }
+
+    /**
+     * Add an error for a particular key
+     *
+     * Note for implementers: Make sure to check whether
+     * the key exists in the error collection.
+     *
+     * @param object WFError A WFError object to add.
+     * @param string The key to add the error to.
+     * @return WFErrorCollection This error collection object (for fluent interface).
+     */
+    public function addErrorForKey($error, $key)
+    {
+        if (!isset($this->errors[$key]))
+        {
+            $this->errors[$key] = array();
+        }
+
+        $this->errors[$key][] = $error;
+        return $this;
     }
 
     public function hasErrors()
@@ -376,4 +475,17 @@ class WFErrorsException extends WFException implements WFErrorCollection
     {
         return $this->errors->hasErrorWithCodeForKey($code, $key);
     }
+
+    /**
+     * Convenience method to allow for a fluent interface.
+     * e.g...
+     *
+     * WFConcreteErrorCollection::create()
+     *      ->addGeneralError(...);
+     */
+    public static function create()
+    {
+        return new self(new WFErrorArray);
+    }
+
 }

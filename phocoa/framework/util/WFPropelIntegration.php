@@ -7,21 +7,10 @@ class WFPropelException extends PropelException implements WFErrorCollection
 {
     protected $errors;
 
-    public function __construct($errors, $p1, $p2 = null)
+    public function __construct($p1, $p2 = NULL)
     {
-        if (!$errors instanceof WFErrorCollection && !is_array($errors))
-        {
-            throw new Exception("Invalid error collection passed to WFPropelException");
-        }
-
-        // Convert array of errors into a WFErrorCollection
-        if (is_array($errors))
-        {
-            $errors = new WFErrorArray($errors);
-        }
-
         parent::__construct($p1, $p2);
-        $this->errors = $errors;
+        $this->errors = new WFErrorArray;
     }
 
     /***************** WFErrorCollection Interface Pass-Thru ********************/
@@ -35,6 +24,18 @@ class WFPropelException extends PropelException implements WFErrorCollection
         return $this->errors->generalErrors();
     }
 
+    /**
+     * Add an error that is not associated with a key.
+     *
+     * @param object WFError A WFError object to add.
+     * @return WFErrorArray This error collection object (for fluid interface).
+     */
+    public function addGeneralError($error)
+    {
+        $this->errors->addGeneralError($error);
+        return $this;
+    }
+
     public function allErrors()
     {
         return $this->errors->allErrors();
@@ -43,6 +44,22 @@ class WFPropelException extends PropelException implements WFErrorCollection
     public function errorsForKey($key)
     {
         return $this->errors->errorsForKey($key);
+    }
+
+    /**
+     * Add an error for a particular key
+     *
+     * Note for implementers: Make sure to check whether
+     * the key exists in the error collection.
+     *
+     * @param object WFError A WFError object to add.
+     * @param string The key to add the error to.
+     * @return WFErrorArray This error collection object (for fluid interface).
+     */
+    public function addErrorForKey($error, $key)
+    {
+        $this->errors->addErrorForKey($error, $key);
+        return $this;
     }
 
     public function hasErrors()
@@ -64,6 +81,46 @@ class WFPropelException extends PropelException implements WFErrorCollection
     {
         return $this->errors->hasErrorWithCodeForKey($code, $key);
     }
+
+    public function setErrors($errors)
+    {
+        // Make sure we have the right type of object
+        if (!$errors instanceof WFErrorCollection && !is_array($errors))
+        {
+            throw new Exception("Invalid error collection passed to WFPropelException");
+        }
+
+        // Convert array of errors into a WFErrorCollection
+        if (is_array($errors))
+        {
+            $errors = new WFErrorArray($errors);
+            //TODO: Do we need to loop through the errors
+            //to make sure they're in the right format?
+        }
+
+        $this->errors = $errors;
+        return $this;
+    }
+
+    /**
+     * Convenience method to allow for a fluent interface.
+     * e.g...
+     *
+     * WFConcreteErrorCollection::create()
+     *      ->addGeneralError(...);
+     */
+    public static function create(Exception $e)
+    {
+        return new self(new WFErrorArray, $e);
+    }
+
+    public static function createFromErrorCollection($errors, $p1, $p2 = NULL)
+    {
+        $e = new self($p1, $p2);
+        $e->setErrors($errors);
+        return $e;
+    }
+
 }
 
 // A subclass of WFObject to add support for VirtualColumns and other dynamic elements of Propel for KVC.
