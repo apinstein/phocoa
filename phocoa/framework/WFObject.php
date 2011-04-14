@@ -331,15 +331,23 @@ class WFObject implements WFKeyValueCoding
                 // if there is a rightKeyPath, need to calculate magic array from remaining keypath. Otherwise, just use current result (it's arrayMode) as magicArray.
                 if ($rightKeyPath)
                 {
-                    $magicArray = array();
-                    foreach ($result as $object) {
-                        if (!is_object($object)) throw( new Exception("All array items must be OBJECTS THAT IMPLEMENT Key-Value Coding for KVC Magic Arrays to work.") );
-                        if (!method_exists($object, 'valueForKey')) throw( new Exception("target is not Key-Value Coding compliant for valueForKey.") );
-                        if ($decoratorClass)
-                        {
-                            $object = new $decoratorClass($object);
+                    if (!$operator && $result instanceof WFArray && array_key_exists($nextPart, $result))
+                    {
+                        $magicArray = $result[$nextPart]->valueForKeyPath($rightKeyPath);
+                    }
+                    else
+                    {
+                        $magicArray = array();
+                        foreach ($result as $object) {
+                            xdebug_break();
+                            if (!is_object($object)) throw( new Exception("All array items must be OBJECTS THAT IMPLEMENT Key-Value Coding for KVC Magic Arrays to work.") );
+                            if (!method_exists($object, 'valueForKey')) throw( new Exception("target is not Key-Value Coding compliant for valueForKey.") );
+                            if ($decoratorClass)
+                            {
+                                $object = new $decoratorClass($object);
+                            }
+                            $magicArray[] = $object->valueForKeyPath($rightKeyPath);
                         }
-                        $magicArray[] = $object->valueForKeyPath($rightKeyPath);
                     }
                 }
                 else
