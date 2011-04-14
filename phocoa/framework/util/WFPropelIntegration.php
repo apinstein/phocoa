@@ -109,9 +109,9 @@ class WFPropelException extends PropelException implements WFErrorCollection
      * WFConcreteErrorCollection::create()
      *      ->addGeneralError(...);
      */
-    public static function create(Exception $e)
+    public static function create($p1, $p2 = NULL)
     {
-        return new self(new WFErrorArray, $e);
+        return new self($p1, $p2);
     }
 
     public static function createFromErrorCollection($errors, $p1, $p2 = NULL)
