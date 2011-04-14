@@ -98,7 +98,11 @@ interface WFErrorCollection
      * Add an error for a particular key
      *
      * Note for implementers: Make sure to check whether
-     * the key exists in the error collection.
+     * the key exists in the error collection and initialize if needed:
+     * <code>
+     * if (!isset($errors[$key])) $errors[$key] = array();
+     * $errors[$key][] = new WFError(...);
+     * </code>
      *
      * @param object WFError A WFError object to add.
      * @param string The key to add the error to.

@@ -18,10 +18,10 @@ class WFYamlTest extends PHPUnit_Framework_TestCase
 
     function testLoadFile()
     {
-        $this->assertEquals($this->fixtureShouldBe, WFYaml::loadFile('./WFYamlTest.yaml'));
+        $this->assertEquals($this->fixtureShouldBe, WFYaml::loadFile(dirname(__FILE__) . '/WFYamlTest.yaml'));
     }
     function testLoadString()
     {
-        $this->assertEquals($this->fixtureShouldBe, WFYaml::loadString(file_get_contents('./WFYamlTest.yaml')));
+        $this->assertEquals($this->fixtureShouldBe, WFYaml::loadString(file_get_contents(dirname(__FILE__) . '/WFYamlTest.yaml')));
     }
 }

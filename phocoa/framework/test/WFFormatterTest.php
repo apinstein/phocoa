@@ -6,7 +6,6 @@
  
 
 error_reporting(E_ALL);
-require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
 require_once('framework/WFWebApplication.php');
 require_once('framework/WFObject.php');
 require_once('framework/WFError.php');

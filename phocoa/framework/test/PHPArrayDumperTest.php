@@ -6,13 +6,10 @@
  
 
 error_reporting(E_ALL);
-require_once('/Users/alanpinstein/dev/sandbox/phocoadev/phocoadev/conf/webapp.conf');
 require_once "framework/WFWebApplication.php";
 require_once "framework/util/PHPArrayDumper.php";
 
-require_once "PHPUnit2/Framework/TestCase.php";
-
-class PHPArrayDumperTest extends PHPUnit2_Framework_TestCase
+class PHPArrayDumperTest extends PHPUnit_Framework_TestCase
 {
     // returns boolean;
     function rtTest($array)

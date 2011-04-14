@@ -3,6 +3,9 @@
 require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
  
 // @todo Test on multiple browsers. ATM only firefox2 works. Safari doesn't click when told, and no idea how to test IE from a mac...
+/**
+ * @group selenium
+ */
 class AJAXTest extends PHPUnit_Extensions_SeleniumTestCase
 {
     public static $browsers = array(
