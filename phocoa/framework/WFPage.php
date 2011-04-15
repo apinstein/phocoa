@@ -1406,18 +1406,10 @@ class WFPage extends WFObject
                     try {
                         $rpc->execute($this);
                     } catch (WFErrorCollection $e) {
-                        $allErrors = $e->allErrors();
-
-                        // This is a safety check assertion to make sure you're not
-                        // throwing exceptions without any errors, which is a code
-                        // smell. Used to be checked in WFErrorsException, but it
-                        // was changed to allow a fluent interface.
-                        if (count($allErrors) == 0)
-                        {
-                            throw new WFException("WFErrorsException must contain errors!");
-                        }
-
-                        $this->addErrors($allErrors);
+                        // add all remaining errors to the general error display
+                        // note that propagateErrorsForKey* functions may prune errors
+                        // from the original WFErrorCollection before we get here.
+                        $this->addErrors($e->allErrors());
                     }
                     if ($rpc->isAjax() and count($this->errors()))  // errors can also occur in the action method
                     {
