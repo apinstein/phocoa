@@ -20,6 +20,54 @@ class WFObject implements WFKeyValueCoding
     }
 
     /**
+     * Break circular references so this object will GC pre-5.2.
+     *
+     * NOTE: if the value of the var is an array, the array will be iterated on as well and the destroy() method called (if available) and the array references removed.
+     *
+     * @param array A list of all instances to destroy.
+     */
+    private $alreadyInDestroy = false;
+    public function destroy($vars = array())
+    {
+        if ($this->alreadyInDestroy) return;
+
+        $this->alreadyInDestroy = true;
+        foreach ($vars as $v) {
+            $toBeDestroyed = $this->$v;
+            if ($toBeDestroyed)
+            {
+                $_destroyedClass = get_class($toBeDestroyed);
+                $o = memory_get_usage();
+                if (is_object($toBeDestroyed) and method_exists($toBeDestroyed, 'destroy'))
+                {
+                    $toBeDestroyed->destroy();
+                }
+                else if (is_array($toBeDestroyed))
+                {
+                    while ($tbd = array_pop($toBeDestroyed)) {  // destroys more memory than foreach() here for some reason
+                        if (method_exists($tbd, 'destroy'))
+                        {
+                            $tbd->destroy();
+                        }
+                        else
+                        {
+                            // for debugging this will tell you what doesn't have destroy impemented
+                            //print "==&gt; No destroy for " . get_class($this) . "::\${$v}[x]<br>\n";
+                        }
+                    }
+                }
+                else
+                {
+                    // for debugging this will tell you what doesn't have destroy impemented
+                    //print "==&gt; No destroy for " . get_class($this) . "::\${$v}<br>\n";
+                }
+                $this->$v = NULL;
+                //print "Recovered " . ($o - memory_get_usage()) . " by destroying " . get_class($this) . "::\${$v} [{$_destroyedClass}]<br>\n";
+            }
+        }
+    }
+
+    /**
      *  Empty placeholder for exposedProperties setup.
      *
      *  Subclasses should call parent and merge results.
