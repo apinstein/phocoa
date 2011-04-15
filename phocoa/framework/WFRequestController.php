@@ -26,6 +26,86 @@ class WFRequestController extends WFObject
     {
     }
 
+    /* These are the errors that phocoa tries to roll-up and catch and report on. All other errors will be left to their default handling.
+             E_ERROR
+       //  | E_WARNING
+           | E_PARSE
+       //  | E_NOTICE
+           | E_CORE_ERROR
+           | E_CORE_WARNING
+           | E_COMPILE_ERROR
+           | E_COMPILE_WARNING
+           | E_USER_ERROR
+       //  | E_USER_WARNING
+       //  | E_USER_NOTICE
+       //  | E_STRICT
+           | E_RECOVERABLE_ERROR
+       //  | E_DEPRECATED
+       //  | E_USER_DEPRECATED
+     */
+    private $handleErrors = 4597;
+
+    private function phpErrorAsString($e)
+    {
+        $el = array(
+            1     => 'E_ERROR',
+            2     => 'E_WARNING',
+            4     => 'E_PARSE',
+            8     => 'E_NOTICE',
+            16    => 'E_CORE_ERROR',
+            32    => 'E_CORE_WARNING',
+            64    => 'E_COMPILE_ERROR',
+            128   => 'E_COMPILE_WARNING',
+            256   => 'E_USER_ERROR',
+            512   => 'E_USER_WARNING',
+            1024  => 'E_USER_NOTICE',
+            2048  => 'E_STRICT',
+            4096  => 'E_RECOVERABLE_ERROR',
+            8192  => 'E_DEPRECATED',
+            16384 => 'E_USER_DEPRECATED',
+        );
+        return $el[$e];
+    }
+
+    /**
+     * Error handler callback for PHP catchable errors; helps synthesize PHP errors and exceptions into the same handling workflow.
+     */
+    function handleError($errNum, $errString, $file, $line, $contextArray)
+    {
+        $errNum = $this->phpErrorAsString($errNum);
+
+        $this->handleException( new ErrorException("{$errNum}: {$errString}\n\nAt {$file}:{$line}") );
+    }
+
+    /**
+     * Error handler callback for PHP un-catchable errors; helps synthesize PHP errors and exceptions into the same handling workflow.
+     */
+    function checkShutdownForFatalErrors()
+    {
+        $last_error = error_get_last();
+        if ($last_error['type'] & $this->handleErrors)
+        {
+            $last_error['type'] = $this->phpErrorAsString($last_error['type']);
+            $this->handleException( new ErrorException("{$last_error['type']}: {$last_error['message']}\n\nAt {$last_error['file']}:{$last_error['line']}") );
+        }
+    }
+
+    /**
+     * PHOCOA's default error handling is to try to catch *all* fatal errors and run them through the framework's error handling system.
+     *
+     * The error handling system unifies excptions and errors into the same processing stream and additionally gives your application
+     * an opportunity to handle the error as well. For instance your app may prefer to email out all errors,
+     * or send them to an exception service like Hoptoad/Exceptional/Loggly
+     */
+    private function registerErrorHandlers()
+    {
+        // convert these errors into exceptions
+        set_error_handler(array($this, 'handleError'), $this->handleErrors);
+
+        // catch non-catchable errors
+        register_shutdown_function(array($this, 'checkShutdownForFatalErrors'));
+    }
+
     /**
       * Exception handler for the WFRequestController.
       *
@@ -37,6 +117,9 @@ class WFRequestController extends WFObject
       */
     function handleException(Exception $e)
     {
+        // give ourselves a little more memory so we can process the exception
+        ini_set('memory_limit', memory_get_usage() + 25000000 /* 25MB */);
+
         $webAppDelegate = WFWebApplication::sharedWebApplication()->delegate();
         if (is_object($webAppDelegate) && method_exists($webAppDelegate, 'handleUncaughtException'))
         {
@@ -93,14 +176,6 @@ class WFRequestController extends WFObject
     }
 
     /**
-     * Error handler callback for PHP fatal errors; helps synthesize PHP errors and exceptions into the same handling workflow.
-     */
-    function handleError($errNum, $errString, $file, $line, $contextArray)
-    {
-        $this->handleException( new Exception("FATAL ERROR: {$errNum}, {$errString}\nFile: {$file}:{$line}\n" . print_r($contextArray, true)) );
-    }
-
-    /**
      * Run the web application for the current request.
      *
      * NOTE: Both a module and page must be specified in the URL. If they are not BOTH specified, the server will REDIRECT the request to the full URL.
@@ -133,12 +208,8 @@ class WFRequestController extends WFObject
             $modInvocationPath = substr($modInvocationPath, 0, $paramsPos);
         }
         
-        $errset = E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR;
-        if (defined("E_RECOVERABLE_ERROR"))
-        {
-            $errset |= E_RECOVERABLE_ERROR;
-        }
-        set_error_handler(array($this, 'handleError'), $errset);
+        // point all error handling to phocoa's internal mechanisms since anything that happens after this line (try) will be routed through the framework's handler
+        $this->registerErrorHandlers();
         try {
             if ($modInvocationPath == '')
             {

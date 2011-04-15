@@ -1,11 +1,13 @@
-<p>An uncaught exception has occurred:</p>
+<h2>Uncaught Exception</h2>
 <pre>
 {foreach from=$exceptions item=exception}
 {php}
-    print "Exception: " . get_class($this->_tpl_vars['exception']) .
-          "\n\nMessage: {$this->_tpl_vars['exception']}" .
-          "\n\nTrace:\n" . $this->_tpl_vars['exceptions'][0]->getTraceAsString();
+    print '<h3>' . get_class($this->_tpl_vars['exception']) . '</h3>' . 
+          "<p>{$this->_tpl_vars['exception']->getMessage()}</p>" . 
+          "<p>Trace:</p>" . $this->_tpl_vars['exceptions'][0]->getTraceAsString()
+          ;
 {/php}
+<hr />
 {/foreach}
 </pre>
 
