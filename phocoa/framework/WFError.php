@@ -358,7 +358,7 @@ class WFErrorsException extends WFException implements WFErrorCollection
         $this->errors = $errors;
 
         $message = '';
-        if ($errors)
+        if ($this->errors)
         {
             $message = join(',', $this->errors->valueForKeyPath('allErrors.errorMessage'));
         }
@@ -426,6 +426,7 @@ class WFErrorsException extends WFException implements WFErrorCollection
     public function addGeneralError($error)
     {
         $this->errors[] = $error;
+        $this->message .= "{$error->errorMessage()} ";
         return $this;
     }
 
@@ -457,6 +458,7 @@ class WFErrorsException extends WFException implements WFErrorCollection
         }
 
         $this->errors[$key][] = $error;
+        $this->message .= "{$error->errorMessage()} ";
         return $this;
     }
 

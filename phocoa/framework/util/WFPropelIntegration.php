@@ -33,6 +33,7 @@ class WFPropelException extends PropelException implements WFErrorCollection
     public function addGeneralError($error)
     {
         $this->errors->addGeneralError($error);
+        $this->message .= "{$error->errorMessage()} ";
         return $this;
     }
 
@@ -59,6 +60,7 @@ class WFPropelException extends PropelException implements WFErrorCollection
     public function addErrorForKey($error, $key)
     {
         $this->errors->addErrorForKey($error, $key);
+        $this->message .= "{$error->errorMessage()} ";
         return $this;
     }
 
@@ -99,6 +101,7 @@ class WFPropelException extends PropelException implements WFErrorCollection
         }
 
         $this->errors = $errors;
+        $this->message = join(' ', $this->errors->valueForKeyPath('allErrors.errorMessage'));
         return $this;
     }
 
