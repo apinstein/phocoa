@@ -214,10 +214,15 @@ class WFErrorArray extends WFArray implements WFErrorCollection
         foreach ($this as $k => $v) {
             if (gettype($k) == 'integer')
             {
+                // We're assuming $v is a WFError
                 $flattenedErrors[] = $v;
             }
             else
             {
+                // We're assuming:
+                // 1) $k is the key that has WFErrors
+                // 2) $v is an array of WFErrors
+                if (!is_array($v)) throw new WFException('Expected an array of WFErrors.');
                 $flattenedErrors = array_merge($flattenedErrors, $v);
             }
         }
