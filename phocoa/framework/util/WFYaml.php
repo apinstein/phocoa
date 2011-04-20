@@ -6,7 +6,12 @@ class WFYaml
     {
         if (function_exists('yaml_parse_file'))
         {
-            return yaml_parse_file($file);
+            $a = yaml_parse_file($file);
+            if (!$a)
+            {
+                throw new WFException("Error processing YAML file: {$file}");
+            }
+            return $a;
         }
         else if (function_exists('syck_load'))
         {
