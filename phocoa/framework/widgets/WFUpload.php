@@ -15,6 +15,58 @@ interface WFUploadedFile
     function mimeType();
 }
 
+class WFUploadedFile_Basic extends WFObject implements WFUploadedFile
+{
+    /**
+     * @var string The temp file name of the uploaded file.
+     */
+    protected $tmpFileName;
+    /**
+     * @var string The mime type of the uploaded file. This is the mime-type reported by the browser, so remember that it can be faked!
+     */
+    protected $mimeType;
+    /**
+     * @var string The name of the actual file.
+     */
+    protected $originalFileName;
+
+    function __construct($tmpFileName, $mimeType, $originalFileName)
+    {
+        $this->tmpFileName = $tmpFileName;
+        $this->mimeType = $mimeType;
+        $this->originalFileName = $originalFileName;
+    }
+
+    function tmpFileName()
+    {
+        return $this->tmpFileName;
+    }
+
+    function getTmpFileName()
+    {
+        return $this->tmpFileName();
+    }
+
+    function mimeType()
+    {
+        return $this->mimeType;
+    }
+
+    function getMimeType()
+    {
+        return $this->mimeType();
+    }
+
+    function originalFileName()
+    {
+        return $this->originalFileName;
+    }
+    function getOriginalFileName()
+    {
+        return $this->originalFileName();
+    }
+}
+
 /**
  * A Upload widget for our framework.
  * @todo Consider making the value "writeonly", and canPushValueBinding to true? Passes INPUT FILE PATH to bound property?

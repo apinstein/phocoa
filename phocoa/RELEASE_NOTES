@@ -59,6 +59,7 @@ Version 0.3.9 - 10/21/2010
 - [bugfix] Fix for WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE which was accidentally causing a logic error even on widgets that did not use the feature. This caused bindings not to be pushed if the value was NULL. This broke many radio buttons, checkboxes, and dropdowns.
 - [new] Add optional error code injection into WFKeyValueValidators::validateUrl()
 - [new] Add WFObject::destroy() function to provide a canonical pathway for breaking circular references for pre-5.3 memory management.
+- [new] Add WFBlueimp_JqueryFileUpload widget for HTML5 drag-n-drop upload.
 
 Version 0.3.8 - 9/15/2010
 - [new] add WFWebApplicationDelegate::rerouteInvocationPath() function to allow routing customizations.
