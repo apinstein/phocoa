@@ -15,6 +15,8 @@
  *
  * This widget will present a list of "browse" buttons, and/or an ActiveX control to upload multiple files at once, yet presents the same interface for
  * dealing with the multiple files to the client.
+ *
+ * @see WFHTML5_Uploader Which is an improved version of this.
  */
 class WFBulkUpload extends WFWidget
 {
@@ -41,7 +43,7 @@ class WFBulkUpload extends WFWidget
     /**
      *  Get a list of the uploaded files.
      *
-     *  @return array An array of {@link WFBulkUploadFile} objects.
+     *  @return array An array of {@link WFUploadedFile_Basic} objects.
      */
     function uploads()
     {
@@ -84,7 +86,7 @@ class WFBulkUpload extends WFWidget
                 {
                     if (is_uploaded_file($_FILES[$this->name]['tmp_name'][$i]))
                     {
-                        $this->uploads[] = new WFBulkUploadFile($_FILES[$this->name]['tmp_name'][$i], $_FILES[$this->name]['type'][$i], $_FILES[$this->name]['name'][$i]);
+                        $this->uploads[] = new WFUploadedFile_Basic($_FILES[$this->name]['tmp_name'][$i], $_FILES[$this->name]['type'][$i], $_FILES[$this->name]['name'][$i]);
                         $this->hasUpload = true;
                     }
                     else
@@ -112,56 +114,3 @@ class WFBulkUpload extends WFWidget
 
     function canPushValueBinding() { return false; }
 }
-
-class WFBulkUploadFile extends WFObject implements WFUploadedFile
-{
-    /**
-     * @var string The temp file name of the uploaded file.
-     */
-    protected $tmpFileName;
-    /**
-     * @var string The mime type of the uploaded file. This is the mime-type reported by the browser, so remember that it can be faked!
-     */
-    protected $mimeType;
-    /**
-     * @var string The name of the actual file.
-     */
-    protected $originalFileName;
-
-    function __construct($tmpFileName, $mimeType, $originalFileName)
-    {
-        $this->tmpFileName = $tmpFileName;
-        $this->mimeType = $mimeType;
-        $this->originalFileName = $originalFileName;
-    }
-
-    function tmpFileName()
-    {
-        return $this->tmpFileName;
-    }
-
-    function getTmpFileName()
-    {
-        return $this->tmpFileName();
-    }
-
-    function mimeType()
-    {
-        return $this->mimeType;
-    }
-
-    function getMimeType()
-    {
-        return $this->mimeType();
-    }
-
-    function originalFileName()
-    {
-        return $this->originalFileName;
-    }
-    function getOriginalFileName()
-    {
-        return $this->originalFileName();
-    }
-}
-?>
