@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2011, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.9.0
 */
 /**
  * @description <p>Provides a fixed layout containing, top, bottom, left, right and center layout units. It can be applied to either the body or an element.</p>
@@ -142,6 +142,12 @@ version: 2.7.0
                 }
             }
             if (set) {
+                if (h < 0) {
+                    h = 0;
+                }
+                if (w < 0) {
+                    w = 0;
+                }
                 Dom.setStyle(this._doc, 'height', h + 'px');
                 Dom.setStyle(this._doc, 'width', w + 'px');
             }
@@ -348,9 +354,9 @@ version: 2.7.0
 
             var unit = new YAHOO.widget.LayoutUnit(el, unitConfig);
 
-            unit.on('heightChange', this.resize, this, true);
-            unit.on('widthChange', this.resize, this, true);
-            unit.on('gutterChange', this.resize, this, true);
+            unit.on('heightChange', this.resize, { unit: unit }, this);
+            unit.on('widthChange', this.resize, { unit: unit }, this);
+            unit.on('gutterChange', this.resize, { unit: unit }, this);
             this._units[cfg.position] = unit;
 
             if (this._rendered) {
@@ -374,11 +380,27 @@ version: 2.7.0
         },
         /**
         * @method resize
-        * @param {Boolean} set If set to false, it will NOT set the size, just perform the calculations (used for collapsing units)
+        * @param Boolean/Event set If set to false, it will NOT set the size, just perform the calculations (used for collapsing units). This can also have an attribute event passed to it.
         * @description Starts the chain of resize routines that will resize all the units.
         * @return {<a href="YAHOO.widget.Layout.html">YAHOO.widget.Layout</a>} The Layout instance
         */
-        resize: function(set) {
+        resize: function(set, info) {
+            /*
+            * Fixes bug #2528175
+            * If the event comes from an attribute and the value hasn't changed, don't process it.
+            */
+            var ev = set;
+            if (ev && ev.prevValue && ev.newValue) {
+                if (ev.prevValue == ev.newValue) {
+                    if (info) {
+                        if (info.unit) {
+                            if (!info.unit.get('animate')) {
+                                set = false;
+                            }
+                        }
+                    }
+                }
+            }
             set = ((set === false) ? false : true);
             if (set) {
                 var retVal = this.fireEvent('beforeResize');
@@ -397,7 +419,7 @@ version: 2.7.0
             }
             this._setBodySize(set);
             if (set) {
-                this.fireEvent('resize', { target: this, sizes: this._sizes });
+                this.fireEvent('resize', { target: this, sizes: this._sizes, event: ev });
             }
             return this;
         },
@@ -566,6 +588,9 @@ version: 2.7.0
                 value: attr.height || false,
                 validator: YAHOO.lang.isNumber,
                 method: function(h) {
+                    if (h < 0) {
+                        h = 0;
+                    }
                     this.setStyle('height', h + 'px');
                 }
             });
@@ -579,6 +604,9 @@ version: 2.7.0
                 value: attr.width || false,
                 validator: YAHOO.lang.isNumber,
                 method: function(w) {
+                    if (w < 0) {
+                        w = 0;
+                    }
                     this.setStyle('width', w + 'px');
                 }
             });
@@ -618,7 +646,7 @@ version: 2.7.0
                 }
             }
 
-            Event.purgeElement(this.get('element'));
+            Event.purgeElement(this.get('element'), true);
             this.get('parentNode').removeChild(this.get('element'));
             
             delete YAHOO.widget.Layout._instances[this.get('id')];
@@ -983,7 +1011,7 @@ version: 2.7.0
                 i1 = 1;
                 i2 = 3;
             }
-            if (this.browser.ie && !this.browser.standardsMode) {
+            if ((this.browser.ie < 8) && !this.browser.standardsMode) {
                 //Internet Explorer - Quirks Mode
                 var b = this._getBorderSizes(el),
                     bp = this._getBorderSizes(el.parentNode);
@@ -1145,7 +1173,7 @@ version: 2.7.0
             }
 
             this._collapsing = true;
-            this.setStyle('zIndex', this.get('parent')._zIndex + 1);
+            this.setStyle('zIndex', this._zIndex);
 
             if (this._anim) {
                 this.setStyle('display', 'none');
@@ -1198,7 +1226,7 @@ version: 2.7.0
                 };
                 var expand = function() {
                     this._collapsing = false;
-                    this.setStyle('zIndex', this.get('parent')._zIndex);
+                    this.setStyle('zIndex', this._zIndex);
                     this.set('width', this._lastWidth);
                     this.set('height', this._lastHeight);
                     this._collapsed = false;
@@ -1218,6 +1246,7 @@ version: 2.7.0
                 this._collapsing = false;
                 this._toggleClip();
                 this._collapsed = false;
+                this._zIndex = this.getStyle('zIndex');
                 this.setStyle('zIndex', this.get('parent')._zIndex);
                 this.setStyle('display', 'block');
                 this.set('width', this._lastWidth);
@@ -1266,6 +1295,7 @@ version: 2.7.0
                 this._lastLeft = 0;
                 this.set('left', 0);
             }
+            this._zIndex = this.getStyle('zIndex');
             this.setStyle('zIndex', this.get('parent')._zIndex + 1);
             var pos = this.get('position');
 
@@ -1338,7 +1368,7 @@ version: 2.7.0
         },
 		/**
         * @property loadHandler
-        * @description Callback method for the YUI Connection Manager used for load the body using AJAX
+        * @description Callback method for the YUI Connection Manager used for load the body using AJAX. NOTE: e.responseText is loaded via innerHTML.
         * @type Object
         */
 		loadHandler: {
@@ -1534,6 +1564,11 @@ version: 2.7.0
             */
             this.setAttributeConfig('minWidth', {
                 value: attr.minWidth || false,
+                method: function(v) {
+                    if (this._resize) {
+                        this._resize.set('minWidth', v);
+                    }
+                },
                 validator: YAHOO.lang.isNumber
             });
 
@@ -1544,6 +1579,11 @@ version: 2.7.0
             */
             this.setAttributeConfig('maxWidth', {
                 value: attr.maxWidth || false,
+                method: function(v) {
+                    if (this._resize) {
+                        this._resize.set('maxWidth', v);
+                    }
+                },
                 validator: YAHOO.lang.isNumber
             });
 
@@ -1554,6 +1594,11 @@ version: 2.7.0
             */
             this.setAttributeConfig('minHeight', {
                 value: attr.minHeight || false,
+                method: function(v) {
+                    if (this._resize) {
+                        this._resize.set('minHeight', v);
+                    }
+                },
                 validator: YAHOO.lang.isNumber
             });
 
@@ -1564,6 +1609,11 @@ version: 2.7.0
             */
             this.setAttributeConfig('maxHeight', {
                 value: attr.maxHeight || false,
+                method: function(v) {
+                    if (this._resize) {
+                        this._resize.set('maxHeight', v);
+                    }
+                },
                 validator: YAHOO.lang.isNumber
             });
 
@@ -1715,7 +1765,8 @@ version: 2.7.0
             });
             /**
             * @attribute header
-            * @description The text to use as the Header of the Unit
+            * @description The html to use as the Header of the Unit (sets via innerHTML)
+            * @type {HTML}
             */
             this.setAttributeConfig('header', {
                 value: attr.header || false,
@@ -1759,7 +1810,8 @@ version: 2.7.0
             });
             /**
             * @attribute body
-            * @description The content for the body. If we find an element in the page with an id that matches the passed option we will move that element into the body of this unit.
+            * @description The content for the body. If we find an element in the page with an id that matches the passed option we will move that element into the body of this unit. (sets via innerHTML)
+            * @type {HTML}
             */
             this.setAttributeConfig('body', {
                 value: attr.body || false,
@@ -1803,7 +1855,8 @@ version: 2.7.0
 
             /**
             * @attribute footer
-            * @description The content for the footer. If we find an element in the page with an id that matches the passed option we will move that element into the footer of this unit.
+            * @description The content for the footer. If we find an element in the page with an id that matches the passed option we will move that element into the footer of this unit. (sets via innerHTML)
+            * @type {HTML}
             */
             this.setAttributeConfig('footer', {
                 value: attr.footer || false,
@@ -1855,10 +1908,14 @@ version: 2.7.0
                         YAHOO.log('Position center unit cannot have close', 'error', 'LayoutUnit');
                         return false;
                     }
-                    if (!this.header) {
+                    if (!this.header && close) {
                         this._createHeader();
                     }
-                    var c = Dom.getElementsByClassName('close', 'div', this.header)[0];
+                    if (!this.header) {
+                        return;
+                    }
+                    var c = this.header ? Dom.getElementsByClassName('close', 'div', this.header)[0] : null;
+                    
                     if (close) {
                         //Force some header text if there isn't any
                         if (!this.get('header')) {
@@ -1871,7 +1928,7 @@ version: 2.7.0
                             Event.on(c, 'click', this.close, this, true);
                         }
                         c.title = this.STR_CLOSE;
-                    } else if (c) {
+                    } else if (c && c.parentNode) {
                         Event.purgeElement(c);
                         c.parentNode.removeChild(c);
                     }
@@ -1892,10 +1949,14 @@ version: 2.7.0
                         YAHOO.log('Position center unit cannot have collapse', 'error', 'LayoutUnit');
                         return false;
                     }
-                    if (!this.header) {
+                    if (!this.header && collapse) {
                         this._createHeader();
                     }
-                    var c = Dom.getElementsByClassName('collapse', 'div', this.header)[0];
+                    if (!this.header) {
+                        return;
+                    }
+                    var c = this.header ? Dom.getElementsByClassName('collapse', 'div', this.header)[0] : null;
+                    
                     if (collapse) {
                         //Force some header text if there isn't any
                         if (!this.get('header')) {
@@ -1908,7 +1969,7 @@ version: 2.7.0
                         }
                         c.title = this.STR_COLLAPSE;
                         c.className = 'collapse' + ((this.get('close')) ? ' collapse-close' : '');
-                    } else if (c) {
+                    } else if (c && c.parentNode) {
                         Event.purgeElement(c);
                         c.parentNode.removeChild(c);
                     }
@@ -2165,7 +2226,7 @@ version: 2.7.0
                 par.removeListener('resize', this.resize, this, true);
             }
             this.unsubscribeAll();
-            Event.purgeElement(this.get('element'));
+            Event.purgeElement(this.get('element'), true);
             this.get('parentNode').removeChild(this.get('element'));
 
             delete YAHOO.widget.LayoutUnit._instances[this.get('id')];
@@ -2254,4 +2315,4 @@ version: 2.7.0
 
     YAHOO.widget.LayoutUnit = LayoutUnit;
 })();
-YAHOO.register("layout", YAHOO.widget.Layout, {version: "2.7.0", build: "1799"});
+YAHOO.register("layout", YAHOO.widget.Layout, {version: "2.9.0", build: "2800"});
