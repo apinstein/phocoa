@@ -59,6 +59,8 @@ class WFPropelException extends PropelException implements WFErrorCollection
      */
     public function addErrorForKey($error, $key)
     {
+        if (!$error instanceof WFError) throw new Exception("Invalid error, expected WFError object");
+
         $this->errors->addErrorForKey($error, $key);
         $this->message .= "{$error->errorMessage()} ";
         return $this;
