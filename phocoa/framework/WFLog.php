@@ -64,6 +64,7 @@ class WFLog extends WFObject
 
     public function deprecated($message)
     {
+        // intersects with E_DEPRECATED? http://php.net/manual/en/errorfunc.constants.php
         WFLog::log($message, 'deprecated', PEAR_LOG_NOTICE);
     }
 

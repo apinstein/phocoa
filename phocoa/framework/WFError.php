@@ -214,10 +214,15 @@ class WFErrorArray extends WFArray implements WFErrorCollection
         foreach ($this as $k => $v) {
             if (gettype($k) == 'integer')
             {
+                // We're assuming $v is a WFError
                 $flattenedErrors[] = $v;
             }
             else
             {
+                // We're assuming:
+                // 1) $k is the key that has WFErrors
+                // 2) $v is an array of WFErrors
+                if (!is_array($v)) throw new WFException('Expected an array of WFErrors.');
                 $flattenedErrors = array_merge($flattenedErrors, $v);
             }
         }
@@ -279,6 +284,8 @@ class WFErrorArray extends WFArray implements WFErrorCollection
      */
     public function addErrorForKey($error, $key)
     {
+        if (!$error instanceof WFError) throw new Exception("Invalid error, expected WFError object");
+
         if (!isset($this[$key]))
         {
             $this[$key] = array();
@@ -452,6 +459,8 @@ class WFErrorsException extends WFException implements WFErrorCollection
      */
     public function addErrorForKey($error, $key)
     {
+        if (!$error instanceof WFError) throw new Exception("Invalid error, expected WFError object");
+
         if (!isset($this->errors[$key]))
         {
             $this->errors[$key] = array();

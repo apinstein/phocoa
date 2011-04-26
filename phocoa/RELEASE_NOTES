@@ -40,6 +40,11 @@ Version 0.4.0 - ??
 - [improved] Make WFCheckbox.label support multi-value pattern bindings.
 - [improved] YAHOO_widget_AutoComplete now supports passing back additional arguments into the callback via a PHOCOA.widgets.<acId>.yuiDelegate.dynamicDataLoaderCollectArguments function.
 - [new] YAHOO_widget_TabView is now augmented with a goToTab(id) function that allows you to activate a tab by its phocoa ID.
+- [improved] PHOCOA now catches all PHP fatal errors (in addition to the previously caught uncaught exceptions) and routes them through the default WFRequestController::handleException()
+             which of course includes WFWebApplicationDelegate::handleUncaughtException().
+             These improvements allow truly unified error/exception handling and have even been structured so that you can report on parse errors and OOMs through your normal channels.
+             PHOCOA also allocates 25MB more memory so that even in OOM situations you have enough memory to fire off an email, do logging, and display a pretty error message.
+             This is a huge benefit for handling errors in production.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
@@ -53,6 +58,7 @@ Version 0.3.9 - 10/21/2010
 - [bugfix] WFPageDelegate.willPushBindings() is no longer called if pushBindings() doesn't run. Previously the willPushBindings() delegate method would run even on an initial page load.
 - [bugfix] Fix for WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE which was accidentally causing a logic error even on widgets that did not use the feature. This caused bindings not to be pushed if the value was NULL. This broke many radio buttons, checkboxes, and dropdowns.
 - [new] Add optional error code injection into WFKeyValueValidators::validateUrl()
+- [new] Add WFObject::destroy() function to provide a canonical pathway for breaking circular references for pre-5.3 memory management.
 
 Version 0.3.8 - 9/15/2010
 - [new] add WFWebApplicationDelegate::rerouteInvocationPath() function to allow routing customizations.

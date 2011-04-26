@@ -208,6 +208,11 @@ class WFPage extends WFObject
         WFLog::log("instantiating a page", WFLog::TRACE_LOG, PEAR_LOG_DEBUG);
     }
 
+    public function destroy($vars = array())
+    {
+        parent::destroy(array('module', 'template', 'delegate', 'instances'));
+    }
+
     public function setIgnoreErrors($bIgnoreErrors)
     {
         $this->ignoreErrors = $bIgnoreErrors;

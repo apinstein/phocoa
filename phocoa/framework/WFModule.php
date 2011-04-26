@@ -131,6 +131,11 @@ class WFModuleInvocation extends WFObject
         $this->extractComponentsFromInvocationPath();
     }
 
+    public function destroy($vars = array())
+    {
+        parent::destroy(array('module', 'skin', 'parentInvocation'));
+    }
+
     /**
      *  Set the "modules" directory used to access this module.
      *
@@ -706,6 +711,12 @@ abstract class WFModule extends WFObject
         // set up pages
         $this->requestPage = new WFPage($this);
         $this->responsePage = NULL;
+    }
+
+    public function destroy($vars = array())
+    {
+        parent::destroy(array('invocation', 'requestPage', 'responsePage'));
+        $this->__sharedInstances = NULL;
     }
 
     function addInstance($id, $obj)
