@@ -284,6 +284,8 @@ class WFErrorArray extends WFArray implements WFErrorCollection
      */
     public function addErrorForKey($error, $key)
     {
+        if (!$error instanceof WFError) throw new Exception("Invalid error, expected WFError object");
+
         if (!isset($this[$key]))
         {
             $this[$key] = array();
@@ -457,6 +459,8 @@ class WFErrorsException extends WFException implements WFErrorCollection
      */
     public function addErrorForKey($error, $key)
     {
+        if (!$error instanceof WFError) throw new Exception("Invalid error, expected WFError object");
+
         if (!isset($this->errors[$key]))
         {
             $this->errors[$key] = array();
