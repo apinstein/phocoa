@@ -9,7 +9,9 @@ Legend:
                   DEVELOPERS: Be sure to fire deprecation notices like so:
                               WF_LOG_DEPRECATED && WFLog::deprecated("MyObj::foo() is deprecated. Use MyObj::bar().");
 
-Version 0.4.0 - ??
+Version 0.4.1 - ??
+
+Version 0.4.0 - 4/26/2011
 - [improved] Refactored WFErrorArray and WFErrorsException to implement a new interface WFErrorCollection.
 - [new] Phocoa now includes a PropelException subclass WFPropelException to allow you to play nice with propel nested transactions while still supporting phocoa model error reporting.
 - [new] Add WFDecorator support to KVC. You can now use the [WFDecorator] syntax inside of KVC keyPaths to auto-wrap objects in decorators. Works on arrays as well.
