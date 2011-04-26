@@ -316,6 +316,7 @@ class WFSelect extends WFWidget
      * @param assoc_array A list of value => label.
      * @param string NullPlaceholder that will be inserted at the top of the options list
      * @param string NullPlaceholderValue The "value" used for the NULL placeholder (default NULL)
+     * @return object WFSelect For fluent interface.
      */
     function setOptions($opts, $nullPlaceholder = NULL, $nullPlaceholderValue = NULL)
     {
@@ -325,6 +326,8 @@ class WFSelect extends WFWidget
         }
         $this->setContentValues(array_keys($opts));
         $this->setContentLabels(array_values($opts));
+
+        return $this;
     }
 
     function setContentValues($values)
