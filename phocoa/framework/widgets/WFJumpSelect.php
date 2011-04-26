@@ -70,10 +70,12 @@ class WFJumpSelect extends WFSelect
       * Set the base URL for the WFJumpSelect.
       *
       * @param string The base URL for the WFJumpSelect. If NULL, use the "value". If not NULL, append the "value" to baseURL.
+      * @return object WFJumpSelect For fluent interface.
       */
     function setBaseURL($url)
     {
         $this->baseURL = $url;
+        return $this;
     }
 
     /**
@@ -135,5 +137,3 @@ class WFJumpSelect extends WFSelect
         return $output;
     }
 }
-
-?>
