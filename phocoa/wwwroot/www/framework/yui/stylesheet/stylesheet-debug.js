@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.8.2r1
 */
 /**
  * The StyleSheet component is a utility for managing css rules at the
@@ -123,15 +123,8 @@ function StyleSheet(seed, name) {
         i,r,sel;
 
     // Factory or constructor
-    if (!(this instanceof arguments.callee)) {
-        return new arguments.callee(seed,name);
-    }
-
-    head = d.getElementsByTagName('head')[0];
-    if (!head) {
-        // TODO: do something. Preferably something smart
-        YAHOO.log('HEAD element not found to append STYLE node','error','StyleSheet');
-        throw new Error('HEAD element not found to append STYLE node');
+    if (!(this instanceof StyleSheet)) {
+        return new StyleSheet(seed,name);
     }
 
     // capture the DOM node if the string is an id
@@ -165,7 +158,8 @@ function StyleSheet(seed, name) {
         }
     }
 
-    if (node.parentNode !== head) {
+    if (!node.parentNode || node.parentNode.nodeName.toLowerCase() !== 'head') {
+        head = (node.ownerDocument || d).getElementsByTagName('head')[0];
         // styleSheet isn't available on the style node in FF2 until appended
         // to the head element.  style nodes appended to body do not affect
         // change in Safari.
@@ -182,33 +176,33 @@ function StyleSheet(seed, name) {
     // IE stores the rules collection under the "rules" property
     _rules = sheet && ('cssRules' in sheet) ? 'cssRules' : 'rules';
 
-    // 3. Initialize the cssRules map from the node
-    // xdomain link nodes forbid access to the cssRules collection, so this
-    // will throw an error.
-    // TODO: research alternate stylesheet, @media
-        for (i = sheet[_rules].length - 1; i >= 0; --i) {
-            r   = sheet[_rules][i];
-            sel = r.selectorText;
-
-            if (cssRules[sel]) {
-                cssRules[sel].style.cssText += ';' + r.style.cssText;
-                _deleteRule(i);
-            } else {
-                cssRules[sel] = r;
-            }
-        }
-
-    // 4. The method to remove a rule from the stylesheet
+    // 3. The method to remove a rule from the stylesheet
     // IE supports removeRule
     _deleteRule = ('deleteRule' in sheet) ?
         function (i) { sheet.deleteRule(i); } :
         function (i) { sheet.removeRule(i); };
 
-    // 5. The method to add a new rule to the stylesheet
+    // 4. The method to add a new rule to the stylesheet
     // IE supports addRule with different signature
     _insertRule = ('insertRule' in sheet) ?
         function (sel,css,i) { sheet.insertRule(sel+' {'+css+'}',i); } :
         function (sel,css,i) { sheet.addRule(sel,css,i); };
+
+    // 5. Initialize the cssRules map from the node
+    // xdomain link nodes forbid access to the cssRules collection, so this
+    // will throw an error.
+    // TODO: research alternate stylesheet, @media
+    for (i = sheet[_rules].length - 1; i >= 0; --i) {
+        r   = sheet[_rules][i];
+        sel = r.selectorText;
+
+        if (cssRules[sel]) {
+            cssRules[sel].style.cssText += ';' + r.style.cssText;
+            _deleteRule(i);
+        } else {
+            cssRules[sel] = r;
+        }
+    }
 
     // Cache the instance by the generated Id
     node.yuiSSID = 'yui-stylesheet-' + (ssId++);
@@ -272,15 +266,20 @@ function StyleSheet(seed, name) {
          * selectors and applied accordingly.  If the selector string does not
          * have a corresponding rule in the sheet, it will be added.</p>
          *
-         * <p>The object properties in the second parameter must be the JavaScript
-         * names of style properties.  E.g. fontSize rather than font-size.</p>
+         * <p>The second parameter can be either a string of CSS text,
+         * formatted as CSS ("font-size: 10px;"), or an object collection of
+         * properties and their new values.  Object properties must be in
+         * JavaScript format ({ fontSize: "10px" }).</p>
          *
          * <p>The float style property will be set by any of &quot;float&quot;,
-         * &quot;styleFloat&quot;, or &quot;cssFloat&quot;.</p>
+         * &quot;styleFloat&quot;, or &quot;cssFloat&quot; if passed in the
+         * object map.  Use "float: left;" format when passing a CSS text
+         * string.</p>
          *
          * @method set
          * @param sel {String} the selector string to apply the changes to
-         * @param css {Object} Object literal of style properties and new values
+         * @param css {Object|String} Object literal of style properties and
+         *                      new values, or a string of cssText
          * @return {StyleSheet} the StyleSheet instance
          * @chainable
          */
@@ -435,25 +434,31 @@ _toCssText = function (css,base) {
 
     workerStyle.cssText = base || '';
 
-    if (f && !css[floatAttr]) {
-        css = lang.merge(css);
-        delete css.styleFloat; delete css.cssFloat; delete css['float'];
-        css[floatAttr] = f;
-    }
+    if (lang.isString(css)) {
+        // There is a danger here of incremental memory consumption in Opera
+        workerStyle.cssText += ';' + css;
+    } else {
+        if (f && !css[floatAttr]) {
+            css = lang.merge(css);
+            delete css.styleFloat; delete css.cssFloat; delete css['float'];
+            css[floatAttr] = f;
+        }
 
-    for (prop in css) {
-        if (css.hasOwnProperty(prop)) {
-            try {
-                // IE throws Invalid Value errors and doesn't like whitespace
-                // in values ala ' red' or 'red '
-                workerStyle[prop] = lang.trim(css[prop]);
-            }
-            catch (e) {
-                YAHOO.log('Error assigning property "'+prop+'" to "'+css[prop]+
-                          "\" (ignored):\n"+e.message,'warn','StyleSheet');
+        for (prop in css) {
+            if (css.hasOwnProperty(prop)) {
+                try {
+                    // IE throws Invalid Value errors and doesn't like whitespace
+                    // in values ala ' red' or 'red '
+                    workerStyle[prop] = lang.trim(css[prop]);
+                }
+                catch (e) {
+                    YAHOO.log('Error assigning property "'+prop+'" to "'+css[prop]+
+                              "\" (ignored):\n"+e.message,'warn','StyleSheet');
+                }
             }
         }
     }
+
     return workerStyle.cssText;
 };
 
@@ -478,7 +483,7 @@ lang.augmentObject(StyleSheet, {
         // input will be copied twice in IE.  Is there a way to avoid this
         // without increasing the byte count?
         function (css, cssText) {
-            if ('opacity' in css) {
+            if (lang.isObject(css) && 'opacity' in css) {
                 css = lang.merge(css,{
                         filter: 'alpha(opacity='+(css.opacity*100)+')'
                       });
@@ -640,4 +645,4 @@ NOTES
  * IE6-8 addRule('.foo','',n) throws an error.  Must supply *some* cssText
 */
 
-YAHOO.register("stylesheet", YAHOO.util.StyleSheet, {version: "2.7.0", build: "1799"});
+YAHOO.register("stylesheet", YAHOO.util.StyleSheet, {version: "2.8.2r1", build: "7"});

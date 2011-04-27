@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.8.2r1
 */
 .yui-skin-sam .yui-carousel,
 .yui-skin-sam .yui-carousel-vertical {
@@ -87,6 +87,10 @@ version: 2.7.0
     top: 4px;
 }
 
+.yui-skin-sam .yui-carousel-vertical .yui-carousel-nav select {
+    position: static;
+}
+
 .yui-skin-sam .yui-carousel-vertical .yui-carousel-nav ul,
 .yui-skin-sam .yui-carousel-vertical .yui-carousel-nav select {
     float: none;
@@ -107,14 +111,20 @@ version: 2.7.0
 }
 
 .yui-skin-sam .yui-carousel-nav ul:after {
-    clear: both;
-    content: "";
+    content: ".";
     display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
 }
 
 .yui-skin-sam .yui-carousel-nav ul li a {
-    left: -10000px;
-    position: absolute;
+    display:block;
+    width: 100%;
+    height: 100%;
+    text-indent: -10000px;
+    text-align:left;
+    overflow:hidden;
 }
 
 .yui-skin-sam .yui-carousel-nav ul li.yui-carousel-nav-page-focus {
@@ -127,6 +137,6 @@ version: 2.7.0
 
 .yui-skin-sam .yui-carousel-item-loading {
     background: url(ajax-loader.gif) no-repeat 50% 50%;
-    position: relative;
+    position: absolute;
     text-indent: -150px;
 }

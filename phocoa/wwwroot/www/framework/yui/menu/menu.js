@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.8.2r1
 */
 
 
@@ -28,7 +28,12 @@ version: 2.7.0
 */
 (function () {
 
-    var _DIV = "DIV",
+    var UA = YAHOO.env.ua,
+		Dom = YAHOO.util.Dom,
+	    Event = YAHOO.util.Event,
+	    Lang = YAHOO.lang,
+
+		_DIV = "DIV",
     	_HD = "hd",
     	_BD = "bd",
     	_FT = "ft",
@@ -38,7 +43,6 @@ version: 2.7.0
 		_MOUSEOUT = "mouseout",
 		_MOUSEDOWN = "mousedown",
 		_MOUSEUP = "mouseup",
-		_FOCUS = YAHOO.env.ua.ie ? "focusin" : "focus",		
 		_CLICK = "click",
 		_KEYDOWN = "keydown",
 		_KEYUP = "keyup",
@@ -50,12 +54,7 @@ version: 2.7.0
 		_SELECTED = "selected",
 		_VISIBLE = "visible",
 		_UL = "UL",
-		_MENUMANAGER = "MenuManager",
-    	
-    
-    	Dom = YAHOO.util.Dom,
-        Event = YAHOO.util.Event,
-        Lang = YAHOO.lang;
+		_MENUMANAGER = "MenuManager";
 
 
     /**
@@ -108,11 +107,6 @@ version: 2.7.0
             "blur": "blurEvent",
             "focusout": "blurEvent"
         },
-
-
-    	// The element in the DOM that currently has focus
-    
-		m_oFocusedElement = null,
     
     
         m_oFocusedMenuItem = null;
@@ -216,6 +210,8 @@ version: 2.7.0
             // See if the target of the event was a menu, or a menu item
     
             oElement = getMenuRootElement(oTarget),
+			bFireEvent = true,
+			sEventType = p_oEvent.type,
             sCustomEventType,
             sTagName,
             sId,
@@ -254,21 +250,50 @@ version: 2.7.0
     
             if (oMenu) {
     
-                sCustomEventType = m_oEventTypes[p_oEvent.type];
-    
+                sCustomEventType = m_oEventTypes[sEventType];
+
+				/*
+					There is an inconsistency between Firefox for Mac OS X and 
+					Firefox Windows & Linux regarding the triggering of the 
+					display of the browser's context menu and the subsequent 
+					firing of the "click" event. In Firefox for Windows & Linux, 
+					when the user triggers the display of the browser's context 
+					menu the "click" event also fires for the document object, 
+					even though the "click" event did not fire for the element 
+					that was the original target of the "contextmenu" event. 
+					This is unique to Firefox on Windows & Linux.  For all 
+					other A-Grade browsers, including Firefox for Mac OS X, the 
+					"click" event doesn't fire for the document object. 
+
+					This bug in Firefox for Windows affects Menu, as Menu 
+					instances listen for events at the document level and 
+					dispatches Custom Events of the same name.  Therefore users
+					of Menu will get an unwanted firing of the "click" 
+					custom event.  The following line fixes this bug.
+				*/
+				
+
+
+				if (sEventType == "click" && 
+					(UA.gecko && oMenu.platform != "mac") && 
+					p_oEvent.button > 0) {
+
+					bFireEvent = false;
+
+				}
     
                 // Fire the Custom Event that corresponds the current DOM event    
         
-                if (oMenuItem && !oMenuItem.cfg.getProperty(_DISABLED)) {
-    
+                if (bFireEvent && oMenuItem && !oMenuItem.cfg.getProperty(_DISABLED)) {
                     oMenuItem[sCustomEventType].fire(p_oEvent);                   
-    
                 }
         
-                oMenu[sCustomEventType].fire(p_oEvent, oMenuItem);
+				if (bFireEvent) {
+                	oMenu[sCustomEventType].fire(p_oEvent, oMenuItem);
+				}
             
             }
-            else if (p_oEvent.type == _MOUSEDOWN) {
+            else if (sEventType == _MOUSEDOWN) {
     
                 /*
                     If the target of the event wasn't a menu, hide all 
@@ -284,8 +309,26 @@ version: 2.7.0
                         if (oMenu.cfg.getProperty(_CLICK_TO_HIDE) && 
                             !(oMenu instanceof YAHOO.widget.MenuBar) && 
                             oMenu.cfg.getProperty(_POSITION) == _DYNAMIC) {
-        
+
                             oMenu.hide();
+
+							//	In IE when the user mouses down on a focusable 
+							//	element that element will be focused and become 
+							//	the "activeElement".
+							//	(http://msdn.microsoft.com/en-us/library/ms533065(VS.85).aspx)
+							//	However, there is a bug in IE where if there is 
+							//	a positioned element with a focused descendant 
+							//	that is hidden in response to the mousedown 
+							//	event, the target of the mousedown event will 
+							//	appear to have focus, but will not be set as 
+							//	the activeElement.  This will result in the 
+							//	element not firing key events, even though it
+							//	appears to have focus.  The following call to 
+							//	"setActive" fixes this bug.
+
+							if (UA.ie && oTarget.focus) {
+								oTarget.setActive();
+							}
         
                         }
                         else {
@@ -312,11 +355,6 @@ version: 2.7.0
         
                 } 
     
-            }
-            else if (p_oEvent.type == _FOCUS) {
-            
-            	m_oFocusedElement = oTarget;
-            
             }
             
         }
@@ -379,68 +417,7 @@ version: 2.7.0
             m_oFocusedMenuItem = null;
     
         }
-    
 
-        /**
-        * @method onMenuHide
-        * @description "hide" event handler for a Menu instance.
-        * @private
-        * @param {String} p_sType String representing the name of the event  
-        * that was fired.
-        * @param {Array} p_aArgs Array of arguments sent when the event 
-        * was fired.
-		* @param <a href="http://www.w3.org/TR/2000/WD-DOM-Level-1-20000929/
-		* level-one-html.html#ID-58190037">p_oFocusedElement</a> The HTML element that had focus
-		* prior to the Menu being made visible
-        */    
-    	function onMenuHide(p_sType, p_aArgs, p_oFocusedElement) {
-
-			/*
-				Restore focus to the element in the DOM that had focus prior to the Menu 
-				being made visible
-			*/
-
-			if (p_oFocusedElement && p_oFocusedElement.focus) {
-			
-				try {
-					p_oFocusedElement.focus();
-				}
-				catch(ex) {
-				}
-			
-			}
-			
-    		this.hideEvent.unsubscribe(onMenuHide, p_oFocusedElement);
-    	
-    	}
-    
-
-        /**
-        * @method onMenuShow
-        * @description "show" event handler for a MenuItem instance.
-        * @private
-        * @param {String} p_sType String representing the name of the event  
-        * that was fired.
-        * @param {Array} p_aArgs Array of arguments sent when the event 
-        * was fired.
-        */    	
-    	function onMenuShow(p_sType, p_aArgs) {
-
-			/*
-				Dynamically positioned, root Menus focus themselves when visible, and will then, 
-				when hidden, restore focus to the UI control that had focus before the Menu was 
-				made visible
-			*/ 
-
-			if (this === this.getRoot() && this.cfg.getProperty(_POSITION) === _DYNAMIC) {
-    	
-				this.hideEvent.subscribe(onMenuHide, m_oFocusedElement);
-				this.focus();
-			
-			}
-    	
-    	}    
-    
     
         /**
         * @method onMenuVisibleConfigChange
@@ -596,7 +573,6 @@ version: 2.7.0
                     p_oMenu.itemAddedEvent.subscribe(onItemAdded);
                     p_oMenu.focusEvent.subscribe(onMenuFocus);
                     p_oMenu.blurEvent.subscribe(onMenuBlur);
-                    p_oMenu.showEvent.subscribe(onMenuShow);
         
         
                 }
@@ -931,7 +907,6 @@ version: 2.7.0
 		_DYNAMIC = "dynamic",
 		_STATIC = "static",
 		_DYNAMIC_STATIC = _DYNAMIC + "," + _STATIC,
-		_WINDOWS = "windows",
 		_URL = "url",
 		_HASH = "#",
 		_TARGET = "target",
@@ -1059,6 +1034,10 @@ var Dom = YAHOO.util.Dom,
     UA = YAHOO.env.ua,
     
     m_oShadowTemplate,
+
+	bFocusListenerInitialized = false,
+
+	oFocusedElement,
 
 	EVENT_TYPES = [
     
@@ -1200,6 +1179,13 @@ var Dom = YAHOO.util.Dom,
 		value: false, 
 		validator: Lang.isBoolean
 	};
+
+
+function onDocFocus(event) {
+
+	oFocusedElement = Event.getTarget(event);
+
+}
 
 
 
@@ -1630,15 +1616,21 @@ init: function (p_oElement, p_oConfig) {
         this.beforeRenderEvent.subscribe(this._onBeforeRender);
         this.renderEvent.subscribe(this._onRender);
         this.beforeShowEvent.subscribe(this._onBeforeShow);
-        this.hideEvent.subscribe(this._onHide);
+		this.hideEvent.subscribe(this._onHide);
         this.showEvent.subscribe(this._onShow);
-        this.beforeHideEvent.subscribe(this._onBeforeHide);
+		this.beforeHideEvent.subscribe(this._onBeforeHide);
         this.mouseOverEvent.subscribe(this._onMouseOver);
         this.mouseOutEvent.subscribe(this._onMouseOut);
         this.clickEvent.subscribe(this._onClick);
         this.keyDownEvent.subscribe(this._onKeyDown);
         this.keyPressEvent.subscribe(this._onKeyPress);
         this.blurEvent.subscribe(this._onBlur);
+
+
+		if (!bFocusListenerInitialized) {
+			Event.onFocus(document, onDocFocus);
+			bFocusListenerInitialized = true;
+		}
 
 
 		//	Fixes an issue in Firefox 2 and Webkit where Dom's "getX" and "getY" 
@@ -1661,7 +1653,7 @@ init: function (p_oElement, p_oConfig) {
         // Register the Menu instance with the MenuManager
 
         MenuManager.addMenu(this);
-        
+
 
         this.initEvent.fire(Menu);
 
@@ -2866,42 +2858,20 @@ _onClick: function (p_sType, p_aArgs) {
 
 
 	var hide = function () {
-
-		/*
-			There is an inconsistency between Firefox for Mac OS X and Firefox Windows 
-			regarding the triggering of the display of the browser's context menu and the 
-			subsequent firing of the "click" event. In Firefox for Windows, when the user 
-			triggers the display of the browser's context menu the "click" event also fires 
-			for the document object, even though the "click" event did not fire for the 
-			element that was the original target of the "contextmenu" event. This is unique 
-			to Firefox on Windows. For all other A-Grade browsers, including Firefox for 
-			Mac OS X, the "click" event doesn't fire for the document object. 
-
-			This bug in Firefox for Windows affects Menu as Menu instances listen for 
-			events at the document level and have an internal "click" event handler they 
-			use to hide themselves when clicked. As a result, in Firefox for Windows a 
-			Menu will hide when the user right clicks on a MenuItem to raise the browser's 
-			default context menu, because its internal "click" event handler ends up 
-			getting called.  The following line fixes this bug.
-		*/
-
-		if (!((UA.gecko && this.platform == _WINDOWS) && oEvent.button > 0)) {
 		
-			oRoot = this.getRoot();
+		oRoot = this.getRoot();
 
-			if (oRoot instanceof YAHOO.widget.MenuBar || 
-				oRoot.cfg.getProperty(_POSITION) == _STATIC) {
+		if (oRoot instanceof YAHOO.widget.MenuBar || 
+			oRoot.cfg.getProperty(_POSITION) == _STATIC) {
 
-				oRoot.clearActiveItem();
+			oRoot.clearActiveItem();
 
-			}
-			else {
+		}
+		else {
 
-				oRoot.hide();
-			
-			}
+			oRoot.hide();
 		
-		}	
+		}
 	
 	};
 
@@ -3023,7 +2993,8 @@ _onKeyDown: function (p_sType, p_aArgs) {
         nItems,
         nNextItemOffsetTop,
         nScrollTarget,
-        oParentMenu;
+        oParentMenu,
+		oFocusedEl;
 
 
 	if (this._useHideDelay) {
@@ -3288,6 +3259,22 @@ _onKeyDown: function (p_sType, p_aArgs) {
                 this.parent.focus();
             
             }
+			else {
+				// Focus the element that previously had focus
+
+				oFocusedEl = this._focusedElement;
+
+				if (oFocusedEl && oFocusedEl.focus) {
+
+					try {
+						oFocusedEl.focus();
+					}
+					catch(ex) {
+					}
+
+				}
+				
+			}
 
         }
         else if (this.activeItem) {
@@ -4196,6 +4183,22 @@ _onShow: function (p_sType, p_aArgs) {
 
     }
 
+
+	/*
+		Dynamically positioned, root Menus focus themselves when visible, and 
+		will then, when hidden, restore focus to the UI control that had focus 
+		before the Menu was made visible.
+	*/ 
+
+	if (this === this.getRoot() && this.cfg.getProperty(_POSITION) === _DYNAMIC) {
+
+		this._focusedElement = oFocusedElement;
+		
+		this.focus();
+	
+	}
+
+
 },
 
 
@@ -4286,6 +4289,7 @@ _onParentMenuConfigChange: function (p_sType, p_aArgs, p_oSubmenu) {
         case _MONITOR_RESIZE:
         case _SHADOW:
         case _PREVENT_CONTEXT_OVERLAP:
+		case _KEEP_OPEN:
 
             p_oSubmenu.cfg.setProperty(sPropertyName, oPropertyValue);
                 
@@ -4352,7 +4356,9 @@ _onParentMenuRender: function (p_sType, p_aArgs, p_oSubmenu) {
 
 			preventcontextoverlap: oParentCfg.getProperty(_PREVENT_CONTEXT_OVERLAP),
             
-            monitorresize: oParentCfg.getProperty(_MONITOR_RESIZE)
+            monitorresize: oParentCfg.getProperty(_MONITOR_RESIZE),
+
+			keepopen: oParentCfg.getProperty(_KEEP_OPEN)
 
         },
         
@@ -5864,6 +5870,29 @@ hasFocus: function () {
 },
 
 
+_doItemSubmenuSubscribe: function (p_sType, p_aArgs, p_oObject) {
+
+    var oItem = p_aArgs[0],
+        oSubmenu = oItem.cfg.getProperty(_SUBMENU);
+
+    if (oSubmenu) {
+        oSubmenu.subscribe.apply(oSubmenu, p_oObject);
+    }
+
+},
+
+
+_doSubmenuSubscribe: function (p_sType, p_aArgs, p_oObject) { 
+
+    var oSubmenu = this.cfg.getProperty(_SUBMENU);
+    
+    if (oSubmenu) {
+        oSubmenu.subscribe.apply(oSubmenu, p_oObject);
+    }
+
+},
+
+
 /**
 * Adds the specified CustomEvent subscriber to the menu and each of 
 * its submenus.
@@ -5877,35 +5906,12 @@ hasFocus: function () {
 */
 subscribe: function () {
 
-    function onItemAdded(p_sType, p_aArgs, p_oObject) {
-
-        var oItem = p_aArgs[0],
-            oSubmenu = oItem.cfg.getProperty(_SUBMENU);
-
-        if (oSubmenu) {
-
-            oSubmenu.subscribe.apply(oSubmenu, p_oObject);
-
-        }
-    
-    }
-
-
-    function onSubmenuAdded(p_sType, p_aArgs, p_oObject) { 
-    
-        var oSubmenu = this.cfg.getProperty(_SUBMENU);
-        
-        if (oSubmenu) {
-
-            oSubmenu.subscribe.apply(oSubmenu, p_oObject);
-        
-        }
-    
-    }
-
-
+	//	Subscribe to the event for this Menu instance
     Menu.superclass.subscribe.apply(this, arguments);
-    Menu.superclass.subscribe.call(this, _ITEM_ADDED, onItemAdded, arguments);
+
+	//	Subscribe to the "itemAdded" event so that all future submenus
+	//	also subscribe to this event
+    Menu.superclass.subscribe.call(this, _ITEM_ADDED, this._doItemSubmenuSubscribe, arguments);
 
 
     var aItems = this.getItems(),
@@ -5926,18 +5932,60 @@ subscribe: function () {
             do {
 
                 oItem = aItems[i];
-                
                 oSubmenu = oItem.cfg.getProperty(_SUBMENU);
                 
                 if (oSubmenu) {
-                
                     oSubmenu.subscribe.apply(oSubmenu, arguments);
-                
                 }
                 else {
+                    oItem.cfg.subscribeToConfigEvent(_SUBMENU, this._doSubmenuSubscribe, arguments);
+                }
+
+            }
+            while (i--);
+        
+        }
+
+    }
+
+},
+
+
+unsubscribe: function () {
+
+	//	Remove the event for this Menu instance
+    Menu.superclass.unsubscribe.apply(this, arguments);
+
+	//	Remove the "itemAdded" event so that all future submenus don't have 
+	//	the event handler
+    Menu.superclass.unsubscribe.call(this, _ITEM_ADDED, this._doItemSubmenuSubscribe, arguments);
+
+
+    var aItems = this.getItems(),
+        nItems,
+        oItem,
+        oSubmenu,
+        i;
+        
+
+    if (aItems) {
+
+        nItems = aItems.length;
+        
+        if (nItems > 0) {
+        
+            i = nItems - 1;
+            
+            do {
+
+                oItem = aItems[i];
+                oSubmenu = oItem.cfg.getProperty(_SUBMENU);
                 
-                    oItem.cfg.subscribeToConfigEvent(_SUBMENU, onSubmenuAdded, arguments);
-                
+                if (oSubmenu) {
+                    oSubmenu.unsubscribe.apply(oSubmenu, arguments);
+                }
+                else {
+                    oItem.cfg.unsubscribeFromConfigEvent(_SUBMENU, this._doSubmenuSubscribe, arguments);
                 }
 
             }
@@ -6011,7 +6059,7 @@ initDefaultConfig: function () {
     * @description Array of context arguments for context-sensitive positioning.  
     * The format is: [id or element, element corner, context corner]. 
     * For example, setting this property to ["img1", "tl", "bl"] would 
-    * align the Mnu's top left corner to the context element's 
+    * align the Menu's top left corner to the context element's 
     * bottom left corner.  This property is only applied when the "position" 
     * configuration property is set to dynamic.
     * @type Array
@@ -6317,7 +6365,7 @@ initDefaultConfig: function () {
     /**
     * @config maxheight
     * @description Number defining the maximum height (in pixels) for a menu's 
-    * body element (<code>&#60;div class="bd"&#60;</code>).  Once a menu's body 
+    * body element (<code>&#60;div class="bd"&#62;</code>).  Once a menu's body 
     * exceeds this height, the contents of the body are scrolled to maintain 
     * this value.  This value cannot be set lower than the value of the 
     * "minscrollheight" configuration property.
@@ -8269,69 +8317,93 @@ MenuItem.prototype = {
 
 	},
 
+    /**
+    * @method getNextSibling
+    * @description Finds the menu item's next sibling.
+    * @return YAHOO.widget.MenuItem
+    */
+	getNextSibling: function () {
+	
+		var isUL = function (el) {
+				return (el.nodeName.toLowerCase() === "ul");
+			},
+	
+			menuitemEl = this.element,
+			next = Dom.getNextSibling(menuitemEl),
+			parent,
+			sibling,
+			list;
+		
+		if (!next) {
+			
+			parent = menuitemEl.parentNode;
+			sibling = Dom.getNextSiblingBy(parent, isUL);
+			
+			if (sibling) {
+				list = sibling;
+			}
+			else {
+				list = Dom.getFirstChildBy(parent.parentNode, isUL);
+			}
+			
+			next = Dom.getFirstChild(list);
+			
+		}
+
+		return YAHOO.widget.MenuManager.getMenuItem(next.id);
+
+	},
 
     /**
     * @method getNextEnabledSibling
     * @description Finds the menu item's next enabled sibling.
     * @return YAHOO.widget.MenuItem
     */
-    getNextEnabledSibling: function () {
+	getNextEnabledSibling: function () {
+		
+		var next = this.getNextSibling();
+		
+        return (next.cfg.getProperty(_DISABLED) || next.element.style.display == _NONE) ? next.getNextEnabledSibling() : next;
+		
+	},
 
-        var nGroupIndex,
-            aItemGroups,
-            oNextItem,
-            nNextGroupIndex,
-            aNextGroup,
-            returnVal;
 
-        function getNextArrayItem(p_aArray, p_nStartIndex) {
+    /**
+    * @method getPreviousSibling
+    * @description Finds the menu item's previous sibling.
+    * @return {YAHOO.widget.MenuItem}
+    */	
+	getPreviousSibling: function () {
 
-            return p_aArray[p_nStartIndex] || getNextArrayItem(p_aArray, (p_nStartIndex+1));
+		var isUL = function (el) {
+				return (el.nodeName.toLowerCase() === "ul");
+			},
 
-        }
+			menuitemEl = this.element,
+			next = Dom.getPreviousSibling(menuitemEl),
+			parent,
+			sibling,
+			list;
+		
+		if (!next) {
+			
+			parent = menuitemEl.parentNode;
+			sibling = Dom.getPreviousSiblingBy(parent, isUL);
+			
+			if (sibling) {
+				list = sibling;
+			}
+			else {
+				list = Dom.getLastChildBy(parent.parentNode, isUL);
+			}
+			
+			next = Dom.getLastChild(list);
+			
+		}
 
-        if (this.parent instanceof Menu) {
-
-            nGroupIndex = this.groupIndex;
-    
-            aItemGroups = this.parent.getItemGroups();
-    
-            if (this.index < (aItemGroups[nGroupIndex].length - 1)) {
-    
-                oNextItem = getNextArrayItem(aItemGroups[nGroupIndex], 
-                        (this.index+1));
-    
-            }
-            else {
-    
-                if (nGroupIndex < (aItemGroups.length - 1)) {
-    
-                    nNextGroupIndex = nGroupIndex + 1;
-    
-                }
-                else {
-    
-                    nNextGroupIndex = 0;
-    
-                }
-    
-                aNextGroup = getNextArrayItem(aItemGroups, nNextGroupIndex);
-    
-                // Retrieve the first menu item in the next group
-    
-                oNextItem = getNextArrayItem(aNextGroup, 0);
-    
-            }
-    
-            returnVal = (oNextItem.cfg.getProperty(_DISABLED) || 
-                oNextItem.element.style.display == _NONE) ? 
-                oNextItem.getNextEnabledSibling() : oNextItem;
-
-        }
-        
-        return returnVal;
-
-    },
+		return YAHOO.widget.MenuManager.getMenuItem(next.id);
+		
+	},
 
 
     /**
@@ -8339,70 +8411,13 @@ MenuItem.prototype = {
     * @description Finds the menu item's previous enabled sibling.
     * @return {YAHOO.widget.MenuItem}
     */
-    getPreviousEnabledSibling: function () {
-
-        var nGroupIndex,
-            aItemGroups,
-            oPreviousItem,
-            nPreviousGroupIndex,
-            aPreviousGroup,
-            returnVal;
-
-        function getPreviousArrayItem(p_aArray, p_nStartIndex) {
-
-            return p_aArray[p_nStartIndex] || getPreviousArrayItem(p_aArray, (p_nStartIndex-1));
-
-        }
-
-        function getFirstItemIndex(p_aArray, p_nStartIndex) {
-
-            return p_aArray[p_nStartIndex] ? p_nStartIndex : 
-                getFirstItemIndex(p_aArray, (p_nStartIndex+1));
-
-        }
-
-       if (this.parent instanceof Menu) {
-
-            nGroupIndex = this.groupIndex;
-            aItemGroups = this.parent.getItemGroups();
-
-    
-            if (this.index > getFirstItemIndex(aItemGroups[nGroupIndex], 0)) {
-    
-                oPreviousItem = getPreviousArrayItem(aItemGroups[nGroupIndex], 
-                        (this.index-1));
-    
-            }
-            else {
-    
-                if (nGroupIndex > getFirstItemIndex(aItemGroups, 0)) {
-    
-                    nPreviousGroupIndex = nGroupIndex - 1;
-    
-                }
-                else {
-    
-                    nPreviousGroupIndex = aItemGroups.length - 1;
-    
-                }
-    
-                aPreviousGroup = getPreviousArrayItem(aItemGroups, 
-                    nPreviousGroupIndex);
-    
-                oPreviousItem = getPreviousArrayItem(aPreviousGroup, 
-                        (aPreviousGroup.length - 1));
-    
-            }
-
-            returnVal = (oPreviousItem.cfg.getProperty(_DISABLED) || 
-                oPreviousItem.element.style.display == _NONE) ? 
-                oPreviousItem.getPreviousEnabledSibling() : oPreviousItem;
-
-        }
-        
-        return returnVal;
-
-    },
+	getPreviousEnabledSibling: function () {
+		
+		var next = this.getPreviousSibling();
+		
+        return (next.cfg.getProperty(_DISABLED) || next.element.style.display == _NONE) ? next.getPreviousEnabledSibling() : next;
+		
+	},
 
 
     /**
@@ -9805,4 +9820,4 @@ toString: function() {
 }
     
 }); // END YAHOO.lang.extend
-YAHOO.register("menu", YAHOO.widget.Menu, {version: "2.7.0", build: "1799"});
+YAHOO.register("menu", YAHOO.widget.Menu, {version: "2.8.2r1", build: "7"});

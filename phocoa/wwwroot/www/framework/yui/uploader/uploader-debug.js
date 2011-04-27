@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.8.2r1
 */
 /*extern ActiveXObject, __flash_unloadHandler, __flash_savedUnloadHandler */
 /*!
@@ -507,10 +507,10 @@ YAHOO.extend(YAHOO.widget.FlashAdapter, YAHOO.util.AttributeProvider,
 		swfObj.addVariable("allowedDomain", document.location.hostname);
 
 		//tell the SWF which HTML element it is in
-		swfObj.addVariable("elementID", swfID);
+		swfObj.addVariable("YUISwfId", swfID);
 
 		// set the name of the function to call when the swf has an event
-		swfObj.addVariable("eventHandler", "YAHOO.widget.FlashAdapter.eventHandler");
+		swfObj.addVariable("YUIBridgeCallback", "YAHOO.widget.FlashAdapter.eventHandler");
 		if (buttonSkin) {
 		swfObj.addVariable("buttonSkin", buttonSkin);
 		}
@@ -943,6 +943,21 @@ YAHOO.extend(YAHOO.widget.Uploader, YAHOO.widget.FlashAdapter,
 	},
 	
 /**
+ * Starts the upload of the files specified by fileIDs, or adds them to a currently running queue. The upload queue is automatically managed.
+ *
+ * @param fileIDs {Array} The ids of the files to start uploading.
+ * @param uploadScriptPath {String} The URL of the upload location.
+ * @param method {String} Either "GET" or "POST", specifying how the variables accompanying the file upload POST request should be submitted. "GET" by default.
+ * @param vars {Object} The object containing variables to be sent in the same request as the file upload.
+ * @param fieldName {String} The name of the variable in the POST request containing the file data. "Filedata" by default.
+ * </code> 
+ */
+	uploadThese: function(fileIDs, uploadScriptPath, method, vars, fieldName)
+	{
+		this._swf.uploadThese(fileIDs, uploadScriptPath, method, vars, fieldName);
+	},
+	
+/**
  * Starts uploading all files in the queue. If this function is called, the upload queue is automatically managed.
  *
  * @param uploadScriptPath {String} The URL of the upload location.
@@ -1054,4 +1069,4 @@ YAHOO.extend(YAHOO.widget.Uploader, YAHOO.widget.FlashAdapter,
 		this._swf.disable();
 	}
 });
-YAHOO.register("uploader", YAHOO.widget.Uploader, {version: "2.7.0", build: "1799"});
+YAHOO.register("uploader", YAHOO.widget.Uploader, {version: "2.8.2r1", build: "7"});

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.8.2r1
 */
 /**
  * The selector module provides helper methods allowing CSS3 Selectors to be used with DOM elements.
@@ -309,7 +309,7 @@ Y.Selector = {
         if (groups.length > 1) {
             var found;
             for (var i = 0, len = groups.length; i < len; ++i) {
-                found = arguments.callee(groups[i], root, firstOnly, true);
+                found = Y.Selector._query(groups[i], root, firstOnly, true);
                 result = firstOnly ? found : result.concat(found); 
             }
             Y.Selector._clearFoundCache();
@@ -394,26 +394,22 @@ Y.Selector = {
     },
 
     _getChildren: function() {
-        if (document.documentElement.children) { // document for capability test
+        if (document.documentElement.children && document.documentElement.children.tags) { // document for capability test
             return function(node, tag) {
                 return (tag) ? node.children.tags(tag) : node.children || [];
             };
         } else {
             return function(node, tag) {
-                if (node._children) {
-                    return node._children;
-                }
                 var children = [],
                     childNodes = node.childNodes;
 
                 for (var i = 0, len = childNodes.length; i < len; ++i) {
                     if (childNodes[i].tagName) {
                         if (!tag || childNodes[i].tagName === tag) {
-                            children[children.length] = childNodes[i];
+                            children.push(childNodes[i]);
                         }
                     }
                 }
-                node._children = children;
                 return children;
             };
         }
@@ -645,4 +641,4 @@ if (YAHOO.env.ua.ie && YAHOO.env.ua.ie < 8) { // rewrite class for IE < 8
 }
 
 })();
-YAHOO.register("selector", YAHOO.util.Selector, {version: "2.7.0", build: "1799"});
+YAHOO.register("selector", YAHOO.util.Selector, {version: "2.8.2r1", build: "7"});

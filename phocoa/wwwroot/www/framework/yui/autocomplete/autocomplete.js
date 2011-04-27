@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.8.2r1
 */
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -72,7 +72,7 @@ YAHOO.widget.DS_XHR.TYPE_FLAT = YAHOO.util.DataSourceBase.TYPE_TEXT;
 YAHOO.widget.AutoComplete = function(elInput,elContainer,oDataSource,oConfigs) {
     if(elInput && elContainer && oDataSource) {
         // Validate DataSource
-        if(oDataSource instanceof YAHOO.util.DataSourceBase) {
+        if(oDataSource && YAHOO.lang.isFunction(oDataSource.sendRequest)) {
             this.dataSource = oDataSource;
         }
         else {
@@ -325,8 +325,9 @@ YAHOO.widget.AutoComplete.prototype.queryDelay = 0.2;
 YAHOO.widget.AutoComplete.prototype.typeAheadDelay = 0.5;
 
 /**
- * When IME usage is detected, AutoComplete will switch to querying the input
- * value at the given interval rather than per key event.
+ * When IME usage is detected or interval detection is explicitly enabled,
+ * AutoComplete will detect the input value at the given interval and send a
+ * query if the value has changed.
  *
  * @property queryInterval
  * @type Number
@@ -504,6 +505,17 @@ YAHOO.widget.AutoComplete.prototype.resultTypeList = true;
  */
 YAHOO.widget.AutoComplete.prototype.queryQuestionMark = true;
 
+/**
+ * If true, before each time the container expands, the container element will be
+ * positioned to snap to the bottom-left corner of the input element. If
+ * autoSnapContainer is set to false, this positioning will not be done.  
+ *
+ * @property autoSnapContainer
+ * @type Boolean
+ * @default true
+ */
+YAHOO.widget.AutoComplete.prototype.autoSnapContainer = true;
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Public methods
@@ -541,13 +553,13 @@ YAHOO.widget.AutoComplete.prototype.getContainerEl = function() {
 };
 
  /**
- * Returns true if widget instance is currently focused.
+ * Returns true if widget instance is currently active.
  *
  * @method isFocused
- * @return {Boolean} Returns true if widget instance is currently focused.
+ * @return {Boolean} Returns true if widget instance is currently active.
  */
 YAHOO.widget.AutoComplete.prototype.isFocused = function() {
-    return (this._bFocused === null) ? false : this._bFocused;
+    return this._bFocused;
 };
 
  /**
@@ -630,7 +642,7 @@ YAHOO.widget.AutoComplete.prototype.setHeader = function(sHeader) {
         var elHeader = this._elHeader;
         if(sHeader) {
             elHeader.innerHTML = sHeader;
-            elHeader.style.display = "block";
+            elHeader.style.display = "";
         }
         else {
             elHeader.innerHTML = "";
@@ -651,7 +663,7 @@ YAHOO.widget.AutoComplete.prototype.setFooter = function(sFooter) {
         var elFooter = this._elFooter;
         if(sFooter) {
                 elFooter.innerHTML = sFooter;
-                elFooter.style.display = "block";
+                elFooter.style.display = "";
         }
         else {
             elFooter.innerHTML = "";
@@ -673,7 +685,7 @@ YAHOO.widget.AutoComplete.prototype.setBody = function(sBody) {
         YAHOO.util.Event.purgeElement(elBody, true);
         if(sBody) {
             elBody.innerHTML = sBody;
-            elBody.style.display = "block";
+            elBody.style.display = "";
         }
         else {
             elBody.innerHTML = "";
@@ -726,13 +738,34 @@ YAHOO.widget.AutoComplete.prototype.generateRequest = function(sQuery) {
  * @param sQuery {String} Query string.
  */
 YAHOO.widget.AutoComplete.prototype.sendQuery = function(sQuery) {
-    // Reset focus for a new interaction
-    this._bFocused = null;
+    // Activate focus for a new interaction
+    this._bFocused = true;
     
     // Adjust programatically sent queries to look like they were input by user
     // when delimiters are enabled
     var newQuery = (this.delimChar) ? this._elTextbox.value + sQuery : sQuery;
     this._sendQuery(newQuery);
+};
+
+/**
+ * Snaps container to bottom-left corner of input element
+ *
+ * @method snapContainer
+ */
+YAHOO.widget.AutoComplete.prototype.snapContainer = function() {
+    var oTextbox = this._elTextbox,
+        pos = YAHOO.util.Dom.getXY(oTextbox);
+    pos[1] += YAHOO.util.Dom.get(oTextbox).offsetHeight + 2;
+    YAHOO.util.Dom.setXY(this._elContainer,pos);
+};
+
+/**
+ * Expands container.
+ *
+ * @method expandContainer
+ */
+YAHOO.widget.AutoComplete.prototype.expandContainer = function() {
+    this._toggleContainer(true);
 };
 
 /**
@@ -742,6 +775,19 @@ YAHOO.widget.AutoComplete.prototype.sendQuery = function(sQuery) {
  */
 YAHOO.widget.AutoComplete.prototype.collapseContainer = function() {
     this._toggleContainer(false);
+};
+
+/**
+ * Clears entire list of suggestions.
+ *
+ * @method clearList
+ */
+YAHOO.widget.AutoComplete.prototype.clearList = function() {
+    var allItems = this._elList.childNodes,
+        i=allItems.length-1;
+    for(; i>-1; i--) {
+          allItems[i].style.display = "none";
+    }
 };
 
 /**
@@ -810,13 +856,13 @@ YAHOO.widget.AutoComplete.prototype.filterResults = function(sQuery, oFullRespon
         var oAC = oCallback.scope,
             oDS = this,
             allResults = oParsedResponse.results, // the array of results
-            filteredResults = [], // container for filtered results
-            bMatchFound = false,
+            filteredResults = [], // container for filtered results,
+            nMax = oAC.maxResultsDisplayed, // max to find
             bMatchCase = (oDS.queryMatchCase || oAC.queryMatchCase), // backward compat
             bMatchContains = (oDS.queryMatchContains || oAC.queryMatchContains); // backward compat
             
         // Loop through each result object...
-        for(var i = allResults.length-1; i >= 0; i--) {
+        for(var i=0, len=allResults.length; i<len; i++) {
             var oResult = allResults[i];
 
             // Grab the data to match against from the result object...
@@ -852,8 +898,13 @@ YAHOO.widget.AutoComplete.prototype.filterResults = function(sQuery, oFullRespon
                 // A CONTAINS match is when the query is found anywhere within the key string...
                 (bMatchContains && (sKeyIndex > -1))) {
                     // Stash the match
-                    filteredResults.unshift(oResult);
+                    filteredResults.push(oResult);
                 }
+            }
+            
+            // Filter no more if maxResultsDisplayed is reached
+            if(len>nMax && filteredResults.length===nMax) {
+                break;
             }
         }
         oParsedResponse.results = filteredResults;
@@ -1024,6 +1075,7 @@ YAHOO.widget.AutoComplete.prototype.dataReturnEvent = null;
  * @event dataErrorEvent
  * @param oSelf {YAHOO.widget.AutoComplete} The AutoComplete instance.
  * @param sQuery {String} The query string.
+ * @param oResponse {Object} The response object, if available.
  */
 YAHOO.widget.AutoComplete.prototype.dataErrorEvent = null;
 
@@ -1242,14 +1294,14 @@ YAHOO.widget.AutoComplete.prototype._elShadow = null;
 YAHOO.widget.AutoComplete.prototype._elIFrame = null;
 
 /**
- * Whether or not the input field is currently in focus. If query results come back
+ * Whether or not the widget instance is currently active. If query results come back
  * but the user has already moved on, do not proceed with auto complete behavior.
  *
  * @property _bFocused
  * @type Boolean
  * @private
  */
-YAHOO.widget.AutoComplete.prototype._bFocused = null;
+YAHOO.widget.AutoComplete.prototype._bFocused = false;
 
 /**
  * Animation instance for container expand/collapse.
@@ -1354,6 +1406,15 @@ YAHOO.widget.AutoComplete.prototype._sInitInputValue = null;
  * @private
  */
 YAHOO.widget.AutoComplete.prototype._elCurListItem = null;
+
+/**
+ * Pointer to the currently pre-highlighted &lt;li&gt; element in the container.
+ *
+ * @property _elCurPrehighlightItem
+ * @type HTMLElement
+ * @private
+ */
+YAHOO.widget.AutoComplete.prototype._elCurPrehighlightItem = null;
 
 /**
  * Whether or not an item has been selected since the container was populated
@@ -1499,8 +1560,10 @@ YAHOO.widget.AutoComplete.prototype._initContainerHelperEls = function() {
         elIFrame.style.position = "absolute";
         elIFrame.style.width = 0;
         elIFrame.style.height = 0;
-        elIFrame.tabIndex = -1;
         elIFrame.style.padding = 0;
+        elIFrame.tabIndex = -1;
+        elIFrame.role = "presentation";
+        elIFrame.title = "Presentational iframe shim";
         this._elIFrame = this._elContainer.appendChild(elIFrame);
     }
 };
@@ -1550,10 +1613,10 @@ YAHOO.widget.AutoComplete.prototype._initContainerEl = function() {
  * @private
  */
 YAHOO.widget.AutoComplete.prototype._initListEl = function() {
-    var nListLength = this.maxResultsDisplayed;
+    var nListLength = this.maxResultsDisplayed,
+        elList = this._elList || document.createElement("ul"),
+        elListItem;
     
-    var elList = this._elList || document.createElement("ul");
-    var elListItem;
     while(elList.childNodes.length < nListLength) {
         elListItem = document.createElement("li");
         elListItem.style.display = "none";
@@ -1567,6 +1630,7 @@ YAHOO.widget.AutoComplete.prototype._initListEl = function() {
         this._elList = elBody.appendChild(elList);
     }
     
+    this._elBody.style.display = "";
 };
 
 /**
@@ -1599,6 +1663,19 @@ YAHOO.widget.AutoComplete.prototype._enableIntervalDetection = function() {
         oSelf._queryInterval = setInterval(function() { oSelf._onInterval(); }, oSelf.queryInterval);
     }
 };
+
+/**
+ * Enables interval detection for a less performant but brute force mechanism to
+ * detect input values at an interval set by queryInterval and send queries if
+ * input value has changed. Needed to support right-click+paste or shift+insert
+ * edge cases. Please note that intervals are cleared at the end of each interaction,
+ * so enableIntervalDetection must be called for each new interaction. The
+ * recommended approach is to call it in response to textboxFocusEvent.
+ *
+ * @method enableIntervalDetection
+ */
+YAHOO.widget.AutoComplete.prototype.enableIntervalDetection =
+    YAHOO.widget.AutoComplete.prototype._enableIntervalDetection;
 
 /**
  * Enables query triggers based on text input detection by intervals (rather
@@ -1700,7 +1777,7 @@ YAHOO.widget.AutoComplete.prototype._sendQuery = function(sQuery) {
         }
     }
     
-    if(this.responseStripAfter) {
+    if(this.dataSource.responseStripAfter) {
         this.dataSource.doBeforeParseData = this.preparseRawResponse;
     }
     if(this.applyLocalFilter) {
@@ -1718,6 +1795,19 @@ YAHOO.widget.AutoComplete.prototype._sendQuery = function(sQuery) {
                 query: sQuery
             }
     });
+};
+
+/**
+ * Populates the given &lt;li&gt; element with return value from formatResult().
+ *
+ * @method _populateListItem
+ * @param elListItem {HTMLElement} The LI element.
+ * @param oResult {Object} The result object.
+ * @param sCurQuery {String} The query string.
+ * @private
+ */
+YAHOO.widget.AutoComplete.prototype._populateListItem = function(elListItem, oResult, sQuery) {
+    elListItem.innerHTML = this.formatResult(oResult, sQuery, elListItem._sResultMatch);
 };
 
 /**
@@ -1745,16 +1835,8 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, oResponse, 
     if(ok && !oResponse.error) {
         this.dataReturnEvent.fire(this, sQuery, oResponse.results);
         
-        // Continue only if instance is still focused (i.e., user hasn't already moved on)
-        // Null indicates initialized state, which is ok too
-        if(this._bFocused || (this._bFocused === null)) {
-            
-            //TODO: is this still necessary?
-            /*var isOpera = (YAHOO.env.ua.opera);
-            var contentStyle = this._elContent.style;
-            contentStyle.width = (!isOpera) ? null : "";
-            contentStyle.height = (!isOpera) ? null : "";*/
-        
+        // Continue only if instance is still active (i.e., user hasn't already moved on)
+        if(this._bFocused) {
             // Store state for this interaction
             var sCurQuery = decodeURIComponent(sQuery);
             this._sCurQuery = sCurQuery;
@@ -1812,7 +1894,7 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, oResponse, 
                     // The matching value, including backward compatibility for array format and safety net
                     elListItem._sResultMatch = (YAHOO.lang.isString(oResult)) ? oResult : (YAHOO.lang.isArray(oResult)) ? oResult[0] : (oResult[sMatchKey] || "");
                     elListItem._oResultData = oResult; // Additional data
-                    elListItem.innerHTML = this.formatResult(oResult, sCurQuery, elListItem._sResultMatch);
+                    this._populateListItem(elListItem, oResult, sCurQuery);
                     elListItem.style.display = "";
                 }
         
@@ -1841,8 +1923,10 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, oResponse, 
                     this._toggleHighlight(this._elCurListItem,"from");
                 }
         
+                // Pre-expansion stuff
+                ok = this._doBeforeExpandContainer(this._elTextbox, this._elContainer, sQuery, allResults);
+                
                 // Expand the container
-                ok = this.doBeforeExpandContainer(this._elTextbox, this._elContainer, sQuery, allResults);
                 this._toggleContainer(ok);
             }
             else {
@@ -1854,9 +1938,29 @@ YAHOO.widget.AutoComplete.prototype._populateList = function(sQuery, oResponse, 
     }
     // Error
     else {
-        this.dataErrorEvent.fire(this, sQuery);
+        this.dataErrorEvent.fire(this, sQuery, oResponse);
     }
         
+};
+
+/**
+ * Called before container expands, by default snaps container to the
+ * bottom-left corner of the input element, then calls public overrideable method.
+ *
+ * @method _doBeforeExpandContainer
+ * @param elTextbox {HTMLElement} The text input box.
+ * @param elContainer {HTMLElement} The container element.
+ * @param sQuery {String} The query string.
+ * @param aResults {Object[]}  An array of query results.
+ * @return {Boolean} Return true to continue expanding container, false to cancel the expand.
+ * @private 
+ */
+YAHOO.widget.AutoComplete.prototype._doBeforeExpandContainer = function(elTextbox, elContainer, sQuery, aResults) {
+    if(this.autoSnapContainer) {
+        this.snapContainer();
+    }
+
+    return this.doBeforeExpandContainer(elTextbox, elContainer, sQuery, aResults);
 };
 
 /**
@@ -2187,7 +2291,8 @@ YAHOO.widget.AutoComplete.prototype._toggleHighlight = function(elNewListItem, s
 };
 
 /**
- * Toggles the pre-highlight on or off for an item in the container.
+ * Toggles the pre-highlight on or off for an item in the container, and also cleans
+ * up pre-highlighting of any previous item.
  *
  * @method _togglePrehighlight
  * @param elNewListItem {HTMLElement} The &lt;li&gt; element item to receive highlight behavior.
@@ -2195,14 +2300,19 @@ YAHOO.widget.AutoComplete.prototype._toggleHighlight = function(elNewListItem, s
  * @private
  */
 YAHOO.widget.AutoComplete.prototype._togglePrehighlight = function(elNewListItem, sType) {
+    var sPrehighlight = this.prehighlightClassName;
+
+    if(this._elCurPrehighlightItem) {
+        YAHOO.util.Dom.removeClass(this._elCurPrehighlightItem, sPrehighlight);
+    }
     if(elNewListItem == this._elCurListItem) {
         return;
     }
 
-    var sPrehighlight = this.prehighlightClassName;
     if((sType == "mouseover") && sPrehighlight) {
         // Apply prehighlight to new item
         YAHOO.util.Dom.addClass(elNewListItem, sPrehighlight);
+        this._elCurPrehighlightItem = elNewListItem;
     }
     else {
         // Remove prehighlight from old item
@@ -2683,9 +2793,6 @@ YAHOO.widget.AutoComplete.prototype._onTextboxKeyUp = function(v,oSelf) {
     }
 
     // Clear previous timeout
-    /*if(oSelf._nTypeAheadDelayID != -1) {
-        clearTimeout(oSelf._nTypeAheadDelayID);
-    }*/
     if(oSelf._nDelayID != -1) {
         clearTimeout(oSelf._nDelayID);
     }
@@ -2694,12 +2801,6 @@ YAHOO.widget.AutoComplete.prototype._onTextboxKeyUp = function(v,oSelf) {
     oSelf._nDelayID = setTimeout(function(){
             oSelf._sendQuery(sText);
         },(oSelf.queryDelay * 1000));
-
-     //= nDelayID;
-    //else {
-        // No delay so send request immediately
-        //oSelf._sendQuery(sText);
-   //}
 };
 
 /**
@@ -2862,4 +2963,4 @@ YAHOO.widget.AutoComplete._cloneObject = function(o) {
 
 
 
-YAHOO.register("autocomplete", YAHOO.widget.AutoComplete, {version: "2.7.0", build: "1799"});
+YAHOO.register("autocomplete", YAHOO.widget.AutoComplete, {version: "2.8.2r1", build: "7"});

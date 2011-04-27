@@ -18,7 +18,7 @@
  */
 class WFYAHOO_yuiloader
 {
-    const YUI_VERSION = '2.7.0';
+    const YUI_VERSION = '2.8.2';
 
     static protected $_instance = NULL;
 

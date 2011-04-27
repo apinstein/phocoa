@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2009, Yahoo! Inc. All rights reserved.
+Copyright (c) 2010, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.net/yui/license.txt
-version: 2.7.0
+http://developer.yahoo.com/yui/license.html
+version: 2.8.2r1
 */
 /**
  * The Slider component is a UI control that enables the user to adjust 
@@ -571,7 +571,7 @@ YAHOO.extend(Slider, YAHOO.util.DragDrop, {
     thumbMouseUp: function() {
         this._mouseDown = false;
         this.logger.log("thumb mouseup");
-        if (!this.isLocked() && !this.moveComplete) {
+        if (!this.isLocked()) {
             this.endMove();
         }
 
@@ -580,7 +580,7 @@ YAHOO.extend(Slider, YAHOO.util.DragDrop, {
     onMouseUp: function() {
         this._mouseDown = false;
         this.logger.log("background mouseup");
-        if (this.backgroundEnabled && !this.isLocked() && !this.moveComplete) {
+        if (this.backgroundEnabled && !this.isLocked()) {
             this.endMove();
         }
     },
@@ -748,7 +748,7 @@ YAHOO.extend(Slider, YAHOO.util.DragDrop, {
         this.valueChangeSource = source || Slider.SOURCE_SET_VALUE;
 
         t.lastOffset = [newOffset, newOffset];
-        this.verifyOffset(true);
+        this.verifyOffset();
 
         this._slideStart();
 
@@ -828,7 +828,7 @@ YAHOO.extend(Slider, YAHOO.util.DragDrop, {
         this.valueChangeSource = source || Slider.SOURCE_SET_VALUE;
 
         t.lastOffset = [newOffset, newOffset2];
-        this.verifyOffset(true);
+        this.verifyOffset();
 
         this._slideStart();
 
@@ -842,11 +842,10 @@ YAHOO.extend(Slider, YAHOO.util.DragDrop, {
     /**
      * Checks the background position element position.  If it has moved from the
      * baseline position, the constraints for the thumb are reset
-     * @param checkPos {boolean} check the position instead of using cached value
      * @method verifyOffset
      * @return {boolean} True if the offset is the same as the baseline.
      */
-    verifyOffset: function(checkPos) {
+    verifyOffset: function() {
 
         var xy = getXY(this.getEl()),
             t  = this.thumb;
@@ -953,16 +952,17 @@ YAHOO.extend(Slider, YAHOO.util.DragDrop, {
                 this.fireEvent("slideStart");
             }
             this._sliding = true;
+            this.moveComplete = false; // for backward compatibility. Deprecated
         }
     },
 
     _slideEnd: function() {
-        if (this._sliding && this.moveComplete) {
+        if (this._sliding) {
             // Reset state before firing slideEnd
             var silent = this._silent;
             this._sliding = false;
+            this.moveComplete = true; // for backward compatibility. Deprecated
             this._silent = false;
-            this.moveComplete = false;
             if (!silent) {
                 this.onSlideEnd();
                 this.fireEvent("slideEnd");
@@ -1093,7 +1093,7 @@ YAHOO.extend(Slider, YAHOO.util.DragDrop, {
         }
 
         this.thumb.autoOffset();
-        this.resetThumbConstraints();
+        this.baselinePos = [];
     },
 
     /**
@@ -1142,7 +1142,6 @@ YAHOO.extend(Slider, YAHOO.util.DragDrop, {
         this.logger.log("endMove");
         this.unlock();
         this.fireEvents();
-        this.moveComplete = true;
         this._slideEnd();
     },
 
@@ -1981,7 +1980,7 @@ DualSlider.prototype = {
      * @protected
      */
     _handleMouseDown: function(e) {
-        if (!e._handled) {
+        if (!e._handled && !this.minSlider._sliding && !this.maxSlider._sliding) {
             e._handled = true;
             this.selectActiveSlider(e);
             return YW.Slider.prototype.onMouseDown.call(this.activeSlider, e);
@@ -2012,12 +2011,13 @@ DualSlider.prototype = {
      * @private
      */
     _oneTimeCallback : function (o,evt,fn) {
-        o.subscribe(evt,function () {
+        var sub = function () {
             // Unsubscribe myself
-            o.unsubscribe(evt,arguments.callee);
+            o.unsubscribe(evt, sub);
             // Pass the event handler arguments to the one time callback
-            fn.apply({},[].slice.apply(arguments));
-        });
+            fn.apply({},arguments);
+        };
+        o.subscribe(evt,sub);
     },
 
     /**
@@ -2111,4 +2111,4 @@ YW.Slider.getVertDualSlider =
 YAHOO.widget.DualSlider = DualSlider;
 
 })();
-YAHOO.register("slider", YAHOO.widget.Slider, {version: "2.7.0", build: "1799"});
+YAHOO.register("slider", YAHOO.widget.Slider, {version: "2.8.2r1", build: "7"});
