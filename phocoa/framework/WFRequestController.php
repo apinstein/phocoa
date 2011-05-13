@@ -194,23 +194,18 @@ class WFRequestController extends WFObject
      */
     function handleHTTPRequest()
     {
-        // OLD WAY - use server's PATH_INFO
-        //$modInvocationPath = ( empty($_SERVER['PATH_INFO']) ? '' : $_SERVER['PATH_INFO'] );
-
-        // NEW WAY - calculate our own PATH_INFO. WHY? This way we can eliminate the urldecoding of the PATH_INFO which prevents passing through / and also 
-        // destroys the ability to pass NULL URL params via //.
-        // This way is much better, so long as it's compatible! So make sure that it doesn't break anything.
-        $relativeURI = parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH); // need to run this to convert absolute URI's to relative ones (sent by SOME http clients)
-        $modInvocationPath = ltrim(substr($relativeURI, strlen(WWW_ROOT)), '/');
-        $paramsPos = strpos($modInvocationPath, '?');
-        if ($paramsPos !== false)
-        {
-            $modInvocationPath = substr($modInvocationPath, 0, $paramsPos);
-        }
-        
         // point all error handling to phocoa's internal mechanisms since anything that happens after this line (try) will be routed through the framework's handler
         $this->registerErrorHandlers();
         try {
+            $relativeURI = parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH); // need to run this to convert absolute URI's to relative ones (sent by SOME http clients)
+            if ($relativeURI === false) throw new WFRequestController_NotFoundException("Malformed URI: {$_SERVER['REQUEST_URI']}");
+            $modInvocationPath = ltrim(substr($relativeURI, strlen(WWW_ROOT)), '/');
+            $paramsPos = strpos($modInvocationPath, '?');
+            if ($paramsPos !== false)
+            {
+                $modInvocationPath = substr($modInvocationPath, 0, $paramsPos);
+            }
+
             if ($modInvocationPath == '')
             {
                 $modInvocationPath = WFWebApplication::sharedWebApplication()->defaultInvocationPath();
