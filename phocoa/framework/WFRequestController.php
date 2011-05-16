@@ -438,4 +438,14 @@ class WFRequestController_HTTPException extends WFException
 {
     public function __construct($message = NULL, $code = 500) { parent::__construct($message, $code); }
 }
-?>
+
+/**
+ * There are certain classes that are needed to successfully handle errors. We need to make sure that they are loaded up front so that
+ * they don't need to be autoloaded during error handling, which can result in errors during error handling such as:
+ *
+ * - Fatal error: Class declarations may not be nested in /Users/alanpinstein/dev/sandbox/showcaseng/showcaseng/externals/phocoa/phocoa/framework/WFExceptionReporting.php on line 14
+ *
+ * Simply running a class_exists on each class will force an autoload when WFRequestController is parsed, preventing the problem.
+ * We don't do a hard require('file.php') here since that would break our automated opcode-cache-friendly require('/full/path/to/file.php') system in phocoa's autoloader.
+ */
+class_exists('WFExceptionReporting');
