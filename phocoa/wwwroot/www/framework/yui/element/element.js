@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 /**
  * Provides Attribute configurations.
@@ -19,8 +19,6 @@ YAHOO.util.Attribute = function(hash, owner) {
         this.configure(hash, true);
     }
 };
-
-YAHOO.util.Attribute.INVALID_VALUE = {};
 
 YAHOO.util.Attribute.prototype = {
     /**
@@ -117,7 +115,7 @@ YAHOO.util.Attribute.prototype = {
         var val = this.value;
 
         if (this.getter) {
-            val = this.getter.call(this.owner, this.name, val);
+            val = this.getter.call(this.owner, this.name);
         }
 
         return val;
@@ -133,13 +131,12 @@ YAHOO.util.Attribute.prototype = {
     setValue: function(value, silent) {
         var beforeRetVal,
             owner = this.owner,
-            name = this.name,
-            invalidValue = YAHOO.util.Attribute.INVALID_VALUE,
+            name = this.name;
         
-            event = {
-                type: name, 
-                prevValue: this.getValue(),
-                newValue: value
+        var event = {
+            type: name, 
+            prevValue: this.getValue(),
+            newValue: value
         };
         
         if (this.readOnly || ( this.writeOnce && this._written) ) {
@@ -161,16 +158,10 @@ YAHOO.util.Attribute.prototype = {
             value = this.setter.call(owner, value, this.name);
             if (value === undefined) {
             }
-
-            if (value === invalidValue) {
-                return false;
-            }
         }
         
         if (this.method) {
-            if (this.method.call(owner, value, this.name) === invalidValue) {
-                return false; 
-            }
+            this.method.call(owner, value, this.name);
         }
         
         this.value = value; // TODO: set before calling setter/method?
@@ -501,11 +492,7 @@ YAHOO.util.Attribute.prototype = {
 (function() {
 // internal shorthand
 var Dom = YAHOO.util.Dom,
-    AttributeProvider = YAHOO.util.AttributeProvider,
-	specialTypes = {
-		mouseenter: true,
-		mouseleave: true
-	};
+    AttributeProvider = YAHOO.util.AttributeProvider;
 
 /**
  * Element provides an wrapper object to simplify adding
@@ -540,8 +527,6 @@ Element.DOM_EVENTS = {
     'mouseout': true, 
     'mouseover': true, 
     'mouseup': true,
-    'mouseenter': true, 
-    'mouseleave': true,
     'focus': true,
     'blur': true,
     'submit': true,
@@ -562,9 +547,6 @@ Element.prototype = {
         if (el) {
             el[key] = value;
         }
-
-		return value;
-
     },
 
     DEFAULT_HTML_GETTER: function(key) {
@@ -667,50 +649,26 @@ Element.prototype = {
      * @param {Object} scope The object to use for the scope of the handler 
      */
     addListener: function(type, fn, obj, scope) {
-
+        var el = this.get('element') || this.get('id');
         scope = scope || this;
-
-        var Event = YAHOO.util.Event,
-			el = this.get('element') || this.get('id'),
-        	self = this;
-
-
-		if (specialTypes[type] && !Event._createMouseDelegate) {
-	        return false;	
-		}
-
-
+        
+        var self = this; 
         if (!this._events[type]) { // create on the fly
-
             if (el && this.DOM_EVENTS[type]) {
-				Event.on(el, type, function(e, matchedEl) {
-
-					// Supplement IE with target, currentTarget relatedTarget
-
-	                if (e.srcElement && !e.target) { 
-	                    e.target = e.srcElement;
-	                }
-
-					if ((e.toElement && !e.relatedTarget) || (e.fromElement && !e.relatedTarget)) {
-						e.relatedTarget = Event.getRelatedTarget(e);
-					}
-					
-					if (!e.currentTarget) {
-						e.currentTarget = el;
-					}
-
-					//	Note: matchedEl el is passed back for delegated listeners
-		            self.fireEvent(type, e, matchedEl);
-
-		        }, obj, scope);
+                YAHOO.util.Event.addListener(el, type, function(e) {
+                    if (e.srcElement && !e.target) { // supplement IE with target
+                        e.target = e.srcElement;
+                    }
+                    self.fireEvent(type, e);
+                }, obj, scope);
             }
-            this.createEvent(type, {scope: this});
+            this.createEvent(type, this);
         }
         
         return YAHOO.util.EventProvider.prototype.subscribe.apply(this, arguments); // notify via customEvent
     },
-
-
+    
+    
     /**
      * Alias for addListener
      * @method on
@@ -929,7 +887,7 @@ Element.prototype = {
         AttributeProvider.prototype.setAttributeConfig.apply(this, arguments);
     },
 
-    createEvent: function(type, config) {
+    createEvent: function(type, scope) {
         this._events[type] = true;
         return AttributeProvider.prototype.createEvent.apply(this, arguments);
     },
@@ -1096,4 +1054,4 @@ YAHOO.augment(Element, AttributeProvider);
 YAHOO.util.Element = Element;
 })();
 
-YAHOO.register("element", YAHOO.util.Element, {version: "2.9.0", build: "2800"});
+YAHOO.register("element", YAHOO.util.Element, {version: "2.7.0", build: "1799"});

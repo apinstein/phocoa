@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 YAHOO.namespace("tool");
 
@@ -131,6 +131,7 @@ YAHOO.namespace("tool");
     };
 
 })();
+
 YAHOO.namespace("tool");
 
 
@@ -210,6 +211,7 @@ YAHOO.tool.TestSuite.prototype = {
     }
     
 };
+
 YAHOO.namespace("tool");
 
 /**
@@ -217,7 +219,6 @@ YAHOO.namespace("tool");
  * @module yuitest
  * @namespace YAHOO.tool
  * @requires yahoo,dom,event,logger
- * @optional event-simulate
  */
 
 
@@ -282,8 +283,7 @@ YAHOO.tool.TestRunner = (function(){
             passed : 0,
             failed : 0,
             total : 0,
-            ignored : 0,
-            duration: 0
+            ignored : 0
         };
         
         //initialize results
@@ -337,7 +337,7 @@ YAHOO.tool.TestRunner = (function(){
          * @private
          * @static
          */
-        this.masterSuite = new YAHOO.tool.TestSuite("yuitests" + (new Date()).getTime());        
+        this.masterSuite /*:YAHOO.tool.TestSuite*/ = new YAHOO.tool.TestSuite("YUI Test Results");        
 
         /**
          * Pointer to the current node in the test tree.
@@ -346,7 +346,7 @@ YAHOO.tool.TestRunner = (function(){
          * @property _cur
          * @static
          */
-        this._cur = null;                
+        this._cur = null;
         
         /**
          * Pointer to the root node in the test tree.
@@ -356,25 +356,6 @@ YAHOO.tool.TestRunner = (function(){
          * @static
          */
         this._root = null;
-        
-        /**
-         * Indicates if the TestRunner is currently running tests.
-         * @type Boolean
-         * @private
-         * @property _running
-         * @static
-         */
-        this._running = false;
-        
-        /**
-         * Holds copy of the results object generated when all tests are
-         * complete.
-         * @type Object
-         * @private
-         * @property _lastResults
-         * @static
-         */
-        this._lastResults = null;
         
         //create events
         var events /*:Array*/ = [
@@ -455,114 +436,8 @@ YAHOO.tool.TestRunner = (function(){
          * Fires when the run() method is called.
          * @event begin
          */        
-        BEGIN_EVENT /*:String*/ : "begin",                
+        BEGIN_EVENT /*:String*/ : "begin",    
         
-        //-------------------------------------------------------------------------
-        // Misc Methods
-        //-------------------------------------------------------------------------   
-
-        /**
-         * Retrieves the name of the current result set.
-         * @return {String} The name of the result set.
-         * @method getName
-         */
-        getName: function(){
-            return this.masterSuite.name;
-        },         
-
-        /**
-         * The name assigned to the master suite of the TestRunner. This is the name
-         * that is output as the root's name when results are retrieved.
-         * @param {String} name The name of the result set.
-         * @return {Void}
-         * @method setName
-         */
-        setName: function(name){
-            this.masterSuite.name = name;
-        },        
-        
-        
-        //-------------------------------------------------------------------------
-        // State-Related Methods
-        //-------------------------------------------------------------------------
-
-        /**
-         * Indicates that the TestRunner is busy running tests and therefore can't
-         * be stopped and results cannot be gathered.
-         * @return {Boolean} True if the TestRunner is running, false if not.
-         * @method isRunning
-         */
-        isRunning: function(){
-            return this._running;
-        },
-        
-        /**
-         * Returns the last complete results set from the TestRunner. Null is returned
-         * if the TestRunner is running or no tests have been run.
-         * @param {Function} format (Optional) A test format to return the results in.
-         * @return {Object|String} Either the results object or, if a test format is 
-         *      passed as the argument, a string representing the results in a specific
-         *      format.
-         * @method getResults
-         */
-        getResults: function(format){
-            if (!this._running && this._lastResults){
-                if (YAHOO.lang.isFunction(format)){
-                    return format(this._lastResults);                    
-                } else {
-                    return this._lastResults;
-                }
-            } else {
-                return null;
-            }
-        },
-
-        /**
-         * Returns the coverage report for the files that have been executed.
-         * This returns only coverage information for files that have been
-         * instrumented using YUI Test Coverage and only those that were run
-         * in the same pass.
-         * @param {Function} format (Optional) A coverage format to return results in.
-         * @return {Object|String} Either the coverage object or, if a coverage
-         *      format is specified, a string representing the results in that format.
-         * @method getCoverage
-         */
-        getCoverage: function(format){
-            if (!this._running && typeof _yuitest_coverage == "object"){
-                if (YAHOO.lang.isFunction(format)){
-                    return format(_yuitest_coverage);                    
-                } else {
-                    return _yuitest_coverage;
-                }
-            } else {
-                return null;
-            }            
-        },
-        
-        //-------------------------------------------------------------------------
-        // Misc Methods
-        //-------------------------------------------------------------------------
-
-        /**
-         * Retrieves the name of the current result set.
-         * @return {String} The name of the result set.
-         * @method getName
-         */
-        getName: function(){
-            return this.masterSuite.name;
-        },         
-
-        /**
-         * The name assigned to the master suite of the TestRunner. This is the name
-         * that is output as the root's name when results are retrieved.
-         * @param {String} name The name of the result set.
-         * @return {Void}
-         * @method setName
-         */
-        setName: function(name){
-            this.masterSuite.name = name;
-        },
-
         //-------------------------------------------------------------------------
         // Test Tree-Related Methods
         //-------------------------------------------------------------------------
@@ -626,7 +501,7 @@ YAHOO.tool.TestRunner = (function(){
         _buildTestTree : function () /*:Void*/ {
         
             this._root = new TestNode(this.masterSuite);
-            //this._cur = this._root;
+            this._cur = this._root;
             
             //iterate over the items in the master suite
             for (var i=0; i < this.masterSuite.items.length; i++){
@@ -662,10 +537,8 @@ YAHOO.tool.TestRunner = (function(){
             
                 if (node.testObject instanceof YAHOO.tool.TestSuite){
                     node.testObject.tearDown();
-                    node.results.duration = (new Date()) - node._start;
                     this.fireEvent(this.TEST_SUITE_COMPLETE_EVENT, { testSuite: node.testObject, results: node.results});
                 } else if (node.testObject instanceof YAHOO.tool.TestCase){
-                    node.results.duration = (new Date()) - node._start;
                     this.fireEvent(this.TEST_CASE_COMPLETE_EVENT, { testCase: node.testObject, results: node.results});
                 }      
             } 
@@ -683,10 +556,8 @@ YAHOO.tool.TestRunner = (function(){
          * @method _next
          */
         _next : function () /*:TestNode*/ {
-                
-            if (this._cur === null){
-                this._cur = this._root;
-            } else if (this._cur.firstChild) {
+        
+            if (this._cur.firstChild) {
                 this._cur = this._cur.firstChild;
             } else if (this._cur.next) {
                 this._cur = this._cur.next;            
@@ -699,10 +570,8 @@ YAHOO.tool.TestRunner = (function(){
                 if (this._cur == this._root){
                     this._cur.results.type = "report";
                     this._cur.results.timestamp = (new Date()).toLocaleString();
-                    this._cur.results.duration = (new Date()) - this._cur._start;                       
-                    this._lastResults = this._cur.results;
-                    this._running = false;
-                    this.fireEvent(this.COMPLETE_EVENT, { results: this._lastResults});
+                    this._cur.results.duration = (new Date()) - this._cur.results.duration;
+                    this.fireEvent(this.COMPLETE_EVENT, { results: this._cur.results});
                     this._cur = null;
                 } else {
                     this._handleTestObjectComplete(this._cur);               
@@ -722,33 +591,23 @@ YAHOO.tool.TestRunner = (function(){
          * @static
          */
         _run : function () /*:Void*/ {
-                                
+        
             //flag to indicate if the TestRunner should wait before continuing
-            var shouldWait = false;
+            var shouldWait /*:Boolean*/ = false;
             
             //get the next test node
             var node = this._next();
-
             
             if (node !== null) {
-            
-                //set flag to say the testrunner is running
-                this._running = true;
-                
-                //eliminate last results
-                this._lastResult = null;            
-            
                 var testObject = node.testObject;
                 
                 //figure out what to do
                 if (YAHOO.lang.isObject(testObject)){
                     if (testObject instanceof YAHOO.tool.TestSuite){
                         this.fireEvent(this.TEST_SUITE_BEGIN_EVENT, { testSuite: testObject });
-                        node._start = new Date();
                         testObject.setUp();
                     } else if (testObject instanceof YAHOO.tool.TestCase){
                         this.fireEvent(this.TEST_CASE_BEGIN_EVENT, { testCase: testObject });
-                        node._start = new Date();
                     }
                     
                     //some environments don't support setTimeout
@@ -873,17 +732,13 @@ YAHOO.tool.TestRunner = (function(){
             
             //run the tear down
             testCase.tearDown();
-        
-            //calculate duration
-            var duration = (new Date()) - node._start;            
             
             //update results
             node.parent.results[testName] = { 
                 result: failed ? "fail" : "pass",
                 message: error ? error.getMessage() : "Test passed",
                 type: "test",
-                name: testName,
-                duration: duration
+                name: testName
             };
             
             if (failed){
@@ -949,9 +804,6 @@ YAHOO.tool.TestRunner = (function(){
 
             } else {
             
-                //mark the start time
-                node._start = new Date();
-            
                 //run the setup
                 testCase.setUp();
                 
@@ -980,7 +832,7 @@ YAHOO.tool.TestRunner = (function(){
             data.type = type;
             TestRunner.superclass.fireEvent.call(this, type, data);
         },
-
+        
         //-------------------------------------------------------------------------
         // Public Methods
         //-------------------------------------------------------------------------   
@@ -1003,7 +855,7 @@ YAHOO.tool.TestRunner = (function(){
          * @static
          */
         clear : function () /*:Void*/ {
-            this.masterSuite = new YAHOO.tool.TestSuite("yuitests" + (new Date()).getTime());
+            this.masterSuite.items = [];
         },
         
         /**
@@ -1020,28 +872,21 @@ YAHOO.tool.TestRunner = (function(){
     
         /**
          * Runs the test suite.
-         * @param {Boolean} oldMode (Optional) Specifies that the <= 2.8 way of
-         *      internally managing test suites should be used.
          * @return {Void}
          * @method run
          * @static
          */
-        run : function (oldMode) {
+        run : function (testObject /*:Object*/) /*:Void*/ {
             
             //pointer to runner to avoid scope issues 
             var runner = YAHOO.tool.TestRunner;
-            
-            //if there's only one suite on the masterSuite, move it up
-            if (!oldMode && this.masterSuite.items.length == 1 && this.masterSuite.items[0] instanceof YAHOO.tool.TestSuite){
-                this.masterSuite = this.masterSuite.items[0];
-            }
 
             //build the test tree
             runner._buildTestTree();
             
             //set when the test started
-            runner._root._start = new Date();
-                            
+            runner._root.results.duration = (new Date()).valueOf();
+            
             //fire the begin event
             runner.fireEvent(runner.BEGIN_EVENT);
        
@@ -1053,6 +898,7 @@ YAHOO.tool.TestRunner = (function(){
     return new TestRunner();
     
 })();
+
 YAHOO.namespace("util");
 
 //-----------------------------------------------------------------------------
@@ -1113,7 +959,7 @@ YAHOO.util.Assert = {
     
     /**
      * Asserts that a value is equal to another. This uses the double equals sign
-     * so type coercion may occur.
+     * so type cohersion may occur.
      * @param {Object} expected The expected value.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
@@ -1128,7 +974,7 @@ YAHOO.util.Assert = {
     
     /**
      * Asserts that a value is not equal to another. This uses the double equals sign
-     * so type coercion may occur.
+     * so type cohersion may occur.
      * @param {Object} unexpected The unexpected value.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
@@ -1144,7 +990,7 @@ YAHOO.util.Assert = {
     
     /**
      * Asserts that a value is not the same as another. This uses the triple equals sign
-     * so no type coercion may occur.
+     * so no type cohersion may occur.
      * @param {Object} unexpected The unexpected value.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
@@ -1159,7 +1005,7 @@ YAHOO.util.Assert = {
 
     /**
      * Asserts that a value is the same as another. This uses the triple equals sign
-     * so no type coercion may occur.
+     * so no type cohersion may occur.
      * @param {Object} expected The expected value.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
@@ -1178,7 +1024,7 @@ YAHOO.util.Assert = {
     
     /**
      * Asserts that a value is false. This uses the triple equals sign
-     * so no type coercion may occur.
+     * so no type cohersion may occur.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
      * @method isFalse
@@ -1192,7 +1038,7 @@ YAHOO.util.Assert = {
     
     /**
      * Asserts that a value is true. This uses the triple equals sign
-     * so no type coercion may occur.
+     * so no type cohersion may occur.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
      * @method isTrue
@@ -1237,7 +1083,7 @@ YAHOO.util.Assert = {
     
     /**
      * Asserts that a value is not null. This uses the triple equals sign
-     * so no type coercion may occur.
+     * so no type cohersion may occur.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
      * @method isNotNull
@@ -1251,7 +1097,7 @@ YAHOO.util.Assert = {
 
     /**
      * Asserts that a value is not undefined. This uses the triple equals sign
-     * so no type coercion may occur.
+     * so no type cohersion may occur.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
      * @method isNotUndefined
@@ -1265,7 +1111,7 @@ YAHOO.util.Assert = {
 
     /**
      * Asserts that a value is null. This uses the triple equals sign
-     * so no type coercion may occur.
+     * so no type cohersion may occur.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
      * @method isNull
@@ -1279,7 +1125,7 @@ YAHOO.util.Assert = {
         
     /**
      * Asserts that a value is undefined. This uses the triple equals sign
-     * so no type coercion may occur.
+     * so no type cohersion may occur.
      * @param {Object} actual The actual value to test.
      * @param {String} message (Optional) The message to display if the assertion fails.
      * @method isUndefined
@@ -1397,8 +1243,8 @@ YAHOO.util.Assert = {
      * @method isTypeOf
      * @static
      */
-    isTypeOf : function (expected /*:String*/, actual /*:Object*/, message /*:String*/) /*:Void*/{
-        if (typeof actual != expected){
+    isTypeOf : function (expectedType /*:String*/, actualValue /*:Object*/, message /*:String*/) /*:Void*/{
+        if (typeof actualValue != expectedType){
             throw new YAHOO.util.ComparisonFailure(this._formatMessage(message, "Value should be of type " + expected + "."), expected, typeof actual);
         }
     }
@@ -1422,7 +1268,7 @@ YAHOO.util.Assert = {
 YAHOO.util.AssertionError = function (message /*:String*/){
 
     //call superclass
-    //arguments.callee.superclass.constructor.call(this, message);
+    arguments.callee.superclass.constructor.call(this, message);
     
     /*
      * Error message. Must be duplicated to ensure browser receives it.
@@ -1440,7 +1286,7 @@ YAHOO.util.AssertionError = function (message /*:String*/){
 };
 
 //inherit methods
-YAHOO.lang.extend(YAHOO.util.AssertionError, Object, {
+YAHOO.lang.extend(YAHOO.util.AssertionError, Error, {
 
     /**
      * Returns a fully formatted error for an assertion failure. This should
@@ -1459,8 +1305,17 @@ YAHOO.lang.extend(YAHOO.util.AssertionError, Object, {
      */
     toString : function () /*:String*/ {
         return this.name + ": " + this.getMessage();
-    }
+    },
     
+    /**
+     * Returns a primitive value version of the error. Same as toString().
+     * @method valueOf
+     * @return {String} A primitive value version of the error.
+     */
+    valueOf : function () /*:String*/ {
+        return this.toString();
+    }
+
 });
 
 /**
@@ -1479,7 +1334,7 @@ YAHOO.lang.extend(YAHOO.util.AssertionError, Object, {
 YAHOO.util.ComparisonFailure = function (message /*:String*/, expected /*:Object*/, actual /*:Object*/){
 
     //call superclass
-    YAHOO.util.AssertionError.call(this, message);
+    arguments.callee.superclass.constructor.call(this, message);
     
     /**
      * The expected value.
@@ -1536,7 +1391,7 @@ YAHOO.lang.extend(YAHOO.util.ComparisonFailure, YAHOO.util.AssertionError, {
 YAHOO.util.UnexpectedValue = function (message /*:String*/, unexpected /*:Object*/){
 
     //call superclass
-    YAHOO.util.AssertionError.call(this, message);
+    arguments.callee.superclass.constructor.call(this, message);
     
     /**
      * The unexpected value.
@@ -1582,7 +1437,7 @@ YAHOO.lang.extend(YAHOO.util.UnexpectedValue, YAHOO.util.AssertionError, {
 YAHOO.util.ShouldFail = function (message /*:String*/){
 
     //call superclass
-    YAHOO.util.AssertionError.call(this, message || "This test should fail but didn't.");
+    arguments.callee.superclass.constructor.call(this, message || "This test should fail but didn't.");
     
     /**
      * The name of the error that occurred.
@@ -1609,7 +1464,7 @@ YAHOO.lang.extend(YAHOO.util.ShouldFail, YAHOO.util.AssertionError);
 YAHOO.util.ShouldError = function (message /*:String*/){
 
     //call superclass
-    YAHOO.util.AssertionError.call(this, message || "This test should have thrown an error but didn't.");
+    arguments.callee.superclass.constructor.call(this, message || "This test should have thrown an error but didn't.");
     
     /**
      * The name of the error that occurred.
@@ -1638,7 +1493,7 @@ YAHOO.lang.extend(YAHOO.util.ShouldError, YAHOO.util.AssertionError);
 YAHOO.util.UnexpectedError = function (cause /*:Object*/){
 
     //call superclass
-    YAHOO.util.AssertionError.call(this, "Unexpected error: " + cause.message);
+    arguments.callee.superclass.constructor.call(this, "Unexpected error: " + cause.message);
     
     /**
      * The unexpected error that occurred.
@@ -1665,6 +1520,7 @@ YAHOO.util.UnexpectedError = function (cause /*:Object*/){
 
 //inherit methods
 YAHOO.lang.extend(YAHOO.util.UnexpectedError, YAHOO.util.AssertionError);
+
 //-----------------------------------------------------------------------------
 // ArrayAssert object
 //-----------------------------------------------------------------------------
@@ -1682,7 +1538,7 @@ YAHOO.util.ArrayAssert = {
 
     /**
      * Asserts that a value is present in an array. This uses the triple equals 
-     * sign so no type coercion may occur.
+     * sign so no type cohersion may occur.
      * @param {Object} needle The value that is expected in the array.
      * @param {Array} haystack An array of values.
      * @param {String} message (Optional) The message to display if the assertion fails.
@@ -1709,7 +1565,7 @@ YAHOO.util.ArrayAssert = {
 
     /**
      * Asserts that a set of values are present in an array. This uses the triple equals 
-     * sign so no type coercion may occur. For this assertion to pass, all values must
+     * sign so no type cohersion may occur. For this assertion to pass, all values must
      * be found.
      * @param {Object[]} needles An array of values that are expected in the array.
      * @param {Array} haystack An array of values to check.
@@ -1760,7 +1616,7 @@ YAHOO.util.ArrayAssert = {
 
     /**
      * Asserts that a value is not present in an array. This uses the triple equals 
-     * sign so no type coercion may occur.
+     * sign so no type cohersion may occur.
      * @param {Object} needle The value that is expected in the array.
      * @param {Array} haystack An array of values.
      * @param {String} message (Optional) The message to display if the assertion fails.
@@ -1787,7 +1643,7 @@ YAHOO.util.ArrayAssert = {
 
     /**
      * Asserts that a set of values are not present in an array. This uses the triple equals 
-     * sign so no type coercion may occur. For this assertion to pass, all values must
+     * sign so no type cohersion may occur. For this assertion to pass, all values must
      * not be found.
      * @param {Object[]} needles An array of values that are not expected in the array.
      * @param {Array} haystack An array of values to check.
@@ -1838,7 +1694,7 @@ YAHOO.util.ArrayAssert = {
         
     /**
      * Asserts that the given value is contained in an array at the specified index.
-     * This uses the triple equals sign so no type coercion will occur.
+     * This uses the triple equals sign so no type cohersion will occur.
      * @param {Object} needle The value to look for.
      * @param {Array} haystack The array to search in.
      * @param {int} index The index at which the value should exist.
@@ -1865,7 +1721,7 @@ YAHOO.util.ArrayAssert = {
     /**
      * Asserts that the values in an array are equal, and in the same position,
      * as values in another array. This uses the double equals sign
-     * so type coercion may occur. Note that the array objects themselves
+     * so type cohersion may occur. Note that the array objects themselves
      * need not be the same for this test to pass.
      * @param {Array} expected An array of the expected values.
      * @param {Array} actual Any array of the actual values.
@@ -1877,7 +1733,7 @@ YAHOO.util.ArrayAssert = {
                            message /*:String*/) /*:Void*/ {
         
         //one may be longer than the other, so get the maximum length
-        var len /*:int*/ = Math.max(expected.length, actual.length || 0);
+        var len /*:int*/ = Math.max(expected.length, actual.length);
         var Assert = YAHOO.util.Assert;
        
         //begin checking values
@@ -1910,7 +1766,7 @@ YAHOO.util.ArrayAssert = {
         }
         
         //one may be longer than the other, so get the maximum length
-        var len /*:int*/ = Math.max(expected.length, actual.length || 0);
+        var len /*:int*/ = Math.max(expected.length, actual.length);
         
         //begin checking values
         for (var i=0; i < len; i++){
@@ -1951,7 +1807,7 @@ YAHOO.util.ArrayAssert = {
     /**
      * Asserts that the values in an array are the same, and in the same position,
      * as values in another array. This uses the triple equals sign
-     * so no type coercion will occur. Note that the array objects themselves
+     * so no type cohersion will occur. Note that the array objects themselves
      * need not be the same for this test to pass.
      * @param {Array} expected An array of the expected values.
      * @param {Array} actual Any array of the actual values.
@@ -1963,7 +1819,7 @@ YAHOO.util.ArrayAssert = {
                           message /*:String*/) /*:Void*/ {
         
         //one may be longer than the other, so get the maximum length
-        var len /*:int*/ = Math.max(expected.length, actual.length || 0);
+        var len /*:int*/ = Math.max(expected.length, actual.length);
         var Assert = YAHOO.util.Assert;
         
         //begin checking values
@@ -1976,7 +1832,7 @@ YAHOO.util.ArrayAssert = {
     /**
      * Asserts that the given value is contained in an array at the specified index,
      * starting from the back of the array.
-     * This uses the triple equals sign so no type coercion will occur.
+     * This uses the triple equals sign so no type cohersion will occur.
      * @param {Object} needle The value to look for.
      * @param {Array} haystack The array to search in.
      * @param {int} index The index at which the value should exist.
@@ -2001,6 +1857,7 @@ YAHOO.util.ArrayAssert = {
     }
     
 };
+
 YAHOO.namespace("util");
 
 
@@ -2075,6 +1932,7 @@ YAHOO.util.ObjectAssert = {
         }     
     }
 };
+
 //-----------------------------------------------------------------------------
 // DateAssert object
 //-----------------------------------------------------------------------------
@@ -2129,4 +1987,5 @@ YAHOO.util.DateAssert = {
     }
     
 };
-YAHOO.register("yuitest_core", YAHOO.tool.TestRunner, {version: "2.9.0", build: "2800"});
+
+YAHOO.register("yuitest_core", YAHOO.tool.TestRunner, {version: "2.7.0", build: "1799"});

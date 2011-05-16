@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 /* Menu & MenuBar styles */
 
@@ -189,7 +189,7 @@ PLEASE NOTE:
 ** For more information on this issue, see:
 
    + https://bugzilla.mozilla.org/show_bug.cgi?id=187435
-   + YUILibrary bug #1723530
+   + SourceForge bug #1723530
 
 */
 
@@ -373,9 +373,7 @@ when one of its submenus is visible.
 }
 
 .yuimenuitemlabel,
-.yuimenuitemlabel:visited,
-.yuimenubaritemlabel,
-.yuimenubaritemlabel:visited {
+.yuimenubaritemlabel {
 
     font-size: 85%;
     color: #000;
@@ -444,9 +442,7 @@ when one of its submenus is visible.
 }
 
 .yuimenubaritemlabel-selected,
-.yuimenubaritemlabel-selected:visited,
-.yuimenuitemlabel-selected,
-.yuimenuitemlabel-selected:visited {
+.yuimenuitemlabel-selected {
 
     text-decoration: underline;
     color: #fff;
@@ -475,9 +471,7 @@ when one of its submenus is visible.
 /* Disabled MenuItem */
 
 .yuimenubaritemlabel-disabled,
-.yuimenubaritemlabel-disabled:visited,
-.yuimenuitemlabel-disabled,
-.yuimenuitemlabel-disabled:visited {
+.yuimenuitemlabel-disabled {
 
     cursor: default;
     color: #b9b9b9;

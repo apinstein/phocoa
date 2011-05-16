@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 (function() {
 
@@ -93,10 +93,10 @@ Anim.prototype = {
             val = (val > 0) ? val : 0;
         }
 
-        if (attr in el && !('style' in el && attr in el.style)) {
-            el[attr] = val;
-        } else {
+        if ('style' in el) {
             Y.Dom.setStyle(el, attr, val + unit);
+        } else if (attr in el) {
+            el[attr] = val;
         }
     },                        
     
@@ -361,14 +361,12 @@ Anim.prototype = {
             Y.AnimMgr.stop(this);
         };
         
-        this._handleStart = function() {            
+        var onStart = function() {            
             this.onStart.fire();
             
             this.runtimeAttributes = {};
             for (var attr in this.attributes) {
-                if (this.attributes.hasOwnProperty(attr)) {
-                    this.setRuntimeAttribute(attr);
-                }
+                this.setRuntimeAttribute(attr);
             }
             
             isAnimated = true;
@@ -381,7 +379,7 @@ Anim.prototype = {
          * @private
          */
          
-        this._handleTween = function() {
+        var onTween = function() {
             var data = {
                 duration: new Date() - this.getStartTime(),
                 currentFrame: this.currentFrame
@@ -399,17 +397,13 @@ Anim.prototype = {
             var runtimeAttributes = this.runtimeAttributes;
             
             for (var attr in runtimeAttributes) {
-                if (runtimeAttributes.hasOwnProperty(attr)) {
-                    this.setAttribute(attr, this.doMethod(attr, runtimeAttributes[attr].start, runtimeAttributes[attr].end), runtimeAttributes[attr].unit); 
-                }
+                this.setAttribute(attr, this.doMethod(attr, runtimeAttributes[attr].start, runtimeAttributes[attr].end), runtimeAttributes[attr].unit); 
             }
-            
-            this.afterTween.fire(data);
             
             actualFrames += 1;
         };
         
-        this._handleComplete = function() {
+        var onComplete = function() {
             var actual_duration = (new Date() - startTime) / 1000 ;
             
             var data = {
@@ -452,13 +446,6 @@ Anim.prototype = {
         this.onTween = new Y.CustomEvent('tween', this);
         
         /**
-         * Custom event that fires between each frame
-         * Listen via subscribe method (e.g. myAnim.afterTween.subscribe(someFunction)
-         * @event afterTween
-         */
-        this.afterTween = new Y.CustomEvent('afterTween', this);
-        
-        /**
          * Custom event that fires after onTween
          * @private
          */
@@ -476,9 +463,9 @@ Anim.prototype = {
          */
         this._onComplete = new Y.CustomEvent('_complete', this, true);
 
-        this._onStart.subscribe(this._handleStart);
-        this._onTween.subscribe(this._handleTween);
-        this._onComplete.subscribe(this._handleComplete);
+        this._onStart.subscribe(onStart);
+        this._onTween.subscribe(onTween);
+        this._onComplete.subscribe(onComplete);
     }
 };
 
@@ -530,7 +517,7 @@ YAHOO.util.AnimMgr = new function() {
      * @type Int
      * 
      */
-    this.delay = 20;
+    this.delay = 1;
 
     /**
      * Adds an animation instance to the animation queue.
@@ -545,20 +532,17 @@ YAHOO.util.AnimMgr = new function() {
         this.start();
     };
     
-    var _unregisterQueue = [];
-    var _unregistering = false;
-
-    var doUnregister = function() {
-        var next_args = _unregisterQueue.shift();
-        unRegister.apply(YAHOO.util.AnimMgr,next_args);
-        if (_unregisterQueue.length) {
-            arguments.callee();
-        }
-    };
-
-    var unRegister = function(tween, index) {
+    /**
+     * removes an animation instance from the animation queue.
+     * All animation instances must be registered in order to animate.
+     * @method unRegister
+     * @param {object} tween The Anim instance to be be registered
+     * @param {Int} index The index of the Anim instance
+     * @private
+     */
+    this.unRegister = function(tween, index) {
         index = index || getIndex(tween);
-        if (!tween.isAnimated() || index === -1) {
+        if (!tween.isAnimated() || index == -1) {
             return false;
         }
         
@@ -572,24 +556,7 @@ YAHOO.util.AnimMgr = new function() {
 
         return true;
     };
-
-    /**
-     * removes an animation instance from the animation queue.
-     * All animation instances must be registered in order to animate.
-     * @method unRegister
-     * @param {object} tween The Anim instance to be be registered
-     * @param {Int} index The index of the Anim instance
-     * @private
-     */
-    this.unRegister = function() {
-        _unregisterQueue.push(arguments);
-        if (!_unregistering) {
-            _unregistering = true;
-            doUnregister();
-            _unregistering = false;
-        }
-    }
-
+    
     /**
      * Starts the animation thread.
 	* Only one thread can run at a time.
@@ -648,7 +615,7 @@ YAHOO.util.AnimMgr = new function() {
     
     var getIndex = function(anim) {
         for (var i = 0, len = queue.length; i < len; ++i) {
-            if (queue[i] === anim) {
+            if (queue[i] == anim) {
                 return i; // note return;
             }
         }
@@ -681,8 +648,6 @@ YAHOO.util.AnimMgr = new function() {
             tween.currentFrame += tweak;      
         }
     };
-    this._queue = queue;
-    this._getIndex = getIndex;
 };
 /**
  * Used to calculate Bezier splines for any number of control points.
@@ -1422,4 +1387,4 @@ YAHOO.util.Easing = {
 
     Y.Scroll = Scroll;
 })();
-YAHOO.register("animation", YAHOO.util.Anim, {version: "2.9.0", build: "2800"});
+YAHOO.register("animation", YAHOO.util.Anim, {version: "2.7.0", build: "1799"});

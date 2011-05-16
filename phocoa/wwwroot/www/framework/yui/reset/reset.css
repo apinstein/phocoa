@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 /**
  * YUI Reset
@@ -37,7 +37,6 @@ legend,
 input,
 button,
 textarea,
-select,
 p,
 blockquote,
 th,
@@ -57,21 +56,17 @@ img {
 }
 
 address,
-button,
 caption,
 cite,
 code,
 dfn,
 em,
-input,
-optgroup,
-option,
-select,
 strong,
-textarea,
 th,
-var {
-    font:inherit;
+var,
+optgroup {
+	font-style: inherit;
+	font-weight: inherit;
 }
 
 del,
@@ -121,3 +116,27 @@ sub {
 legend {
 	color: #000;
 }
+
+input,
+button,
+textarea,
+select,
+optgroup,
+option {
+	font-family: inherit;
+	font-size: inherit;
+	font-style: inherit;
+	font-weight: inherit;
+}
+
+/*@purpose To enable resizing for IE */
+/*@branch For IE6-Win, IE7-Win */
+input,
+button,
+textarea,
+select {
+	*font-size: 100%;
+}
+
+
+

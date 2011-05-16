@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 /*extern ActiveXObject, __flash_unloadHandler, __flash_savedUnloadHandler */
 /*!
@@ -99,7 +99,7 @@ YAHOO.deconcept.SWFObject.prototype =
 		{
 			if(variables.hasOwnProperty(key))
 			{
-				variablePairs[variablePairs.length] = YAHOO.lang.escapeHTML(key || '') +"="+ YAHOO.lang.escapeHTML(encodeURIComponent(variables[key]  || ''));
+				variablePairs[variablePairs.length] = key +"="+ variables[key];
 			}
 		}
 		return variablePairs;
@@ -114,14 +114,14 @@ YAHOO.deconcept.SWFObject.prototype =
 				this.addVariable("MMplayerType", "PlugIn");
 				this.setAttribute('swf', this.xiSWFPath);
 			}
-			swfNode = '<embed type="application/x-shockwave-flash" src="'+ YAHOO.lang.escapeHTML(this.getAttribute('swf') || '') +'" width="'+ YAHOO.lang.escapeHTML(this.getAttribute('width') || '') +'" height="'+ YAHOO.lang.escapeHTML(this.getAttribute('height') || '') +'" style="'+ YAHOO.lang.escapeHTML(this.getAttribute('style') || '') +'"';
-			swfNode += ' id="'+ YAHOO.lang.escapeHTML(this.getAttribute('id') || '') +'" name="'+ YAHOO.lang.escapeHTML(this.getAttribute('id') || '') +'" ';
+			swfNode = '<embed type="application/x-shockwave-flash" src="'+ this.getAttribute('swf') +'" width="'+ this.getAttribute('width') +'" height="'+ this.getAttribute('height') +'" style="'+ this.getAttribute('style') +'"';
+			swfNode += ' id="'+ this.getAttribute('id') +'" name="'+ this.getAttribute('id') +'" ';
 			params = this.getParams();
 			for(key in params)
 			{
 				if(params.hasOwnProperty(key))
 				{
-					swfNode += YAHOO.lang.escapeHTML(key || '') +'="'+ YAHOO.lang.escapeHTML(params[key] || '') +'" ';
+					swfNode += [key] +'="'+ params[key] +'" ';
 				}
 			}
 			pairs = this.getVariablePairs().join("&");
@@ -132,14 +132,14 @@ YAHOO.deconcept.SWFObject.prototype =
 				this.addVariable("MMplayerType", "ActiveX");
 				this.setAttribute('swf', this.xiSWFPath);
 			}
-			swfNode = '<object id="'+ YAHOO.lang.escapeHTML(this.getAttribute('id') || '') +'" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="'+ YAHOO.lang.escapeHTML(this.getAttribute('width') || '') +'" height="'+ YAHOO.lang.escapeHTML(this.getAttribute('height') || '') +'" style="'+ YAHOO.lang.escapeHTML(this.getAttribute('style') || '') +'">';
-			swfNode += '<param name="movie" value="'+ YAHOO.lang.escapeHTML(this.getAttribute('swf') || '') +'" />';
+			swfNode = '<object id="'+ this.getAttribute('id') +'" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="'+ this.getAttribute('width') +'" height="'+ this.getAttribute('height') +'" style="'+ this.getAttribute('style') +'">';
+			swfNode += '<param name="movie" value="'+ this.getAttribute('swf') +'" />';
 			params = this.getParams();
 			for(key in params)
 			{
 				if(params.hasOwnProperty(key))
 				{
-					swfNode += '<param name="'+ YAHOO.lang.escapeHTML(key || '') +'" value="'+ YAHOO.lang.escapeHTML(params[key] || '') +'" />';
+					swfNode += '<param name="'+ key +'" value="'+ params[key] +'" />';
 				}
 			}
 			pairs = this.getVariablePairs().join("&");
@@ -506,10 +506,10 @@ YAHOO.extend(YAHOO.widget.FlashAdapter, YAHOO.util.AttributeProvider,
 		swfObj.addVariable("allowedDomain", document.location.hostname);
 
 		//tell the SWF which HTML element it is in
-		swfObj.addVariable("YUISwfId", swfID);
+		swfObj.addVariable("elementID", swfID);
 
 		// set the name of the function to call when the swf has an event
-		swfObj.addVariable("YUIBridgeCallback", "YAHOO.widget.FlashAdapter.eventHandler");
+		swfObj.addVariable("eventHandler", "YAHOO.widget.FlashAdapter.eventHandler");
 		if (buttonSkin) {
 		swfObj.addVariable("buttonSkin", buttonSkin);
 		}
@@ -940,21 +940,6 @@ YAHOO.extend(YAHOO.widget.Uploader, YAHOO.widget.FlashAdapter,
 	},
 	
 /**
- * Starts the upload of the files specified by fileIDs, or adds them to a currently running queue. The upload queue is automatically managed.
- *
- * @param fileIDs {Array} The ids of the files to start uploading.
- * @param uploadScriptPath {String} The URL of the upload location.
- * @param method {String} Either "GET" or "POST", specifying how the variables accompanying the file upload POST request should be submitted. "GET" by default.
- * @param vars {Object} The object containing variables to be sent in the same request as the file upload.
- * @param fieldName {String} The name of the variable in the POST request containing the file data. "Filedata" by default.
- * </code> 
- */
-	uploadThese: function(fileIDs, uploadScriptPath, method, vars, fieldName)
-	{
-		this._swf.uploadThese(fileIDs, uploadScriptPath, method, vars, fieldName);
-	},
-	
-/**
  * Starts uploading all files in the queue. If this function is called, the upload queue is automatically managed.
  *
  * @param uploadScriptPath {String} The URL of the upload location.
@@ -1066,4 +1051,4 @@ YAHOO.extend(YAHOO.widget.Uploader, YAHOO.widget.FlashAdapter,
 		this._swf.disable();
 	}
 });
-YAHOO.register("uploader", YAHOO.widget.Uploader, {version: "2.9.0", build: "2800"});
+YAHOO.register("uploader", YAHOO.widget.Uploader, {version: "2.7.0", build: "1799"});

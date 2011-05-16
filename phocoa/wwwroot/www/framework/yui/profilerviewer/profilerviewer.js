@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 (function() {
 
@@ -127,7 +127,7 @@ version: 2.9.0
 		CLASS_TABLE: 'yui-pv-table',
 		
 		/**
-		 * HTML strings used in the UI. Values will be inserted into DOM with innerHTML.
+		 * Strings used in the UI.
 		 * @static
 		 * @property STRINGS
 		 * @object
@@ -135,7 +135,7 @@ version: 2.9.0
 		 * @default English language strings for UI.
 		 */
 		STRINGS: {
-			title: "YUI ProfilerViewer",
+			title: "YUI Profiler (beta)",
 			buttons: {
 				viewprofiler: "View Profiler Data",
 				hideprofiler: "Hide Profiler Report",
@@ -1092,12 +1092,11 @@ version: 2.9.0
 		
         /**
          * The series definition information to use when charting
-		 * specific fields on the chart.  "displayName", "xField",
-		 * and "style" members are used to construct the series
+		 * specific fields on the chart.  displayName, xField,
+		 * and style members are used to construct the series
 		 * definition; the "group" member is the array of fields
 		 * that should be charted when the table is sorted by a
-		 * given field. The "displayName" string value will be
-		 * treated as markup and inserted into the DOM with innerHTML.
+		 * given field.
          * @attribute chartSeriesDefinitions
          * @type obj
 		 * @default See JS source for full default definitions.
@@ -1190,5 +1189,4 @@ version: 2.9.0
     };
 	
 })();
-
-YAHOO.register("profilerviewer", YAHOO.widget.ProfilerViewer, {version: "2.9.0", build: "2800"});
+YAHOO.register("profilerviewer", YAHOO.widget.ProfilerViewer, {version: "2.7.0", build: "1799"});

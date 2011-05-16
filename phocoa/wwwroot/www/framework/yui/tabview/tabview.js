@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 (function() {
 
@@ -22,7 +22,6 @@ version: 2.9.0
         ACTIVE = 'active',
         ACTIVE_INDEX = 'activeIndex',
         ACTIVE_TAB = 'activeTab',
-        DISABLED = 'disabled',
         CONTENT_EL = 'contentEl',
         ELEMENT = 'element',
     
@@ -94,56 +93,49 @@ version: 2.9.0
          */
         addTab: function(tab, index) {
             var tabs = this.get('tabs'),
+                before = this.getTab(index),
                 tabParent = this._tabParent,
                 contentParent = this._contentParent,
                 tabElement = tab.get(ELEMENT),
-                contentEl = tab.get(CONTENT_EL),
-                activeIndex = this.get(ACTIVE_INDEX),
-                before;
+                contentEl = tab.get(CONTENT_EL);
 
             if (!tabs) { // not ready yet
                 this._queue[this._queue.length] = ['addTab', arguments];
                 return false;
             }
             
-            before = this.getTab(index);
             index = (index === undefined) ? tabs.length : index;
             
-            tabs.splice(index, 0, tab);
-
-            if (before) {
+            if ( before ) {
                 tabParent.insertBefore(tabElement, before.get(ELEMENT));
-                if (contentEl) {
-                    contentParent.appendChild(contentEl);
-                }
             } else {
                 tabParent.appendChild(tabElement);
-                if (contentEl) {
-                    contentParent.appendChild(contentEl);
-                }
             }
 
+            if ( contentEl && !Dom.isAncestor(contentParent, contentEl) ) {
+                contentParent.appendChild(contentEl);
+            }
+            
             if ( !tab.get(ACTIVE) ) {
                 tab.set('contentVisible', false, true); /* hide if not active */
-                if (index <= activeIndex) {
-                    this.set(ACTIVE_INDEX, activeIndex + 1, true);
-                }  
             } else {
                 this.set(ACTIVE_TAB, tab, true);
-                this.set('activeIndex', index, true);
+                
             }
 
             this._initTabEvents(tab);
+            tabs.splice(index, 0, tab);
         },
 
         _initTabEvents: function(tab) {
             tab.addListener( tab.get('activationEvent'), tab._onActivate, this, tab);
-            tab.addListener('activationEventChange', tab._onActivationEventChange, this, tab);
-        },
-
-        _removeTabEvents: function(tab) {
-            tab.removeListener(tab.get('activationEvent'), tab._onActivate, this, tab);
-            tab.removeListener('activationEventChange', tab._onActivationEventChange, this, tab);
+            
+            tab.addListener('activationEventChange', function(e) {
+                if (e.prevValue != e.newValue) {
+                    tab.removeListener(e.prevValue, tab._onActivate);
+                    tab.addListener(e.newValue, tab._onActivate, this, tab);
+                }
+            });
         },
 
         /**
@@ -215,7 +207,6 @@ version: 2.9.0
          */
         removeTab: function(tab) {
             var tabCount = this.get('tabs').length,
-                activeIndex = this.get(ACTIVE_INDEX),
                 index = this.getTabIndex(tab);
 
             if ( tab === this.get(ACTIVE_TAB) ) { 
@@ -228,11 +219,8 @@ version: 2.9.0
                 } else { // no more tabs
                     this.set(ACTIVE_TAB, null);
                 }
-            } else if (index < activeIndex) {
-                this.set(ACTIVE_INDEX, activeIndex - 1, true);
             }
             
-            this._removeTabEvents(tab);
             this._tabParent.removeChild( tab.get(ELEMENT) );
             this._contentParent.removeChild( tab.get(CONTENT_EL) );
             this._configs.tabs.value.splice(index, 1);
@@ -277,8 +265,8 @@ version: 2.9.0
             
             var el = this.get(ELEMENT);
 
-            if (!this.hasClass(this.CLASSNAME)) {
-                this.addClass(this.CLASSNAME);        
+            if (!Dom.hasClass(el, this.CLASSNAME)) {
+                Dom.addClass(el, this.CLASSNAME);        
             }
             
             /**
@@ -313,7 +301,6 @@ version: 2.9.0
             
             /**
              * How the Tabs should be oriented relative to the TabView.
-             * Valid orientations are "top", "left", "bottom", and "right"
              * @attribute orientation
              * @type String
              * @default "top"
@@ -341,14 +328,12 @@ version: 2.9.0
              */
             this.setAttributeConfig(ACTIVE_INDEX, {
                 value: attr.activeIndex,
+                method: function(value) {
+                },
                 validator: function(value) {
-                    var ret = true,
-                        tab;
-                    if (value) { // cannot activate if disabled
-                        tab = this.getTab(value);
-                        if (tab && tab.get(DISABLED)) {
-                            ret = false;
-                        }
+                    var ret = true;
+                    if (value && this.getTab(value).get('disabled')) { // cannot activate if disabled
+                        ret = false;
                     }
                     return ret;
                 }
@@ -360,7 +345,7 @@ version: 2.9.0
              * @type YAHOO.widget.Tab
              */
             this.setAttributeConfig(ACTIVE_TAB, {
-                value: attr[ACTIVE_TAB],
+                value: attr.activeTab,
                 method: function(tab) {
                     var activeTab = this.get(ACTIVE_TAB);
                     
@@ -380,7 +365,7 @@ version: 2.9.0
                 },
                 validator: function(value) {
                     var ret = true;
-                    if (value && value.get(DISABLED)) { // cannot activate if disabled
+                    if (value && value.get('disabled')) { // cannot activate if disabled
                         ret = false;
                     }
                     return ret;
@@ -399,7 +384,6 @@ version: 2.9.0
             this.DOM_EVENTS.submit = false;
             this.DOM_EVENTS.focus = false;
             this.DOM_EVENTS.blur = false;
-            this.DOM_EVENTS.change = false;
 
             for (var type in this.DOM_EVENTS) {
                 if ( YAHOO.lang.hasOwnProperty(this.DOM_EVENTS, type) ) {
@@ -414,8 +398,8 @@ version: 2.9.0
          * @param {Int} index The tab index to deselect 
          */
         deselectTab: function(index) {
-            if (this.getTab(index) === this.get(ACTIVE_TAB)) {
-                this.set(ACTIVE_TAB, null);
+            if (this.getTab(index) === this.get('activeTab')) {
+                this.set('activeTab', null);
             }
         },
 
@@ -425,7 +409,7 @@ version: 2.9.0
          * @param {Int} index The tab index to be made active
          */
         selectTab: function(index) {
-            this.set(ACTIVE_TAB, this.getTab(index));
+            this.set('activeTab', this.getTab(index));
         },
 
         _onActiveTabChange: function(e) {
@@ -478,11 +462,11 @@ version: 2.9.0
                     active = tab;
                 }
             }
-            if (activeIndex != undefined) { // not null or undefined
+            if (activeIndex) {
                 this.set(ACTIVE_TAB, this.getTab(activeIndex));
             } else {
-                this._configs[ACTIVE_TAB].value = active; // dont invoke method
-                this._configs[ACTIVE_INDEX].value = this.getTabIndex(active);
+                this._configs.activeTab.value = active; // dont invoke method
+                this._configs.activeIndex.value = this.getTabIndex(active);
             }
         },
 
@@ -553,7 +537,7 @@ version: 2.9.0
      * @extends YAHOO.util.Element
      * @constructor
      * @param element {HTMLElement | String} (optional) The html element that 
-     * represents the Tab. An element will be created if none provided.
+     * represents the TabView. An element will be created if none provided.
      * @param {Object} properties A key map of initial properties
      */
     Tab = function(el, attr) {
@@ -599,9 +583,9 @@ version: 2.9.0
         
         /**
          * The class name applied to active tabs.
-         * @property HIDDEN_CLASSNAME
+         * @property ACTIVE_CLASSNAME
          * @type String
-         * @default "yui-hidden"
+         * @default "selected"
          */
         HIDDEN_CLASSNAME: 'yui-hidden',
         
@@ -658,7 +642,7 @@ version: 2.9.0
         },
         
         /**
-         * setAttributeConfigs Tab specific properties.
+         * setAttributeConfigs TabView specific properties.
          * @method initAttributes
          * @param {Object} attr Hash of initial attributes
          */
@@ -730,7 +714,7 @@ version: 2.9.0
                             return false; // already set
                         }
                         if (!this.get('selected')) {
-                            Dom.addClass(value, this.HIDDEN_CLASSNAME);
+                            Dom.addClass(value, 'yui-hidden');
                         }
                         current.parentNode.replaceChild(value, current);
                         this.set(CONTENT, value.innerHTML);
@@ -744,7 +728,7 @@ version: 2.9.0
              * @type String
              */
             this.setAttributeConfig(CONTENT, {
-                value: attr[CONTENT] || this.get(CONTENT_EL).innerHTML,
+                value: attr[CONTENT],
                 method: function(value) {
                     this.get(CONTENT_EL).innerHTML = value;
                 }
@@ -844,9 +828,9 @@ version: 2.9.0
                 value: attr.disabled || this.hasClass(this.DISABLED_CLASSNAME),
                 method: function(value) {
                     if (value === true) {
-                        this.addClass(this.DISABLED_CLASSNAME);
+                        Dom.addClass(this.get(ELEMENT), this.DISABLED_CLASSNAME);
                     } else {
-                        this.removeClass(this.DISABLED_CLASSNAME);
+                        Dom.removeClass(this.get(ELEMENT), this.DISABLED_CLASSNAME);
                     }
                 },
                 validator: Lang.isBoolean
@@ -971,21 +955,13 @@ version: 2.9.0
         _onActivate: function(e, tabview) {
             var tab = this,
                 silent = false;
+            
 
             Y.Event.preventDefault(e);
             if (tab === tabview.get(ACTIVE_TAB)) {
                 silent = true; // dont fire activeTabChange if already active
             }
             tabview.set(ACTIVE_TAB, tab, silent);
-        },
-
-        _onActivationEventChange: function(e) {
-            var tab = this;
-
-            if (e.prevValue != e.newValue) {
-                tab.removeListener(e.prevValue, tab._onActivate);
-                tab.addListener(e.newValue, tab._onActivate, this, tab);
-            }
         }
     });
     
@@ -1001,4 +977,4 @@ version: 2.9.0
     YAHOO.widget.Tab = Tab;
 })();
 
-YAHOO.register("tabview", YAHOO.widget.TabView, {version: "2.9.0", build: "2800"});
+YAHOO.register("tabview", YAHOO.widget.TabView, {version: "2.7.0", build: "1799"});

@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 /**
  * @description <p>Makes an element resizable</p>
@@ -1579,18 +1579,12 @@ var D = YAHOO.util.Dom,
                 value: attr.draggable || false,
                 validator: YAHOO.lang.isBoolean,
                 method: function(dd) {
-                    if (dd && this._wrap && !this.dd) {
+                    if (dd && this._wrap) {
                         this._setupDragDrop();
                     } else {
                         if (this.dd) {
-                            if (dd) {
-                                //activating an old DD instance..
-                                D.addClass(this._wrap, this.CSS_DRAG);
-                                this.dd.DDM.regDragDrop(this.dd, "default");
-                            } else {
-                                D.removeClass(this._wrap, this.CSS_DRAG);
-                                this.dd.unreg();
-                            }
+                            D.removeClass(this._wrap, this.CSS_DRAG);
+                            this.dd.unreg();
                         }
                     }
                 }
@@ -1688,9 +1682,9 @@ var D = YAHOO.util.Dom,
                 D.removeClass(this._wrap, this.CSS_DRAG);
             }
             if (this._wrap != this.get('element')) {
-                this.setStyle('position', (this._positioned ? 'absolute' : 'relative'));
-                this.setStyle('top', D.getStyle(this._wrap, 'top'));
-                this.setStyle('left',D.getStyle(this._wrap, 'left'));
+                this.setStyle('position', '');
+                this.setStyle('top', '');
+                this.setStyle('left', '');
                 this._wrap.parentNode.replaceChild(this.get('element'), this._wrap);
             }
             this.removeClass(this.CSS_RESIZE);
@@ -1752,4 +1746,4 @@ var D = YAHOO.util.Dom,
 
 })();
 
-YAHOO.register("resize", YAHOO.util.Resize, {version: "2.9.0", build: "2800"});
+YAHOO.register("resize", YAHOO.util.Resize, {version: "2.7.0", build: "1799"});

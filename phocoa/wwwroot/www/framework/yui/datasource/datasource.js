@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011, Yahoo! Inc. All rights reserved.
+Copyright (c) 2009, Yahoo! Inc. All rights reserved.
 Code licensed under the BSD License:
-http://developer.yahoo.com/yui/license.html
-version: 2.9.0
+http://developer.yahoo.net/yui/license.txt
+version: 2.7.0
 */
 (function () {
 
@@ -136,7 +136,6 @@ util.DataSourceBase = function(oLiveData, oConfigs) {
      *
      * @event dataErrorEvent
      * @param oArgs.request {Object} The request object.
-     * @param oArgs.response {String} The response object (if available).
      * @param oArgs.callback {Object} The callback object.
      * @param oArgs.caller {Object} (deprecated) Use callback.scope.
      * @param oArgs.message {String} The error message.
@@ -313,94 +312,6 @@ _nTransactionId : 0,
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// DataSourceBase private static methods
-//
-/////////////////////////////////////////////////////////////////////////////
-/**
- * Clones object literal or array of object literals.
- *
- * @method DataSourceBase._cloneObject
- * @param o {Object} Object.
- * @private
- * @static
- */
-_cloneObject: function(o) {
-    if(!lang.isValue(o)) {
-        return o;
-    }
-
-    var copy = {};
-
-    if(Object.prototype.toString.apply(o) === "[object RegExp]") {
-        copy = o;
-    }
-    else if(lang.isFunction(o)) {
-        copy = o;
-    }
-    else if(lang.isArray(o)) {
-        var array = [];
-        for(var i=0,len=o.length;i<len;i++) {
-            array[i] = DS._cloneObject(o[i]);
-        }
-        copy = array;
-    }
-    else if(lang.isObject(o)) {
-        for (var x in o){
-            if(lang.hasOwnProperty(o, x)) {
-                if(lang.isValue(o[x]) && lang.isObject(o[x]) || lang.isArray(o[x])) {
-                    copy[x] = DS._cloneObject(o[x]);
-                }
-                else {
-                    copy[x] = o[x];
-                }
-            }
-        }
-    }
-    else {
-        copy = o;
-    }
-
-    return copy;
-},
-    
-/**
- * Get an XPath-specified value for a given field from an XML node or document.
- *
- * @method _getLocationValue
- * @param field {String | Object} Field definition.
- * @param context {Object} XML node or document to search within.
- * @return {Object} Data value or null.
- * @static
- * @private
- */
-_getLocationValue: function(field, context) {
-    var locator = field.locator || field.key || field,
-        xmldoc = context.ownerDocument || context,
-        result, res, value = null;
-
-    try {
-        // Standards mode
-        if(!lang.isUndefined(xmldoc.evaluate)) {
-            result = xmldoc.evaluate(locator, context, xmldoc.createNSResolver(!context.ownerDocument ? context.documentElement : context.ownerDocument.documentElement), 0, null);
-            while(res = result.iterateNext()) {
-                value = res.textContent;
-            }
-        }
-        // IE mode
-        else {
-            xmldoc.setProperty("SelectionLanguage", "XPath");
-            result = context.selectNodes(locator)[0];
-            value = result.value || result.text || null;
-        }
-        return value;
-
-    }
-    catch(e) {
-    }
-},
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // DataSourceBase public static methods
 //
 /////////////////////////////////////////////////////////////////////////////
@@ -501,7 +412,7 @@ parseDate : function(oData) {
     var date = null;
     
     //Convert to date
-    if(lang.isValue(oData) && !(oData instanceof Date)) {
+    if(!(oData instanceof Date)) {
         date = new Date(oData);
     }
     else {
@@ -673,25 +584,6 @@ responseSchema : null,
  */
 // property intentionally undefined
  
-/**
- * When working with XML data, setting this property to true enables support for
- * XPath-syntaxed locators in schema definitions.
- *
- * @property useXPath
- * @type Boolean
- * @default false
- */
-useXPath : false,
-
-/**
- * Clones entries before adding to cache.
- *
- * @property cloneBeforeCaching
- * @type Boolean
- * @default false
- */
-cloneBeforeCaching : false,
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // DataSourceBase public methods
@@ -803,7 +695,6 @@ addToCache : function(oRequest, oResponse) {
     }
 
     // Add to cache in the newest position, at the end of the array
-    oResponse = (this.cloneBeforeCaching) ? DS._cloneObject(oResponse) : oResponse;
     var oCacheElem = {request:oRequest,response:oResponse};
     aCache[aCache.length] = oCacheElem;
     this.fireEvent("responseCacheEvent", {request:oRequest,response:oResponse});
@@ -846,8 +737,7 @@ setInterval : function(nMsec, oRequest, oCallback, oCaller) {
 },
 
 /**
- * Disables polling mechanism associated with the given interval ID. Does not
- * affect transactions that are in progress.
+ * Disables polling mechanism associated with the given interval ID.
  *
  * @method clearInterval
  * @param nId {Number} Interval ID.
@@ -864,8 +754,7 @@ clearInterval : function(nId) {
 },
 
 /**
- * Disables all known polling intervals. Does not affect transactions that are
- * in progress.
+ * Disables all known polling intervals.
  *
  * @method clearAllIntervals
  */
@@ -1009,7 +898,7 @@ handleResponse : function(oRequest, oRawResponse, oCallback, oCaller, tId) {
                 this.responseType = DS.TYPE_JSARRAY;
             }
              // xml
-            else if(oRawResponse && oRawResponse.nodeType && (oRawResponse.nodeType === 9 || oRawResponse.nodeType === 1 || oRawResponse.nodeType === 11)) {
+            else if(oRawResponse && oRawResponse.nodeType && oRawResponse.nodeType == 9) {
                 this.responseType = DS.TYPE_XML;
             }
             else if(oRawResponse && oRawResponse.nodeName && (oRawResponse.nodeName.toLowerCase() == "table")) { // table
@@ -1161,7 +1050,7 @@ Math.max(oFullResponse.lastIndexOf("]"),oFullResponse.lastIndexOf("}"));
     }
 
     // Success
-    if(!oParsedResponse.error) {
+    if(oParsedResponse && !oParsedResponse.error) {
         // Last chance to touch the raw response or the parsed response
         oParsedResponse = this.doBeforeCallback(oRequest, oFullResponse, oParsedResponse, oCallback);
         this.fireEvent("responseParseEvent", {request:oRequest,
@@ -1417,6 +1306,7 @@ parseTextData : function(oRequest, oFullResponse) {
             
 },
 
+
 /**
  * Overridable method parses XML data for one result into an object literal.
  *
@@ -1434,40 +1324,32 @@ parseXMLResult : function(result) {
             var field = schema.fields[m];
             var key = (lang.isValue(field.key)) ? field.key : field;
             var data = null;
-
-            if(this.useXPath) {
-                data = YAHOO.util.DataSource._getLocationValue(field, result);
+            // Values may be held in an attribute...
+            var xmlAttr = result.attributes.getNamedItem(key);
+            if(xmlAttr) {
+                data = xmlAttr.value;
             }
+            // ...or in a node
             else {
-                // Values may be held in an attribute...
-                var xmlAttr = result.attributes.getNamedItem(key);
-                if(xmlAttr) {
-                    data = xmlAttr.value;
-                }
-                // ...or in a node
-                else {
-                    var xmlNode = result.getElementsByTagName(key);
-                    if(xmlNode && xmlNode.item(0)) {
-                        var item = xmlNode.item(0);
-                        // For IE, then DOM...
-                        data = (item) ? ((item.text) ? item.text : (item.textContent) ? item.textContent : null) : null;
-                        // ...then fallback, but check for multiple child nodes
-                        if(!data) {
-                            var datapieces = [];
-                            for(var j=0, len=item.childNodes.length; j<len; j++) {
-                                if(item.childNodes[j].nodeValue) {
-                                    datapieces[datapieces.length] = item.childNodes[j].nodeValue;
-                                }
+                var xmlNode = result.getElementsByTagName(key);
+                if(xmlNode && xmlNode.item(0)) {
+                    var item = xmlNode.item(0);
+                    // For IE, then DOM...
+                    data = (item) ? ((item.text) ? item.text : (item.textContent) ? item.textContent : null) : null;
+                    // ...then fallback, but check for multiple child nodes
+                    if(!data) {
+                        var datapieces = [];
+                        for(var j=0, len=item.childNodes.length; j<len; j++) {
+                            if(item.childNodes[j].nodeValue) {
+                                datapieces[datapieces.length] = item.childNodes[j].nodeValue;
                             }
-                            if(datapieces.length > 0) {
-                                data = datapieces.join("");
-                            }
+                        }
+                        if(datapieces.length > 0) {
+                            data = datapieces.join("");
                         }
                     }
                 }
             }
-            
-            
             // Safety net
             if(data === null) {
                    data = "";
@@ -1518,45 +1400,38 @@ parseXMLData : function(oRequest, oFullResponse) {
 
     // In case oFullResponse is something funky
     try {
-        // Pull any meta identified
-        if(this.useXPath) {
-            for (k in metaLocators) {
-                oParsedResponse.meta[k] = YAHOO.util.DataSource._getLocationValue(metaLocators[k], oFullResponse);
-            }
-        }
-        else {
-            metaNode = metaNode ? oFullResponse.getElementsByTagName(metaNode)[0] :
-                       oFullResponse;
-
-            if (metaNode) {
-                for (k in metaLocators) {
-                    if (lang.hasOwnProperty(metaLocators, k)) {
-                        loc = metaLocators[k];
-                        // Look for a node
-                        v = metaNode.getElementsByTagName(loc)[0];
-
-                        if (v) {
-                            v = v.firstChild.nodeValue;
-                        } else {
-                            // Look for an attribute
-                            v = metaNode.attributes.getNamedItem(loc);
-                            if (v) {
-                                v = v.value;
-                            }
-                        }
-
-                        if (lang.isValue(v)) {
-                            oParsedResponse.meta[k] = v;
-                        }
-                    }
-                }
-            }
-        }
-        
-        // For result data
         xmlList = (schema.resultNode) ?
             oFullResponse.getElementsByTagName(schema.resultNode) :
             null;
+
+        // Pull any meta identified
+        metaNode = metaNode ? oFullResponse.getElementsByTagName(metaNode)[0] :
+                   oFullResponse;
+
+        if (metaNode) {
+            for (k in metaLocators) {
+                if (lang.hasOwnProperty(metaLocators, k)) {
+                    loc = metaLocators[k];
+                    // Look for a node
+                    v = metaNode.getElementsByTagName(loc)[0];
+
+                    if (v) {
+                        v = v.firstChild.nodeValue;
+                    } else {
+                        // Look for an attribute
+                        v = metaNode.attributes.getNamedItem(loc);
+                        if (v) {
+                            v = v.value;
+                        }
+                    }
+
+                    if (lang.isValue(v)) {
+                        oParsedResponse.meta[k] = v;
+                    }
+                }
+                
+            }
+        }
     }
     catch(e) {
     }
@@ -1708,7 +1583,7 @@ parseJSONData : function(oRequest, oFullResponse) {
 
                         for (j = fieldParsers.length - 1; j >= 0; --j) {
                             var p = fieldParsers[j].key;
-                            rec[p] = fieldParsers[j].parser.call(this, rec[p]);
+                            rec[p] = fieldParsers[j].parser(rec[p]);
                             if (rec[p] === undefined) {
                                 rec[p] = null;
                             }
@@ -1945,7 +1820,7 @@ makeConnection : function(oRequest, oCallback, oCaller) {
     // forward the return value to the handler
     
     
-    var oRawResponse = (this.scope) ? this.liveData.call(this.scope, oRequest, this, oCallback) : this.liveData(oRequest, oCallback);
+    var oRawResponse = (this.scope) ? this.liveData.call(this.scope, oRequest, this) : this.liveData(oRequest);
     
     // Try to sniff data type if it has not been defined
     if(this.responseType === DS.TYPE_UNKNOWN) {
@@ -2049,7 +1924,7 @@ asyncMode : "allowAll",
 /**
  * Callback string parameter name sent to the remote script. By default,
  * requests are sent to
- * &#60;URI&#62;?&#60;scriptCallbackParam&#62;=callback
+ * &#60;URI&#62;?&#60;scriptCallbackParam&#62;=callbackFunction
  *
  * @property scriptCallbackParam
  * @type String
@@ -2350,7 +2225,7 @@ makeConnection : function(oRequest, oCallback, oCaller) {
         }
         // Error if no response
         else if(!oResponse) {
-            this.fireEvent("dataErrorEvent", {request:oRequest, response:null,
+            this.fireEvent("dataErrorEvent", {request:oRequest,
                     callback:oCallback, caller:oCaller,
                     message:DS.ERROR_DATANULL});
 
@@ -2389,7 +2264,7 @@ makeConnection : function(oRequest, oCallback, oCaller) {
      * @private
      */
     var _xhrFailure = function(oResponse) {
-        this.fireEvent("dataErrorEvent", {request:oRequest, response: oResponse,
+        this.fireEvent("dataErrorEvent", {request:oRequest,
                 callback:oCallback, caller:oCaller,
                 message:DS.ERROR_DATAINVALID});
 
@@ -2538,26 +2413,33 @@ util.DataSource = function(oLiveData, oConfigs) {
     var dataType = oConfigs.dataType;
     if(dataType) {
         if(dataType == DS.TYPE_LOCAL) {
-            return new util.LocalDataSource(oLiveData, oConfigs);
+            lang.augmentObject(util.DataSource, util.LocalDataSource);
+            return new util.LocalDataSource(oLiveData, oConfigs);            
         }
         else if(dataType == DS.TYPE_XHR) {
+            lang.augmentObject(util.DataSource, util.XHRDataSource);
             return new util.XHRDataSource(oLiveData, oConfigs);            
         }
         else if(dataType == DS.TYPE_SCRIPTNODE) {
+            lang.augmentObject(util.DataSource, util.ScriptNodeDataSource);
             return new util.ScriptNodeDataSource(oLiveData, oConfigs);            
         }
         else if(dataType == DS.TYPE_JSFUNCTION) {
+            lang.augmentObject(util.DataSource, util.FunctionDataSource);
             return new util.FunctionDataSource(oLiveData, oConfigs);            
         }
     }
     
     if(YAHOO.lang.isString(oLiveData)) { // strings default to xhr
+        lang.augmentObject(util.DataSource, util.XHRDataSource);
         return new util.XHRDataSource(oLiveData, oConfigs);
     }
     else if(YAHOO.lang.isFunction(oLiveData)) {
+        lang.augmentObject(util.DataSource, util.FunctionDataSource);
         return new util.FunctionDataSource(oLiveData, oConfigs);
     }
     else { // ultimate default is local
+        lang.augmentObject(util.DataSource, util.LocalDataSource);
         return new util.LocalDataSource(oLiveData, oConfigs);
     }
 };
@@ -2583,169 +2465,101 @@ lang.augmentObject(util.DataSource, DS);
  YAHOO.util.Number = {
  
      /**
-     * Takes a native JavaScript Number and formats to a string for display.
+     * Takes a native JavaScript Number and formats to string for display to user.
      *
      * @method format
      * @param nData {Number} Number.
      * @param oConfig {Object} (Optional) Optional configuration values:
      *  <dl>
-     *   <dt>format</dt>
-     *   <dd>String used as a template for formatting positive numbers.
-     *   {placeholders} in the string are applied from the values in this
-     *   config object. {number} is used to indicate where the numeric portion
-     *   of the output goes.  For example &quot;{prefix}{number} per item&quot;
-     *   might yield &quot;$5.25 per item&quot;.  The only required
-     *   {placeholder} is {number}.</dd>
-     *
-     *   <dt>negativeFormat</dt>
-     *   <dd>Like format, but applied to negative numbers.  If set to null,
-     *   defaults from the configured format, prefixed with -.  This is
-     *   separate from format to support formats like &quot;($12,345.67)&quot;.
-     *
-     *   <dt>prefix {String} (deprecated, use format/negativeFormat)</dt>
+     *   <dt>prefix {String}</dd>
      *   <dd>String prepended before each number, like a currency designator "$"</dd>
-     *   <dt>decimalPlaces {Number}</dt>
+     *   <dt>decimalPlaces {Number}</dd>
      *   <dd>Number of decimal places to round.</dd>
-     *
-     *   <dt>decimalSeparator {String}</dt>
+     *   <dt>decimalSeparator {String}</dd>
      *   <dd>Decimal separator</dd>
-     *
-     *   <dt>thousandsSeparator {String}</dt>
+     *   <dt>thousandsSeparator {String}</dd>
      *   <dd>Thousands separator</dd>
-     *
-     *   <dt>suffix {String} (deprecated, use format/negativeFormat)</dt>
+     *   <dt>suffix {String}</dd>
      *   <dd>String appended after each number, like " items" (note the space)</dd>
      *  </dl>
      * @return {String} Formatted number for display. Note, the following values
-     * return as "": null, undefined, NaN, "".
+     * return as "": null, undefined, NaN, "".     
      */
-    format : function(n, cfg) {
-        if (n === '' || n === null || !isFinite(n)) {
-            return '';
+    format : function(nData, oConfig) {
+        var lang = YAHOO.lang;
+        if(!lang.isValue(nData) || (nData === "")) {
+            return "";
         }
 
-        n   = +n;
-        cfg = YAHOO.lang.merge(YAHOO.util.Number.format.defaults, (cfg || {}));
-
-        var stringN = n+'',
-            absN   = Math.abs(n),
-            places = cfg.decimalPlaces || 0,
-            sep    = cfg.thousandsSeparator,
-            negFmt = cfg.negativeFormat || ('-' + cfg.format),
-            s, bits, i, precision;
-
-        if (negFmt.indexOf('#') > -1) {
-            // for backward compatibility of negativeFormat supporting '-#'
-            negFmt = negFmt.replace(/#/, cfg.format);
+        oConfig = oConfig || {};
+        
+        if(!lang.isNumber(nData)) {
+            nData *= 1;
         }
 
-        if (places < 0) {
-            // Get rid of the decimal info
-            s = absN - (absN % 1) + '';
-            i = s.length + places;
+        if(lang.isNumber(nData)) {
+            var bNegative = (nData < 0);
+            var sOutput = nData + "";
+            var sDecimalSeparator = (oConfig.decimalSeparator) ? oConfig.decimalSeparator : ".";
+            var nDotIndex;
 
-            // avoid 123 vs decimalPlaces -4 (should return "0")
-            if (i > 0) {
-                // leverage toFixed by making 123 => 0.123 for the rounding
-                // operation, then add the appropriate number of zeros back on
-                s = Number('.' + s).toFixed(i).slice(2) +
-                    new Array(s.length - i + 1).join('0');
-            } else {
-                s = "0";
-            }
-        } else {
-            // Avoid toFixed on floats:
-            // Bug 2528976
-            // Bug 2528977
-            var unfloatedN = absN+'';
-            if(places > 0 || unfloatedN.indexOf('.') > 0) {
-                var power = Math.pow(10, places);
-                s = Math.round(absN * power) / power + '';
-                var dot = s.indexOf('.'),
-                    padding, zeroes;
-                
-                // Add padding
-                if(dot < 0) {
-                    padding = places;
-                    zeroes = (Math.pow(10, padding) + '').substring(1);
-                    if(places > 0) {
-                        s = s + '.' + zeroes;
+            // Manage decimals
+            if(lang.isNumber(oConfig.decimalPlaces)) {
+                // Round to the correct decimal place
+                var nDecimalPlaces = oConfig.decimalPlaces;
+                var nDecimal = Math.pow(10, nDecimalPlaces);
+                sOutput = Math.round(nData*nDecimal)/nDecimal + "";
+                nDotIndex = sOutput.lastIndexOf(".");
+
+                if(nDecimalPlaces > 0) {
+                    // Add the decimal separator
+                    if(nDotIndex < 0) {
+                        sOutput += sDecimalSeparator;
+                        nDotIndex = sOutput.length-1;
+                    }
+                    // Replace the "."
+                    else if(sDecimalSeparator !== "."){
+                        sOutput = sOutput.replace(".",sDecimalSeparator);
+                    }
+                    // Add missing zeros
+                    while((sOutput.length - 1 - nDotIndex) < nDecimalPlaces) {
+                        sOutput += "0";
                     }
                 }
-                else {
-                    padding = places - (s.length - dot - 1);
-                    zeroes = (Math.pow(10, padding) + '').substring(1);
-                    s = s + zeroes;
+            }
+            
+            // Add the thousands separator
+            if(oConfig.thousandsSeparator) {
+                var sThousandsSeparator = oConfig.thousandsSeparator;
+                nDotIndex = sOutput.lastIndexOf(sDecimalSeparator);
+                nDotIndex = (nDotIndex > -1) ? nDotIndex : sOutput.length;
+                var sNewOutput = sOutput.substring(nDotIndex);
+                var nCount = -1;
+                for (var i=nDotIndex; i>0; i--) {
+                    nCount++;
+                    if ((nCount%3 === 0) && (i !== nDotIndex) && (!bNegative || (i > 1))) {
+                        sNewOutput = sThousandsSeparator + sNewOutput;
+                    }
+                    sNewOutput = sOutput.charAt(i-1) + sNewOutput;
                 }
+                sOutput = sNewOutput;
             }
-            else {
-                s = absN.toFixed(places)+'';
-            }
+
+            // Prepend prefix
+            sOutput = (oConfig.prefix) ? oConfig.prefix + sOutput : sOutput;
+
+            // Append suffix
+            sOutput = (oConfig.suffix) ? sOutput + oConfig.suffix : sOutput;
+
+            return sOutput;
         }
-
-        bits  = s.split(/\D/);
-
-        if (absN >= 1000) {
-            i  = bits[0].length % 3 || 3;
-
-            bits[0] = bits[0].slice(0,i) +
-                      bits[0].slice(i).replace(/(\d{3})/g, sep + '$1');
-
+        // Still not a Number, just return unaltered
+        else {
+            return nData;
         }
-
-        return YAHOO.util.Number.format._applyFormat(
-            (n < 0 ? negFmt : cfg.format),
-            bits.join(cfg.decimalSeparator),
-            cfg);
     }
-};
+ };
 
-/**
- * <p>Default values for Number.format behavior.  Override properties of this
- * object if you want every call to Number.format in your system to use
- * specific presets.</p>
- *
- * <p>Available keys include:</p>
- * <ul>
- *   <li>format</li>
- *   <li>negativeFormat</li>
- *   <li>decimalSeparator</li>
- *   <li>decimalPlaces</li>
- *   <li>thousandsSeparator</li>
- *   <li>prefix/suffix or any other token you want to use in the format templates</li>
- * </ul>
- *
- * @property Number.format.defaults
- * @type {Object}
- * @static
- */
-YAHOO.util.Number.format.defaults = {
-    format : '{prefix}{number}{suffix}',
-    negativeFormat : null, // defaults to -(format)
-    decimalSeparator : '.',
-    decimalPlaces    : null,
-    thousandsSeparator : ''
-};
-
-/**
- * Apply any special formatting to the "d,ddd.dd" string.  Takes either the
- * cfg.format or cfg.negativeFormat template and replaces any {placeholders}
- * with either the number or a value from a so-named property of the config
- * object.
- *
- * @method Number.format._applyFormat
- * @static
- * @param tmpl {String} the cfg.format or cfg.numberFormat template string
- * @param num {String} the number with separators and decimalPlaces applied
- * @param data {Object} the config object, used here to populate {placeholder}s
- * @return {String} the number with any decorators added
- */
-YAHOO.util.Number.format._applyFormat = function (tmpl, num, data) {
-    return tmpl.replace(/\{(\w+)\}/g, function (_, token) {
-        return token === 'number' ? num :
-               token in data ? data[token] : '';
-    });
-};
 
 
 /****************************************************************************/
@@ -2965,8 +2779,7 @@ var xPad=function (x, pad, r)
      *  </dl>
      *  More locales may be added by subclassing of YAHOO.util.DateLocale.
      *  See YAHOO.util.DateLocale for more information.
-     * @return {HTML} Formatted date for display. Non-date values are passed
-     * through as-is.
+     * @return {String} Formatted date for display.
      * @sa YAHOO.util.DateLocale
      */
     format : function (oDate, oConfig, sLocale) {
@@ -3130,4 +2943,4 @@ var xPad=function (x, pad, r)
 
 })();
 
-YAHOO.register("datasource", YAHOO.util.DataSource, {version: "2.9.0", build: "2800"});
+YAHOO.register("datasource", YAHOO.util.DataSource, {version: "2.7.0", build: "1799"});
