@@ -115,7 +115,7 @@ abstract class WFView extends WFObject
         $this->cssImports = array();
     }
 
-    public function destroy()
+    public function destroy($vars = array())
     {
         parent::destroy(array('page', 'parent', 'children'));
     }
