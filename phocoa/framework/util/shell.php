@@ -1,6 +1,6 @@
 <?php
 
-ini_set("memory_limit", '20M');
+ini_set("memory_limit", '200M');
 
 $conf = getenv('PHOCOA_PROJECT_CONF');
 $tags = basename($conf) . '/../tags';
