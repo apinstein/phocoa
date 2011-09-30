@@ -5,7 +5,7 @@ require_once(getenv('PHOCOA_PROJECT_CONF'));
 if ($argc != 2) die("Usage: scaffold.php 'entity1 entity2 ...'\n");
 
 $adapter = 'Propel';
-if (defined(ORM_MODEL_ADAPTER))
+if (defined('ORM_MODEL_ADAPTER'))
 {
     $adapter = ORM_MODEL_ADAPTER;
 }
