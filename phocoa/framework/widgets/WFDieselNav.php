@@ -106,7 +106,7 @@ class WFDieselNav extends WFWidget
         $baseURLParams = NULL;
         foreach ($this->page()->parameters() as $pName => $value) {
             if ($pName == $this->dpQueryStateParamName) break;
-            $baseURLParams .= "/{$value}";
+            $baseURLParams .= "/" . urlencode($value);
         }
         
         // calculate base URL for links

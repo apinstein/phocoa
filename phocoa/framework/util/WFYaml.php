@@ -6,8 +6,9 @@ class WFYaml
     {
         if (function_exists('yaml_parse_file'))
         {
+            // returns array() if no data, NULL if error.
             $a = yaml_parse_file($file);
-            if (!$a)
+            if ($a === NULL)
             {
                 throw new WFException("Error processing YAML file: {$file}");
             }
@@ -50,7 +51,13 @@ class WFYaml
     {
         if (function_exists('yaml_parse'))
         {
-            return yaml_parse($string);
+            // returns array() if no data, NULL if error.
+            $a = yaml_parse($string);
+            if ($a === NULL)
+            {
+                throw new WFException("Error processing YAML string.");
+            }
+            return $a;
         }
         else if (function_exists('syck_load'))
         {
