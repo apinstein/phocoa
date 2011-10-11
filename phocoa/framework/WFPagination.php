@@ -1164,11 +1164,11 @@ class WFPagedPDOQuery implements WFPagedData
         $matches = array();
         if (stripos($this->baseSQL, 'order by'))
         {
-            $matchCount = preg_match('/^.*(\bfrom\b.*)(\border by\b.*)$/si', $this->baseSQL, $matches);
+            $matchCount = preg_match('/^.*?(\bfrom\b.*)(\border by\b.*)$/si', $this->baseSQL, $matches);
         }
         else
         {
-            $matchCount = preg_match('/^.*(\bfrom\b.*)$/si', $this->baseSQL, $matches);
+            $matchCount = preg_match('/^.*?(\bfrom\b.*)$/si', $this->baseSQL, $matches);
         }
         if ($matchCount != 1) throw(new Exception("Could not parse sql statement."));
 
