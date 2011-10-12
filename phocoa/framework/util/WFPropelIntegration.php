@@ -7,6 +7,11 @@ class WFPropelException extends PropelException implements WFErrorCollection
 {
     protected $errors;
 
+    /**
+     * @param string A string error message for the Exception itself; this error won't be part of the WFErrorCollection
+     * @param object Exception The previous/wraped exception.
+     * @see http://api.propelorm.org/1.6.0/runtime/propel-runtime-exception/PropelException.html
+     */
     public function __construct($p1, $p2 = NULL)
     {
         parent::__construct($p1, $p2);
@@ -111,7 +116,7 @@ class WFPropelException extends PropelException implements WFErrorCollection
      * Convenience method to allow for a fluent interface.
      * e.g...
      *
-     * WFConcreteErrorCollection::create()
+     * WFPropelException::create($p1 [, $p2 ])
      *      ->addGeneralError(...);
      */
     public static function create($p1, $p2 = NULL)
