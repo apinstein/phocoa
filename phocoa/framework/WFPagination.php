@@ -602,7 +602,7 @@ class WFPaginator extends WFObject
         // cache
         if ($this->itemCount === NULL)
         {
-            $this->itemCount = $this->dataDelegate()->itemCount();
+            $this->itemCount = (int) $this->dataDelegate()->itemCount();
         }
         return $this->itemCount;
     }
