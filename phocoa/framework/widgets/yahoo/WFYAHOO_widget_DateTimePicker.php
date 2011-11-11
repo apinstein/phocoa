@@ -179,7 +179,7 @@ class WFYAHOO_widget_DateTimePicker extends WFYAHOO
         }
 
         $datePartEntered = ($this->datePicker->value() !== NULL);
-        $timePartEntered = ($this->timePicker->value() != '');
+        $timePartEntered = (trim ($this->timePicker->value()) != '');
 
         if (!$datePartEntered and !$timePartEntered)
         {
@@ -201,15 +201,20 @@ class WFYAHOO_widget_DateTimePicker extends WFYAHOO
         }
 
         // parse & validate time
-        $timePart = date_parse($this->timePicker->value());
-        if ($timePart === false)
+        if (! $timePartEntered)
+             $this->addError(new WFError("Please enter a time.")); 
+        else 
         {
-            $this->addError(new WFError("Invalid time."));
-        }
-        else if ($timePart['error_count'])
-        {
-            foreach ($timePart['errors'] as $err) {
-                $this->addError(new WFError("The time you entered is invalid")); 
+            $timePart = date_parse($this->timePicker->value());
+            if ($timePart === false)
+            {
+                $this->addError(new WFError("Invalid time."));
+            }
+            else if ($timePart['error_count'])
+            {
+                foreach ($timePart['errors'] as $err) {                
+                    $this->addError(new WFError("The time you entered is invalid")); 
+                }
             }
         }
 
