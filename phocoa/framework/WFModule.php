@@ -199,6 +199,7 @@ class WFModuleInvocation extends WFObject
     {
         $this->skin = new WFSkin();
         $this->skin->setDelegateName($skinDelegate);
+        $this->skin->setCharset(WFWebApplication::sharedWebApplication()->getDefaultCharset());
         return $this->skin;
     }
 
