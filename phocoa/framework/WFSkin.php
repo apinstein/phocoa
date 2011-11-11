@@ -238,6 +238,11 @@ class WFSkin extends WFObject
      */
     protected $namedContent;
 
+    /**
+     * @var string The character set used for encoding strings.
+     */
+    protected $charset;
+
     function __construct()
     {
         // determine which skin to use
@@ -255,6 +260,7 @@ class WFSkin extends WFObject
         $this->metaDescription = NULL;
         $this->headStrings = array();
         $this->headTemplate = WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/head.tpl';
+        $this->charset = "ISO-8859-1";
     }
 
     /**
@@ -444,7 +450,7 @@ class WFSkin extends WFObject
      */
     function setTitle($title)
     {
-        $this->title = htmlentities($title);
+        $this->title = htmlentities($title, ENT_COMPAT, $this->charset);
     }
 
     /**
@@ -519,6 +525,19 @@ class WFSkin extends WFObject
     function getSkinThemeAssetsDir()
     {
 		return WWW_ROOT . '/skins/' . $this->delegateName . '/' . $this->skinName . '/' . $this->skinThemeName;
+    }
+
+    /**
+     * Set the charset string;
+     *
+     *
+     * @param charaset The character set string.
+     * @return object WFSkin (fluent interface).
+     */
+    function setCharset($charset)
+    {
+        $this->charset = $charset;
+        return $this;
     }
 
     /**

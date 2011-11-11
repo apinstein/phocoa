@@ -56,6 +56,13 @@ class WFWebApplicationDelegate
     function defaultSkinDelegate() {}
 
     /**
+     * Retreive the default character set.
+     *
+     * @return string The character set to use.
+     */
+    function getDefaultCharset() {}
+
+    /**
      *  Called just before the session is started.
      *
      *  This gives applications a chance to twiddle php session config before starting the session.
