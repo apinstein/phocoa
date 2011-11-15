@@ -234,8 +234,9 @@ class WFCheckbox extends WFWidget
         {
             $labelRight = NULL;
         }
-        return $labelLeft . '<input type="checkbox" ' .
-                    'name="' . $this->name() . ($this->groupMode() ? '[]' : '') . '" ' .
+        $inputName = $this->name() . ($this->groupMode() ? '[]' : '');
+        $html = $labelLeft . '<input type="checkbox" ' .
+                    'name="' . $inputName . '" ' .
                     ($this->class ? ' class="' . $this->class . '" ' : '') .
                     'id="' . $this->id() . '" ' .
                     'value="' . $this->checkedValue() . '" ' .
@@ -246,7 +247,11 @@ class WFCheckbox extends WFWidget
                     ' />' . 
                     $labelRight .
                     $this->getListenerJSInScriptTag();
-     
+        if (!$this->enabled() && $this->checked())
+        {
+            $html .= "<input type=\"hidden\" name=\"{$inputName}\" value=\"{$this->checkedValue()}\" />";
+        }
+        return $html;
     }
 
     function canPushValueBinding() { return true; }
