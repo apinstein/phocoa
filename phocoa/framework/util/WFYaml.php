@@ -8,7 +8,7 @@ class WFYaml
         {
             // returns array() if no data, NULL if error.
             $a = yaml_parse_file($file);
-            if ($a === NULL)
+            if ($a === NULL || $a === false)   // documented to return NULL but sometimes returns FALSE.
             {
                 throw new WFException("Error processing YAML file: {$file}");
             }
@@ -53,7 +53,7 @@ class WFYaml
         {
             // returns array() if no data, NULL if error.
             $a = yaml_parse($string);
-            if ($a === NULL)
+            if ($a === NULL || $a === false)   // documented to return NULL but sometimes returns FALSE.
             {
                 throw new WFException("Error processing YAML string.");
             }
