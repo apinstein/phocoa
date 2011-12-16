@@ -572,6 +572,7 @@ class WFObject implements WFKeyValueCoding
     function setValueForKeyPath($value, $keyPath)
     {
         list($target, $targetKey) = $this->keyPathToTargetAndKey($keyPath);
+        if (!is_object($target)) throw( new WFUndefinedKeyException("setValueForKey: target for keypath \"{$keyPath}\" is not an object.") );
         $target->setValueForKey($value, $targetKey);
     }
 
