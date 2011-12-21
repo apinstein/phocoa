@@ -14,8 +14,12 @@ loginForm:
       class: 'WFSubmit'
       properties: 
         action: 'doLogin'
-        label: 'Login'
+        label: 'Log In'
 forgottenPasswordLink: 
   class: 'WFLink'
   properties: 
     label: 'Forgot your password?'
+signUpLink:
+  class: 'WFLink'
+  properties:
+    label: 'Sign Up'

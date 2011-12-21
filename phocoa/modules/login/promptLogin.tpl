@@ -19,7 +19,12 @@
         </tr>
         {/WFViewHiddenHelper}
         <tr>
-            <td colspan="2" align="center">{WFSubmit id="login"}</td>
+            <td colspan="2" align="center">
+                {WFSubmit id="login"}
+                {WFViewHiddenHelper id="signUpLink"}
+                    <span>or {WFLink id="signUpLink}</span>
+                {/WFViewHiddenHelper}
+            </td>
         </tr>
     </table>
 {/WFForm}
