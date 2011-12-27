@@ -85,7 +85,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
         $this->addButtonLabel = "1. Select Files";
         $this->uploadButtonLabel = "2. Upload Files";
         $this->setHasUploadCallback('handleUploadedFile');
-        $this->maxUploadBytes = NULL;
+        $this->maxUploadBytes = WFUploaderUtils::getIniSpecifiedUploadMaxFilesizeAsBytes();
         $this->continueURL = NULL;
     }
 
