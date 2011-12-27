@@ -17,12 +17,23 @@
 class WFHTML5_Uploader extends WFForm
 {
     /**
-     * @var array The uploads sent by the client.
+     * @var array An array of object WFUploadedFile_Basic.
      */
     protected $uploads;
 
     /**
-     * @var mixed A valid php callback object that will be called on each uploaded file. The prototype is: void handleUploadedFile($page, $params, object WFPostletUpload).
+     * @var mixed A valid php callback object that will be called on each uploaded file. The prototype is:
+     *            $page         WFPage
+     *            $params       array
+     *            $upload       WFUploadedFile
+     *            $uplaodError  WFUploadError (or NULL)
+     *            string handleUploadedFile($page, $params, $upload, $uploadError)
+     *                   +-> throws Exception
+     * If the upload is processed successfully, optionally return a STRING to display to the user about the upload. NULL to use the default message.
+     * If the upload cannot be processed, throw an Exception; the message will be shown to the user.
+     *
+     * Note that the handleUploadedFile() callback will be called even if there is an error with the uploaded file (see $error) so that the
+     * application can track and report upload failures as it deems appropriate.
      */
     protected $hasUploadCallback;
 
@@ -35,6 +46,10 @@ class WFHTML5_Uploader extends WFForm
      *          NOTE: the underlying control presently supports only *all concurrent* or *all sequential*.
      */
     protected $maxConcurrentUploads;
+    /**
+     * @var int The maximum file size in bytes to allow. A warning will be displayed for any file over that size and no upload will be attempted on that file. NULL = no limit; defaults to ini's upload_max_filesize setting. 
+     */
+    protected $maxUploadBytes;
     /**
      * @var boolean Auto-start uploads when files are added. Defaults to false.
      */
@@ -54,6 +69,7 @@ class WFHTML5_Uploader extends WFForm
 
         $this->baseurl = 'http://' . $_SERVER['HTTP_HOST'];
         $this->maxConcurrentUploads = 1;
+        $this->maxUploadBytes = WFUploaderUtils::getIniSpecifiedUploadMaxFilesizeAsBytes();
         $this->autoupload = false;
         $this->autoRedirectToUrlOnCompleteAll = NULL;
 
@@ -104,40 +120,7 @@ class WFHTML5_Uploader extends WFForm
         //  must call super
         parent::restoreState();
 
-        $fileInputName = $this->getInputFileName();
-
-        if (isset($_FILES[$fileInputName]))
-        {
-            $phpUploadErrors = @array(
-                UPLOAD_ERR_OK         => 'Value: 0; There is no error, the file uploaded with success.',
-                UPLOAD_ERR_INI_SIZE   => 'Value: 1; The uploaded file exceeds the upload_max_filesize directive in php.ini.',
-                UPLOAD_ERR_FORM_SIZE  => 'Value: 2; The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
-                UPLOAD_ERR_PARTIAL    => 'Value: 3; The uploaded file was only partially uploaded.',
-                UPLOAD_ERR_NO_FILE    => 'Value: 4; No file was uploaded.',
-                UPLOAD_ERR_NO_TMP_DIR => 'Value: 6; Missing a temporary folder. Introduced in PHP 4.3.10 and PHP 5.0.3.',
-                UPLOAD_ERR_CANT_WRITE => 'Value: 7; Failed to write file to disk. Introduced in PHP 5.1.0.',
-                UPLOAD_ERR_EXTENSION  => 'Value: 8; File upload stopped by extension. Introduced in PHP 5.2.0.',
-            );
-            $count = count($_FILES[$fileInputName]['name']);
-            for ($i = 0; $i < $count; $i++) {
-                // check for errors
-                if ($_FILES[$fileInputName]['error'][$i] == UPLOAD_ERR_OK)
-                {
-                    if (is_uploaded_file($_FILES[$fileInputName]['tmp_name'][$i]))
-                    {
-                        $this->uploads[] = new WFUploadedFile_Basic($_FILES[$fileInputName]['tmp_name'][$i], $_FILES[$fileInputName]['type'][$i], $_FILES[$fileInputName]['name'][$i]);
-                    }
-                    else
-                    {
-                        $this->addError(new WFError("File: '{$_FILES[$fileInputName]['name'][$i]}' is not a legitimate PHP upload. This is a hack attempt."));
-                    }
-                }
-                else if ($_FILES[$fileInputName]['error'][$i] != UPLOAD_ERR_NO_FILE)
-                {
-                    $this->addError(new WFError("File: '{$_FILES[$fileInputName]['name'][$i]}' reported error: " . $phpUploadErrors[$_FILES[$fileInputName]['error'][$i]]));
-                }
-            }
-        }
+        $this->uploads = WFUploaderUtils::restoreState($this->getInputFileName());
     }
 
     /**
@@ -145,31 +128,51 @@ class WFHTML5_Uploader extends WFForm
      *
      * This will call out to the configured handleUploadedFile callback.
      *
-     * @param object WFUploadedFile An uploaded file.
+     * @param array An associative array: 'upload' => WFUploadedFile, 'error' => WFUploadError to process.
      * @return array A hash of data to return to the caller.
      */
-    function _handleUploadedFile($uploadedFile)
+    function _handleUploadedFile($uploadedFileInfo)
     {
-        $result = array(
-            'name'        => $uploadedFile->originalFileName(),
-            'mimeType'    => $uploadedFile->mimeType(),
-            'description' => 'No file was uploaded.',
-            'upload_ok'   => false,
-        );
+        extract($uploadedFileInfo);
+
+        $resultMessage = NULL;
+        $uploadOK = false;
 
         try {
-            $callbackResult = call_user_func($this->hasUploadCallback, $this->page(), $this->page()->parameters(), $uploadedFile);
-            if (is_array($callbackResult))
+            // call user callback always; 
+            // detect error if an Exception is thrown *or* a WFUploadError is returned.
+            // if the upload is already an error, it cannot be *not an error* after the callback of course
+            $thumbnail = NULL;
+            // need call_user_func_array due to call_user_func not supporting pass-by-reference
+            // using call_user_func_array allows you to do &$thumbnail without a deprecated call-time pass-by-reference warning.
+            $callbackResult = call_user_func_array($this->hasUploadCallback, array($this->page(), $this->page()->parameters(), $upload, $error, &$thumbnail));
+            if ($callbackResult instanceof WFUploadError)
             {
-                $result = array_merge($result, $callbackResult);
+                $error = $callbackResult;
             }
-            $result['upload_ok'] = true;
+
+            if ($error)
+            {
+                $uploadOK = false;
+                $resultMessage = $error->errorMessage();
+            }
+            else
+            {
+                $uploadOK = true;
+                $resultMessage = $callbackResult;
+            }
         } catch (Exception $e) {
-            $result['upload_ok'] = false;
-            $result['description'] = "Error: {$e->getMessage()}";
+            $uploadOK = false;
+            $resultMessage = $e->getMessage();
         }
 
-        return $result;
+        return array(
+            'name'        => $upload->originalFileName(),
+            'mimeType'    => $upload->mimeType(),
+            'description' => $resultMessage,
+            'uploadOK'    => $uploadOK,
+            'thumb'       => $thumbnail,
+        );
     }
 
     /**
@@ -181,28 +184,17 @@ class WFHTML5_Uploader extends WFForm
     {
         if (count($this->uploads) > 1) throw new Exception("_handleAsyncSingleUpload called with multiple uploads.");
 
-        $result = array(
-            'name'        => '<none>',
-            'mimeType'    => NULL,
-            'description' => 'No file was uploaded.',
-            'upload_ok'   => false,
-        );
-
-        if (count($this->uploads) === 1)
+        if (count($this->uploads) === 0)
         {
-            try {
-                $callbackResult = $this->_handleUploadedFile($this->uploads[0]);
-                if (is_array($callbackResult))
-                {
-                    $result = array_merge($result, $callbackResult);
-                }
-                $result['upload_ok'] = true;
-            } catch (Exception $e) {
-                $result['upload_ok'] = false;
-                $result['description'] = "Error: {$e->getMessage()}";
-            }
+            return array(
+                'name'        => '<none>',
+                'mimeType'    => NULL,
+                'description' => 'No file was uploaded.',
+                'uploadOK'    => false,
+            );
         }
 
+        $result = $this->_handleUploadedFile($this->uploads[0]);
         print json_encode($result);
         exit;
     }
@@ -215,10 +207,10 @@ class WFHTML5_Uploader extends WFForm
         $allOk = true;
         foreach ($this->uploads as $f) {
             $result = $this->_handleUploadedFile($f);
-            if (!$result['upload_ok'])
+            if (!$result['uploadOK'])
             {
                 $allOk = false;
-                $this->addError(new WFError("Error processing \"{$result['name']}\": {$result['description']}"));
+                $this->addError(new WFUploadError("Error processing \"{$result['name']}\": {$result['description']}"));
             }
         }
         if ($allOk)
@@ -324,6 +316,8 @@ class WFHTML5_Uploader extends WFForm
 END;
         $html = parent::render($formInnardsHTML);
 
+        $maxUploadBytesJSON = WFJSON::encode($this->maxUploadBytes);
+
         // progress indicators after form since the blueimp plugin takes over the entire form area for drag-n-drop
         $html .= <<<END
 <div id="{$this->id}_progressAll" style="display: none;"></div>
@@ -338,6 +332,17 @@ function() {
             sequentialUploads: {$sequentialUploads},
             beforeSend: function (event, files, index, xhr, handler, callBack) {
                 jQuery('#{$this->id}_table, #{$this->id}_progressAll').show();
+                if ({$maxUploadBytesJSON} && files[index].fileSize > {$maxUploadBytesJSON})
+                {
+                    var json = {
+                        'name': files[index].name,
+                        'description': ('File exceeds maximum file size of ' + {$maxUploadBytesJSON} + ' bytes.'),
+                        'uploadOK': false
+                    };
+                    handler.downloadRow = handler.buildDownloadRow(json, handler);
+                    handler.replaceNode(handler.uploadRow, handler.downloadRow, null);
+                    return;
+                }
                 if ({$autoupload})
                 {
                     callBack();
@@ -355,7 +360,8 @@ function() {
             buildUploadRow: function (files, index) {
                 return jQuery('<tr>' +
                         '<td width="175">' + files[index].name + '<\/td>' +
-                        '<td width="250"><\/td>' +
+                        '<td width="1">&nbsp;<\/td>' +
+                        '<td width="250">&nbsp;<\/td>' +
                         '<td width="16" class="file_upload_cancel">' +
                             '<button class="ui-state-default ui-corner-all" title="Cancel">' +
                             '<span class="ui-icon ui-icon-cancel">Cancel<\/span>' +
@@ -364,10 +370,16 @@ function() {
                         '<\/tr>');
             },
             buildDownloadRow: function (file, handler) {
+                var thumbHTML = '&nbsp;';
+                if (file.thumb)
+                {
+                    thumbHTML = '<img src="'+file.thumb+'" style="float: right;"/>';
+                }
                 return jQuery('<tr>' +
                     '<td width="175">' + file.name + '<\/td>' +
+                    '<td width="' + (thumbHTML ? 100 : 1) + '">' + thumbHTML + '<\/td>' +
                     '<td width="250">' + file.description + '<\/td>' + 
-                    '<td width="16"><span class="ui-icon ' + (file.upload_ok ? 'ui-icon-check' : 'ui-icon-alert') + '"><\/span><\/td>' + 
+                    '<td width="16"><span class="ui-icon ' + (file.uploadOK ? 'ui-icon-check' : 'ui-icon-alert') + '"><\/span><\/td>' + 
                     '<td><\/td>' + 
                     '<\/tr>');
             }
@@ -386,4 +398,47 @@ END;
     }
 
     function canPushValueBinding() { return false; }
+}
+
+class WFUploadError extends WFError
+{
+    const ERR_PHP_INI_SIZE   = UPLOAD_ERR_INI_SIZE;      // 'Upload error 1; The uploaded file exceeds the upload_max_filesize directive in php.ini.',
+    const ERR_PHP_FORM_SIZE  = UPLOAD_ERR_FORM_SIZE;     // 'Upload error 2; The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
+    const ERR_PHP_PARTIAL    = UPLOAD_ERR_PARTIAL;       // 'Upload error 3; The uploaded file was only partially uploaded.',
+    const ERR_PHP_NO_FILE    = UPLOAD_ERR_NO_FILE;       // 'Upload error 4; No file was uploaded.',
+    const ERR_PHP_NO_TMP_DIR = UPLOAD_ERR_NO_TMP_DIR;    // 'Upload error 6; Missing a temporary folder. Introduced in PHP 4.3.10 and PHP 5.0.3.',
+    const ERR_PHP_CANT_WRITE = UPLOAD_ERR_CANT_WRITE;    // 'Upload error 7; Failed to write file to disk. Introduced in PHP 5.1.0.',
+    const ERR_PHP_EXTENSION  = UPLOAD_ERR_EXTENSION;     // 'Upload error 8; File upload stopped by extension. Introduced in PHP 5.2.0.',
+    // custom errors start at 1000 to give us headroom for additional PHP errors in future
+    const ERR_APPLICATION    = 1000;
+    const ERR_HACKY          = 1001;
+
+    public function __construct($msg, $errCode = 1000)
+    {
+        parent::__construct($msg, $errCode);
+    }
+
+    static function createFromPhpUploadError($phpUploadErrorNumber)
+    {
+        $errCodeMap = @array(
+            UPLOAD_ERR_INI_SIZE   => ERR_PHP_INI_SIZE,
+            UPLOAD_ERR_FORM_SIZE  => ERR_PHP_FORM_SIZE,
+            UPLOAD_ERR_PARTIAL    => ERR_PHP_PARTIAL,
+            UPLOAD_ERR_NO_FILE    => ERR_PHP_NO_FILE,
+            UPLOAD_ERR_NO_TMP_DIR => ERR_PHP_NO_TMP_DIR,
+            UPLOAD_ERR_CANT_WRITE => ERR_PHP_CANT_WRITE,
+            UPLOAD_ERR_EXTENSION  => ERR_PHP_EXTENSION,
+        );
+        $errMsgMap = @array(
+            UPLOAD_ERR_INI_SIZE   => 'File exceeds the maximum upload size.',
+            UPLOAD_ERR_FORM_SIZE  => 'File exceeds the maximum upload size.',
+            UPLOAD_ERR_PARTIAL    => 'The uploaded file was only partially uploaded.',
+            UPLOAD_ERR_NO_FILE    => 'No file was uploaded.',
+            UPLOAD_ERR_NO_TMP_DIR => 'Missing a temporary folder.',
+            UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk.',
+            UPLOAD_ERR_EXTENSION  => 'File upload stopped by extension.',
+        );
+        if (!isset($errCodeMap[$phpUploadErrorNumber])) throw new Exception("Unexpected PHP upload error: {$phpUploadErrorNumber}.");
+        return new WFUploadError($errMsgMap[$phpUploadErrorNumber], $errCodeMap[$phpUploadErrorNumber]);
+    }
 }

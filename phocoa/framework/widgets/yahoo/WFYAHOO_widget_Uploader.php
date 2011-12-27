@@ -68,10 +68,9 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
      */
     protected $hasUploadCallback;
     /**
-     * @var int The maximum file size in bytes to allow. A warning will be displayed for any file over that size and no upload will be attempted on that file. Default NULL (no limit).
+     * @var int The maximum file size in bytes to allow. A warning will be displayed for any file over that size and no upload will be attempted on that file. NULL = no limit; defaults to ini's upload_max_filesize setting. 
      */
     protected $maxUploadBytes;
-
 
     /**
       * Constructor.
@@ -85,7 +84,7 @@ class WFYAHOO_widget_Uploader extends WFYAHOO implements WFUploadedFile
         $this->addButtonLabel = "1. Select Files";
         $this->uploadButtonLabel = "2. Upload Files";
         $this->setHasUploadCallback('handleUploadedFile');
-        $this->maxUploadBytes = NULL;
+        $this->maxUploadBytes = WFUploaderUtils::getIniSpecifiedUploadMaxFilesizeAsBytes();
         $this->continueURL = NULL;
     }
 

@@ -168,6 +168,17 @@ class WFPostletUpload extends WFForm implements WFUploadedFile
         //  must call super
         parent::restoreState();
 
+        $uploads = WFUploaderUtils::restoreState($this->getInputFileName());
+        if (count($uploads) > 1) throw new Exception("WFPostletUpload got multiple uploads. Should never happen.");
+
+        $this->ori
+    }
+
+    function restoreState()
+    {
+        //  must call super
+        parent::restoreState();
+
         if (isset($_FILES[$this->name]))
         {
             if (is_array($_FILES[$this->name]['name'])) throw (new Exception("WFPostletUpload expected a single upload files but multiple found.") );
