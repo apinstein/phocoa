@@ -44,6 +44,10 @@ class WFHTML5_Uploader extends WFForm
      */
     protected $maxConcurrentUploads;
     /**
+     * @var boolean Set to true when multiple simultaneous uploads are detected.
+     */
+    private $hasMultipleSimultaneousUploads;
+    /**
      * @var int The maximum file size in bytes to allow. A warning will be displayed for any file over that size and no upload will be attempted on that file. NULL = no limit; defaults to ini's upload_max_filesize setting. 
      */
     protected $maxUploadBytes;
@@ -121,6 +125,7 @@ class WFHTML5_Uploader extends WFForm
         if (isset($_FILES[$fileInputName]))
         {
             $count = count($_FILES[$fileInputName]['name']);
+            $this->hasMultipleSimultaneousUploads = ($count > 1);
             for ($i = 0; $i < $count; $i++) {
                 // we silently eat UPLOAD_ERR_NO_FILE; otherwise we keep track of success & error uploads
                 if ($_FILES[$fileInputName]['error'][$i] === UPLOAD_ERR_NO_FILE) continue;
@@ -177,6 +182,11 @@ class WFHTML5_Uploader extends WFForm
 
         if ($error)
         {
+
+            if ($this->hasMultipleSimultaneousUploads)
+            {
+                $error->setErrorMessage("Error with {$upload->originalFileName()}: {$error->errorMessage()}");
+            }
             $this->addError($error);
             $resultMessage = $error->errorMessage();
         }
@@ -214,7 +224,8 @@ class WFHTML5_Uploader extends WFForm
     }
 
     /**
-     * Internal callback function for handling multiple uploads in a single widget
+     * Internal callback function for handling multiple uploads in a single widget.
+     * This is used from non-javascript HTML uploader. The latest browsers allow you to submit multiple files in one POST.
      */
     function _handleSyncMultipleUploads()
     {
