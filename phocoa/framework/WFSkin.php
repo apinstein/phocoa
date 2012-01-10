@@ -528,6 +528,14 @@ class WFSkin extends WFObject
     }
 
     /**
+     * @return string filesystem-accessible path to the skin directory. This is useful as a base dir for factoring out tpl code that's shared among different templateTypes.
+     */
+    function getSkinTemplatesDir()
+    {
+        return WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS) . '/' . $this->delegateName . '/' . $this->skinName;
+    }
+
+    /**
      * Set the charset string;
      *
      *
@@ -550,7 +558,7 @@ class WFSkin extends WFObject
     {
         $this->loadSkin();
 
-        $skinTemplateDir = WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS) . '/' . $this->delegateName . '/' . $this->skinName;
+        $skinTemplatesDir = $this->getSkinTemplatesDir();
 
         $smarty = new WFSmarty();
         $smarty->assign('skin', $this);
@@ -573,6 +581,8 @@ class WFSkin extends WFObject
         $smarty->assign('skinTypeAssetsDir', $this->getSkinTypeAssetsDir() );
         $smarty->assign('skinSharedAssetsDir', $this->getSkinSharedAssetsDir() );
         $smarty->assign('skinThemeAssetsDir', $this->getSkinThemeAssetsDir() );
+        // FS paths of things
+        $smarty->assign('skinTemplatesDir', $skinTemplatesDir);
 
         // build the <head> section
         $smarty->assign('skinPhocoaHeadTpl', WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/head.tpl');
@@ -585,7 +595,7 @@ class WFSkin extends WFObject
         }
         else
         {
-            $smarty->setTemplate($skinTemplateDir . '/template_' . $this->templateType . '.tpl');
+            $smarty->setTemplate($skinTemplatesDir . '/template_' . $this->templateType . '.tpl');
         }
 
         // pre-render callback
