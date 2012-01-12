@@ -532,7 +532,15 @@ class WFSkin extends WFObject
      */
     function getSkinTemplatesDir()
     {
-        return WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS) . '/' . $this->delegateName . '/' . $this->skinName;
+        return "{$this->getSkinTypeDir()}/{$this->skinName}";
+    }
+
+    /**
+     * @return string filesystem-accessible path to the skin type directory. This is useful for shared components *across* skins.
+     */
+    function getSkinTypeDir()
+    {
+        return WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS) . '/' . $this->delegateName;
     }
 
     /**
@@ -583,6 +591,7 @@ class WFSkin extends WFObject
         $smarty->assign('skinThemeAssetsDir', $this->getSkinThemeAssetsDir() );
         // FS paths of things
         $smarty->assign('skinTemplatesDir', $skinTemplatesDir);
+        $smarty->assign('skinTypeDir', $this->getSkinTypeDir());
 
         // build the <head> section
         $smarty->assign('skinPhocoaHeadTpl', WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/head.tpl');
