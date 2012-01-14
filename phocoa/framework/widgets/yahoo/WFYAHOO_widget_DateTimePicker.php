@@ -201,8 +201,10 @@ class WFYAHOO_widget_DateTimePicker extends WFYAHOO
         }
 
         // parse & validate time
-        if (! $timePartEntered)
+        if (!$timePartEntered)
+        {
              $this->addError(new WFError("Please enter a time.")); 
+        }
         else 
         {
             $timePart = date_parse($this->timePicker->value());
