@@ -167,7 +167,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
 
     function setPopupSelections($selections)
     {
-         $items = split(', ', urldecode($selections));
+         $items = explode(', ', urldecode($selections));
          foreach ($items as $item) {
              $this->popupSelections[$item] = 1;
          }
@@ -463,7 +463,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
             if ($this->isTaxonomyAttribute())
             {
                 // COOKIE TRAIL
-                $cPath = split("\t", $this->dieselSearchHelper->getAttributeSelection($this->attributeID));
+                $cPath = explode("\t", $this->dieselSearchHelper->getAttributeSelection($this->attributeID));
                 $cPathCount = count($cPath);
                 if ($cPathCount > 0)
                 {
@@ -490,7 +490,7 @@ class WFDieselFacet extends WFWidget implements WFDieselSearchHelperStateTrackin
         }
         if ($maxLength && strlen($html) > $maxLength)
         {
-            $pieces = split(',', $html);
+            $pieces = explode(',', $html);
             $html = NULL;
             foreach ($pieces as $piece) {
                 $html .= $piece;
