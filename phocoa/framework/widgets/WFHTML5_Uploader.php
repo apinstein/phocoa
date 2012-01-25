@@ -397,7 +397,7 @@ function() {
                 var thumbHTML = '&nbsp;';
                 if (file.thumb)
                 {
-                    thumbHTML = '<img src="'+file.thumb+'" style="float: right;"/>';
+                    thumbHTML = '<img s'+'rc="'+file.thumb+'" style="float: right;"/>';
                 }
                 return jQuery('<tr>' +
                     '<td width="175">' + file.name + '<\/td>' +
