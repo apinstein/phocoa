@@ -236,6 +236,10 @@ class WFRequestController extends WFObject
             }   
 
             print $html;
+        } catch (WFRequestController_RedirectException $e) {
+            header("HTTP/1.1 {$e->getCode()}");
+            header("Location: {$e->getRedirectURL()}");
+            exit;
         } catch (WFRequestController_HTTPException $e) {
             header("HTTP/1.0 {$e->getCode()}");
             print $e->getMessage();
@@ -254,9 +258,6 @@ class WFRequestController extends WFObject
             $_SERVER['REQUEST_URI'] = $e->getRedirectURL();
             WFLog::log("Internal redirect to: {$_SERVER['REQUEST_URI']}");
             self::handleHTTPRequest();
-            exit;
-        } catch (WFRequestController_RedirectException $e) {
-            header("Location: " . $e->getRedirectURL());
             exit;
         } catch (WFRedirectRequestException $e) {
             header("Location: " . $e->getRedirectURL());
@@ -430,13 +431,31 @@ class WFRedirectRequestException extends WFException
     }
 }
 
-class WFRequestController_RedirectException extends WFRedirectRequestException {}
 class WFRequestController_InternalRedirectException extends WFRedirectRequestException {}
 class WFRequestController_NotFoundException extends WFException {}
 class WFRequestController_BadRequestException extends WFException {}
 class WFRequestController_HTTPException extends WFException
 {
     public function __construct($message = NULL, $code = 500) { parent::__construct($message, $code); }
+}
+class WFRequestController_RedirectException extends WFRequestController_HTTPException
+{
+    protected $redirectUrl;
+
+    /**
+     * By default use http code 302, but allow user to override it
+     * to use e.g. a 301.
+     */
+    public function __construct($url, $code = 302)
+    {
+        $this->redirectUrl = $url;
+        return parent::__construct($url, $code);
+    }
+
+    public function getRedirectURL()
+    {
+        return $this->redirectUrl;
+    }
 }
 
 /**
