@@ -1,4 +1,5 @@
     <title>{$skinTitle}</title>
+    <meta http-equiv="Content-Type" content="text/html; charset={$skinCharset}" />
     <meta name="description" content="{$skinMetaDescription}" />
     <meta name="keywords" content="{$skinMetaKeywords}" />
     <link rel="stylesheet" type="text/css" href="{php}echo WFWebApplication::webDirPath(WFWebApplication::WWW_DIR_FRAMEWORK);{/php}/phocoa.css" />

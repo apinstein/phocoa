@@ -577,6 +577,7 @@ class WFSkin extends WFObject
         $smarty->assign('skinTitle', $this->title);
         $smarty->assign('skinMetaKeywords', join(',', $this->metaKeywords));
         $smarty->assign('skinMetaDescription', $this->metaDescription);
+        $smarty->assign('skinCharset', $this->charset);
         $smarty->assign('skinBody', $this->body);
         $smarty->assign('skinHeadStrings', join("\n", array_values($this->headStrings)));
         $smarty->assign('phocoaDebug', WFWebApplication::sharedWebApplication()->debug());
