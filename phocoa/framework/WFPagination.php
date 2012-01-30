@@ -1174,7 +1174,18 @@ class WFPagedPDOQuery implements WFPagedData
 
         if ($this->options[self::OPT_COUNT_QUERY_ROWS_MODE] === true)
         {
-            $countSQL = "select count(*) from (select count(*) " . $matches[1] . ") as queryRows";
+            // To be backwards-compatible we'll check how many times the word "from" is used. If it's
+            // exactly one, we'll use the performance trick we were using before. Otherwise we'll wrap
+            // the whole query (select, order by, and all) in the select count(*) block. It's less
+            // performant but allows us to use subselects both before AND after the start of the FROM
+            // block.
+            $numberOfFroms = preg_match('/^\bfrom\b$/', $this->baseSQL);
+            if ($numberOfFroms == 1)
+            {
+                $countSQL = "select count(*) from (select count(*) " . $matches[1] . ") as queryRows";
+            } else {
+                $countSQL = "select count(*) from ({$this->baseSQL}) as queryRows";
+            }
         }
         else
         {
