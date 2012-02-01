@@ -356,7 +356,8 @@ function() {
             sequentialUploads: {$sequentialUploads},
             beforeSend: function (event, files, index, xhr, handler, callBack) {
                 jQuery('#{$this->id}_table, #{$this->id}_progressAll').show();
-                if ({$maxUploadBytesJSON} && files[index].fileSize > {$maxUploadBytesJSON})
+                var fileSize = files[index].fileSize ? files[index].fileSize : files[index].size  // Firefox calls it file.size instead of file.fileSize
+                if ({$maxUploadBytesJSON} && fileSize > {$maxUploadBytesJSON})
                 {
                     var json = {
                         'name': files[index].name,
