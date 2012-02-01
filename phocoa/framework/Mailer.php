@@ -100,6 +100,12 @@ class Mail_Mailer
      * @var string The TEXT message.
      */
     protected $raw_message_text;
+    /**
+     * @var boolean HTML-ify plain text ONLY emails by converting URLs to <a> tags.
+     *              Fixes an issue rendering long links in MS Outlook, where it would
+     *              truncate the link at the line break.
+     */
+    protected $htmlify_plain_text_only_messages;
     
     /**
      * Constructor. Initializes object.
@@ -128,6 +134,7 @@ class Mail_Mailer
         $this->pear_mailer_config   = $config;
         $this->raw_message_html     = '';
         $this->raw_message_text     = '';
+        $this->htmlify_plain_text_only_messages = false;
     }
 
     /**
@@ -287,6 +294,15 @@ class Mail_Mailer
     }
 
     /**
+     * Set htmlify_plain_text_only_messages.
+     * @param $htmlify boolean True to htmlify plain text only messages, false to not.
+     */
+    function setHtmlifyPlainTextOnlyMessages($htmlify = false)
+    {
+        $this->htmlify_plain_text_only_messages = $htmlify;
+    }
+
+    /**
      * Set the subject line of the message.
      * @param $subj string The subject.
      */
@@ -338,6 +354,21 @@ class Mail_Mailer
     function getMessageTEXT()
     {
         return $this->raw_message_text;
+    }
+
+    function htmlify()
+    {
+        // If htmlify-ing is turned off, don't do anything
+        if (!$this->htmlify_plain_text_only_messages) return;
+
+        // If the message has an HTML part, don't do anything
+        if ($this->getMessageHTML()) return;
+
+        // Otherwise htmlify the text part of the message and slam it into the html part of the email
+        $htmlMessage = $this->getMessageTEXT();
+        $htmlMessage = preg_replace('/(https?:\/\/[^\n\t ]+)/', '<a href="$1">$1</a>', $htmlMessage);  // Use a regex to detect all URLs and wrap them in <a> tags
+        $htmlMessage = "<pre>{$htmlMessage}</pre>";                                                    // Wrap the message in a <pre> tag
+        $this->setMessageHTML($htmlMessage);                                                           // Slam the htmlified version of the plain text into the HTML part of the email
     }
 
     /**
@@ -477,9 +508,13 @@ class Mail_Mailer
         // Add an x-mailer; reduces chance of being flagged as SPAM
         $headers["X-Mailer"] = "PHOCOA Web Framework Mailer";
 
+        // Right before we pull the body text/html, HTMLify the message if it
+        // meets the criteria for HTMLification. This function does nothing
+        // if htmlify_plain_text_only_messages is turned off.
+        $this->htmlify();
+
         // use PEAR::Mail_Mime to format message
         $mm = new Mail_Mime();
-
         @$mm->setTXTBody($this->raw_message_text);
         if ($this->raw_message_html) {
             @$mm->setHTMLBody($this->raw_message_html);
