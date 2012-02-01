@@ -556,7 +556,8 @@ class Mail_Mailer
      */
     function emailOK($addr)
     {
-        return (preg_match("/[A-z0-9._-]+@[A-z0-9-]+\.[A-z0-9-\.]*[A-z]+$/", $addr) == 1);
+        // This should be the same regex as in WFKeyValueValidators. Probably should use a constant.
+        return (preg_match('/^[_A-Za-z0-9-\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$/', $addr) == 1);
     }
 }
 
