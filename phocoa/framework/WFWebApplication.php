@@ -226,6 +226,24 @@ class WFWebApplication extends WFObject
         }
     }
 
+    /**
+     * Get a cache-busting URL to the given asset path in the www/ directory.
+     *
+     * @param string A path to the desired asset file relative to the www/ directory.
+     * @return string A domain-relative absolute path to the given www asset with a cache-busting query parameter appended.
+     * @todo A future version of this might cache-bust with an inline directory version ie /www/v1/... Might be easier to use on the back-end.
+     *       Would have to be coordinated with httpd.conf etc
+     */
+    public static function wwwAssetUrl($wwwAssetPath)
+    {
+        $fsPath = self::appDirPath(self::DIR_WWW) . "/{$wwwAssetPath}";
+        if (!file_exists($fsPath)) throw new WFRequestController_NotFoundException("www asset '{$wwwAssetPath}' does not exist at '{$fsPath}'.");
+
+        $webPath = self::webDirPath(self::WWW_DIR_BASE) . "/{$wwwAssetPath}";
+        $fileVersion = date('Ymd-His', filemtime($fsPath));
+        return "{$webPath}?{$fileVersion}";
+    }
+
     /** DELEGATE WRAPPER METHODS BELOW */
 
     /**
