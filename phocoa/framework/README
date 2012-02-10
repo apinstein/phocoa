@@ -40,6 +40,7 @@ svn st | grep '^?' | awk '{ print $2; }' | xargs svn add
 TODO
 
 1.0 Milestone:
+- Cleanup WFUpload/WFUploading. I somehow goofed and committed early. There are multiple copies of things...
 - DEPLOYMENT AND PROJECT MANAGEMENT
   - Rakefile
     - bootstrap Rakefile conf file, properties.yml template, etc
