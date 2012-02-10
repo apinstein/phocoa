@@ -83,12 +83,17 @@ class login extends WFModule
             $this->gotoURL($continueURL);
         }
         
+        $signUpURL = NULL;
+        if (method_exists($ac->delegate(), 'signUpURL')) $signUpURL = $ac->delegate()->signUpURL();
+
         // continue to normal promptLogin setup
         $page->assign('loginMessage', $ac->loginMessage());
         $page->assign('usernameLabel', $ac->usernameLabel());
         $page->outlet('rememberMe')->setHidden( !$ac->shouldEnableRememberMe() );
         $page->outlet('forgottenPasswordLink')->setHidden( !$ac->shouldEnableForgottenPasswordReset() );
         $page->outlet('forgottenPasswordLink')->setValue( WFRequestController::WFURL('login', 'doForgotPassword') . '/' . $page->outlet('username')->value());
+        $page->outlet('signUpLink')->setHidden($signUpURL === NULL);
+        $page->outlet('signUpLink')->setValue($signUpURL);
 
         if (!$page->hasSubmittedForm())
         {

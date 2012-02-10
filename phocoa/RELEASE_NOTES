@@ -10,6 +10,7 @@ Legend:
                               WF_LOG_DEPRECATED && WFLog::deprecated("MyObj::foo() is deprecated. Use MyObj::bar().");
 
 Version 0.4.1 - ??
+- [new] Log in module now supports WFAuthorization signUpURL() delegate function to provide a WFURL to a module that the end user can sign up on.
 
 Version 0.4.0 - 4/26/2011
 - [improved] Refactored WFErrorArray and WFErrorsException to implement a new interface WFErrorCollection.
