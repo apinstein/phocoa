@@ -89,6 +89,9 @@ class login extends WFModule
         $page->outlet('rememberMe')->setHidden( !$ac->shouldEnableRememberMe() );
         $page->outlet('forgottenPasswordLink')->setHidden( !$ac->shouldEnableForgottenPasswordReset() );
         $page->outlet('forgottenPasswordLink')->setValue( WFRequestController::WFURL('login', 'doForgotPassword') . '/' . $page->outlet('username')->value());
+        $page->outlet('signUp')->setLabel( $ac->signUpLabel() );
+        $page->outlet('signUp')->setValue( $ac->signUpUrl() );
+        $page->outlet('signUp')->setHidden( $ac->signUpUrl() === NULL );
 
         if (!$page->hasSubmittedForm())
         {
