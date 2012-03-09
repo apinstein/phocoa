@@ -10,6 +10,8 @@ loginForm:
       class: 'WFCheckbox'
     continueURL: 
       class: 'WFHidden'
+    signUp:
+      class: 'WFLink'
     login: 
       class: 'WFSubmit'
       properties: 

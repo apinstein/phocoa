@@ -73,6 +73,22 @@ class WFAuthorizationDelegate extends WFObject
     function shouldEnableRememberMe() {}
 
     /**
+     *  The label for the sign-up link.
+     *
+     *  @return string The label for the sign-up link. Default: Sign Up
+     */
+    function signUpLabel() {}
+
+    /**
+     *  The URL for the sign-up link.
+     *
+     *  If NULL, the sign-up link will not be shown.
+     *
+     *  @return string The url for the sign-up link. Default: NULL
+     */
+    function signUpUrl() {}
+
+    /**
      *  Delegate should return the "token" to persist via a long-term cookie. This exact token will be passed back in when trying to do a rememberMe login.
      *
      *  SECURITY RECOMMENDATION:
@@ -705,6 +721,46 @@ class WFAuthorizationManager extends WFObject
         }
 
         return $usernameLabel;
+    }
+
+    /**
+     *  The label for the sign up link on the login form.
+     *
+     *  Will call the login delegate method.
+     *
+     *  @return string The label for the sign up link. DEFAULT: 'Sign Up'.
+     *  @see WFAuthorizationDelegate::signUpLabel()
+     */
+    function signUpLabel()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for signUpLabel.") );
+
+        if (method_exists($this->authorizationDelegate, 'signUpLabel'))
+        {
+            return $this->authorizationDelegate->signUpLabel();
+        }
+
+        return 'Sign Up';
+    }
+
+    /**
+     *  The URL for the sign up link on the login form.
+     *
+     *  Will call the login delegate method.
+     *
+     *  @return string The URL for the sign up link. DEFAULT: NULL.
+     *  @see WFAuthorizationDelegate::signUpUrl()
+     */
+    function signUpUrl()
+    {
+        if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for signUpUrl.") );
+
+        if (method_exists($this->authorizationDelegate, 'signUpUrl'))
+        {
+            return $this->authorizationDelegate->signUpUrl();
+        }
+
+        return NULL;
     }
 
     /**
