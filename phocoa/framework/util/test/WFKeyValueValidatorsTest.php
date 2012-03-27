@@ -61,4 +61,27 @@ class WFKeyValueValidatorsTest extends PHPUnit_Framework_TestCase
             array('a@l', 'same', false, array('requireRealDomains' => false)),          // tld must be 2+ chars even with requireRealDomains = false
         );
     }
+
+    /**
+     * @dataProvider urlValidationDataProvider
+     */
+    function testUrlValidation($input, $expectedOutput, $expectedValid, $options = array())
+    {
+        $edited = false;
+        $errors = new WFErrorArray;
+        $ok     = (bool)WFKeyValueValidators::validateUrl($input, $edited, $errors, $options);
+        $this->assertEquals( ($expectedValid === true ? true : false), $ok);
+        $this->assertEquals($expectedOutput, $input);
+    }
+    function urlValidationDataProvider()
+    {
+        return array(
+            //    Input                     Output                    Valid?  Options
+            array('http://www.foobar.com',  'http://www.foobar.com',  true),
+            array('https://www.foobar.com', 'https://www.foobar.com', true),
+            array('www.foobar.com',         'http://www.foobar.com',  true),
+            array(NULL,                     NULL,                     false), // Field is required
+            array(NULL,                     NULL,                     true,   array('required' => false)),
+        );
+    }
 }
