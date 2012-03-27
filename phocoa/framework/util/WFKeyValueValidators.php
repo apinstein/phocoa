@@ -135,7 +135,8 @@ class WFKeyValueValidators extends WFObject
             }
         }
 
-        if (strncasecmp('http://', $value, 7) !== 0)
+        // Support both http and https schemes
+        if (strncasecmp('http://', $value, 7) !== 0 && strncasecmp('https://', $value, 8))
         {
             $value = 'http://' . $value;
         }
