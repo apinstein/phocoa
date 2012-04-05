@@ -367,8 +367,8 @@ class Mail_Mailer
         // Otherwise htmlify the text part of the message and slam it into the html part of the email
         $htmlMessage = $this->getMessageTEXT();
         $htmlMessage = preg_replace('/(https?:\/\/\S+)/', '<a href="$1">$1</a>', $htmlMessage);  // Use a regex to detect all URLs and wrap them in <a> tags
-        $htmlMessage = "<pre>{$htmlMessage}</pre>";                                                    // Wrap the message in a <pre> tag
-        $this->setMessageHTML($htmlMessage);                                                           // Slam the htmlified version of the plain text into the HTML part of the email
+        $htmlMessage = "<pre style='font-size: 16px;'>{$htmlMessage}</pre>";                     // Wrap the message in a <pre> tag
+        $this->setMessageHTML($htmlMessage);                                                     // Slam the htmlified version of the plain text into the HTML part of the email
     }
 
     /**
