@@ -586,7 +586,7 @@ class WFPaginator extends WFObject
      */
     function setPageSize($sz)
     {
-        if ($sz <= 0) throw new WFException("Paginator page size cannot be less than 1.");
+        if ($sz != WFPaginator::PAGINATOR_PAGESIZE_ALL and $sz < 1) throw new WFException("Paginator page size must be a positive integer, or -1 (WFPaginator::PAGINATOR_PAGESIZE_ALL).");
         $this->pageSize = $sz;
     }
 
