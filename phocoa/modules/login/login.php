@@ -145,6 +145,9 @@ class login extends WFModule
     }
     function doForgotPassword_PageDidLoad($page, $params)
     {
+        // IE sometimes lower-cases URLs for some reason. Help it out.
+        if (!$page->hasOutlet('username')) throw new WFRequestController_RedirectException(WFRequestController::WFURL($page->module()->moduleName(), 'doForgotPassword'));
+
         $ac = WFAuthorizationManager::sharedAuthorizationManager();
         $page->outlet('username')->setValue($params['username']);
         $page->assign('usernameLabel', $ac->usernameLabel());
