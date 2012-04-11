@@ -9,7 +9,7 @@ if (!$ok) throw new WFException("Error registering WFIncluding::autoload()");
 
 // This version number should be updated with each release - this version number, among other things, is used to construct version-unique URLs for static resources
 // thus anytime anything in wwwroot/www/framework changes, this should be bumped. This version string should match [0-9\.]*
-define('PHOCOA_VERSION', '0.3.9');
+define('PHOCOA_VERSION', '0.4.1');
 // PHOCOA shows all deprecation notices by default in wf.log on non-production hosts.
 if (!defined('WF_LOG_DEPRECATED'))
 {

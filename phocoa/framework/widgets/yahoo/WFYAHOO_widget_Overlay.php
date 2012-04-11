@@ -95,6 +95,11 @@ class WFYAHOO_widget_Overlay extends WFYAHOO_widget_Module
         $this->fixedcenter = $b;
     }
 
+    function setConstrainToViewport($b)
+    {
+        $this->constraintoviewport = $b;
+    }
+
     /**
      *  Set the width of the module.
      *

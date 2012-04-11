@@ -9,7 +9,10 @@ Legend:
                   DEVELOPERS: Be sure to fire deprecation notices like so:
                               WF_LOG_DEPRECATED && WFLog::deprecated("MyObj::foo() is deprecated. Use MyObj::bar().");
 
-Version 0.4.0 - ??
+Version 0.4.1 - ??
+- [improved] Complete refactor of faceted navigation to isolate faceted navigation services from the the faceted navigation concept. Now we can use a single WFFacetedSearch interface for application development and have pluggable back-end faceted search providers.
+
+Version 0.4.0 - 4/26/2011
 - [improved] Refactored WFErrorArray and WFErrorsException to implement a new interface WFErrorCollection.
 - [new] Phocoa now includes a PropelException subclass WFPropelException to allow you to play nice with propel nested transactions while still supporting phocoa model error reporting.
 - [new] Add WFDecorator support to KVC. You can now use the [WFDecorator] syntax inside of KVC keyPaths to auto-wrap objects in decorators. Works on arrays as well.
@@ -25,8 +28,27 @@ Version 0.4.0 - ??
                   setRequestData($data)
                   setFormData($formId, $formData, $formSubmitButton = NULL)
                   setExpectRedirectException($url, $class = 'WFRedirectRequestException')
-- [improved] Complete refactor of faceted navigation to isolate faceted navigation services from the the faceted navigation concept. Now we can use a single WFFacetedSearch interface for application development and have pluggable back-end faceted search providers.
 - [new] Added WFView->allChildren() to allow easy recursive iteration of all child views.
+- [new] Added support for coalescing KVC. You can now separate keyPaths with ; and the first non-null value will be used. The string after the final ; is used if all keyPaths return null.
+- [new] Added a WFPagedPropelModelCriteria to add phocoa pagination support for Propel 1.5's new query infrastructure.
+- [new] Added WFAuthorizationInfo->loginAsAuthorizationInfo($authInfo) function to make it easy to implement SSO or user-switching functionality.
+- [new] Add this() function to WFObject to make it easier to use KVC magic on "current" object.
+- [new] Add a smarty modifier plugin to json encode data.
+- [new] Add nullPlaceholder support to WFYAHOO_widget_AutoComplete.
+- [new] Add support for tabIndex to WFWidget. Add to WFCheckbox, WFTextField, WFSelect.
+- [new] Added an "escape hatch" modifier to KVC. "relatedObject^.foo" will now return NULL rather than throwing a WFUndefinedKeyException.
+- [new] Add an new KVC magic array operator: @firstNotNull which returns the first non-null result from the array.
+- [new] Add WFDictionary object, a KVC-compliant hash object -- great for using widgets with transient data structures.
+- [improved] WFViewHiddenHelper and WFShowErrors have been updated to automagically work for WFDynamic's with oneShotMode enabled.
+- [bugfix] Fix nullPlaceholders in WFTextField and WFTextArea. They weren't italicizing on initial load or if the value was the same as the nullPlaceholder.
+- [improved] Make WFCheckbox.label support multi-value pattern bindings.
+- [improved] YAHOO_widget_AutoComplete now supports passing back additional arguments into the callback via a PHOCOA.widgets.<acId>.yuiDelegate.dynamicDataLoaderCollectArguments function.
+- [new] YAHOO_widget_TabView is now augmented with a goToTab(id) function that allows you to activate a tab by its phocoa ID.
+- [improved] PHOCOA now catches all PHP fatal errors (in addition to the previously caught uncaught exceptions) and routes them through the default WFRequestController::handleException()
+             which of course includes WFWebApplicationDelegate::handleUncaughtException().
+             These improvements allow truly unified error/exception handling and have even been structured so that you can report on parse errors and OOMs through your normal channels.
+             PHOCOA also allocates 25MB more memory so that even in OOM situations you have enough memory to fire off an email, do logging, and display a pretty error message.
+             This is a huge benefit for handling errors in production.
 
 Version 0.3.9 - 10/21/2010
 - [new] Add WFRequestController->isMobileBrowser()
@@ -40,6 +62,8 @@ Version 0.3.9 - 10/21/2010
 - [bugfix] WFPageDelegate.willPushBindings() is no longer called if pushBindings() doesn't run. Previously the willPushBindings() delegate method would run even on an initial page load.
 - [bugfix] Fix for WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE which was accidentally causing a logic error even on widgets that did not use the feature. This caused bindings not to be pushed if the value was NULL. This broke many radio buttons, checkboxes, and dropdowns.
 - [new] Add optional error code injection into WFKeyValueValidators::validateUrl()
+- [new] Add WFObject::destroy() function to provide a canonical pathway for breaking circular references for pre-5.3 memory management.
+- [new] Add WFBlueimp_JqueryFileUpload widget for HTML5 drag-n-drop upload.
 
 Version 0.3.8 - 9/15/2010
 - [new] add WFWebApplicationDelegate::rerouteInvocationPath() function to allow routing customizations.

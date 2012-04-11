@@ -61,6 +61,10 @@ class WFCheckbox extends WFWidget
      * @var string The position of the labels in HTML. 'left' will put the <label> first; 'right' will put it after the checkbox.
      */
     protected $labelPosition;
+    /**
+     * @var string The "title" attribute. HTML standard tooltip.
+     */
+    protected $title;
 
     /**
       * Constructor.
@@ -74,6 +78,7 @@ class WFCheckbox extends WFWidget
         $this->groupMode = false;
         $this->label = '';
         $this->labelPosition = 'right';
+        $this->title = '';
     }
 
     function setGroupMode($enabled)
@@ -199,7 +204,10 @@ class WFCheckbox extends WFWidget
     {
         $myBindings = parent::setupExposedBindings();
         $myBindings[] = new WFBindingSetup('value', 'The value of the checkbox -- this will be either checkedValue or uncheckedValue depending on the checked status.');
-        $myBindings[] = new WFBindingSetup('label', 'The label for the checkbox -- Text to label the checkbox with, or empty.');
+        $label = new WFBindingSetup('label', 'The label for the checkbox -- Text to label the checkbox with, or empty.', array(WFBinding::OPTION_VALUE_PATTERN => WFBinding::OPTION_VALUE_PATTERN_DEFAULT_PATTERN));
+        $label->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $label->setReadOnly(true);
+        $myBindings[] = $label;
         $myBindings[] = new WFBindingSetup('checkedValue', 'The value of the checkbox to use if it is checked.');
         $myBindings[] = new WFBindingSetup('uncheckedValue', 'The value of the checkbox to use if it is not checked.');
         return $myBindings;
@@ -226,17 +234,24 @@ class WFCheckbox extends WFWidget
         {
             $labelRight = NULL;
         }
-        return $labelLeft . '<input type="checkbox" ' .
-                    'name="' . $this->name() . ($this->groupMode() ? '[]' : '') . '" ' .
+        $inputName = $this->name() . ($this->groupMode() ? '[]' : '');
+        $html = $labelLeft . '<input type="checkbox" ' .
+                    'name="' . $inputName . '" ' .
                     ($this->class ? ' class="' . $this->class . '" ' : '') .
                     'id="' . $this->id() . '" ' .
                     'value="' . $this->checkedValue() . '" ' .
                     ($this->checked() ? ' checked="checked" ' : '') .
                     ($this->enabled() ? '' : ' disabled readonly ') .
+                    ($this->tabIndex ? ' tabIndex="' . $this->tabIndex . '" ' : NULL) .
+                    ($this->title ? ' title="' . $this->title . '" ' : NULL) .
                     ' />' . 
                     $labelRight .
                     $this->getListenerJSInScriptTag();
-     
+        if (!$this->enabled() && $this->checked())
+        {
+            $html .= "<input type=\"hidden\" name=\"{$inputName}\" value=\"{$this->checkedValue()}\" />";
+        }
+        return $html;
     }
 
     function canPushValueBinding() { return true; }

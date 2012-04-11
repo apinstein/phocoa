@@ -26,7 +26,7 @@ function smarty_block_WFViewHiddenHelper($params, $content, &$smarty, &$repeat)
     if (!isset($content)) return;
 
     // unwind WFDynamic
-    if ($o instanceof WFDynamic)
+    if ($o instanceof WFDynamic and !$o->valueForKeyPath('oneShotMode'))
     {
         $o = $o->getLastRenderedWidget();
     }

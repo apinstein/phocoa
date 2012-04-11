@@ -461,14 +461,21 @@ class WFArrayController extends WFObjectController implements Iterator
         }
         if (!is_array($arr) and !($arr instanceof ArrayObject)) throw( new WFException("The passed content must be a PHP array.") );
 
-        // clear content
-        $this->content = array();
-        // reset selection
-        $this->selectedIdentifiersHash = array();
+        $this->clearContent();
 
         // add all objects via addObjects() so that ids can be generated as needed.
         $this->addObjects($arr);
     }
+
+    /**
+     * Clear the content.
+     */
+    function clearContent()
+    {
+        $this->content = array();
+        $this->selectedIdentifiersHash = array();
+    }
+
 
     /**
      * Get all of the objects managed by this controller.

@@ -435,6 +435,16 @@ class WFAuthorizationManager extends WFObject
     }
 
     /**
+      * Get the WFAuthorizationDelegate set for the WFAuthorizationManager.
+      *
+      * @return object An object that implements WFAuthorizationDelegate.
+      */
+    function delegate()
+    {
+        return $this->authorizationDelegate;
+    }
+
+    /**
       * Logout the current session.
       */
     function logout()
@@ -466,12 +476,7 @@ class WFAuthorizationManager extends WFObject
         $result = $this->authorizationDelegate->login($username, $password, $passIsToken);
         if ($result instanceof WFAuthorizationInfo)
         {
-            // means login succeeded!
-            $this->authorizationInfo = $result;
-
-            $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_LOGGED_IN] = true;
-            $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_AUTHORIZATION_INFO] = $this->authorizationInfo;
-            $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = time();
+            $this->loginAsAuthorizationInfo($result);
 
             return true;
         }
@@ -482,6 +487,24 @@ class WFAuthorizationManager extends WFObject
 
             return false;
         }
+    }
+
+    /**
+     * Change the current session authorization info to the specified WFAuthorizationInfo object.
+     *
+     * This is useful for SSO or other internal user-switching capabilities.
+     *
+     * @param object WFAuthorizationInfo The new authorization info to set for the current session.
+     */
+    function loginAsAuthorizationInfo($authInfo)
+    {
+        if (!$authInfo instanceof WFAuthorizationInfo) throw new WFException("WFAuthorizationInfo or subclass required.");
+
+        $this->authorizationInfo = $authInfo;
+
+        $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_LOGGED_IN] = true;
+        $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_AUTHORIZATION_INFO] = $this->authorizationInfo;
+        $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = time();
     }
 
     /**

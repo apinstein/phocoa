@@ -1,0 +1,55 @@
+#!/usr/bin/env php
+<?php
+/* vim: set syntax=php expandtab tabstop=4 shiftwidth=4: */
+/**
+ * Created by CLImax http://github.com/apinstein/climax
+ * Fri, 18 Mar 2011 22:53:57 -0400
+ */
+
+// bootstrap project
+require_once getenv('PHOCOA_PROJECT_CONF');
+
+// this is a CLIMax app
+require_once "climax/CLImax.php";
+
+class PhocoaTest extends CLIMax_BaseCommand
+{
+
+    public function run($arguments, CLImaxController $cliController)
+    {
+        require_once 'PHPUnit/Autoload.php';
+
+        array_unshift($arguments, 'fake-phpunit-program');
+
+        $command = new PHPUnit_TextUI_Command;
+        $command->run($arguments);
+        return 0;
+    }
+
+    public function getDescription($aliases, $argLinker) {
+        return 'Run PHPUnit bootstrapped to this install. Pass whatever arguments you would normally pass to phpunit.';
+    }
+
+}
+
+class PhocoaSpec extends PhocoaTest
+{
+
+    public function run($arguments, CLImaxController $cliController)
+    {
+        array_unshift($arguments, '--testdox');
+
+        return parent::run($arguments, $cliController);
+    }
+
+    public function getDescription($aliases, $argLinker) {
+        return 'Print out the spec document for the given entity.';
+    }
+
+}
+
+// WIRE UP APPLICTION
+CLImaxController::create()
+                  ->addCommand(new PhocoaTest, array("phpunit", "test"))
+                  ->addCommand(new PhocoaSpec, array("spec"))
+                  ->run($argv, $argc);

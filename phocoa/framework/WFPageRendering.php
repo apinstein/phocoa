@@ -15,7 +15,7 @@ interface WFPageRendering
      * @param string Name of the variable.
      * @param mixed Value of the variable.
      */
-    function assign($name, $value);
+    function assign($name, $value = NULL);
 
     /**
      * Get the value of a previously assigned variable.

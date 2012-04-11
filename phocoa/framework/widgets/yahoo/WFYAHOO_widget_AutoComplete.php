@@ -10,6 +10,16 @@
 
 /**
  * A YAHOO AutoComplete widget for our framework. This widget acts like a ComboBox: it is a text field with a pick-list and OPTIONAL custom entry.
+ *
+ * Must call either {@link WFYAHOO_widget_AutoComplete::setDatasourceJSArray() setDatasourceJSArray} (for static lists) or {@link WFYAHOO_widget_AutoComplete::setDynamicDataLoader() setDynamicDataLoader} (for dynamic lookup of autocomplete options) to complete configuration.
+ *
+ * If you are using dynamic lookups, you will need to implement a page delegate function with the name passed to setDynamicDataLoader.
+ * This function should return an array of arrays; if you are not using a custom schema, should be array(array('ac 1'), array('ac 2'), ...).
+ * For custom schemas, the inner arrays should have 1 element for each item in the schema.
+ *
+ * By default the prototype for the callback function is myDataLoader($page, $params, $query) where $query is the partially-entered data.
+ * If you need additional arguments for the callback, define a PHOCOA.widgets.<acId>.yuiDelegate.dynamicDataLoaderCollectArguments function that returns an array of additional arguments
+ * which will be passed in like so: myDataLoader($page, $params, $query, $additionalArg1, $additionalArg2, ...)
  * 
  * <b>PHOCOA Builder Setup:</b>
  *
@@ -18,7 +28,6 @@
  * 
  * <b>Optional:</b><br>
  *
- * @todo AJAX lookups seem to be failing... JSON is getting returned but no results displayed.
  */
 class WFYAHOO_widget_AutoComplete extends WFYAHOO
 {
@@ -40,7 +49,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     /**
      * @var string The css height of the input. Remember to specify like "200px" or "15em". Only used for INPUT_TYPE_TEXTAREA. Default: 50px.
      */
-    protected $height = '50px';
+    protected $height = '1em';
     /**
      * @var string The css width of the autocomplete box. Remeber to specify like "100px" or "80%". Default: 100%.
      */
@@ -109,6 +118,10 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
      * @var boolean True to show the container even if there is no text entered. Default: false. Useful in conjunction with {@link WFYAHOO_widget_AutoComplete::$minQueryLength minQueryLength}.
      */
     protected $alwaysShowContainer = NULL;
+    /**
+     * @var string A NULL placeholder
+     */
+    protected $nullPlaceholder = NULL;
 
     /**
      * @var integer Which of the DATASOURCE_* methods will be used for this instance.
@@ -142,6 +155,12 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         $this->yuiloader()->yuiRequire('autocomplete');
 
         $this->initializeWaitsForID = "WFYAHOO_widget_AutoComplete_{$this->id}_container";
+        $this->nullPlaceholder = NULL;
+    }
+
+    public function setNullPlaceholder($v)
+    {
+        $this->nullPlaceholder = $v;
     }
 
     /**
@@ -192,12 +211,12 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         $this->dynamicDataLoaderSchema = $schema;
     }
 
-    public function ajaxLoadData($page, $params)
+    public function ajaxLoadData()
     {
-        if (!isset($_REQUEST['query'])) throw( new WFException("No query passed to ajaxLoadData.") );
+        $callbackArgs = func_get_args();    // $page, $params, $query, ... <custom args>
 
         // perform query
-        $callbackResults = call_user_func($this->dynamicDataLoader, $page, $params, $_REQUEST['query']);
+        $callbackResults = call_user_func_array($this->dynamicDataLoader, $callbackArgs);
 
         // initialize results structure
         $results = array();
@@ -277,6 +296,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             'datasourceQueryMatchCase' => array('true', 'false'),
             'datasourceQueryMatchContains' => array('true', 'false'),
             'datasourceQueryMatchSubset' => array('true', 'false'),
+            'nullPlaceholder',
             ));
     }
 
@@ -296,7 +316,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         parent::restoreState();
 
         // look for the things in the form I need to restore state...
-        if (isset($_REQUEST[$this->name]))
+        if (isset($_REQUEST[$this->name]) and $this->nullPlaceholder !== $_REQUEST[$this->name])
         {
             $this->value = $_REQUEST[$this->name];
         }
@@ -313,6 +333,12 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             // sanity checks
             if ($this->datasource === NULL) throw( new WFException("No datasource defined.") );
 
+            if ($this->nullPlaceholder)
+            {
+                $this->setOnEvent('focus do j:PHOCOA.widgets.' . $this->id . '.handleFocus()');
+                $this->setOnEvent('blur do j:PHOCOA.widgets.' . $this->id . '.handleBlur()');
+            }
+
             $html = parent::render($blockContent);
 
             $myAutoCompleteContainer = "WFYAHOO_widget_AutoComplete_{$this->id}_autocomplete";
@@ -323,16 +349,19 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
     position: relative;
     width: {$this->width};
     margin-right: 12px; /* to compensate for browser dressing of input  */
-    " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : 'height: 2.5em;') . "
+    height: {$this->height};
 }
 #{$this->id} {
     width: 100%;
-    " . ($this->inputType == self::INPUT_TYPE_TEXTAREA ? "height: {$this->height};" : '') . "
+    height: {$this->height};
 }
 #{$this->id}_acToggle {
     position: absolute;
     left: {$this->width};
     padding-left: 5px;
+}
+#{$myAutoCompleteContainer} {
+    top: {$this->height};
 }
 .yui-ac .yui-button {vertical-align:middle; }
 .yui-ac .yui-button button {
@@ -345,7 +374,10 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             <div id=\"{$this->initializeWaitsForID}\">";
             if ($this->inputType == self::INPUT_TYPE_TEXTFIELD)
             {
-                $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"" . htmlspecialchars($this->value) ."\" " . $this->classHTML() . " />";
+                $html .= "<input id=\"{$this->id}\" name=\"{$this->id}\" type=\"text\" value=\"" . htmlspecialchars($this->value) ."\" " .
+                         ($this->nullPlaceholder ? ' placeholder="' . htmlspecialchars($this->nullPlaceholder) . '" ' : NULL) .
+                         ($this->tabIndex ? ' tabIndex="' . $this->tabIndex . '" ' : NULL) .
+                         $this->classHTML() . " />";
             }
             else if ($this->inputType == self::INPUT_TYPE_TEXTAREA)
             {
@@ -361,6 +393,48 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
             }
             $html .= "<div id=\"{$myAutoCompleteContainer}\"></div>
             </div>";
+            if ($this->nullPlaceholder)
+            {
+                $escapedNullPlaceholder = json_encode($this->nullPlaceholder);
+                $html .= '<script>
+                PHOCOA.namespace("widgets.' . $this->id . '");
+                PHOCOA.widgets.' . $this->id . '.hasFocus = false;
+                PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
+                    PHOCOA.widgets.' . $this->id . '.hasFocus = true;
+                    if ($F(\'' . $this->id . '\') === ' . $escapedNullPlaceholder . ')
+                    {
+                        $(\'' . $this->id . '\').value = "";
+                    }
+                    $(\'' . $this->id . '\').removeClassName("phocoaWFSearchField_PlaceholderText");
+                };
+                PHOCOA.widgets.' . $this->id . '.handleBlur = function(e) {
+                    PHOCOA.widgets.' . $this->id . '.hasFocus = false;
+                    PHOCOA.widgets.' . $this->id . '.handlePlaceholder();
+                };
+                PHOCOA.widgets.' . $this->id . '.handlePlaceholder = function() {
+                    if (!PHOCOA.widgets.' . $this->id . '.hasFocus)
+                    {
+                        if ($F(\'' . $this->id . '\') === \'\')
+                        {
+                            $(\'' . $this->id . '\').value = ' . $escapedNullPlaceholder . ';
+                            $(\'' . $this->id . '\').addClassName("phocoaWFSearchField_PlaceholderText");
+                        }
+                    }
+                };
+                PHOCOA.widgets.' . $this->id . '.getValue = function() {
+                    var qField = $(\'' . $this->id . '\');
+                    var qVal = null;
+                    if (qField.getAttribute("placeholder") !== $F(qField))
+                    {
+                        qVal = $F(qField);
+                    }
+                    return qVal;
+                };
+                // perform initial check on search field value
+                PHOCOA.widgets.' . $this->id . '.handlePlaceholder();'
+                . $this->getListenerJS() . 
+                '</script>';
+            }
             return $html;
         }
     }
@@ -415,7 +489,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
                     $schema[] = array('key' => $field);
                 }
                 $html .= "
-                    var acDatasource = new YAHOO.util.XHRDataSource(acXHRRPC.actionURL() + '?' + acXHRRPC.actionURLParams() + '&');
+                    var acDatasource = new YAHOO.util.XHRDataSource();
                     acDatasource.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;
                     acDatasource.responseSchema = {
                         resultsList: 'results',
@@ -431,6 +505,22 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         // set up widget
         $html .= "\nvar AutoCompleteWidget = new YAHOO.widget.AutoComplete('{$this->id}','{$myAutoCompleteContainer}', acDatasource);\n";
         $html .= "\nAutoCompleteWidget.queryQuestionMark = false;\n";
+        if ($this->datasource === WFYAHOO_widget_AutoComplete::DATASOURCE_XHR)
+        {
+            $html .= "\n
+var urlGenerator = function(query) {
+    var phocoaArgs = [query];
+    if (PHOCOA.widgets['{$this->id()}'] && PHOCOA.widgets['{$this->id()}'].yuiDelegate && PHOCOA.widgets['{$this->id()}'].yuiDelegate.dynamicDataLoaderCollectArguments)
+    {
+        phocoaArgs.push(PHOCOA.widgets['{$this->id()}'].yuiDelegate.dynamicDataLoaderCollectArguments());
+    }
+    phocoaArgs = phocoaArgs.flatten();
+    var url =  acXHRRPC.actionAsURL(phocoaArgs);
+    return url;
+};
+AutoCompleteWidget.generateRequest = urlGenerator;
+";
+        }
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animVert', $this->animVert);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animHoriz', $this->animHoriz);
         $html .= $this->jsForSimplePropertyConfig('AutoCompleteWidget', 'animSpeed', $this->animSpeed);

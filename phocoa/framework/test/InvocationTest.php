@@ -12,6 +12,9 @@ require_once getenv("PHOCOA_PROJECT_CONF");
 // smarty does bad things if there is NO session info... fake it out.
 $_SESSION = array();
 
+/**
+ * @group requiresPhocoaTestModules
+ */
 class InvocationTest extends PHPUnit_Framework_TestCase
 {
     // normal, allPages OFF

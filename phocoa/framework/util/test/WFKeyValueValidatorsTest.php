@@ -51,6 +51,7 @@ class WFKeyValueValidatorsTest extends PHPUnit_Framework_TestCase
     function emailValidationDataProvider()
     {
         return array(
+            array('a@localhost', 'same', true, array('requireRealDomains' => false)),   // no '.' in domain is actually legit if requireRealDomains = false
             array('a@b.com', 'same', true),
             array(' a@b.com ', 'a@b.com', true),
             array('b.com', 'same', false),

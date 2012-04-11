@@ -219,6 +219,7 @@ PHOCOA.WFRPC = function(url, target, action) {
     this.isAjax = true;
     this.submitButton = null;
     this.method = 'get';
+    this.hideErrorsBeforeExecute = true;
     // yui-style callback
     this.callback = {
             success: null,      // http 2xx, no WFErrorsException
@@ -340,7 +341,10 @@ PHOCOA.WFRPC.prototype = {
         if (this.form)
         {
             // turn off all form errors...
-            $$('.phocoaWFFormError').each( function(e) { e.update(null); } );
+            if (this.hideErrorsBeforeExecute)
+            {
+                $$('.phocoaWFFormError').each( function(e) { e.update(null); } );
+            }
             if ( this.isAjax === false /* refreshPage */)
             {
                 var theForm = $(this.form);

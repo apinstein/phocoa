@@ -4,7 +4,17 @@ class WFYaml
 {
     public static function loadFile($file)
     {
-        if (function_exists('syck_load'))
+        if (function_exists('yaml_parse_file'))
+        {
+            // returns array() if no data, NULL if error.
+            $a = yaml_parse_file($file);
+            if ($a === NULL || $a === false)   // documented to return NULL but sometimes returns FALSE.
+            {
+                throw new WFException("Error processing YAML file: {$file}");
+            }
+            return $a;
+        }
+        else if (function_exists('syck_load'))
         {
             // php-lib-c version, much faster!
             // ******* NOTE: if using libsyck with PHP, you should install from pear/pecl (http://trac.symfony-project.com/wiki/InstallingSyck)
@@ -39,7 +49,17 @@ class WFYaml
      */
     public static function loadString($string)
     {
-        if (function_exists('syck_load'))
+        if (function_exists('yaml_parse'))
+        {
+            // returns array() if no data, NULL if error.
+            $a = yaml_parse($string);
+            if ($a === NULL || $a === false)   // documented to return NULL but sometimes returns FALSE.
+            {
+                throw new WFException("Error processing YAML string.");
+            }
+            return $a;
+        }
+        else if (function_exists('syck_load'))
         {
             // extension version
             $file = tempnam("/tmp", 'syck_yaml_tmp_');
@@ -69,7 +89,11 @@ class WFYaml
      */
     public static function dump($phpData)
     {
-        if (function_exists('syck_dump'))
+        if (function_exists('yaml_emit'))
+        {
+            return yaml_emit($phpData);
+        }
+        else if (function_exists('syck_dump'))
         {
             // php-lib-c version, much faster!
             return syck_dump($phpData);
@@ -81,5 +105,3 @@ class WFYaml
         }
     }
 }
-
-?>

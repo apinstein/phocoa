@@ -208,6 +208,11 @@ class WFPage extends WFObject
         WFLog::log("instantiating a page", WFLog::TRACE_LOG, PEAR_LOG_DEBUG);
     }
 
+    public function destroy($vars = array())
+    {
+        parent::destroy(array('module', 'template', 'delegate', 'instances'));
+    }
+
     public function setIgnoreErrors($bIgnoreErrors)
     {
         $this->ignoreErrors = $bIgnoreErrors;
@@ -602,7 +607,7 @@ class WFPage extends WFObject
         // we want to see if the class is a WFView subclass before instantiating (so that we can be sure our 'new' call below calls an existing prototype).
         // bug in PHP's is_subclass_of() causes segfault sometimes if the class needs to be autoloaded, so in 5.1.0 PHP stops calling autoload.
         // Thus, the fix is to load the class ourselves if needed before checking the inheritance.
-        if (!class_exists($class))
+        if (!class_exists($class) && function_exists('__autoload'))
         {
             __autoload($class);
         }
@@ -1010,7 +1015,7 @@ class WFPage extends WFObject
             } catch (WFRequestController_HTTPException $e) {
                 throw $e;
             } catch (Exception $e) {
-                WFLog::log("Error restoring state for widget '$widgetID'.", WFLog::TRACE_LOG);
+                WFLog::log("Error restoring state for widget '$widgetID': {$e->getMessage()}", WFLog::TRACE_LOG);
             }
         }
     }
@@ -1406,6 +1411,9 @@ class WFPage extends WFObject
                     try {
                         $rpc->execute($this);
                     } catch (WFErrorCollection $e) {
+                        // add all remaining errors to the general error display
+                        // note that propagateErrorsForKey* functions may prune errors
+                        // from the original WFErrorCollection before we get here.
                         $this->addErrors($e->allErrors());
                     }
                     if ($rpc->isAjax() and count($this->errors()))  // errors can also occur in the action method

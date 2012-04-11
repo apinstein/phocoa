@@ -56,7 +56,7 @@ function smarty_function_WFShowErrors($params, &$smarty)
     {
         // get errors for a specific widget
         $widget = $smarty->getCurrentWidget($params);
-        if ($widget instanceof WFDynamic)
+        if ($widget instanceof WFDynamic and !$widget->valueForKeyPath('oneShotMode'))
         {
             $widget = $widget->getLastRenderedWidget();
         }

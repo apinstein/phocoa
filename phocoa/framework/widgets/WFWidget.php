@@ -88,6 +88,10 @@ abstract class WFWidget extends WFView
      * @see WFWidgets::setWidgetLabel()
      */
     protected $widgetLabel;
+    /**
+     * @var integer The tabindex of the control (defaults to NULL)
+     */
+    protected $tabIndex;
 
     /**
       * Constructor.
@@ -107,6 +111,7 @@ abstract class WFWidget extends WFView
         $this->hidden = false;
         $this->class = NULL;
         $this->widgetLabel = NULL;
+        $this->tabIndex = NULL;
     }
 
     public static function exposedProperties()
@@ -283,6 +288,8 @@ abstract class WFWidget extends WFView
         $enSetup->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN);
         $enSetup->setBooleanMode(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_BOOLEAN_AND);
         $myBindings[] = $enSetup;
+        $tabIndexSetup = new WFBindingSetup('tabIndex', 'The current tabIndex.');
+        $myBindings[] = $tabIndexSetup;
         return $myBindings;
     }
 
@@ -366,7 +373,12 @@ abstract class WFWidget extends WFView
             }
         } catch (WFUndefinedKeyException $e) {
             if ($binding->raisesForNotApplicableKeys()) throw $e;
-            WFLog::log("undefined key: {$binding->bindToKeyPath()}, substituting " . var_export($binding->notApplicablePlaceholder(), true), WFLog::TRACE_LOG);
+
+            $func = WFFunction::create('return "undefined key: {$binding->bindToKeyPath()}, substituting " . var_export($binding->notApplicablePlaceholder(), true);')
+                        ->withArguments('binding')
+                        ->curry        ($binding);
+            WFLog::log($func, WFLog::TRACE_LOG);
+
             $boundValue = $binding->notApplicablePlaceholder();
         }
 
@@ -376,15 +388,27 @@ abstract class WFWidget extends WFView
         // process value transformer
         if ($binding->valueTransformerName())
         {
-            WFLog::log("Transforming value " . print_r($boundValue, true) . " with " . $binding->valueTransformerName(), WFLog::TRACE_LOG);
+            $func = WFFunction::create('return "Transforming value " . var_export($boundValue, true) . " with " . $binding->valueTransformerName();')
+                        ->withArguments('boundValue', 'binding')
+                        ->curry        ($boundValue,  $binding);
+            WFLog::log($func, WFLog::TRACE_LOG);
+
             $vt = WFValueTransformer::valueTransformerForName($binding->valueTransformerName());
             $boundValue = $vt->transformedValue($boundValue);
-            WFLog::log("Transformed value: " . print_r($boundValue, true), WFLog::TRACE_LOG);
+
+            $func = WFFunction::create('return "Transformed value: " . var_export($boundValue, true);')
+                        ->withArguments('boundValue')
+                        ->curry        ($boundValue);
+            WFLog::log($func, WFLog::TRACE_LOG);
         }
 
         if ($binding->formatter())
         {
-            WFLog::log("Formatting value " . print_r($boundValue, true) . " with " . $binding->formatter(), WFLog::TRACE_LOG);
+            $func = WFFunction::create('return "Formatting value " . var_export($boundValue, true) . " with " . $binding->formatter();')
+                        ->withArguments('boundValue', 'binding')
+                        ->curry        ($boundValue,  $binding);
+            WFLog::log($func, WFLog::TRACE_LOG);
+
             $formatter = $this->page()->module()->valueForKey($binding->formatter());
             // automatically handle formatting of arrays of objects
             if (is_array($boundValue))
@@ -398,10 +422,18 @@ abstract class WFWidget extends WFView
             {
                 $boundValue = $formatter->stringForValue($boundValue);
             }
-            WFLog::log("Formatted value: " . print_r($boundValue, true), WFLog::TRACE_LOG);
+
+            $func = WFFunction::create('return "Formatted value: " . var_export($boundValue, true);')
+                        ->withArguments('boundValue')
+                        ->curry        ($boundValue);
+            WFLog::log($func, WFLog::TRACE_LOG);
         }
 
-        WFLog::log("Using value " . print_r($boundValue, true) . " for binding '$prop'", WFLog::TRACE_LOG);
+        $func = WFFunction::create('return "Using value " . var_export($boundValue, true) . " for binding " . $prop;')
+                    ->withArguments('boundValue', 'prop')
+                    ->curry        ($boundValue,  $prop);
+        WFLog::log($func, WFLog::TRACE_LOG);
+
         return $boundValue;
     }
 
@@ -415,24 +447,38 @@ abstract class WFWidget extends WFView
         foreach ($this->bindings as $prop => $binding) {
             if ($prop != $binding->bindingSetup()->boundProperty())
             {
-                WFLog::log("pullBindings() -- skipping meta-binding '$prop'.", WFLog::TRACE_LOG);
+                $func = WFFunction::create('return "pullBindings() -- skipping meta-binding \'$prop\'.";')
+                            ->withArguments('prop')
+                            ->curry        ($prop);
+                WFLog::log($func, WFLog::TRACE_LOG);
                 continue;
             }
-            WFLog::log("pullBindings() -- processing binding for widget '{$this->id}', local property '$prop', to keyPath " . $binding->bindToKeyPath(), WFLog::TRACE_LOG);
+
+            $func = WFFunction::create('return "pullBindings() -- processing binding for widget \'{$id}\', local property \'$prop\', to keyPath " . $binding->bindToKeyPath();')
+                        ->withArguments('id',      'prop', 'binding')
+                        ->curry        ($this->id, $prop,  $binding);
+            WFLog::log($func, WFLog::TRACE_LOG);
+
             // DO NOT RE-BIND IF THE BOUND VALUE WAS AN ERROR! WANT TO SHOW THE BAD VALUE!
             // Of course, R/O bindings cannot have errors, so we will still bind them...
             if ($skipReadWriteBindings and !$binding->bindingSetup()->readOnly())
             {
-                WFLog::log("skipping pullBindings for {$this->id} / $prop because the value is an error.", WFLog::TRACE_LOG);
+                $func = WFFunction::create('return "skipping pullBindings for {$id} / $prop because the value is an error.";')
+                            ->withArguments('id',      'prop')
+                            ->curry        ($this->id, $prop);
+                WFLog::log($func, WFLog::TRACE_LOG);
                 continue;
             }
             // process readwrite mode option
             if (!$binding->canReadBoundValue())
             {
-                WFLog::log("skipping pullBindings for {$this->id} / $prop because the binding option for ReadWriteMode is set to writeonly.", WFLog::TRACE_LOG);
+                $func = WFFunction::create('return "skipping pullBindings for {$id} / $prop because the binding option for ReadWriteMode is set to writeonly.";')
+                            ->withArguments('id',      'prop')
+                            ->curry        ($this->id, $prop);
+                WFLog::log($func, WFLog::TRACE_LOG);
                 continue;
             }
-        
+
             try {
                 $bindingSetup = $binding->bindingSetup();
                 switch ($bindingSetup->bindingType()) {
@@ -540,10 +586,18 @@ abstract class WFWidget extends WFView
                 {
                     $boundValue = $binding->coalescedOption(WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER);
                 }
-                WFLog::log("FINAL value " . print_r($boundValue, true) . " for binding {$this->id} / $prop...", WFLog::TRACE_LOG);
+
+                $func = WFFunction::create('return "FINAL value " . var_export($boundValue, true) . " for binding {$id} / $prop...";')
+                            ->withArguments('boundValue', 'id',      'prop')
+                            ->curry        ($boundValue,  $this->id, $prop);
+                WFLog::log($func, WFLog::TRACE_LOG);
+
                 $this->setValueForKey($boundValue, $prop);  // must do this to allow accessors to be called!
             } catch (Exception $e) {
-                WFLog::log("Skipping pullBindings for {$this->id} / {$prop} due to exception: {$e->getMessage()}", WFLog::WARN_LOG);
+                $func = WFFunction::create('return "Skipping pullBindings for {$id} / {$prop} due to exception: {$e->getMessage()}";')
+                            ->withArguments('id',      'prop', 'e')
+                            ->curry        ($this->id, $prop,  $e);
+                WFLog::log($func, WFLog::WARN_LOG);
                 continue;
             }
         }
@@ -683,8 +737,10 @@ abstract class WFWidget extends WFView
         if ($this->bindingByName('value') and !$this->bindingByName('value')->canWriteBoundValue()) return;
         if (!$this->enabled() and !$this->pushBindingsIfNotEnabled()) return;  // disabled HTML controls do not submit data, thus they'll be empty! Thus don't push data  or we'll blow away valid data.
 
-
-        WFLog::log("pushBindings() for for widget id '{$this->id}'", WFLog::TRACE_LOG);
+        $func = WFFunction::create('return "pushBindings() for for widget id \'{$id}\'";')
+                    ->withArguments('id')
+                    ->curry        ($this->id);
+        WFLog::log($func, WFLog::TRACE_LOG);
 
         // get the cleaned value from the formatter first, and of course check for errors there.
         $fmtV = $this->value;
@@ -753,7 +809,11 @@ abstract class WFWidget extends WFView
         // check OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE
         if ($binding->hasCoalescedOption(WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE) and $binding->coalescedOption(WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE) === $value)
         {
-            WFLog::log("propagateValueToBinding() skipping push for {$bindingName} since value matched OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE for for widget id '{$this->id}'", WFLog::TRACE_LOG);
+            $func = WFFunction::create('return "propagateValueToBinding() skipping push for {$bindingName} since value matched OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE for for widget id \'{$id}\'";')
+                        ->withArguments('bindingName', 'id')
+                        ->curry        ($bindingName,  $this->id);
+            WFLog::log($func, WFLog::TRACE_LOG);
+
             return $value;
         }
 
@@ -766,17 +826,29 @@ abstract class WFWidget extends WFView
         if ($value === '') $value = NULL;
         
         $edited = false;
-        WFLog::log("propagateValueToBinding() validating value '$value' for bound object '" . get_class($this) . "' for widget id '{$this->id}' binding: '{$bindingName}'", WFLog::TRACE_LOG);
+
+        $func = WFFunction::create('return "propagateValueToBinding() validating value \'$value\' for bound object \'" . $class . "\' for widget id \'{$id}\' binding: \'{$bindingName}\'";')
+                    ->withArguments('value', 'class',          'id',      'bindingName')
+                    ->curry        ($value,  get_class($this), $this->id, $bindingName);
+        WFLog::log($func, WFLog::TRACE_LOG);
+
         $errors = array();
         $valid = $binding->bindToObject()->validateValueForKeyPath($value, $binding->bindToKeyPath(), $edited, $errors);
         if ($valid)
         {
-            WFLog::log("propagateValueToBinding() Pushing value '$value' for bound object '" . get_class($this) . "' for widget id '{$this->id}' binding: '{$bindingName}'", WFLog::TRACE_LOG);
+            $func = WFFunction::create('return "propagateValueToBinding() Pushing value \'$value\' for bound object \'" . $class . "\' for widget id \'{$id}\' binding: \'{$bindingName}\'";')
+                        ->withArguments('value', 'class',          'id',      'bindingName')
+                        ->curry        ($value,  get_class($this), $this->id, $bindingName);
+            WFLog::log($func, WFLog::TRACE_LOG);
+
             $binding->bindToObject()->setValueForKeyPath($value, $binding->bindToKeyPath());
         }
         else
         {
-            WFLog::log("propagateValueToBinding() WILL NOT (did not validate) push value '$value' for bound object '" . get_class($this) . "' for widget id '{$this->id}' binding: '{$bindingName}'", WFLog::TRACE_LOG);
+            $func = WFFunction::create('return "propagateValueToBinding() WILL NOT (did not validate) push value \'$value\' for bound object \'" . $class . "\' for widget id \'{$id}\' binding: \'{$bindingName}\'";')
+                        ->withArguments('value', 'class',          'id',      'bindingName')
+                        ->curry        ($value,  get_class($this), $this->id, $bindingName);
+            WFLog::log($func, WFLog::TRACE_LOG);
 
             // keep all returned errors
             $this->addErrors($errors);

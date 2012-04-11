@@ -37,14 +37,26 @@ class WFTextArea extends WFWidget
         $this->nullPlaceholder = NULL;
     }
 
+    private function normalizeLineEndings($text)
+    {
+        $text = str_replace("\r\n", "\n", $text);   // win -> un*x
+        $text = str_replace("\r", "\n", $text);     // mac -> un*x
+        return $text;
+    }
     function restoreState()
     {
         //  must call super
         parent::restoreState();
 
-        if (isset($_REQUEST[$this->name]) and $this->nullPlaceholder !== $_REQUEST[$this->name])
+        if (isset($_REQUEST[$this->name]))
         {
-            $this->setValue($_REQUEST[$this->name]);
+            $reqVal = $this->normalizeLineEndings($_REQUEST[$this->name]);
+            $nullPlaceholder = $this->normalizeLineEndings($this->nullPlaceholder);
+
+            if ($reqVal !== $nullPlaceholder)
+            {
+                $this->setValue($_REQUEST[$this->name]);
+            }
         }
     }
 
@@ -71,10 +83,11 @@ class WFTextArea extends WFWidget
         {
             $html .= '
             PHOCOA.namespace("widgets.' . $this->id . '");
+            PHOCOA.widgets.' . $this->id . '.nullPlaceholder = ' . json_encode($this->nullPlaceholder) . ';
             PHOCOA.widgets.' . $this->id . '.hasFocus = false;
             PHOCOA.widgets.' . $this->id . '.handleFocus = function(e) {
                 PHOCOA.widgets.' . $this->id . '.hasFocus = true;
-                if ($F(\'' . $this->id . '\') === \'' . $this->nullPlaceholder . '\')
+                if ($F(\'' . $this->id . '\') === PHOCOA.widgets.' . $this->id . '.nullPlaceholder)
                 {
                     $(\'' . $this->id . '\').value = "";
                 }
@@ -87,9 +100,9 @@ class WFTextArea extends WFWidget
             PHOCOA.widgets.' . $this->id . '.handlePlaceholder = function() {
                 if (!PHOCOA.widgets.' . $this->id . '.hasFocus)
                 {
-                    if ($F(\'' . $this->id . '\') === \'\')
+                    if ($F(\'' . $this->id . '\') === \'\' || $F(\'' . $this->id . '\') === PHOCOA.widgets.' . $this->id . '.nullPlaceholder)
                     {
-                        $(\'' . $this->id . '\').value = \'' . $this->nullPlaceholder . '\';
+                        $(\'' . $this->id . '\').value = PHOCOA.widgets.' . $this->id . '.nullPlaceholder;
                         $(\'' . $this->id . '\').addClassName("phocoaWFSearchField_PlaceholderText");
                     }
                 }

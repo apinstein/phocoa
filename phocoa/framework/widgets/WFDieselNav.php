@@ -106,7 +106,7 @@ class WFDieselNav extends WFWidget
         $baseURLParams = NULL;
         foreach ($this->page()->parameters() as $pName => $value) {
             if ($pName == $this->dpQueryStateParamName) break;
-            $baseURLParams .= "/{$value}";
+            $baseURLParams .= "/" . urlencode($value);
         }
         
         // calculate base URL for links
@@ -150,7 +150,7 @@ class WFDieselNav extends WFWidget
             // set up popup container
             $popup = new WFYAHOO_widget_Panel("phocoaWFDieselNav_Popup_{$this->id}", $this->page);
             $popup->setRenderTo("'{$this->getForm()->id()}'");
-            $popup->setFixedCenter(true);
+            $popup->setConstrainToViewport(true);
             $popup->setHeader('<div style="height: 10px"></div>');
             $popup->setBody("<div id=\"phocoaWFDieselNav_PopupContent_{$this->id}\" style=\"padding: 5px;\"></div><input " . ($this->showLoadingMessage ? 'onClick="cancelPopup(); showLoading();"' : NULL) . " type=\"submit\" name=\"action|" . $this->searchAction . "\" value=\"Go\"/>");
             $popup->setValueForKey('400px', 'width');
@@ -161,9 +161,12 @@ class WFDieselNav extends WFWidget
             // js
             $html .= "
     <script type=\"text/javascript\">
-    function doPopup(facetID, dpQueryState, facetSelections)
+    function doPopup(facetID, dpQueryState, facetSelections, contextEl)
     {
-        PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').cfg.setProperty('context', ['{$this->id}', 'tl', 'tl']);
+        if (typeof contextEl !== 'undefined')
+        {
+            PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').cfg.setProperty('context', [contextEl, 'tl', 'tl']);
+        }
         PHOCOA.runtime.getObject('phocoaWFDieselNav_Popup_{$this->id}').show();
         Element.update('phocoaWFDieselNav_PopupContent_{$this->id}', '<div style=\"padding: 10px; font-size: 20px; line-height: 25px;\">Loading... please wait...</div><div class=\"phocoaWFDieselNav_Loading\"></div>');
 

@@ -20,6 +20,54 @@ class WFObject implements WFKeyValueCoding
     }
 
     /**
+     * Break circular references so this object will GC pre-5.2.
+     *
+     * NOTE: if the value of the var is an array, the array will be iterated on as well and the destroy() method called (if available) and the array references removed.
+     *
+     * @param array A list of all instances to destroy.
+     */
+    private $alreadyInDestroy = false;
+    public function destroy($vars = array())
+    {
+        if ($this->alreadyInDestroy) return;
+
+        $this->alreadyInDestroy = true;
+        foreach ($vars as $v) {
+            $toBeDestroyed = $this->$v;
+            if ($toBeDestroyed)
+            {
+                $_destroyedClass = get_class($toBeDestroyed);
+                $o = memory_get_usage();
+                if (is_object($toBeDestroyed) and method_exists($toBeDestroyed, 'destroy'))
+                {
+                    $toBeDestroyed->destroy();
+                }
+                else if (is_array($toBeDestroyed))
+                {
+                    while ($tbd = array_pop($toBeDestroyed)) {  // destroys more memory than foreach() here for some reason
+                        if (method_exists($tbd, 'destroy'))
+                        {
+                            $tbd->destroy();
+                        }
+                        else
+                        {
+                            // for debugging this will tell you what doesn't have destroy impemented
+                            //print "==&gt; No destroy for " . get_class($this) . "::\${$v}[x]<br>\n";
+                        }
+                    }
+                }
+                else
+                {
+                    // for debugging this will tell you what doesn't have destroy impemented
+                    //print "==&gt; No destroy for " . get_class($this) . "::\${$v}<br>\n";
+                }
+                $this->$v = NULL;
+                //print "Recovered " . ($o - memory_get_usage()) . " by destroying " . get_class($this) . "::\${$v} [{$_destroyedClass}]<br>\n";
+            }
+        }
+    }
+
+    /**
      *  Empty placeholder for exposedProperties setup.
      *
      *  Subclasses should call parent and merge results.
@@ -165,7 +213,7 @@ class WFObject implements WFKeyValueCoding
      */
     function valueForUndefinedKey($key)
     {
-        throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
+        throw( new WFUndefinedKeyException("Unknown key '$key' (" . gettype($key) . ") requested for object '" . get_class($this) . "'.") );
     }
 
     /**
@@ -183,6 +231,9 @@ class WFObject implements WFKeyValueCoding
 
     /**
      * Helper function for implementing KVC.
+     * 
+     * Supports "coalescing" KVC by using ; separated keyPaths. The first non-null value returned will be used.
+     * The *last* keypath is actually the "default default" which is used if all keyPaths return NULL.
      *
      * This is public so that other objects that don't subclass WFObject can leverage this codebase to implement KVC.
      *
@@ -191,7 +242,32 @@ class WFObject implements WFKeyValueCoding
      * @return mixed
      * @throws Exception, WFUndefinedKeyException
      */
-    public static function valueForTargetAndKeyPath($keyPath, $rootObject = NULL)
+    public static function valueForTargetAndKeyPath($inKeyPath, $rootObject = NULL)
+    {
+        // detect coalescing keypath
+        if (strpos($inKeyPath, ';') !== false)
+        {
+            $coalescingKeyPaths = preg_split('/(?<!\\\\);/', $inKeyPath);
+            if (count($coalescingKeyPaths) < 2) throw new WFException("Error parsing coalescing keypath: {$inKeyPath}");
+            $coalesceDefault = str_replace('\\;', ';', array_pop($coalescingKeyPaths));
+
+            $val = NULL;
+            while ($val === NULL && ($keyPath = array_shift($coalescingKeyPaths))) {
+                $val = self::valueForTargetAndKeyPathSingle($keyPath, $rootObject);
+            }
+            if ($val === NULL)
+            {
+                $val = $coalesceDefault;
+            }
+            return $val;
+        }
+        else
+        {
+            return self::valueForTargetAndKeyPathSingle($inKeyPath, $rootObject);
+        }
+    }
+
+    private static function valueForTargetAndKeyPathSingle($keyPath, $rootObject = NULL)
     {
         if ($keyPath == NULL) throw( new Exception("NULL keyPath Exception") );
         $staticMode = ($rootObject === NULL);
@@ -209,6 +285,15 @@ class WFObject implements WFKeyValueCoding
         for ($keyI = 0; $keyI < $keyCount; $keyI++) {
             $key = $keys[$keyI];
             $keyPartsLeft--;
+
+            // look for escape hatch
+            $escapeHatch = false;
+            $lastChrModifier = substr($key, -1);
+            if ($lastChrModifier === '^')
+            {
+                $escapeHatch = true;
+                $key = substr($key, 0, strlen($key)-1);
+            }
 
             // parse out decorate magic, if any
             $decoratorClass = NULL;
@@ -264,6 +349,8 @@ class WFObject implements WFKeyValueCoding
             }
             else
             {
+                if ($escapeHatch and $result === NULL and $keyPartsLeft) return NULL;
+
                 if ($decoratorClass)
                 {
                     $result = new $decoratorClass($result);
@@ -277,7 +364,7 @@ class WFObject implements WFKeyValueCoding
             {
                 $nextPart = $keys[$keyI + 1];
                 // are we in operator mode as well?
-                if (in_array($nextPart, array('@count', '@first', '@sum', '@max', '@min', '@avg', '@unionOfArrays', '@unionOfObjects', '@distinctUnionOfArrays', '@distinctUnionOfObjects')))
+                if (in_array($nextPart, array('@count', '@first', '@firstNotNull', '@sum', '@max', '@min', '@avg', '@unionOfArrays', '@unionOfObjects', '@distinctUnionOfArrays', '@distinctUnionOfObjects')))
                 {
                     $operator = $nextPart;
                     $rightKeyPath = join('.', array_slice($keyParts, $keyI + 2));
@@ -322,6 +409,16 @@ class WFObject implements WFKeyValueCoding
                             else
                             {
                                 $result = null;
+                            }
+                            break;
+                        case '@firstNotNull':
+                            $result = null;
+                            foreach ($magicArray as $v) {
+                                if ($v !== NULL)
+                                {
+                                    $result = $v;
+                                    break;
+                                }
                             }
                             break;
                         case '@sum':
@@ -393,6 +490,19 @@ class WFObject implements WFKeyValueCoding
         return self::valueForStaticKeyPath($key);
     }
 
+    /**
+     * Returns the current object.
+     *
+     * Useful for KVC "hacking" in cases where you need to use KVC magic on the "current" object.
+     * Examples: this[MyDecorator].name, this.@first (for an array), etc.
+     *
+     * @return object WFObject
+     */
+    public function this()
+    {
+        return $this;
+    }
+
 
     function setValueForKey($value, $key)
     {
@@ -419,7 +529,7 @@ class WFObject implements WFKeyValueCoding
 
         if (!$performed)
         {
-            throw( new WFUndefinedKeyException("Unknown key '$key' requested for object '" . get_class($this) . "'.") );
+            throw( new WFUndefinedKeyException("Unknown key '$key' (" . gettype($key) . ") requested for object '" . get_class($this) . "'.") );
         }
     }
 
@@ -462,6 +572,7 @@ class WFObject implements WFKeyValueCoding
     function setValueForKeyPath($value, $keyPath)
     {
         list($target, $targetKey) = $this->keyPathToTargetAndKey($keyPath);
+        if (!is_object($target)) throw( new WFUndefinedKeyException("setValueForKey: target for keypath \"{$keyPath}\" is not an object.") );
         $target->setValueForKey($value, $targetKey);
     }
 

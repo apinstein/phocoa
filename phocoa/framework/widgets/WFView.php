@@ -115,6 +115,11 @@ abstract class WFView extends WFObject implements IteratorAggregate
         $this->cssImports = array();
     }
 
+    public function destroy($vars = array())
+    {
+        parent::destroy(array('page', 'parent', 'children'));
+    }
+
     public function setListener($event)
     {
         if ( !($event instanceof WFEvent) ) throw( new WFException("Event must be a WFEvent.") );

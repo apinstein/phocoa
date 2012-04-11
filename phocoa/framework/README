@@ -127,6 +127,10 @@ TODO
 - Do we need namespacing for modules? What if you have 2 "included" modules on a page that both have a widget with id=name? Things won't work right... right?
 - E_STRICT support
 - WFTreeController
+- Support PRG (Post-Redirect-Get) workflow; include some kind of "PRGMessage" infrastructure that makes it easy to record a message for the subsequent GET.
+  - cache control for POST forms
+  - framework support for PRGMessage. Maybe something like $page->doPRG($url, "Message...", "messageBoxId")
+    The framework would then record the "message" in the session for the $url; then WFPage can autoamtically call page->outlet('messageBoxId')->setValue('message') and clear the session setting?
 - Integrate YAHOO js library to the extent that events can be attached to widgets; build a nice infrastructure for that
   - deprecate current js action handlers? dunno... direct onClick handlers and such are still very useful
   - support tooltips on all wfview objects

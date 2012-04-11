@@ -341,11 +341,9 @@ class WFRPC extends WFObject
     }
 
     /**
-     * Detects from the HTTP request whether or not there is an RPC request for the passed invocationPath.
+     * Detects from the HTTP request whether or not there is an RPC request for the passed invocationPath (ie module/page).
      *
-     * NOTE: Will only return the RPC if the RPC in the parameters is for the passed invocation path.
-     * This allows PHOCOA to distinguish if an AJAX request is intended for the current module. Otherwise composited modules would all try to respond.
-     *
+     * @param string The invocationPath from WFModuleInvocation::invocationPath(). NOTE that this is in a raw form, whatever is sent to the browser.
      * @return object WFRPC
      * @throws object WFException
      */
@@ -360,15 +358,43 @@ class WFRPC extends WFObject
         if (!isset($_REQUEST[self::PARAM_IS_AJAX])) throw( new WFException('rpc isAjax missing.') );
         if (!isset($_REQUEST[self::PARAM_ARGC])) throw( new WFException('rpc argc missing.') );
 
-        // not sure why this is with WWW_ROOT....
+        /**
+         * PHOCOA needs to be able to tell which module/page the embedded rpc info in the request belongs to.
+         * Otherwise, all module/page will try to deal with the rpc request.
+         * This is a problem for composited pages where all pages would end up trying to deal with the request that was only meaningful for a particular module/page.
+         *
+         * Since we embed in all PHOCOA rpc requests the invocationPath that the request is made for, we simply need to make sure that invocation paths match each other:
+         * - $invocationPath in the request uri (passed in as an arg)
+         * - $_REQUEST[self::PARAM_INVOCATION_PATH]
+         *
+         * If they match, a proper WFRPC should be returned.
+         * If not, then NULL should be returned, indicating that there is no rpc info for the given invocationPath.
+         *
+         * NOTES: 
+         * - invocationPath comes from WFModuleInvocation::invocationPath() which has not been urldecode'd or rawurldecode'd
+         *   Of course the browsers may do various things; on the main page this includes URL-bar munging, from js it includes who-knows-what from the AJAX infrastructure
+         * - $_REQUEST[self::PARAM_INVOCATION_PATH is typically encodeURIComponent() processed, but due to bugs in client code oftentimes will *not* be encoded.
+         *   Though lack of encodeURIComponent() may cause application bugs, it's our job here to not accidentally fail to detect an RPC.
+         */
         $invocationPathWithWWW = WWW_ROOT . '/' . $invocationPath;
-        // invocationPath comes from PATH_INFO which has not been urldecode'd or rawurldecode'd
-        // the PARAM_INVOCATION_PATH is in request, which php automatically urldecode'd and rawurldecode'd, but since our infrastructure *also* rawurlencode'd it,
-        // for this test we need to urldecode and then rawurldecode the invocationPath, and rawurldecode the PARAM_INVOCATION_PATH
-        if (
-            $invocationPathWithWWW !== $_REQUEST[self::PARAM_INVOCATION_PATH]
-            and rawurldecode(urldecode($invocationPathWithWWW)) !== rawurldecode($_REQUEST[self::PARAM_INVOCATION_PATH])
-            ) return NULL;
+#            $debug = array(
+#                '$invocationPathWithWWW'                                          => $invocationPathWithWWW,
+#                '$_REQUEST[self::PARAM_INVOCATION_PATH]'                          => $_REQUEST[self::PARAM_INVOCATION_PATH],
+#                'rawurldecode($invocationPathWithWWW)'                            => rawurldecode($invocationPathWithWWW),
+#                'rawurldecode($_REQUEST[self::PARAM_INVOCATION_PATH])'            => rawurldecode($_REQUEST[self::PARAM_INVOCATION_PATH]),
+#                'rawurldecode(urldecode($invocationPathWithWWW))'                 => rawurldecode(urldecode($invocationPathWithWWW)),
+#                'rawurldecode(urldecode($_REQUEST[self::PARAM_INVOCATION_PATH]))' => rawurldecode(urldecode($_REQUEST[self::PARAM_INVOCATION_PATH])),
+#            );
+#            $output = '';
+#            foreach ($debug as $k => $v) {
+#                $output .= str_pad($k, 90) . ' => ' . $v . "\n";
+#            }
+#            echo "INFO:\n$output";
+#            die();
+        if (urldecode($invocationPathWithWWW) !== urldecode($_REQUEST[self::PARAM_INVOCATION_PATH]))
+        {
+            return NULL;
+        }
 
         $rpc = WFRPC::RPC();
         $rpc->setInvocationPath($_REQUEST[self::PARAM_INVOCATION_PATH]);

@@ -602,7 +602,7 @@ class WFPaginator extends WFObject
         // cache
         if ($this->itemCount === NULL)
         {
-            $this->itemCount = $this->dataDelegate()->itemCount();
+            $this->itemCount = (int) $this->dataDelegate()->itemCount();
         }
         return $this->itemCount;
     }
@@ -869,6 +869,11 @@ class WFPagedArray implements WFPagedData
                 rsort($this->data);
             }
         }
+
+        // If you pass -1 as the last argument of array_slice,
+        // return you all EXCEPT the last item (not what we want)
+        if ($numItems == -1) $numItems = NULL;
+
         return array_slice($this->data, $startIndex - 1, $numItems);
     }
 }
@@ -928,6 +933,57 @@ class WFPagedPropelQuery implements WFPagedData
             }
         }
         return call_user_func(array($this->peerName, $this->peerSelectMethod), $criteria);
+    }
+}
+
+/**
+ * A WFPagedData implementation for Propel 1.5's ModelQuery (ModelCriteria) architecture.
+ *
+ * Sorting support: The sortKeys should be the "XXXPeer::COLUMN" with +/- prepended.
+ */
+class WFPagedPropelModelCriteria implements WFPagedData
+{
+    protected $criteria;
+    protected $countCriteria;
+    protected $con;
+
+    /**
+     *  Constructor.
+     *
+     *  @param object ModelCriteria The Propel ModelCriteria for the query.
+     *  @param object ModelCriteria The Propel ModelCriteria for the COUNT query. OPTIONAL. Useful for complex primary criteria which could have more efficient count queries.
+     *  @param object PropelPDO An optional connection object to us.
+     */
+    function __construct($criteria, $countCriteria = NULL, $con = NULL)
+    {
+        if (!($criteria instanceof ModelCriteria)) throw new WFException("WFPagedPropelModelCriteria requires a ModelCriteria.");
+        $this->criteria = $criteria;
+        $this->countCriteria = ($countCriteria === NULL ? $criteria : $countCriteria);
+        $this->con = $con;
+    }
+    function itemCount()
+    {
+        return $this->countCriteria->count();
+    }
+    function itemsAtIndex($startIndex, $numItems, $sortKeys)
+    {
+        $criteria = clone $this->criteria;
+        $criteria->setOffset($startIndex - 1);
+        if ($numItems !== WFPaginator::PAGINATOR_PAGESIZE_ALL)
+        {
+            $criteria->setLimit($numItems);
+        }
+        foreach ($sortKeys as $sortKey) {
+            if (substr($sortKey, 0, 1) == '-')
+            {
+                $criteria->addDescendingOrderByColumn(substr($sortKey, 1));
+            }
+            else
+            {
+                $criteria->addAscendingOrderByColumn(substr($sortKey, 1));
+            }
+        }
+        return $criteria->find($this->con);
     }
 }
 
@@ -1108,11 +1164,11 @@ class WFPagedPDOQuery implements WFPagedData
         $matches = array();
         if (stripos($this->baseSQL, 'order by'))
         {
-            $matchCount = preg_match('/^.*(\bfrom\b.*)(\border by\b.*)$/si', $this->baseSQL, $matches);
+            $matchCount = preg_match('/^.*?(\bfrom\b.*)(\border by\b.*)$/si', $this->baseSQL, $matches);
         }
         else
         {
-            $matchCount = preg_match('/^.*(\bfrom\b.*)$/si', $this->baseSQL, $matches);
+            $matchCount = preg_match('/^.*?(\bfrom\b.*)$/si', $this->baseSQL, $matches);
         }
         if ($matchCount != 1) throw(new Exception("Could not parse sql statement."));
 

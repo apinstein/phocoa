@@ -9,7 +9,7 @@ class ExampleEmail extends WFObject
 
     function send()
     {
-        $sent = mail( $this->toEmail, $this->subject, $this->message );
+        //$sent = mail( $this->toEmail, $this->subject, $this->message );
         $this->sendTimestamp = time();
         return $sent;
     }

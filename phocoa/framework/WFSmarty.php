@@ -46,7 +46,7 @@ class WFSmarty extends Smarty implements WFPageRendering
         return $this->template;
     }
 
-    function assign($name, $value)
+    function assign($name, $value = NULL)
     {
         parent::assign($name, $value);
     }

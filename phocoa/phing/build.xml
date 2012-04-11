@@ -223,7 +223,7 @@
         <echo msg="Copying PHOCOA templates..." />
         <copy toDir="${phocoa.project.dir}">
             <fileset dir="${phocoa.dir}">
-                <exclude name="**/.svn/**" />
+                <exclude name="**/.git/**" />
                 <include name="classes/**" />
                 <include name="skins/**" />
                 <include name="wwwroot/index.php" />
@@ -236,7 +236,7 @@
         <echo msg="Setting up configuration files..." />
         <copy toDir="${phocoa.project.dir}">
             <fileset dir="${phocoa.dir}">
-                <exclude name="**/.svn/**" />
+                <exclude name="**/.git/**" />
                 <include name="conf/**" />
                 <exclude name="conf/propel-conf.xml" />
             </fileset>

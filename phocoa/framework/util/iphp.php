@@ -1,6 +1,6 @@
 <?php
 
-ini_set("memory_limit", '20M');
+ini_set("memory_limit", '200M');
 
 /**
  * The iphp shell is an interactive PHP shell for working with your php applications.

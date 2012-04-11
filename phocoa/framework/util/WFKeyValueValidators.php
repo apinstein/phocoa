@@ -60,7 +60,7 @@ class WFKeyValueValidators extends WFObject
             }
         }
 
-        if (function_exists('filter_var'))
+        if (function_exists('filter_var') && $options['requireRealDomains'])
         {
             $okFilter = filter_var($value, FILTER_VALIDATE_EMAIL);
         }
@@ -68,9 +68,16 @@ class WFKeyValueValidators extends WFObject
         {
             $okFilter = preg_match('/^[_A-Za-z0-9-\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*$/', $value);
         }
-        if ($okFilter and $options['requireRealDomains'])
+        if ($okFilter)
         {
-            $okFilter = preg_match('/@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$/', $value);
+            if ($options['requireRealDomains'])
+            {
+                $okFilter = preg_match('/@[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$/', $value);
+            }
+            else
+            {
+                $okFilter = preg_match('/@[A-Za-z0-9-\.]{2,}$/', $value);
+            }
         }
         if (!$okFilter)
         {

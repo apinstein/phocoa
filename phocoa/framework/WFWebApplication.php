@@ -285,6 +285,20 @@ class WFWebApplication extends WFObject
     }
 
     /**
+     * Get the default Skin character set.
+     *
+     * @return object Object implementing the {@link WFSkinDelegate} delegate protocol, or NULL if there is no default delegate.
+     */
+    function getDefaultCharset()
+    {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'getDefaultCharset'))
+        {
+            return $this->delegate->getDefaultCharset();
+        }
+        return "ISO-8859-1";
+    }
+
+    /**
      *  Hook to provide opportunity for the web application to munge the session config before php's session_start() is called.
      */
     function sessionWillStart()

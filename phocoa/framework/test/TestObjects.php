@@ -51,6 +51,7 @@ class Person extends WFObject
     public $lastName;
     public $uid;
     public $child;
+    public $alwaysNull = NULL;
 
     public static $gid = 0;
 
