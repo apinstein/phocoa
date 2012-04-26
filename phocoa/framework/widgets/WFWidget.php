@@ -140,6 +140,17 @@ abstract class WFWidget extends WFView
     }
 
     /**
+     * Set the *raw* value used by the widget (bypasses formatter).
+     *
+     * This function is useful in some cases where you need to set the raw value to a specific value and don't want any normal phocoa munging to happen.
+     * @param mixed The raw value desired for the widget.
+     */
+    function setRawValue($value)
+    {
+        $this->value = $value;
+    }
+
+    /**
       * Get the value for the widget.
       *
       * Subclasses that use {@link value, setValue} automatically get formatter support.
