@@ -461,7 +461,7 @@ class WFDieselSearch extends WFObject implements WFPagedData
     function setSimpleQuery($string, $mode = "any")
     {
         // add relevance sorting if there's a query
-        if ($this->simpleQueryString)
+        if ($string)
         {
             $this->enableRelevanceSorting();
         }
