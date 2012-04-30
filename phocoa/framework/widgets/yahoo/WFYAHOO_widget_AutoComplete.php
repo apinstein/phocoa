@@ -509,6 +509,7 @@ class WFYAHOO_widget_AutoComplete extends WFYAHOO
         {
             $html .= "\n
 var urlGenerator = function(query) {
+    query = decodeURIComponent(query);  // YUI has already encoded this, but we will encode it too via PHOCOA, so we need to undo theirs to avoid encoding issues
     var phocoaArgs = [query];
     if (PHOCOA.widgets['{$this->id()}'] && PHOCOA.widgets['{$this->id()}'].yuiDelegate && PHOCOA.widgets['{$this->id()}'].yuiDelegate.dynamicDataLoaderCollectArguments)
     {
