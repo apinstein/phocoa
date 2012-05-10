@@ -1411,9 +1411,16 @@ class WFPage extends WFObject
                     try {
                         $rpc->execute($this);
                     } catch (WFErrorCollection $e) {
-                        // add all remaining errors to the general error display
+                        // Automagically map all errors for keys to widgets with the same ID
                         // note that propagateErrorsForKey* functions may prune errors
                         // from the original WFErrorCollection before we get here.
+                        foreach ($this->instances as $id => $obj) {
+                            if ($e->hasErrorsForKey($id))
+                            {
+                                $this->propagateErrorsForKeyToWidget($e, $id, $obj, true);
+                            }
+                        }
+                        // add all remaining errors to the general error display
                         $this->addErrors($e->allErrors());
                     }
                     if ($rpc->isAjax() and count($this->errors()))  // errors can also occur in the action method
