@@ -124,6 +124,25 @@ class WFArray extends ArrayObject
     }
 
     /**
+     * Filter the WFArray according to function $fn. If calling $fn($item)
+     * returns true, include the item in the result, otherwise exclude it.
+     *
+     * @param WFFunction A WFFunction that returns true to include the item and false to exclude it.
+     * @return WFArray The filtered array.
+     */
+    public function filter(WFFunction $fn)
+    {
+        $filtered = new WFArray();
+        foreach ($this as $entry)
+        {
+            $include = $fn->call($entry);
+            if ($include) $filtered->append($entry);
+        }
+
+        return $filtered;
+    }
+
+    /**
      * Get a subset of the array for the passed set of keys.
      *
      * @param array An array of keys to look for in the array.
