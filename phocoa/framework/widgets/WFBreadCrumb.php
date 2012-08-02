@@ -315,7 +315,7 @@ class WFBreadCrumbSetup extends WFObject
      * @param object WFObject The instance to create the breadcrumb for.
      * @return array A hash of title => url for all items in the breadcrumb.
      */
-    public function getBreadCrumb($object)
+    public function getBreadCrumb($object, $showLinkOnFinal = false)
     {
         // unroll decorated objects
         while ($object instanceof WFDecorator) {
@@ -330,10 +330,11 @@ class WFBreadCrumbSetup extends WFObject
 
         // build breadcrumb
         $breadcrumb = array();  // will be linkTitle => linkURL
+        $minCountToEnableLink = $showLinkOnFinal ? 0 : 1;
         while (true) {
             $decoratedObject = $node->decorateObject($object);
             $title = $decoratedObject->valueForKeyPath($node->valueForKey('linkTextKeyPath'));
-            if (count($breadcrumb) > 0)
+            if (count($breadcrumb) >= $minCountToEnableLink)
             {
                 $url = $node->getLinkURL($decoratedObject);
             }
@@ -364,10 +365,10 @@ class WFBreadCrumbSetup extends WFObject
      * @param object WFObject The instance to create the breadcrumb for.
      * @return string The HTML for the breadcrumb.
      */
-    public function renderBreadCrumb($object)
+    public function renderBreadCrumb($object, $showLinkOnFinal = false)
     {
         $html = NULL;
-        foreach ($this->getBreadCrumb($object) as $linkText => $linkURL) {
+        foreach ($this->getBreadCrumb($object, $showLinkOnFinal) as $linkText => $linkURL) {
             if ($html !== NULL)
             {
                 $html .= ' ' . $this->separator . ' ';
