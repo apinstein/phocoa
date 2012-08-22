@@ -355,6 +355,7 @@ function() {
             formData: {$uploadFormData},
             sequentialUploads: {$sequentialUploads},
             beforeSend: function (event, files, index, xhr, handler, callBack) {
+                document.fire ('WFHTML5_Uploader:uploadStart');
                 jQuery('#{$this->id}_table, #{$this->id}_progressAll').show();
                 var fileSize = files[index].fileSize ? files[index].fileSize : files[index].size  // Firefox calls it file.size instead of file.fileSize
                 if ({$maxUploadBytesJSON} && fileSize > {$maxUploadBytesJSON})
@@ -379,6 +380,7 @@ function() {
                 var autoRedirectToUrlOnCompleteAll = '{$this->autoRedirectToUrlOnCompleteAll}';
                 if (autoRedirectToUrlOnCompleteAll)
                 {
+                    document.fire ('WFHTML5_Uploader:uploadAllComplete');
                     window.location.href = autoRedirectToUrlOnCompleteAll;
                 }
             },
