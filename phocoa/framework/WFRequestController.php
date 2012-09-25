@@ -236,6 +236,11 @@ class WFRequestController extends WFObject
             }   
 
             print $html;
+        } catch (WFPaginatorException $e) {
+            // paginator fails by default should "route" to bad request. This keeps bots from going crazy.
+            header("HTTP/1.0 400 Bad Request");
+            print "Bad Request: " . $e->getMessage();
+            exit;
         } catch (WFRequestController_RedirectException $e) {
             header("HTTP/1.1 {$e->getCode()}");
             header("Location: {$e->getRedirectURL()}");

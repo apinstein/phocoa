@@ -532,6 +532,7 @@ class WFPaginator extends WFObject
      */
     function setCurrentPage($pageNum)
     {
+        if ($pageNum < 1) throw new WFPaginatorException("Page must be a positive integer.", WFPaginatorException::INVALID_PAGE);
         $this->currentPage = $pageNum;
     }
 
@@ -586,7 +587,7 @@ class WFPaginator extends WFObject
      */
     function setPageSize($sz)
     {
-        if ($sz != WFPaginator::PAGINATOR_PAGESIZE_ALL and $sz < 1) throw new WFException("Paginator page size must be a positive integer, or -1 (WFPaginator::PAGINATOR_PAGESIZE_ALL).");
+        if ($sz != WFPaginator::PAGINATOR_PAGESIZE_ALL and $sz < 1) throw new WFPaginatorException("Paginator page size must be a positive integer, or -1 (WFPaginator::PAGINATOR_PAGESIZE_ALL).", WFPaginatorException::INVALID_PAGE_SIZE);
         $this->pageSize = $sz;
     }
 
@@ -1249,4 +1250,8 @@ class WFPagedPDOQuery implements WFPagedData
     }
 }
 
-?>
+class WFPaginatorException extends WFException
+{
+    const INVALID_PAGE = 1;
+    const INVALID_PAGE_SIZE = 1;
+}
