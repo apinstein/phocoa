@@ -96,6 +96,7 @@ class WFIncluding
                  'WFNumberFormatter'                             => 'framework/widgets/WFFormatter.php',
                  'WFSensitiveDataFormatter'                      => 'framework/widgets/WFFormatter.php',
                  'WFPaginator'                                   => 'framework/WFPagination.php',
+                 'WFPaginatorException'                          => 'framework/WFPagination.php',
                  'WFPagedArray'                                  => 'framework/WFPagination.php',
                  'WFPagedCreoleQuery'                            => 'framework/WFPagination.php',
                  'WFPagedData'                                   => 'framework/WFPagination.php',
