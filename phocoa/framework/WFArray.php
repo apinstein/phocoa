@@ -35,17 +35,33 @@ class WFArray extends ArrayObject
             {
                 $hashInfo = $entry;
             }
-            else if (is_string($keyPath))
+            else if ($entry instanceof WFObject && is_string($keyPath))
             {
                 $hashInfo = $entry->valueForKeyPath($keyPath);
             }
-            else if (is_array($keyPath))
+            else if ($entry instanceof WFObject && is_array($keyPath))
             {
                 $hashInfo = $entry->valuesForKeyPaths($keyPath);
             }
-            if ($hashKey)
+            else if (is_array($entry) && is_string($keyPath))
+            {
+                $hashInfo = $entry[$keyPath];
+            }
+            else if (is_array($entry) && is_array($keyPath))
+            {
+                $hashInfo = array();
+                foreach ($keyPath as $p)
+                {
+                    $hashInfo[$p] = $entry[$p];
+                }
+            }
+            if ($entry instanceof WFObject && $hashKey)
             {
                 $hash[$entry->valueForKey($hashKey)] = $hashInfo;
+            }
+            else if (is_array($entry) && $hashKey)
+            {
+                $hash[$entry[$hashKey]] = $hashInfo;
             }
             else
             {
