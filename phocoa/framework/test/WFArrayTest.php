@@ -25,6 +25,11 @@ class WFArrayTest extends PHPUnit_Framework_TestCase
             new Person('joe', 'schmoe', 2),
             new Person('john', 'doe', 3),
         ));
+        $this->array['hashArray'] = new WFArray(array(
+            array('id' => 2, 'name' => 'alan', 'city' => 'Atlanta',  'state' => 'GA'),
+            array('id' => 3, 'name' => 'joe',  'city' => 'Pasadena', 'state' => 'CA'),
+            array('id' => 4, 'name' => 'john', 'city' => 'Boston',   'state' => 'MA'),
+        ));
         $this->array['chunkData'] = new WFArray(array(
             new Person('alan', 'pinstein', 1),
             new Person('alan', 'schmoe',   2),
@@ -45,6 +50,40 @@ class WFArrayTest extends PHPUnit_Framework_TestCase
         $hash = $this->array['hashData']->hash(NULL);
         $this->assertEquals(array(0,1,2), array_keys($hash), "Hash keys didn't match.");
         $this->assertEquals($this->array['hashData']->values(), array_values($hash), "Hash values didn't match.");
+    }
+
+    public function testHashArrays()
+    {
+        $hash = $this->array['hashArray']->hash('id', 'name');
+        $this->assertEquals(
+            array(2,3,4),
+            array_keys($hash),
+            "Hash keys didn't match."
+        );
+        $this->assertEquals(
+            array('alan', 'joe', 'john'),
+            array_values($hash),
+            "Hash values didn't match."
+        );
+    }
+
+    public function testHashArraysInArrayMode()
+    {
+        $hash = $this->array['hashArray']->hash('id', array('name', 'state'));
+        $this->assertEquals(
+            array(2,3,4),
+            array_keys($hash),
+            "Hash keys didn't match."
+        );
+        $this->assertEquals(
+            array(
+                array('name' => 'alan', 'state' => 'GA'),
+                array('name' => 'joe',  'state' => 'CA'),
+                array('name' => 'john', 'state' => 'MA')
+            ),
+            array_values($hash),
+            "Hash values didn't match."
+        );
     }
 
     public function testChunkObjects()
@@ -98,6 +137,27 @@ class WFArrayTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('firstName' => 'alan', 'lastName' => 'pinstein'), $hash[1], "Hash values didn't match.");
         $this->assertEquals(array('firstName' => 'joe', 'lastName' => 'schmoe'), $hash[2], "Hash values didn't match.");
         $this->assertEquals(array('firstName' => 'john', 'lastName' => 'doe'), $hash[3], "Hash values didn't match.");
+    }
+    public function testHashObjectsWithInvalidArrayContentsThrowsWFException()
+    {
+        $this->array['hashData'][] = new stdclass;
+        $this->setExpectedException('WFException');
+        $hash = $this->array['hashData']->hash('uid', 'firstName');
+    }
+    /**
+     * @dataProvider hashObjectsRequiresValidKeyPath_DataProvider
+     */
+    public function testHashObjectsRequiresValidKeyPath($bonkKeyPathType)
+    {
+        $this->setExpectedException('WFException');
+        $hash = $this->array['hashData']->hash('uid', $bonkKeyPathType);
+    }
+    public function hashObjectsRequiresValidKeyPath_DataProvider()
+    {
+        return array(
+            array(1),
+            array(new stdclass),
+        );
     }
 
     public function testSupportsValueForKey()

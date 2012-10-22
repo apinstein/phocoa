@@ -29,23 +29,52 @@ class WFArray extends ArrayObject
      */
     public function hash($hashKey, $keyPath = NULL)
     {
+        if (!is_null($keyPath) and !is_string($keyPath) and !is_array($keyPath))
+        {
+            throw new WFException("KeyPath must be NULL, a string, or an array of strings.");
+        }
+
         $hash = array();
         foreach ($this as $entry) {
+            // calculate $hashInfo, which will be the value pointed to by the key
             if ($keyPath === NULL)
             {
                 $hashInfo = $entry;
             }
-            else if (is_string($keyPath))
+            else if ($entry instanceof WFObject && is_string($keyPath))
             {
                 $hashInfo = $entry->valueForKeyPath($keyPath);
             }
-            else if (is_array($keyPath))
+            else if ($entry instanceof WFObject && is_array($keyPath))
             {
                 $hashInfo = $entry->valuesForKeyPaths($keyPath);
             }
-            if ($hashKey)
+            else if (is_array($entry) && is_string($keyPath))
+            {
+                $hashInfo = $entry[$keyPath];
+            }
+            else if (is_array($entry) && is_array($keyPath))
+            {
+                $hashInfo = array();
+                foreach ($keyPath as $p)
+                {
+                    $hashInfo[$p] = $entry[$p];
+                }
+            }
+            else
+            {
+                throw new WFException("This array contained an entry that wasn't a WFObject or Array.");
+            }
+
+            // calculate the hash key used to reference the calculated $hasInfo value above
+            // add the calculated value to our output hash
+            if ($entry instanceof WFObject && $hashKey)
             {
                 $hash[$entry->valueForKey($hashKey)] = $hashInfo;
+            }
+            else if (is_array($entry) && $hashKey)
+            {
+                $hash[$entry[$hashKey]] = $hashInfo;
             }
             else
             {
