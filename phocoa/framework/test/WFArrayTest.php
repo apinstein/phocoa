@@ -138,6 +138,27 @@ class WFArrayTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('firstName' => 'joe', 'lastName' => 'schmoe'), $hash[2], "Hash values didn't match.");
         $this->assertEquals(array('firstName' => 'john', 'lastName' => 'doe'), $hash[3], "Hash values didn't match.");
     }
+    public function testHashObjectsWithInvalidArrayContentsThrowsWFException()
+    {
+        $this->array['hashData'][] = new stdclass;
+        $this->setExpectedException('WFException');
+        $hash = $this->array['hashData']->hash('uid', 'firstName');
+    }
+    /**
+     * @dataProvider hashObjectsRequiresValidKeyPath_DataProvider
+     */
+    public function testHashObjectsRequiresValidKeyPath($bonkKeyPathType)
+    {
+        $this->setExpectedException('WFException');
+        $hash = $this->array['hashData']->hash('uid', $bonkKeyPathType);
+    }
+    public function hashObjectsRequiresValidKeyPath_DataProvider()
+    {
+        return array(
+            array(1),
+            array(new stdclass),
+        );
+    }
 
     public function testSupportsValueForKey()
     {

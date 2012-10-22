@@ -29,8 +29,14 @@ class WFArray extends ArrayObject
      */
     public function hash($hashKey, $keyPath = NULL)
     {
+        if (!is_null($keyPath) and !is_string($keyPath) and !is_array($keyPath))
+        {
+            throw new WFException("KeyPath must be NULL, a string, or an array of strings.");
+        }
+
         $hash = array();
         foreach ($this as $entry) {
+            // calculate $hashInfo, which will be the value pointed to by the key
             if ($keyPath === NULL)
             {
                 $hashInfo = $entry;
@@ -55,6 +61,13 @@ class WFArray extends ArrayObject
                     $hashInfo[$p] = $entry[$p];
                 }
             }
+            else
+            {
+                throw new WFException("This array contained an entry that wasn't a WFObject or Array.");
+            }
+
+            // calculate the hash key used to reference the calculated $hasInfo value above
+            // add the calculated value to our output hash
             if ($entry instanceof WFObject && $hashKey)
             {
                 $hash[$entry->valueForKey($hashKey)] = $hashInfo;
