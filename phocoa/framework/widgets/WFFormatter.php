@@ -598,17 +598,22 @@ class WFSensitiveDataFormatter extends WFFormatter
     function stringForValue($value)
     {
         $displayString = NULL;
+        $strlen = strlen($value);
 
         if ($this->showBeginCharacters === 0)
         {
-            $displayString = str_repeat($this->redactedChr, strlen($value) - $this->showEndCharacters);
+            $displayString = str_repeat($this->redactedChr, max(0, $strlen - $this->showEndCharacters));
         }
         else
         {
             $displayString = substr($value, 0, $this->showBeginCharacters);
-            $displayString .= str_repeat($this->redactedChr, strlen($value) - ($this->showBeginCharacters + $this->showEndCharacters));
+            $displayString .= str_repeat($this->redactedChr, max(0, $strlen - ($this->showBeginCharacters + $this->showEndCharacters)));
         }
-        $displayString .= substr($value, -$this->showEndCharacters);
+
+        if ($this->showEndCharacters)
+        {
+            $displayString .= substr($value, -$this->showEndCharacters);
+        }
 
         return $displayString;
     }

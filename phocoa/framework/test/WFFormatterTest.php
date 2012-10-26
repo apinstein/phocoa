@@ -42,7 +42,6 @@ class WFFormatterTest extends PHPUnit_Framework_TestCase
         $this->sqlFormatter = new WFSQLDateFormatter();
         $this->sqlFormatter->setFormatString($this->formatString);
         $this->sqlFormatter->setRelativeDateFormatString($this->relFormatString);
-
     }
 
     function testSQLFormatter()
@@ -71,6 +70,36 @@ class WFFormatterTest extends PHPUnit_Framework_TestCase
         self::assertEquals('2 days ago', $this->unixFormatter->stringForValue(time()-2*86400));
         self::assertEquals($this->relFormatStringOutput, $this->unixFormatter->stringForValue($this->timestamp));
     }
+
+    /**
+     * @dataProvider sensitiveDataFormatterDataProvider
+     */
+    function testSensitiveDataFormatter($input, $redactedChr, $showBeginCharacters, $showEndCharacters, $expectedOutput)
+    {
+        $f = new WFSensitiveDataFormatter;
+        $f->setValuesForKeys(array(
+            'redactedChr'         => $redactedChr,
+            'showBeginCharacters' => $showBeginCharacters,
+            'showEndCharacters'   => $showEndCharacters,
+        ));
+        $this->assertEquals($expectedOutput, $f->stringForValue($input));
+    }
+    function sensitiveDataFormatterDataProvider()
+    {
+        return array(
+            //    input string          redaction chr       begin chars         end chars       expected output
+            array('',                   'X',                0,                  0,              ''),
+            array('',                   'X',                0,                  2,              ''),
+            array('',                   'X',                2,                  0,              ''),
+
+            array('123456789',          'X',                0,                  0,              'XXXXXXXXX'),
+            array('123456789',          'X',                0,                  4,              'XXXXX6789'),
+            array('123456789',          'X',                4,                  4,              '1234X6789'),
+            array('123456789',          'X',                4,                  0,              '1234XXXXX'),
+            array('123456789',          '-',                2,                  2,              '12-----89'),
+        );
+    }
+
 }
 
 ?>
