@@ -324,7 +324,7 @@ class WFImage extends WFWidget
         }
 
         $imgHTML = '<img id="' . $this->id() . '" src="' . $this->baseDir . $this->value . '"' .
-            ($this->alt ? " alt=\"{$this->alt}\"" : '') .
+            ($this->alt ? " alt=\"{$this->alt}\" title=\"{$this->alt}\"" : '') .
             ($this->align ? " align=\"{$this->align}\"" : '') .
             ($this->class ? " class=\"{$this->class}\"" : '') .
             ' style="' .
