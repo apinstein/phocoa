@@ -17,7 +17,7 @@ class WFSmarty extends Smarty implements WFPageRendering
 
     function __construct()
     {
-        parent::Smarty();
+        parent::__construct();
 
         $this->template = NULL;     // by default, no template!
 

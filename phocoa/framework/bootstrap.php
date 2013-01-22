@@ -23,7 +23,7 @@ if (IS_PRODUCTION)
     ini_set('display_errors', false);
     if (!defined('WF_LOG_LEVEL'))
     {
-        define('WF_LOG_LEVEL', PEAR_LOG_ERR);
+        define('WF_LOG_LEVEL', \Monolog\Logger::ERROR);
     }
 }
 else
@@ -32,7 +32,7 @@ else
     ini_set('display_errors', true);
     if (!defined('WF_LOG_LEVEL'))
     {
-        define('WF_LOG_LEVEL', PEAR_LOG_DEBUG);
+        define('WF_LOG_LEVEL', \Monolog\Logger::DEBUG);
     }
 }
 
