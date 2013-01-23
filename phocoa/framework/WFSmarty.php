@@ -30,7 +30,8 @@ class WFSmarty extends Smarty implements WFPageRendering
         $this->template_dir = WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/templates/';
         $this->config_dir = WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/configs/';
         // add a local plugins dir
-        array_push($this->plugins_dir, FRAMEWORK_DIR . '/smarty/plugins/');
+        $this->addPluginsDir(FRAMEWORK_DIR . '/smarty/plugins/');
+        //array_push($this->plugins_dir, FRAMEWORK_DIR . '/smarty/plugins/');
 
         // GLOBAL variables for all smarty templates
         $this->assign('WWW_ROOT', WWW_ROOT);
