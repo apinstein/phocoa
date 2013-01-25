@@ -25,12 +25,18 @@ class css extends WFModule
     { 
     	return 'dspSkinCSS'; 
     }
-	
-    function dspSkinCSS_PageDidLoad()
+}
+
+class css_dspSkinCSS
+{
+    function parameterList()
     {
-        // determine skin type/skin/theme
-        $cssTemplate = $skinName = $skinThemeName = NULL;
-        @list(,,,$cssTemplate, $skinTypeName, $skinName, $skinThemeName) = split('/', $_SERVER['PATH_INFO']);
+        return array('cssTemplate', 'skinTypeName', 'skinName', 'skinThemeName');
+    }
+    function noAction($page, $params)
+    {
+        extract($params);
+
         $cssFilePath = WFWebApplication::appDirPath(WFWebApplication::DIR_SKINS) . '/' . $skinTypeName . '/'. $skinName . '/' . $cssTemplate;
         if (!file_exists($cssFilePath)) {
             header("HTTP/1.0 404 Not Found");
@@ -39,16 +45,16 @@ class css extends WFModule
         }
 
         // set the skin's wrapper information
-        $skin = $this->invocation->rootSkin();
+        $skin = $page->module()->invocation()->rootSkin();
         $skin->setDelegateName($skinTypeName);
         $skin->setSkin($skinName);
         $skin->setTemplateType(WFSkin::SKIN_WRAPPER_TYPE_RAW);
         $skin->setValueForKey($skinThemeName, 'skinThemeName');
         // load the theme vars into our smarty for this module
-        $this->requestPage->assign('skinThemeVars', $skin->valueForKey('skinManifestDelegate')->loadTheme($skinThemeName));
-        $this->requestPage->assign('cssFilePath', $cssFilePath);
-        $this->requestPage->assign('skinDir', $skin->getSkinDir());
-        $this->requestPage->assign('skinDirShared', $skin->getSkinDirShared());
+        $page->assign('skinThemeVars', $skin->valueForKey('skinManifestDelegate')->loadTheme($skinThemeName));
+        $page->assign('cssFilePath', $cssFilePath);
+        $page->assign('skinDir', $skin->getSkinDir());
+        $page->assign('skinDirShared', $skin->getSkinDirShared());
         header("Content-Type: text/css");
         
         // make CSS cacheable for a day at least
