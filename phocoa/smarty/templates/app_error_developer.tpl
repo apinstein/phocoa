@@ -61,15 +61,5 @@ Session: " . print_r($_SESSION, true);
 {/php}
 </pre>
 <script>
-console.error(
-{php}
-$err = "PHP Uncaught Exception
-URL: http://{$_SERVER['HTTP_HOST']}{$_SERVER["REQUEST_URI"]}
-Referrer: " . (isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '(none)') . "
-Server: " . print_r($_SERVER, true) . "
-Request: " . print_r($_REQUEST, true) . "
-Session: " . print_r($_SESSION, true);
-print json_encode($err);
-{/php}
-);
+console.error("Error at {$location}\n{$headline}", {$standardErrorDataJSON});
 </script>

@@ -137,6 +137,17 @@ class WFModuleInvocation extends WFObject
     }
 
     /**
+     * Proxy the caught error to the WFModule handler for potential handling.
+     */
+    function handleUncaughtException(Exception $e)
+    {
+        if ($this->module)
+        {
+            $this->module->handleUncaughtException($e);
+        }
+    }
+
+    /**
      *  Set the "modules" directory used to access this module.
      *
      *  This is not necessarily the entire path to the module; the entire path to the module is modulesDir() + modulePath()
@@ -1155,6 +1166,21 @@ abstract class WFModule extends WFObject
     function shouldProfile()
     {
         return false;
+    }
+
+    /**
+      * Exception handler for the WFModule.
+      *
+      * This is basically the uncaught exception handler errors inside of a module, giving a module a chance to do something relevant.
+      *
+      * If the module handle the error itself, it should just exit(). If the function returns, the normal exception handler will run.
+      *
+      * The default implementation does nothing, thus allowing the default exception handler to execute.
+      *
+      * @param Exception The exception object to handle.
+      */
+    function handleUncaughtException(Exception $e)
+    {
     }
 
 }

@@ -120,6 +120,12 @@ class WFRequestController extends WFObject
         // give ourselves a little more memory so we can process the exception
         ini_set('memory_limit', memory_get_usage() + 25000000 /* 25MB */);
 
+        // let the current module try to handle the exception
+        if ($this->rootModuleInvocation)
+        {
+            $this->rootModuleInvocation->handleUncaughtException($e);
+        }
+
         $webAppDelegate = WFWebApplication::sharedWebApplication()->delegate();
         if (is_object($webAppDelegate) && method_exists($webAppDelegate, 'handleUncaughtException'))
         {
@@ -132,20 +138,35 @@ class WFRequestController extends WFObject
         // build stack of errors (php 5.3+)
         if (method_exists($e, 'getPrevious'))
         {
+            $tmpE = $e;
             $allExceptions = array();
             do {
-                $allExceptions[] = $e;
-            } while ($e = $e->getPrevious());
+                $allExceptions[] = $tmpE;
+            } while ($tmpE = $tmpE->getPrevious());
         }
         else
         {
             $allExceptions = array($e);
         }
 
+
         $exceptionPage = new WFSmarty();
         $exceptionPage->assign('exceptions', $allExceptions);
         $exceptionPage->assign('exceptionClass', get_class($allExceptions[0]));
         $exceptionPage->assign('home_url', WWW_ROOT . '/');
+
+        // modern format
+        $standardErrorData = WFExceptionReporting::generatedStandardizedErrorDataFromException($e);
+        $exceptionPage->assign('location', "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
+        $exceptionPage->assign('headline', "{$standardErrorData[0]['title']}: {$standardErrorData[0]['message']}");
+        $exceptionPage->assign('standardErrorData', $standardErrorData);
+        $exceptionPage->assign('standardErrorDataJSON', WFJSON::encode(array(
+            'error'     => $standardErrorData,
+            '$_SERVER'  => $_SERVER,
+            '$_REQUEST' => $_REQUEST,
+            '$_SESSION' => $_SESSION,
+        )));
+        // @todo refactor these templates to use WFExceptionReporting::generatedStandardizedErrorDataFromException($e)
         if (IS_PRODUCTION)
         {
             $exceptionPage->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/app_error_user.tpl');
