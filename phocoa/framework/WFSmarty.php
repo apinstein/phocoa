@@ -54,7 +54,7 @@ class WFSmarty extends Smarty implements WFPageRendering
 
     function get($name)
     {
-        return $this->get_template_vars($name);
+        return $this->getTemplateVars($name);
     }
 
     function render($display = true)
@@ -70,7 +70,7 @@ class WFSmarty extends Smarty implements WFPageRendering
 
     function getPage()
     {
-        return $this->get_template_vars('__page');
+        return $this->getTemplateVars('__page');
     }
 
     function getCurrentWidget($params)

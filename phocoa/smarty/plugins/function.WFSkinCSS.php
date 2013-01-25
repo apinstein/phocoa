@@ -34,7 +34,7 @@ function smarty_function_WFSkinCSS($params, &$smarty)
     else
         $media = '';
 
-    $skin = $smarty->get_template_vars('skin');
+    $skin = $smarty->getTemplateVars('skin');
     return '<link rel="stylesheet" type="text/css" href="' . WWW_ROOT . '/css/dspSkinCSS/' . $file . '/' . $skin->delegateName() . '/' . $skin->valueForKey('skinName') . '/' . $skin->valueForKey('skinThemeName') . '"' . $media . ' />';
 
 }

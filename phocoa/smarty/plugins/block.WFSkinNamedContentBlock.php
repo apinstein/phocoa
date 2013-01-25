@@ -35,7 +35,7 @@ function smarty_block_WFSkinNamedContentBlock($params, $content, &$smarty, &$rep
     if (isset($content))
     {
         // end block; content is populated.
-        $skin = $smarty->get_template_vars('__module')->invocation()->rootSkin();
+        $skin = $smarty->getTemplateVars('__module')->invocation()->rootSkin();
         if ($skin)
         {
             $skin->setContentForName($content, $params['name']);

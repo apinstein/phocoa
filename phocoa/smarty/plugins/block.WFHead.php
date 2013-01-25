@@ -28,7 +28,7 @@ function smarty_block_WFHead($params, $content, &$smarty, &$repeat)
     // beginning or end block?
     if (isset($content))
     {
-        $module = $smarty->get_template_vars('__module');
+        $module = $smarty->getTemplateVars('__module');
         $skin = $module->invocation()->rootSkin();
         if ($skin)
         {
