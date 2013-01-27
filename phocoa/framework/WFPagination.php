@@ -911,6 +911,10 @@ class WFPagedPropelQuery implements WFPagedData
             WFWebApplication::sharedWebApplication()->autoload($this->peerName);
         }
     }
+    private function verifyCallback()
+    {
+        if (!is_callable(array($this->peerName, $this->peerSelectMethod))) throw new WFException("WFPagedPropelQuery callback doesn't exist: {$this->peerName}::{$this->peerSelectMethod}");
+    }
     function itemCount()
     {
         return call_user_func(array($this->peerName, 'doCount'), $this->criteria); // this is crashing on php5.1.6 IFF apd is enabled.
@@ -918,6 +922,8 @@ class WFPagedPropelQuery implements WFPagedData
     }
     function itemsAtIndex($startIndex, $numItems, $sortKeys)
     {
+        $this->verifyCallback();
+
         $criteria = clone $this->criteria;
         $criteria->setOffset($startIndex - 1);
         if ($numItems !== WFPaginator::PAGINATOR_PAGESIZE_ALL)
