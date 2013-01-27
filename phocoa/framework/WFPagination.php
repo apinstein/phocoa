@@ -908,7 +908,7 @@ class WFPagedPropelQuery implements WFPagedData
         // There is a bug in call_user_func that causes PHP to crash if the peer being called isn't already loaded.
         if (!class_exists($this->peerName))
         {
-            WFWebApplication::autoload($this->peerName);
+            WFWebApplication::sharedWebApplication()->autoload($this->peerName);
         }
     }
     function itemCount()
