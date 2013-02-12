@@ -22,6 +22,7 @@
     </tr>
    </table>
 {/foreach}
+
 {assign var=error value=error_get_last()}
 <h3>error_get_last() output</h3>
 <p><em>may or may not be relevant to the Exception</em></p>
@@ -40,14 +41,34 @@
 </tr>
 </table>
 
-<h3>Server Data</h3>
-<pre>
-URL: http://{$_SERVER['HTTP_HOST']}{$_SERVER["REQUEST_URI"]}
-Referrer: {$_SERVER['HTTP_REFERER']|default:'(none)'}
-Server: {$_SERVER|print_r}
-Request: {$_REQUEST|print_r}
-Session: {$_SESSION|print_r}
-</pre>
+<h3>Misc Data</h3>
+<table>
+    <tr>
+        <td nowrap>URL</td>
+        <td>{$location}</td>
+    </tr>
+    <tr>
+        <td nowrap>Referrer</td>
+        <td>{$smarty.server.HTTP_REFERER|default:'(none)'}</td>
+    </tr>
+    <tr>
+        <td nowrap valign="top">Request Scope</td>
+        <td><pre>{$smarty.request|@print_r:true}</pre></td>
+    </tr>
+    <tr>
+        <td nowrap valign="top">Session Scope</td>
+        <td><pre>{$smarty.session|@print_r:true}</pre></td>
+    </tr>
+    <tr>
+        <td nowrap valign="top">Server Scope</td>
+        <td><pre>{$smarty.server|@print_r:true}</pre></td>
+    </tr>
+    <tr>
+        <td nowrap valign="top">Env Scope</td>
+        <td><pre>{$smarty.env|@print_r:true}</pre></td>
+    </tr>
+</table>
+
 <script>
 console.error("Error at {$location}\n{$headline}", {$standardErrorDataJSON});
 </script>
