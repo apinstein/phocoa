@@ -63,10 +63,6 @@
         <td nowrap valign="top">Server Scope</td>
         <td><pre>{$smarty.server|@print_r:true}</pre></td>
     </tr>
-    <tr>
-        <td nowrap valign="top">Env Scope</td>
-        <td><pre>{$smarty.env|@print_r:true}</pre></td>
-    </tr>
 </table>
 
 <script>
