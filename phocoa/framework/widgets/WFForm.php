@@ -77,6 +77,11 @@ class WFForm extends WFWidget
     protected $isAjax;
 
     /**
+     * @var boolean TRUE to enable CSRF protection on this form. DEFAULT=true.
+     */
+    protected $enableCSRFProtection = true;
+
+    /**
       * Constructor.
       *
       * Sets up the smarty object for this module.
@@ -119,6 +124,11 @@ class WFForm extends WFWidget
         $instanceid = rand();
         $auth = md5(session_id() . $instanceid);
         return array('instanceid' => $instanceid, 'auth' => $auth);
+    }
+
+    public function enableCSRFProtection()
+    {
+        return $this->enableCSRFProtection;
     }
 
     public function phocoaFormParameters()
