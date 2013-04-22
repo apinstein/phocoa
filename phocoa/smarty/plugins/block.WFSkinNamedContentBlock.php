@@ -48,7 +48,7 @@ function smarty_block_WFSkinNamedContentBlock($params, $content, &$smarty, &$rep
             }
             else
             {
-                throw new WFException("There is no root skin found for namedContent: {$name}.");
+                throw new WFException("There is no root skin found for namedContent: {$params['name']}.");
             }
         }
     }
