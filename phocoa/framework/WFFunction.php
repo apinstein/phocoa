@@ -42,7 +42,14 @@ class WFFunction
     public function call()
     {
         $orderedArguments = $this->getArgumentNamesFormatted();
-        $callback = create_function($orderedArguments, $this->code);
+        if (is_callable($this->code))
+        {
+            $callback = $this->code;
+        }
+        else if (is_string($this->code))
+        {
+            $callback = create_function($orderedArguments, $this->code);
+        }
         $calledArgs = func_get_args();
         $arguments = array_merge($calledArgs, $this->arguments);
         return call_user_func_array($callback, $arguments);
