@@ -385,7 +385,7 @@ abstract class WFWidget extends WFView
         } catch (WFUndefinedKeyException $e) {
             if ($binding->raisesForNotApplicableKeys()) throw $e;
 
-            $func = WFFunction::create('return "undefined key: {$binding->bindToKeyPath()}, substituting " . var_export($binding->notApplicablePlaceholder(), true);')
+            $func = WFFunction::create('return "undefined key: {$binding->bindToKeyPath()}, substituting " . WFPrettyPrint($binding->notApplicablePlaceholder());')
                         ->withArguments('binding')
                         ->curry        ($binding);
             WFLog::log($func, WFLog::TRACE_LOG);
@@ -399,7 +399,7 @@ abstract class WFWidget extends WFView
         // process value transformer
         if ($binding->valueTransformerName())
         {
-            $func = WFFunction::create('return "Transforming value " . var_export($boundValue, true) . " with " . $binding->valueTransformerName();')
+            $func = WFFunction::create('return "Transforming value " . WFPrettyPrint($boundValue) . " with " . $binding->valueTransformerName();')
                         ->withArguments('boundValue', 'binding')
                         ->curry        ($boundValue,  $binding);
             WFLog::log($func, WFLog::TRACE_LOG);
@@ -407,7 +407,7 @@ abstract class WFWidget extends WFView
             $vt = WFValueTransformer::valueTransformerForName($binding->valueTransformerName());
             $boundValue = $vt->transformedValue($boundValue);
 
-            $func = WFFunction::create('return "Transformed value: " . var_export($boundValue, true);')
+            $func = WFFunction::create('return "Transformed value: " . WFPrettyPrint($boundValue);')
                         ->withArguments('boundValue')
                         ->curry        ($boundValue);
             WFLog::log($func, WFLog::TRACE_LOG);
@@ -415,7 +415,7 @@ abstract class WFWidget extends WFView
 
         if ($binding->formatter())
         {
-            $func = WFFunction::create('return "Formatting value " . var_export($boundValue, true) . " with " . $binding->formatter();')
+            $func = WFFunction::create('return "Formatting value " . WFPrettyPrint($boundValue) . " with " . $binding->formatter();')
                         ->withArguments('boundValue', 'binding')
                         ->curry        ($boundValue,  $binding);
             WFLog::log($func, WFLog::TRACE_LOG);
@@ -434,13 +434,13 @@ abstract class WFWidget extends WFView
                 $boundValue = $formatter->stringForValue($boundValue);
             }
 
-            $func = WFFunction::create('return "Formatted value: " . var_export($boundValue, true);')
+            $func = WFFunction::create('return "Formatted value: " . WFPrettyPrint($boundValue);')
                         ->withArguments('boundValue')
                         ->curry        ($boundValue);
             WFLog::log($func, WFLog::TRACE_LOG);
         }
 
-        $func = WFFunction::create('return "Using value " . var_export($boundValue, true) . " for binding " . $prop;')
+        $func = WFFunction::create('return "Using value " . WFPrettyPrint($boundValue) . " for binding " . $prop;')
                     ->withArguments('boundValue', 'prop')
                     ->curry        ($boundValue,  $prop);
         WFLog::log($func, WFLog::TRACE_LOG);
@@ -598,7 +598,7 @@ abstract class WFWidget extends WFView
                     $boundValue = $binding->coalescedOption(WFBindingSetup::WFBINDINGSETUP_NULL_PLACEHOLDER);
                 }
 
-                $func = WFFunction::create('return "FINAL value " . var_export($boundValue, true) . " for binding {$id} / $prop...";')
+                $func = WFFunction::create('return "FINAL value " . WFPrettyPrint($boundValue) . " for binding {$id} / $prop...";')
                             ->withArguments('boundValue', 'id',      'prop')
                             ->curry        ($boundValue,  $this->id, $prop);
                 WFLog::log($func, WFLog::TRACE_LOG);
@@ -894,5 +894,3 @@ abstract class WFWidget extends WFView
         return NULL;
     }
 }
-
-?>

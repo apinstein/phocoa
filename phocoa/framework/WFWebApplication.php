@@ -20,6 +20,22 @@ function WFWebApplicationMain()
     return $webapp;
 }
 
+function WFPrettyPrint($val)
+{
+    if (is_null($val) || is_scalar($val))
+    {
+        return var_export($val, true);
+    }
+    else if (is_object($val) && method_exists($val, '__toString'))
+    {
+        return (string) $val;
+    }
+    else
+    {
+        return print_r($val, true);
+    }
+}
+
 /**
  * The WFWebApplication object is a singleton object that manages the running of the any Phocoa request, be it CLI or HTTP.
  *
