@@ -10,8 +10,10 @@
 
 /**
  * A Password widget for our framework.
- * @todo Add property "enterPasswordValidateDuplicate" - will show 2 fields and automatically validate that they're the same (great for "sign up" or "change password" feature). default FALSE.
- * @todo Add property "blankOK" which will not consider it an error if ALL fields are blank (assume "no change"). default TRUE.
+ *
+ * In cases where you're letting a user *set* a password, you will want a 2nd "confirm password" field. To accomplish this,
+ * add a child WFPassword widget and the main widget will automatically verify that they match. This allows you to use normal
+ * phocoa widget placement to decide where to insert the "confirm password" widget.
  */
 class WFPassword extends WFWidget
 {
@@ -27,6 +29,13 @@ class WFPassword extends WFWidget
      *  @var boolean Whether or not to "preserve" the input in the UI if the form is re-displayed. TRUE is useful for sign-up forms to prevent people from having to re-enter the PW if there's nothing wrong with that data.
      */
     protected $preserveInput;
+    /**
+     * @var string The ID of a collaborator WFPassword widget to be used to "confirm" the passwords entered match. DEFAULT: NULL
+     */
+    private $confirmPasswordId;
+
+    // errors
+    const ERR_PASSWORDS_DO_NOT_MATCH = 1;
 
     /**
       * Constructor.
@@ -38,6 +47,7 @@ class WFPassword extends WFWidget
         $this->size = NULL;
         $this->enabled = true;
         $this->preserveInput = false;
+        $this->confirmPasswordId = NULL;
     }
 
     public static function exposedProperties()
@@ -46,8 +56,17 @@ class WFPassword extends WFWidget
         return array_merge($items, array(
             'maxLength',
             'size',
-            'preserveInput' => array(true, false),
+            'preserveInput'   => array(true, false),
             ));
+    }
+
+    function addChild(WFView $view)
+    {
+        if (!($view instanceof WFPassword)) throw new WFException("Only WFPassword child views are accepted.");
+        if ($this->confirmPasswordId !== NULL) throw new WFException("WFPassword accepts only one child.");
+
+        $this->confirmPasswordId = $view->id();
+        return parent::addChild($view);
     }
 
     function restoreState()
@@ -59,6 +78,17 @@ class WFPassword extends WFWidget
         if (isset($_REQUEST[$this->name]))
         {
             $this->value = $_REQUEST[$this->name];
+
+            if ($this->value && $this->confirmPasswordId)
+            {
+                $confirmPasswordWidget = $this->page->outlet($this->confirmPasswordId);
+                $confirmPasswordWidget->restoreState();
+                $confirmValue = $confirmPasswordWidget->value();
+                if ($confirmValue !== $this->value)
+                {
+                    $this->addError(new WFError("Passwords entered do not match.", self::ERR_PASSWORDS_DO_NOT_MATCH));
+                }
+            }
         }
     }
 
@@ -85,5 +115,3 @@ class WFPassword extends WFWidget
 
     function canPushValueBinding() { return true; }
 }
-
-?>

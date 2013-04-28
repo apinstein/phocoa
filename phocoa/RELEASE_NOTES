@@ -10,6 +10,7 @@ Legend:
                               WF_LOG_DEPRECATED && WFLog::deprecated("MyObj::foo() is deprecated. Use MyObj::bar().");
 
 Version 0.4.1 - ??
+- WFPassword now has support for a companion "confirm password" field.
 
 Version 0.4.0 - 4/26/2011
 - [improved] Refactored WFErrorArray and WFErrorsException to implement a new interface WFErrorCollection.
