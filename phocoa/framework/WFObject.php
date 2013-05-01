@@ -404,7 +404,7 @@ class WFObject implements WFKeyValueCoding
                         case '@first':
                             if (count($magicArray) > 0)
                             {
-                                $result = $magicArray[0];
+                                $result = current($magicArray);
                             }
                             else
                             {
