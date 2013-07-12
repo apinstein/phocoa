@@ -86,6 +86,11 @@ class WFLink extends WFWidget
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $myBindings[] = $newValBinding;
 
+        $newValBinding = new WFBindingSetup('class', 'The css class(es) for the link.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
+
         return $myBindings;
     }
 
