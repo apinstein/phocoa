@@ -641,11 +641,18 @@ class WFPage extends WFObject
                         throw( new Exception("Config value for WFView instance id::property '$id::$keyPath' is not a vaild type (" . gettype($value) . "). Only boolean, integer, double, string, or NULL allowed.") );
                         break;
                 }
-                if (is_string($value) and strncmp($value, "#module#", 8) == 0)
+                if (is_string($value) and strncmp($value, "#module#", 8) === 0)
                 {
                     $module_prop_name = substr($value, 8);
                     WFLog::log("Setting '$id' property, $keyPath => shared object: $module_prop_name", WFLog::TRACE_LOG);
                     $object->setValueForKeyPath($this->module->valueForKey($module_prop_name), $keyPath);
+                }
+                else if (is_string($value) and strncmp($value, "#constant#", 10) === 0)
+                {
+                    $constant_name = substr($value, 10);
+                    if (!defined($constant_name)) throw new WFException("Undefined constant: {$constant_name}");
+                    WFLog::log("Setting '{$id}' property, $keyPath => constant({$constant_name})", WFLog::TRACE_LOG);
+                    $object->setValueForKeyPath(constant($constant_name), $keyPath);
                 }
                 else
                 {

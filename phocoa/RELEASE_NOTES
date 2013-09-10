@@ -11,6 +11,7 @@ Legend:
 
 Version 0.4.1 - ??
 - WFPassword now has support for a companion "confirm password" field.
+- Page widget properties may now use PHP constants via this syntax: "#constant#ClassName::CONSTANT" or "#constant#MY_DEFINED_CONSTANT"
 
 Version 0.4.0 - 4/26/2011
 - [improved] Refactored WFErrorArray and WFErrorsException to implement a new interface WFErrorCollection.
