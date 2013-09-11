@@ -30,6 +30,10 @@ class WFPassword extends WFWidget
      */
     protected $preserveInput;
     /**
+     * @var boolean Allow html autocomplete? Defaults to true unless this widget is coupled with a child WFPassword (confirm password mode).
+     */
+    protected $autocomplete = true;
+    /**
      * @var string The ID of a collaborator WFPassword widget to be used to "confirm" the passwords entered match. DEFAULT: NULL
      */
     private $confirmPasswordId;
@@ -66,6 +70,8 @@ class WFPassword extends WFWidget
         if ($this->confirmPasswordId !== NULL) throw new WFException("WFPassword accepts only one child.");
 
         $this->confirmPasswordId = $view->id();
+        $this->setValueForKey(false, 'autocomplete');
+        $view->setValueForKey(false, 'autocomplete');
         return parent::addChild($view);
     }
 
@@ -100,6 +106,7 @@ class WFPassword extends WFWidget
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
+            ($this->valueForKey('autocomplete') ? '' : ' autocomplete="off" ') .
             ($this->class ? ' class="' . $this->class . '"' : '') .
             '/>';
     }
