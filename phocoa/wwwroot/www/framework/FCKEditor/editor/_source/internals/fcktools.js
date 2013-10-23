@@ -172,8 +172,10 @@ FCKTools.GetDocumentWindow = function( document )
 */
 FCKTools.FixDocumentParentWindow = function( targetWindow )
 {
-	if ( targetWindow.document )
-		targetWindow.document.parentWindow = targetWindow ;
+    try {
+        if ( targetWindow.document )
+            targetWindow.document.parentWindow = targetWindow ;
+    } catch (e) {};
 
 	for ( var i = 0 ; i < targetWindow.frames.length ; i++ )
 		FCKTools.FixDocumentParentWindow( targetWindow.frames[i] ) ;
