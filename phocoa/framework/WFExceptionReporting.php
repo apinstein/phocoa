@@ -16,7 +16,7 @@ class WFExceptionReporting extends WFObject
     /**
       * Log the passed exception to the framework's log folder.
       */
-    function log(Exception $e)
+    static function log(Exception $e)
     {
         $logfile = WFWebApplication::appDirPath(WFWebApplication::DIR_LOG) . '/framework_exceptions.log';
         $smarty = new WFSmarty();
