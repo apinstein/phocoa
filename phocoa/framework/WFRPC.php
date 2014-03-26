@@ -781,6 +781,7 @@ class WFAction extends WFObject
             }
             $script .= "
                 action.rpc.form = " .  ( $this->rpc->form() ? "'" . $this->rpc->form()->id() . "'" : 'null' ) . ";
+                action.rpc.method = 'POST';
                 action.rpc.isAjax = " . ( $this->rpc->isAjax() ? 'true' : 'false') . ";
                 action.rpc.runsIfInvalid = " . ( $this->rpc->runsIfInvalid() ? 'true' : 'false') . ";
                      ";
