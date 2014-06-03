@@ -326,6 +326,7 @@ class WFBreadCrumbSetup extends WFObject
         // must use array_key_exists b/c the value could be null
         if (!array_key_exists($class, $this->graph)) throw( new WFException("This breadcrumb setup doesn't know how to handle objects of class: {$class}.") );
 
+        if (!isset($this->nodes[$class])) throw new WFException("There is no BreadCrumbNode for class {$class}");
         $node = $this->nodes[$class];
 
         // build breadcrumb
@@ -333,7 +334,10 @@ class WFBreadCrumbSetup extends WFObject
         $minCountToEnableLink = $showLinkOnFinal ? 0 : 1;
         while (true) {
             $decoratedObject = $node->decorateObject($object);
-            $title = $decoratedObject->valueForKeyPath($node->valueForKey('linkTextKeyPath'));
+            $titleKeyPath = $node->valueForKey('linkTextKeyPath');
+            if (!$titleKeyPath) throw new WFException("linkTextKeyPath is not configured for BreadCrumbNode {$class}");
+
+            $title = $decoratedObject->valueForKeyPath($titleKeyPath);
             if (count($breadcrumb) >= $minCountToEnableLink)
             {
                 $url = $node->getLinkURL($decoratedObject);
@@ -348,8 +352,13 @@ class WFBreadCrumbSetup extends WFObject
             {
                 break;
             }
-            $object = $object->valueForKeyPath($node->valueForKeyPath('parentKeyPath'));
-            $node = $this->nodes[$node->getParentClass()];
+            $parentKeyPath = $node->valueForKeyPath('parentKeyPath');
+            $object = $object->valueForKeyPath($parentKeyPath);
+            if (!$object) throw new WFException("No parent object at $parentKeyPath for " . get_class($object));
+
+            $parentClass = $node->getParentClass();
+            if (!isset($this->nodes[$parentClass])) throw new WFException("There is no BreadCrumbNode configured for parent class {$parentClass}");
+            $node = $this->nodes[$parentClass];
         }
         // add root
         if ($this->rootLabel)
