@@ -1009,6 +1009,11 @@ class WFDieselSearchHelper extends WFObject
         return count($this->attributeQueries) > 0;
     }
 
+    function getAttributeQueries()
+    {
+        return $this->attributeQueries;
+    }
+
     /**
      *  Convert the query represented by this instance into DQL and set it up with the associated WFDieselSearch.
      */
