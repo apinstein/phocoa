@@ -340,6 +340,10 @@ class WFObject implements WFKeyValueCoding
             else
             {
                 if (!is_object($target)) throw( new WFUndefinedKeyException('Value at keyPath: "' . join('.', array_slice($keys, 0, $keyI)) . "\" is not an object when trying to get next key \"{$key}\".") );
+                if (!($target instanceof WFObject))
+                {
+                    throw( new WFException("Target not an object at keypath: " . $keyPath . " for object " . get_class($this)) );
+                }
                 $result = $target->valueForKey($key);
             }
 
