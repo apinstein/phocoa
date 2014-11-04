@@ -4,10 +4,10 @@
  * @package framework-base
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
-/** 
+/**
  * Base Class for all framework classes.
  *
  * Provides:
@@ -231,7 +231,7 @@ class WFObject implements WFKeyValueCoding
 
     /**
      * Helper function for implementing KVC.
-     * 
+     *
      * Supports "coalescing" KVC by using ; separated keyPaths. The first non-null value returned will be used.
      * The *last* keypath is actually the "default default" which is used if all keyPaths return NULL.
      *
@@ -340,9 +340,9 @@ class WFObject implements WFKeyValueCoding
             else
             {
                 if (!is_object($target)) throw( new WFUndefinedKeyException('Value at keyPath: "' . join('.', array_slice($keys, 0, $keyI)) . "\" is not an object when trying to get next key \"{$key}\".") );
-                if (!($target instanceof WFObject))
+                if (!($target instanceof WFObject) and !method_exists($target, 'valueForKey'))
                 {
-                    throw( new WFException("Target not an object at keypath: " . $keyPath . " for object " . get_class($this)) );
+                    throw( new WFException("Target not an object at keypath: " . $keyPath . " for object " . get_class($rootObject)) );
                 }
                 $result = $target->valueForKey($key);
             }
@@ -542,13 +542,13 @@ class WFObject implements WFKeyValueCoding
     /**
      * Helper function to convert a keyPath into the targetKeyPath (the object to call xxxKey on) and the targetKey (the key to call on the target object).
      *
-     * Usage: 
+     * Usage:
      *
      * <code>
      * list($targetKeyPath, $targetKey) = keyPathToParts($keyPath);
      * </code>
      *
-     * @return array targetKeyPath, targetKey. 
+     * @return array targetKeyPath, targetKey.
      */
     protected function keyPathToTargetAndKey($keyPath)
     {
@@ -625,10 +625,10 @@ class WFObject implements WFKeyValueCoding
      * Default implementation for validateObject().
      *
      * The default implementation will call all defined Key-Value Validators (any method matching "^validate*") using {@link validatedSetValueForKey()}.
-     * 
+     *
      * Validations are done via {@link validatedSetValueForKey()}, meaning that changes made to values by the validators will be updated via setValueForKey.
      *
-     * Subclasses needing to do interproperty validation should override the validateObject() method. If subclasses wish to block the default behavior of re-validating 
+     * Subclasses needing to do interproperty validation should override the validateObject() method. If subclasses wish to block the default behavior of re-validating
      * all properties with validators, then the subclass should not call the super method. Subclasses wishing to preserve this behavior should call parent::validateObject($errors).
      *
      * @experimental
