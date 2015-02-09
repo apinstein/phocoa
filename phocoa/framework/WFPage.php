@@ -665,6 +665,10 @@ class WFPage extends WFObject
         if (isset($instanceManifest['bindings']))
         {
             foreach ($instanceManifest['bindings'] as $bindProperty => $bindingInfo) {
+                if (!isset($bindingInfo['modelKeyPath']))
+                {
+                    $bindingInfo['modelKeyPath'] = '';
+                }
                 WFLog::log("Binding '$id' property '$bindProperty' to {$bindingInfo['instanceID']} => {$bindingInfo['modelKeyPath']}", WFLog::TRACE_LOG);
 
                 // determine object to bind to:
