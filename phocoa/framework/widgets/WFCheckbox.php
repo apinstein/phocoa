@@ -5,7 +5,7 @@
  * @subpackage Widgets
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -25,7 +25,7 @@
  *
  * <b>Required:</b><br>
  * - (none)
- * 
+ *
  * <b>Optional:</b><br>
  * - {@link WFWidget::$value value}
  * - {@link WFCheckbox::$checked checked}
@@ -225,7 +225,7 @@ class WFCheckbox extends WFWidget
         {
             $checked = ' checked ';
         }
-        $labelLeft = $labelRight = ($this->label() !== '' ? " <label for=\"{$this->id}\">{$this->label}</label>" : '');
+        $labelLeft = $labelRight = ($this->label() !== '' ? " <label for=\"{$this->id}\" title=\"{$this->title}\">{$this->label}</label>" : '');
         if ($this->labelPosition === 'right')
         {
             $labelLeft = NULL;
@@ -244,7 +244,7 @@ class WFCheckbox extends WFWidget
                     ($this->enabled() ? '' : ' disabled readonly ') .
                     ($this->tabIndex ? ' tabIndex="' . $this->tabIndex . '" ' : NULL) .
                     ($this->title ? ' title="' . $this->title . '" ' : NULL) .
-                    ' />' . 
+                    ' />' .
                     $labelRight .
                     $this->getListenerJSInScriptTag();
         if (!$this->enabled() && $this->checked())
