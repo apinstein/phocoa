@@ -1172,7 +1172,15 @@ class WFPage extends WFObject
         $pageDelegateClassName = $this->module->moduleName() . '_' . $this->pageName;
         if (class_exists($pageDelegateClassName, false))
         {
-            $this->setDelegate(new $pageDelegateClassName);
+            $delegate = new $pageDelegateClassName;
+            // look for case mismatch b/w instantiated name and name in URL; php class names are case-insensitive, so class_exists() can kinda false-positive on us here
+            // the mistmatch of cases means that downstream users of the name (loading yaml files, etc) will unexpectedly fail.
+            if ($pageDelegateClassName !== get_class($delegate))
+            {
+                throw new WFRequestController_NotFoundException("Page {$this->pageName} not found.");
+                // $this->pageName = substr(get_class($delegate), strlen($this->module->moduleName() . '_')); // upgrade name to correct for case
+            }
+            $this->setDelegate($delegate);
         }
 
         // calculate various file paths
