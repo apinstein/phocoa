@@ -13,6 +13,7 @@ Version 0.4.1 - ??
 - WFPassword now has support for a companion "confirm password" field.
 - Page widget properties may now use PHP constants via this syntax: "#constant#ClassName::CONSTANT" or "#constant#MY_DEFINED_CONSTANT"
 - [BC-break] Changed the default HTTP method to POST on all WFRPC calls. It is a safer default (less prone to URL limitations).
+- If WF_LOG_ENABLE_ERROR_REPORTING_AUTOCONFIGURATION is defined; phocoa will not auto-configure error_reporting or display_errors ini settings.
 
 Version 0.4.0 - 4/26/2011
 - [improved] Refactored WFErrorArray and WFErrorsException to implement a new interface WFErrorCollection.

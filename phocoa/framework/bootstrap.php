@@ -16,26 +16,25 @@ if (!defined('WF_LOG_DEPRECATED'))
     define('WF_LOG_DEPRECATED', !IS_PRODUCTION);
 }
 
-require('framework/WFLog.php');    // need this for the PEAR_LOG_* constants below, which can't autoload.
-if (IS_PRODUCTION)
+if (!defined('WF_LOG_ENABLE_ERROR_REPORTING_AUTOCONFIGURATION') or WF_LOG_ENABLE_ERROR_REPORTING_AUTOCONFIGURATION)
 {
-    error_reporting(E_ALL);
-    ini_set('display_errors', false);
-    if (!defined('WF_LOG_LEVEL'))
+    if (IS_PRODUCTION)
     {
-        define('WF_LOG_LEVEL', PEAR_LOG_ERR);
+        error_reporting(E_ALL);
+        ini_set('display_errors', false);
     }
-}
-else
-{
-    error_reporting(E_ALL); // | E_STRICT);
-    ini_set('display_errors', true);
-    if (!defined('WF_LOG_LEVEL'))
+    else
     {
-        define('WF_LOG_LEVEL', PEAR_LOG_DEBUG);
+        error_reporting(E_ALL);
+        ini_set('display_errors', true);
     }
 }
 
+require('framework/WFLog.php');    // need this for the PEAR_LOG_* constants below, which can't autoload.
+if (!defined('WF_LOG_LEVEL'))
+{
+    define('WF_LOG_LEVEL', IS_PRODUCTION ? PEAR_LOG_ERR : PEAR_LOG_DEBUG);
+}
 // load the WFWebApplication so that it is initialized() before __autoload() is called for the first time.
 // if we don't do this, classes attempted to autoload from WFWebApplication::initialize() will cause a fatal error.
 require('framework/WFWebApplication.php');    // WFWebApplicationMain() can't autoload...
