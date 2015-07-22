@@ -2,11 +2,17 @@
 
 class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
 {
-    // input data
+    // Args for WFModuleInvocation
     protected $invocationPath   = NULL;
+    protected $invocationParentInvocation = NULL;
+    protected $invocationSkinDelegate   = NULL;
+
+    // form handling
     protected $formId           = NULL;
     protected $formData         = array();
     protected $formSubmitButton = array();
+
+    // data to "inject" into module
     protected $moduleData       = array();
 
     // internal data
@@ -29,6 +35,19 @@ class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
     public function setInvocationPath($invocationPath)
     {
         $this->invocationPath = $invocationPath;
+
+        return $this;
+    }
+
+    /**
+     * Curry the arguments that will be passed to "new WFModuleInvocation"
+     * @see WFModuleInvocation
+     */
+    public function setInvocationArgs($invocationPath, $parentInvocation = NULL, $skinDelegate = NULL)
+    {
+        $this->invocationPath = $invocationPath;
+        $this->invocationParentInvocation = $parentInvocation;
+        $this->invocationSkinDelegate = $skinDelegate;
 
         return $this;
     }
@@ -72,9 +91,9 @@ class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
 
         if ($this->formId && count($this->formData))
         {
-            // render the "requestPage" so we can pull out 
+            // render the "requestPage" so we can pull out
             // setup invocation
-            $formInvocation = new WFModuleInvocation($invocationPath, NULL, NULL);
+            $formInvocation = new WFModuleInvocation($invocationPath, $this->invocationParentInvocation, $this->invocationSkinDelegate);
             $formModule = $formInvocation->module();
             // inject data
             $formModule->setValuesForKeys($moduleData);
@@ -94,7 +113,7 @@ class PhocoaControllerTestCase_PHPUnit extends PHPUnit_Framework_TestCase
         }
 
         // set up invocation to test
-        $this->invocation = new WFModuleInvocation($invocationPath, NULL, NULL);
+        $this->invocation = new WFModuleInvocation($invocationPath, $this->invocationParentInvocation, $this->invocationSkinDelegate);
         $this->module = $this->invocation->module();
 
         // inject data
