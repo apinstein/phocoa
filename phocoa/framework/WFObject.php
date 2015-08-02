@@ -357,6 +357,7 @@ class WFObject implements WFKeyValueCoding
 
                 if ($decoratorClass)
                 {
+                    if (!class_exists($decoratorClass)) throw new WFException("Decorator {$decoratorClass} does not exist.");
                     $result = new $decoratorClass($result);
                 }
             }
@@ -389,6 +390,7 @@ class WFObject implements WFKeyValueCoding
                         if (!method_exists($object, 'valueForKey')) throw( new Exception("target is not Key-Value Coding compliant for valueForKey.") );
                         if ($decoratorClass)
                         {
+                            if (!class_exists($decoratorClass)) throw new WFException("Decorator {$decoratorClass} does not exist.");
                             $object = new $decoratorClass($object);
                         }
                         $magicArray[] = $object->valueForKeyPath($rightKeyPath);
