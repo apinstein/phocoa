@@ -4,7 +4,7 @@
  * @package KeyValueCoding
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -12,7 +12,7 @@
  */
 class WFUndefinedKeyException extends WFException {}
 
-/** 
+/**
  * Key-Value Coding protocol.
  *
  * The basic idea behind KVC is to be able to manipulate "properties" of all objects with the same interface.
@@ -34,7 +34,7 @@ class WFUndefinedKeyException extends WFException {}
  *
  * Validators:
  *   validate<Key>( params )
- * 
+ *
  * Instance Var Names:
  * <key>
  *
@@ -104,6 +104,10 @@ interface WFKeyValueCoding
      *      "parent[MyParentDecorator].fullName"
      *    </code>
      *    This will wrap the object returned by parent in a MyParentDecorator class before calling fullName.
+     *    Note that if you want to wrap the current object in a decorator, you can use the "this" property, "this.[MyDecorator].fullName".
+     *
+     * 4. This "self-shunting" property access<br>
+     *    In some cases you want to use $obj->valueForKeyPath() but be able to have a property in the keypath be the current object. This is achieved with the "this" property. which returns the current object.
      *
      * 5. Coalescing keyPaths<br>
      *    With valueForKeyPath you can provide multiple keys separated by ; and the first key returning a non-null value will be used. If no key returns a non-null value, the string
@@ -186,7 +190,7 @@ interface WFKeyValueCoding
      * The default implementation (in WFObject) looks for a method named validate<key> and calls it, otherwise it returns TRUE.
      *
      * Classes that wish to provide validators for keys should implement one validator per key, with the following prototype:
-     * 
+     *
      *      <code>
      *      // parameters are the same as for the validateValueForKey function, minus the key name.
      *      // function should return TRUE if valid, FALSE if not valid.
@@ -224,10 +228,10 @@ interface WFKeyValueCoding
      * An object-level validator is used for interproperty validation, for instance validating 'postalCode' depends on 'country'.
      *
      * The default implementation will call all defined Key-Value Validators (any method matching "^validate*").
-     * 
+     *
      * Validations are done via {@link validatedSetValueForKey()}, meaning that changes made to values by the validators will be updated via setValueForKey.
      *
-     * Subclasses needing to do interproperty validation should override the validateObject() method. If subclasses wish to block the default behavior of re-validating 
+     * Subclasses needing to do interproperty validation should override the validateObject() method. If subclasses wish to block the default behavior of re-validating
      * all properties with validators, then the subclass should not call the super method. Subclasses wishing to preserve this behavior should call parent::validateObject($errors).
      *
      * NOTE: It's called validateObject right now instead of validate primarily because Propel already has a validate() method.

@@ -103,7 +103,7 @@ class StaticPerson extends WFObject
     // KVC only works with public methods
     public static $staticVar = array(1,2,3);
     public static $anotherStaticVar = array(1,2,3);
-    
+
     public static $staticVarWithNoStaticAccessor = array(1,2,3);
 
     protected static $kvcInaccessible = array(1,2,3);

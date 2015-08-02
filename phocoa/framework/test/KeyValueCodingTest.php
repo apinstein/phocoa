@@ -3,7 +3,7 @@
 /*
  * @package test
  */
- 
+
 require_once(getenv('PHOCOA_PROJECT_CONF'));
 error_reporting(E_ALL);
 
@@ -26,7 +26,7 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
     {
         $this->parent = new Person('John', 'Doe', 1);
         $this->child = new Person('John', 'Doe, Jr.', 2);
-        
+
         // set up complex tree
         /**
          * Grandaddy            85
@@ -54,7 +54,7 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $grandkid1->name = 'Grandkid1';
         $grandkid1->value = 22;
         $bro1->addChild($grandkid1);
-        
+
         $grandkid2 = new Node;
         $grandkid2->name = 'Grandkid2';
         $grandkid2->value = 25;
@@ -196,6 +196,11 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $result = $this->nodeTree->valueForKeyPath('children[TrivialDecorator].decoratorLabel');
         $this->assertEquals('decorator', $result[0]);
         $this->assertEquals('decorator', $result[1]);
+    }
+    function testKeyPathWithDecoratorUsingThisKeyword()
+    {
+        $p = new Person('Alan', 'Pinstein', 1);
+        $this->assertEquals('decorator', $p->valueForKeyPath('this[TrivialDecorator].decoratorLabel'));
     }
 
     function testSetValueForKey()
@@ -342,5 +347,10 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $node->value = NULL;
 
         $this->assertNull($node->valueForKeyPath('value^.whatever'), "Escape hatch failed to detect null for scalar.");
+    }
+    function testThisOperator()
+    {
+        $p = new Person('Alan', 'Pinstein', 1);
+        $this->assertEquals('Alan', $p->valueForKeyPath('this.firstName'));
     }
 }
