@@ -323,6 +323,40 @@ class KeyValueCodingTest extends PHPUnit_Framework_TestCase
         $hash = $this->nodeTree->valuesForKeyPaths($keys);
     }
 
+    /**
+     * @testdox setValueForKeyPath($val, 'foo.bar') will set the value of foo's bar property to $val
+     */
+    function testSetValueForKeyPath()
+    {
+        $p = new Person('None', 'Pinstein', 1);
+        $c = new Person('None', 'Pinstein', 2);
+        $p->setValueForKey($c, 'child');
+
+        $p->setValueForKeyPath('Parent', 'firstName');
+        $p->setValueForKeyPath('Child', 'child.firstName');
+
+        $this->assertEquals('Parent', $p->getFirstName());
+        $this->assertEquals('Child', $c->getFirstName());
+    }
+
+    /**
+     * @testdox setValuesForKeyPaths() calls setValueForKeyPath() for each key/value pair in the given array.
+     */
+    function testSetValuesForKeyPaths()
+    {
+        $p = new Person('None', 'Pinstein', 1);
+        $c = new Person('None', 'Pinstein', 2);
+        $p->setValueForKey($c, 'child');
+
+        $p->setValuesForKeyPaths(array(
+            'firstName'       => 'Parent',
+            'child.firstName' => 'Child'
+        ));
+
+        $this->assertEquals('Parent', $p->getFirstName());
+        $this->assertEquals('Child', $c->getFirstName());
+    }
+
     function testStaticKVCPropertyAccess()
     {
         $this->setExpectedException('WFException'); // this can't work until PHP 5.3
