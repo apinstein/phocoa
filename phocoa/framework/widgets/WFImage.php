@@ -105,6 +105,10 @@ class WFImage extends WFWidget
      * @var string OPTIONAL "base" path for the filesystemPath attribute. The two properties will be concatenated to create the full path.
      */
     protected $filesystemBasePath;
+    /**
+     * @var string If you want to load the image path into data-src instead of src, bind dataSrc instead of value, then use Javascript to copy data-src to src at runtime to trigger loading of the image.
+     */
+    protected $dataSrc;
 
     /**
       * Constructor.
@@ -123,6 +127,7 @@ class WFImage extends WFWidget
         $this->srcWidth = $this->srcHeight = NULL;
         $this->filesystemPath = NULL;
         $this->filesystemBasePath = NULL;
+        $this->dataSrc = NULL;
     }
 
     public static function exposedProperties()
@@ -143,7 +148,8 @@ class WFImage extends WFWidget
             'alt',
             'link',
             'linkTarget',
-            'fitToBox' => array('true', 'false')
+            'fitToBox' => array('true', 'false'),
+            'dataSrc'
             ));
     }
 
@@ -151,6 +157,10 @@ class WFImage extends WFWidget
     {
         $myBindings = parent::setupExposedBindings();
         $newValBinding = new WFBindingSetup('value', 'The path to the image. Will be concatenated on baseDir.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
+        $newValBinding->setReadOnly(true);
+        $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
+        $myBindings[] = $newValBinding;
+        $newValBinding = new WFBindingSetup('dataSrc', 'The path to the image, but loaded into data-src attribute. Will be concatenated on baseDir.', array(WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_NAME => WFBindingSetup::WFBINDINGSETUP_PATTERN_OPTION_VALUE));
         $newValBinding->setReadOnly(true);
         $newValBinding->setBindingType(WFBindingSetup::WFBINDINGTYPE_MULTIPLE_PATTERN);
         $myBindings[] = $newValBinding;
@@ -306,7 +316,7 @@ class WFImage extends WFWidget
     function render($blockContent = NULL)
     {
         if ($this->hidden) return NULL;
-        if (!$this->value) return NULL; // don't display anything if there is no value.
+        if (!$this->value and !$this->dataSrc) return NULL; // don't display anything if there is no value.
 
         $pxWidth = $this->width;
         $pxHeight = $this->height;
@@ -334,7 +344,15 @@ class WFImage extends WFWidget
             $this->height = $info[1];
         }
 
-        $imgHTML = '<img id="' . $this->id() . '" src="' . $this->baseDir . $this->value . '"' .
+        // src attribute
+        $srcValue = $this->baseDir . $this->value;
+        $srcAttribute = $srcValue ? 'src="' . $srcValue . '"' : NULL;
+
+        // data-src attribute
+        $dataSrcValue = $this->baseDir . $this->dataSrc;
+        $dataSrcAttribute = $dataSrcValue ? 'data-src="' . $dataSrcValue . '"' : NULL;
+
+        $imgHTML = '<img id="' . $this->id() . '" ' . $srcAttribute . ' ' . $dataSrcAttribute .
             ($this->alt ? " alt=\"{$this->alt}\" title=\"{$this->alt}\"" : '') .
             ($this->align ? " align=\"{$this->align}\"" : '') .
             ($this->class ? " class=\"{$this->class}\"" : '') .
