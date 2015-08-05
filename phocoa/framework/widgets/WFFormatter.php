@@ -1,14 +1,14 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
-/** 
+/**
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  * @package UI
  * @subpackage Formatters
  */
 
-/** 
+/**
  * WFFormatter
  *
  * Formatters provide a way for {@link WFWidget} objects to convert to and from text. Formatters are used by widgets to convert their "value" object
@@ -125,6 +125,7 @@ abstract class WFBaseDateFormatter extends WFFormatter
         {
             return 'Yesterday';
         }
+
         if (abs($reldays) < 7)
         {
             if ($reldays > 0)
@@ -138,6 +139,22 @@ abstract class WFBaseDateFormatter extends WFFormatter
                 return $reldays . ' day'  . ($reldays != 1 ? 's' : '') . ' ago';
             }
         }
+        else if (abs($reldays) < 28)
+        {
+            $relweeks = abs(floor($reldays / 7));
+            return $relweeks . ' week'  . ($relweeks != 1 ? 's' : '') . ' ago';
+        }
+        else if (abs($reldays) < 365)
+        {
+            $relmonths = abs(floor($reldays / 30));
+            return $relmonths . ' month'  . ($relmonths != 1 ? 's' : '') . ' ago';
+        }
+        else
+        {
+            $relyears = abs(floor($reldays / 365));
+            return $relyears . ' year'  . ($relyears != 1 ? 's' : '') . ' ago';
+        }
+
         return date($this->relativeDateFormatString, $time ? $time : time());
     }
 }
@@ -590,7 +607,7 @@ class WFSensitiveDataFormatter extends WFFormatter
     protected $redactedChr = 'X';
 
     /**
-     * @var string The value to return from valueForString() if the input string matches the obsfucation pattern. This allows for WFSensitiveDataFormatter to be used on 
+     * @var string The value to return from valueForString() if the input string matches the obsfucation pattern. This allows for WFSensitiveDataFormatter to be used on
      *             editable fields in conjunction with {@link WFBinding::OPTION_DO_NOT_PUSH_VALUE_SEMAPHORE}.
      */
     protected $notModifiedSemaphore = NULL;
