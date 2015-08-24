@@ -109,10 +109,14 @@ abstract class WFBaseDateFormatter extends WFFormatter
         return $formattedString;
     }
 
+    /**
+     * Converts a timestamp into a human readable relative time. E.g "in 2 days", "1 month ago", etc.
+     */
     public function relativeDate($time)
     {
         $today = strtotime(date('M j, Y'));
         $reldays = ($time - $today)/86400;
+
         if ($reldays >= 0 && $reldays < 1)
         {
             return 'Today';
@@ -125,6 +129,16 @@ abstract class WFBaseDateFormatter extends WFFormatter
         {
             return 'Yesterday';
         }
+
+
+        if ($reldays >= 0) {
+            $timelinePrefix = 'in ';
+            $timelineSuffix = '';
+        } else {
+            $timelinePrefix = '';
+            $timelineSuffix = ' ago';
+        }
+
 
         if (abs($reldays) < 7)
         {
@@ -142,17 +156,17 @@ abstract class WFBaseDateFormatter extends WFFormatter
         else if (abs($reldays) < 28)
         {
             $relweeks = abs(floor($reldays / 7));
-            return $relweeks . ' week'  . ($relweeks != 1 ? 's' : '') . ' ago';
+            return $timelinePrefix . $relweeks . ' week'  . ($relweeks != 1 ? 's' : '') . $timelineSuffix;
         }
         else if (abs($reldays) < 365)
         {
             $relmonths = abs(floor($reldays / 30));
-            return $relmonths . ' month'  . ($relmonths != 1 ? 's' : '') . ' ago';
+            return $timelinePrefix . $relmonths . ' month'  . ($relmonths != 1 ? 's' : '') . $timelineSuffix;
         }
         else
         {
             $relyears = abs(floor($reldays / 365));
-            return $relyears . ' year'  . ($relyears != 1 ? 's' : '') . ' ago';
+            return $timelinePrefix . $relyears . ' year'  . ($relyears != 1 ? 's' : '') . $timelineSuffix;
         }
 
         return date($this->relativeDateFormatString, $time ? $time : time());
