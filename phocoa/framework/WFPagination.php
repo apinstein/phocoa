@@ -1,11 +1,11 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4: */
-/** 
+/**
 * @package UI
 * @subpackage Pagination
 * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
 * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
-* @author Alan Pinstein <apinstein@mac.com>                        
+* @author Alan Pinstein <apinstein@mac.com>
 */
 
 /**
@@ -13,12 +13,12 @@
  *
  * PHOCOA has its own pagination infrastructure. The UI layer of pagination is nicely separated from the data layer so that the PHOCOA pagination infrastructure
  * can be easily used with any underlying data source (SQL, PHP arrays, etc).
- * 
+ *
  * The WFPaginator class is the core pagination functionality that coordiantes the PHOCOA Pagination UI widgets with the underlying data.
  * The PHOCOA pagination infrastructure includes support for multi-key sorting as well.
  *
  * It is extremely simple to paginate your data with PHOCOA.
- * 
+ *
  * To hook up the PHOCOA widgets with a data source, you must provide a Data Delegate to WFPaginator to provide the paged data to the pagination infrastructure.
  * A Data delegate is any class that implements the {@link WFPagedData WFPagedData interface}.
  *
@@ -30,7 +30,7 @@
  * USAGE
  * First, figure out is which {@link WFPaginator::$mode mode} you need to use.
  * - MODE_URL (default mode) effects all pagination via plain-old-urls, which is more compatible (with browsers), but of course cannot interact with form data (for instance a search form on the same page).
- * - MODE_FORM effects all pagination via javascript and your form. 
+ * - MODE_FORM effects all pagination via javascript and your form.
  *
  * The default is MODE_URL.
  *
@@ -54,7 +54,7 @@
  * 9. Finally, access the paged data set. Typically this is done in the PageDidLoad method if there is no form submission, otherwise it is done from the action method.
  *     $this->myArrayController->setContent($this->myPaginator->currentItems());
  * </code>
- * 
+ *
  * NOTE: The first page is page 1 (as opposed to page 0).
  *
  * @see WFPaginatorNavigation, WFPaginatorPageInfo, WFPaginatorSortLink, WFPaginatorState
@@ -113,12 +113,12 @@ class WFPaginator extends WFObject
      */
     protected $submitID;
     /**
-     * @var string The name of the page's parameter ID containing the WFPaginatorState. Of course your parameterID declared in <pageName>_ParameterList and the ID of the 
+     * @var string The name of the page's parameter ID containing the WFPaginatorState. Of course your parameterID declared in <pageName>_ParameterList and the ID of the
      *             WFPaginatorState widget should be the same.
      */
     protected $paginatorStateParameterID;
     /**
-     * @var assoc_array An associative array of alternative replacement params for the current page's parameter list. This is used by the baseURL calculation 
+     * @var assoc_array An associative array of alternative replacement params for the current page's parameter list. This is used by the baseURL calculation
      *                  to allow clients to change paramters before creating the pagination URLs.
      */
     protected $alternativeParams;
@@ -236,7 +236,7 @@ class WFPaginator extends WFObject
 
         // make paginatorState URL-safe; the + for "ascending" in the sort keys was being interpreted as a SPACE
         $paginatorState = str_replace('+', '%2B', $paginatorState);
-        
+
         $params = $page->parameters();
         $module = $page->module();
 
@@ -385,7 +385,7 @@ class WFPaginator extends WFObject
         }
         return $this->sortKeys;
     }
-    
+
     /**
      *  Add a sortKey to the current paginator. Call multiple times for a multi-key-sort.
      *
@@ -394,7 +394,7 @@ class WFPaginator extends WFObject
      */
     function addSortKey($key)
     {
-        if (!isset($this->sortOptions[$key])) throw( new WFException("Sort key '$key' not available in sortOptions.") );
+        if (!isset($this->sortOptions[$key])) throw( new WFException("Sort key '$key' not available in sortOptions." . print_r($this->sortOptions, true)) );
         $this->sortKeys[] = $key;
     }
 
@@ -424,7 +424,7 @@ class WFPaginator extends WFObject
 
         $this->defaultSortKeys = $keys;
     }
-    
+
     /**
      *  Set the names of the items being paged.
      *
@@ -976,14 +976,9 @@ class WFPagedPropelModelCriteria implements WFPagedData
             $criteria->setLimit($numItems);
         }
         foreach ($sortKeys as $sortKey) {
-            if (substr($sortKey, 0, 1) == '-')
-            {
-                $criteria->addDescendingOrderByColumn(substr($sortKey, 1));
-            }
-            else
-            {
-                $criteria->addAscendingOrderByColumn(substr($sortKey, 1));
-            }
+            $dir = substr($sortKey, 0, 1) == '-' ? Criteria::DESC : Criteria::ASC;
+            $col = substr($sortKey, 1);
+            $criteria->orderBy($col, $dir);
         }
         return $criteria->find($this->con);
     }
@@ -1091,7 +1086,7 @@ class WFPagedCreoleQuery implements WFPagedData
 
         // run query
         $stmt = $this->connection->createStatement();
-        
+
         // prepare results into an array of row data
         if ($this->populateObjectsCallback)
         {
@@ -1236,7 +1231,7 @@ class WFPagedPDOQuery implements WFPagedData
         $stmt->setFetchMode($this->options[self::OPT_FETCH_MODE]);
 
         $results = call_user_func($this->options[self::OPT_PROCESS_STATEMENT_CALLBACK], $stmt);
-        
+
         return $results;
     }
 
