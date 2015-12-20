@@ -356,22 +356,21 @@ class WFAuthorizationManager extends WFObject
     function rememberMe()
     {
         $options = $this->rememberMeOptions();
-        $userid = $this->authorizationInfo->userid();
-        $userToken = $this->rememberMeToken($userid);
-        $rememberMeData = "{$userid}" . self::REMEMBER_ME_SEPARATOR . "{$userToken}";
-        setcookie($options[self::REMEMBER_ME_OPT_NAME], $rememberMeData, strtotime($options[self::REMEMBER_ME_OPT_DURATION]), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
+        $userToken = $this->rememberMeToken();
+        setcookie($options[self::REMEMBER_ME_OPT_NAME], $userToken, strtotime($options[self::REMEMBER_ME_OPT_DURATION]), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
     }
 
-    function rememberMeToken($username)
+    function rememberMeToken()
     {
         if (!$this->authorizationInfo->isLoggedIn()) throw new WFException("Cannot call rememberMeToken if not logged in.");
         if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for rememberMeToken.") );
 
-        $rememberMeToken = NULL;
-        if (method_exists($this->authorizationDelegate, 'rememberMeToken'))
+        if (!method_exists($this->authorizationDelegate, 'rememberMeToken'))
         {
-            $rememberMeToken = $this->authorizationDelegate->rememberMeToken($username);
+            throw new Exception("WFAuthorizationDelegate.rememeberMeToken must be implemented when remember me is enabled.");
         }
+
+        $rememberMeToken = $this->authorizationDelegate->rememberMeToken($this->authorizationInfo);
 
         return $rememberMeToken;
     }
