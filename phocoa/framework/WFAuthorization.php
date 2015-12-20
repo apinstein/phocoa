@@ -6,7 +6,7 @@
  * @subpackage Authorization
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  * @todo Remember Me - Add to default login module now that there's support for it in core.
  * @todo Remember Me - Use HMAC or something to sign the cookie on the remote end. Read a "private" salt/passphrase from OPTIONS.
  * @todo Remember Me - Encrypt the cookie on the client end so that the userid isn't in cleartext.
@@ -163,7 +163,7 @@ class WFAuthorizationDelegate extends WFObject
   *
   * For applications requiring more complicated access control, they should subclass WFAuthorizationInfo and provide further access control information and methods to query it.
   *
-  * NOTE: The WFAuthorizationInfo class is stored in the SESSION at the time of login. The WFAuthorizationInfo is immutable once stored in the session; whatever rights are given 
+  * NOTE: The WFAuthorizationInfo class is stored in the SESSION at the time of login. The WFAuthorizationInfo is immutable once stored in the session; whatever rights are given
   * to the user at login remain with him until he logs in again (this includes REMEMBER-ME login).
   * The WFAuthorizationInfo MUST be easily serializable! No circular references, etc... subclasses be careful!
   *
@@ -201,7 +201,7 @@ class WFAuthorizationInfo extends WFObject
     {
         return $this->isSuperUser;
     }
-    
+
     /**
      *  Set the superuser status.
      *
@@ -211,7 +211,7 @@ class WFAuthorizationInfo extends WFObject
     {
         $this->isSuperUser = $isSuperUser;
     }
-    
+
     /**
       * Set the user id of the authorized user.
       * @param string The user id.
@@ -438,14 +438,27 @@ class WFAuthorizationManager extends WFObject
     function setDelegate($d)
     {
         $this->authorizationDelegate = $d;
+
         if (!$this->authorizationInfo->isLoggedIn())
         {
-            $options = $this->rememberMeOptions();
-            // try to load from remember me
-            if (isset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]]))
+            $this->checkRememeberMe();
+        }
+    }
+
+    private function checkRememeberMe()
+    {
+        $options = $this->rememberMeOptions();
+
+        // try to load from remember me
+        if (isset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]]))
+        {
+            $this->clearRememberMe();   // remember me is once-only
+
+            list($username, $token) = explode(self::REMEMBER_ME_SEPARATOR, $_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]], 2);
+            $ok = $this->login($username, $token, true);
+            if ($ok)
             {
-                list($username, $token) = explode(self::REMEMBER_ME_SEPARATOR, $_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]], 2);
-                $ok = $this->login($username, $token, true);
+                $this->rememberMe();
             }
         }
     }
@@ -467,7 +480,14 @@ class WFAuthorizationManager extends WFObject
     {
         $this->init();
 
-        // clear remember me cookie
+        $this->clearRememberMe();
+    }
+
+    /**
+     * Clear the remember me cookie
+     */
+    function clearRememberMe()
+    {
         $options = $this->rememberMeOptions();
         setcookie($options[self::REMEMBER_ME_OPT_NAME], '', strtotime('-1 year'), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
     }
@@ -704,7 +724,7 @@ class WFAuthorizationManager extends WFObject
 
     /**
      *  The label to use for the "username" field.
-     *  
+     *
      *  Will call the login delegate method.
      *
      *  @return string The label for the username field. DEFAULT: "Username".
@@ -818,7 +838,7 @@ class WFAuthorizationManager extends WFObject
      *  If not, just send your email and that's it. The default implementation will show an appropriate confirmation message.
      *
      *  Alternatively, if you have more complicated reset password logic you want to implement, throw a WFRedirectRequestException.
-     * 
+     *
      *  Will call the login delegate method.
      *
      *  @param string The username that the attempted login was for.
