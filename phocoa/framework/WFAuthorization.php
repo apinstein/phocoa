@@ -7,9 +7,6 @@
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
  * @author Alan Pinstein <apinstein@mac.com>
- * @todo Remember Me - Add to default login module now that there's support for it in core.
- * @todo Remember Me - Use HMAC or something to sign the cookie on the remote end. Read a "private" salt/passphrase from OPTIONS.
- * @todo Remember Me - Encrypt the cookie on the client end so that the userid isn't in cleartext.
  */
 
 /**
@@ -26,7 +23,7 @@ class WFAuthorizationDelegate extends WFObject
       *
       * @param string The username to use for the authentication.
       * @param string The password to use for the authentication.
-      * @param boolean TRUE if the password is in "token" form; ie, not the clear-text password. Useful for remember-me logins or single-sign-on (SSO) setups.
+      * @param boolean TRUE if the password is in "token" form; ie the TOKEN that the application generates for rememberMeToken(). If TRUE, $username will be null.
       * @return object WFAuthorizationInfo Return an WFAuthorizationInfo with any additional security profile. This of course can be a subclass. Return NULL if login failed.
       */
     function login($username, $password, $passIsToken) {}
@@ -92,13 +89,12 @@ class WFAuthorizationDelegate extends WFObject
      *  Delegate should return the "token" to persist via a long-term cookie. This exact token will be passed back in when trying to do a rememberMe login.
      *
      *  SECURITY RECOMMENDATION:
-     *  Your token should be something like md5("app-salt+userid").
+     *  We recommend that you return a rememberMeLookupId:token combination as per https://paragonie.com/blog/2015/04/secure-authentication-php-with-long-term-persistence
      *
-     *  Clients should get the userid from the current WFAuthorizationInfo.
-     *
+     *  @param object WFAuthorizationInfo The current logged in data.
      *  @return string The token to persist on the client.
      */
-    function rememberMeToken() {}
+    function rememberMeToken($authInfo) {}
 
     /**
      *  Delegate should implement and return this method if they want to override the default rememberme settings.
@@ -348,7 +344,6 @@ class WFAuthorizationManager extends WFObject
     const REMEMBER_ME_OPT_DURATION      = 'duration';
     const REMEMBER_ME_OPT_DOMAIN        = 'domain';
     const REMEMBER_ME_OPT_PATH          = 'path';
-    const REMEMBER_ME_SEPARATOR         = ':';
     /**
      * Set a long-term remember me cookie.
      * @param array OPTIONS hash. See WFAuthorizationManager::REMEMBER_ME_OPT_*.
@@ -453,8 +448,8 @@ class WFAuthorizationManager extends WFObject
         {
             $this->clearRememberMe();   // remember me is once-only
 
-            list($username, $token) = explode(self::REMEMBER_ME_SEPARATOR, $_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]], 2);
-            $ok = $this->login($username, $token, true);
+            $rememberMeToken = $_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]];
+            $ok = $this->login(NULL, $rememberMeToken, true);
             if ($ok)
             {
                 $this->rememberMe();
