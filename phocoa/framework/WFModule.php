@@ -771,7 +771,7 @@ abstract class WFModule extends WFObject
             {
                 $authInfo = WFAuthorizationManager::sharedAuthorizationManager()->authorizationInfo();
                 $access = $this->checkSecurity($authInfo);
-                if (!in_array($access, array(WFAuthorizationManager::ALLOW, WFAuthorizationManager::DENY))) throw( new WFException("Unexpected return code from checkSecurity.") );
+                if (!in_array($access, array(WFAuthorizationManager::ALLOW, WFAuthorizationManager::DENY, WFAuthorizationManager::PROMPT))) throw( new WFException("Unexpected return code from checkSecurity.") );
                 // if access is denied, see if there is a logged in user. If so, then DENY. If not, then allow login.
                 if ($access == WFAuthorizationManager::DENY)
                 {
@@ -786,6 +786,18 @@ abstract class WFModule extends WFObject
                         throw( new WFAuthorizationException("Try logging in.", WFAuthorizationException::TRY_LOGIN) );
                     }
                 }
+                else if ($access == WFAuthorizationManager::PROMPT)
+                {
+                    if (!$authInfo->isLoggedIn())
+                    {
+                        throw new WFException("WFAuthorizationManager::PROMPT is not a valid response when no one is logged in.");
+                    }
+                    else
+                    {
+                        // if no one is logged in, allow login, otherwise deny.
+                        throw new WFAuthorizationException("Please re-login to access this secure area.", WFAuthorizationException::TRY_PROMPT);
+                    }
+                }
             }
         } catch (WFAuthorizationException $e) {
             if (php_sapi_name() === 'cli')
@@ -797,6 +809,9 @@ abstract class WFModule extends WFObject
                 throw new WFRequestController_HTTPException("Not authorized." , 403);
             }
             switch ($e->getCode()) {
+                case WFAuthorizationException::TRY_PROMPT:
+                    WFAuthorizationManager::sharedAuthorizationManager()->doLoginRedirect($_SERVER['REQUEST_URI'], true);
+                    break;
                 case WFAuthorizationException::TRY_LOGIN:
                     WFAuthorizationManager::sharedAuthorizationManager()->doLoginRedirect($_SERVER['REQUEST_URI']);
                     break;

@@ -263,6 +263,10 @@ class WFAuthorizationException extends Exception
       * @const Set the exception's CODE to this if access is denied because no one is logged in. System will bounced to login and return.
       */
     const TRY_LOGIN = 2;
+    /**
+      * @const Set the exception's CODE to this if access is denied because no one is logged in recently; System will force a re-authorization.
+      */
+    const TRY_PROMPT = 3;
 }
 
 /**
@@ -293,8 +297,9 @@ class WFAuthorizationManager extends WFObject
     const VERSION = 1.1;
     const RECENT_LOGIN_SECS = 900; // 15 minutes
 
-    const ALLOW = 1;
-    const DENY = 2;
+    const ALLOW  = 1;   // allow given current credentials
+    const DENY   = 2;   // deny given current credentials
+    const PROMPT = 3;   // force re-authorization
 
     /**
       * @var object WFAuthorizationInfo The authorization info for the current session.
@@ -506,7 +511,7 @@ class WFAuthorizationManager extends WFObject
         $result = $this->authorizationDelegate->login($username, $password, $passIsToken);
         if ($result instanceof WFAuthorizationInfo)
         {
-            $this->loginAsAuthorizationInfo($result);
+            $this->loginAsAuthorizationInfo($result, !$passIsToken);
 
             return true;
         }
@@ -526,7 +531,7 @@ class WFAuthorizationManager extends WFObject
      *
      * @param object WFAuthorizationInfo The new authorization info to set for the current session.
      */
-    function loginAsAuthorizationInfo($authInfo)
+    function loginAsAuthorizationInfo($authInfo, $authorizeRecentLogin = true)
     {
         if (!$authInfo instanceof WFAuthorizationInfo) throw new WFException("WFAuthorizationInfo or subclass required.");
 
@@ -534,7 +539,9 @@ class WFAuthorizationManager extends WFObject
 
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_LOGGED_IN] = true;
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_AUTHORIZATION_INFO] = $this->authorizationInfo;
-        $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = time();
+
+        $lastAuthTime = $authorizeRecentLogin ? time() : 0;
+        $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = $lastAuthTime;
     }
 
     /**
@@ -545,18 +552,21 @@ class WFAuthorizationManager extends WFObject
      *  This will issue a 302 redirect and exit the current request execution.
      *
      *  @param string The URL of the page to go to after successful login. Note that this should be a PLAIN URL, but it WILL BE base64-encoded before being passed to the login module.
+     *  @param boolean TRUE to force the login screen even if already logged in (used for forcing re-auth of secure areas).
      */
-    function doLoginRedirect($continueURL)
+    function doLoginRedirect($continueURL, $reauthorizeEvenIfLoggedIn = false)
     {
+        $reauthorizeEvenIfLoggedInSuffix = $reauthorizeEvenIfLoggedIn ? "/1" : NULL;
+
         $loginInvocationPath = $this->loginInvocationPath();
         if (WFRequestController::sharedRequestController()->isAjax())
         {
             header("HTTP/1.0 401 Login Required");
-            print WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL);
+            print WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL) . $reauthorizeEvenIfLoggedInSuffix;
         }
         else
         {
-            header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL));
+            header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL) . $reauthorizeEvenIfLoggedInSuffix);
         }
         exit;
     }
