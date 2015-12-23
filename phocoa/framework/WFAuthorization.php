@@ -6,10 +6,7 @@
  * @subpackage Authorization
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
- * @todo Remember Me - Add to default login module now that there's support for it in core.
- * @todo Remember Me - Use HMAC or something to sign the cookie on the remote end. Read a "private" salt/passphrase from OPTIONS.
- * @todo Remember Me - Encrypt the cookie on the client end so that the userid isn't in cleartext.
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -26,7 +23,7 @@ class WFAuthorizationDelegate extends WFObject
       *
       * @param string The username to use for the authentication.
       * @param string The password to use for the authentication.
-      * @param boolean TRUE if the password is in "token" form; ie, not the clear-text password. Useful for remember-me logins or single-sign-on (SSO) setups.
+      * @param boolean TRUE if the password is in "token" form; ie the TOKEN that the application generates for rememberMeToken(). If TRUE, $username will be null.
       * @return object WFAuthorizationInfo Return an WFAuthorizationInfo with any additional security profile. This of course can be a subclass. Return NULL if login failed.
       */
     function login($username, $password, $passIsToken) {}
@@ -92,13 +89,12 @@ class WFAuthorizationDelegate extends WFObject
      *  Delegate should return the "token" to persist via a long-term cookie. This exact token will be passed back in when trying to do a rememberMe login.
      *
      *  SECURITY RECOMMENDATION:
-     *  Your token should be something like md5("app-salt+userid").
+     *  We recommend that you return a rememberMeLookupId:token combination as per https://paragonie.com/blog/2015/04/secure-authentication-php-with-long-term-persistence
      *
-     *  Clients should get the userid from the current WFAuthorizationInfo.
-     *
+     *  @param object WFAuthorizationInfo The current logged in data.
      *  @return string The token to persist on the client.
      */
-    function rememberMeToken() {}
+    function rememberMeToken($authInfo) {}
 
     /**
      *  Delegate should implement and return this method if they want to override the default rememberme settings.
@@ -163,7 +159,7 @@ class WFAuthorizationDelegate extends WFObject
   *
   * For applications requiring more complicated access control, they should subclass WFAuthorizationInfo and provide further access control information and methods to query it.
   *
-  * NOTE: The WFAuthorizationInfo class is stored in the SESSION at the time of login. The WFAuthorizationInfo is immutable once stored in the session; whatever rights are given 
+  * NOTE: The WFAuthorizationInfo class is stored in the SESSION at the time of login. The WFAuthorizationInfo is immutable once stored in the session; whatever rights are given
   * to the user at login remain with him until he logs in again (this includes REMEMBER-ME login).
   * The WFAuthorizationInfo MUST be easily serializable! No circular references, etc... subclasses be careful!
   *
@@ -201,7 +197,7 @@ class WFAuthorizationInfo extends WFObject
     {
         return $this->isSuperUser;
     }
-    
+
     /**
      *  Set the superuser status.
      *
@@ -211,7 +207,7 @@ class WFAuthorizationInfo extends WFObject
     {
         $this->isSuperUser = $isSuperUser;
     }
-    
+
     /**
       * Set the user id of the authorized user.
       * @param string The user id.
@@ -267,6 +263,10 @@ class WFAuthorizationException extends Exception
       * @const Set the exception's CODE to this if access is denied because no one is logged in. System will bounced to login and return.
       */
     const TRY_LOGIN = 2;
+    /**
+      * @const Set the exception's CODE to this if access is denied because no one is logged in recently; System will force a re-authorization.
+      */
+    const TRY_PROMPT = 3;
 }
 
 /**
@@ -297,8 +297,9 @@ class WFAuthorizationManager extends WFObject
     const VERSION = 1.1;
     const RECENT_LOGIN_SECS = 900; // 15 minutes
 
-    const ALLOW = 1;
-    const DENY = 2;
+    const ALLOW  = 1;   // allow given current credentials
+    const DENY   = 2;   // deny given current credentials
+    const PROMPT = 3;   // force re-authorization
 
     /**
       * @var object WFAuthorizationInfo The authorization info for the current session.
@@ -348,7 +349,6 @@ class WFAuthorizationManager extends WFObject
     const REMEMBER_ME_OPT_DURATION      = 'duration';
     const REMEMBER_ME_OPT_DOMAIN        = 'domain';
     const REMEMBER_ME_OPT_PATH          = 'path';
-    const REMEMBER_ME_SEPARATOR         = ':';
     /**
      * Set a long-term remember me cookie.
      * @param array OPTIONS hash. See WFAuthorizationManager::REMEMBER_ME_OPT_*.
@@ -356,22 +356,21 @@ class WFAuthorizationManager extends WFObject
     function rememberMe()
     {
         $options = $this->rememberMeOptions();
-        $userid = $this->authorizationInfo->userid();
-        $userToken = $this->rememberMeToken($userid);
-        $rememberMeData = "{$userid}" . self::REMEMBER_ME_SEPARATOR . "{$userToken}";
-        setcookie($options[self::REMEMBER_ME_OPT_NAME], $rememberMeData, strtotime($options[self::REMEMBER_ME_OPT_DURATION]), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
+        $userToken = $this->rememberMeToken();
+        setcookie($options[self::REMEMBER_ME_OPT_NAME], $userToken, strtotime($options[self::REMEMBER_ME_OPT_DURATION]), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
     }
 
-    function rememberMeToken($username)
+    function rememberMeToken()
     {
         if (!$this->authorizationInfo->isLoggedIn()) throw new WFException("Cannot call rememberMeToken if not logged in.");
         if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required for rememberMeToken.") );
 
-        $rememberMeToken = NULL;
-        if (method_exists($this->authorizationDelegate, 'rememberMeToken'))
+        if (!method_exists($this->authorizationDelegate, 'rememberMeToken'))
         {
-            $rememberMeToken = $this->authorizationDelegate->rememberMeToken($username);
+            throw new Exception("WFAuthorizationDelegate.rememeberMeToken must be implemented when remember me is enabled.");
         }
+
+        $rememberMeToken = $this->authorizationDelegate->rememberMeToken($this->authorizationInfo);
 
         return $rememberMeToken;
     }
@@ -438,14 +437,27 @@ class WFAuthorizationManager extends WFObject
     function setDelegate($d)
     {
         $this->authorizationDelegate = $d;
+
         if (!$this->authorizationInfo->isLoggedIn())
         {
-            $options = $this->rememberMeOptions();
-            // try to load from remember me
-            if (isset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]]))
+            $this->checkRememeberMe();
+        }
+    }
+
+    private function checkRememeberMe()
+    {
+        $options = $this->rememberMeOptions();
+
+        // try to load from remember me
+        if (isset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]]))
+        {
+            $this->clearRememberMe();   // remember me is once-only
+
+            $rememberMeToken = $_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]];
+            $ok = $this->login(NULL, $rememberMeToken, true);
+            if ($ok)
             {
-                list($username, $token) = explode(self::REMEMBER_ME_SEPARATOR, $_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]], 2);
-                $ok = $this->login($username, $token, true);
+                $this->rememberMe();
             }
         }
     }
@@ -467,9 +479,19 @@ class WFAuthorizationManager extends WFObject
     {
         $this->init();
 
-        // clear remember me cookie
+        $this->clearRememberMe();
+    }
+
+    /**
+     * Clear the remember me cookie
+     */
+    function clearRememberMe()
+    {
         $options = $this->rememberMeOptions();
+        // clear REMEMBER ME state from CLIENT...
         setcookie($options[self::REMEMBER_ME_OPT_NAME], '', strtotime('-1 year'), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
+        // ...and PHP superglobal
+        unset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]]);
     }
 
     /**
@@ -492,7 +514,7 @@ class WFAuthorizationManager extends WFObject
         $result = $this->authorizationDelegate->login($username, $password, $passIsToken);
         if ($result instanceof WFAuthorizationInfo)
         {
-            $this->loginAsAuthorizationInfo($result);
+            $this->loginAsAuthorizationInfo($result, !$passIsToken);
 
             return true;
         }
@@ -512,7 +534,7 @@ class WFAuthorizationManager extends WFObject
      *
      * @param object WFAuthorizationInfo The new authorization info to set for the current session.
      */
-    function loginAsAuthorizationInfo($authInfo)
+    function loginAsAuthorizationInfo($authInfo, $authorizeRecentLogin = true)
     {
         if (!$authInfo instanceof WFAuthorizationInfo) throw new WFException("WFAuthorizationInfo or subclass required.");
 
@@ -520,7 +542,9 @@ class WFAuthorizationManager extends WFObject
 
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_LOGGED_IN] = true;
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_AUTHORIZATION_INFO] = $this->authorizationInfo;
-        $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = time();
+
+        $lastAuthTime = $authorizeRecentLogin ? time() : 0;
+        $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = $lastAuthTime;
     }
 
     /**
@@ -531,18 +555,21 @@ class WFAuthorizationManager extends WFObject
      *  This will issue a 302 redirect and exit the current request execution.
      *
      *  @param string The URL of the page to go to after successful login. Note that this should be a PLAIN URL, but it WILL BE base64-encoded before being passed to the login module.
+     *  @param boolean TRUE to force the login screen even if already logged in (used for forcing re-auth of secure areas).
      */
-    function doLoginRedirect($continueURL)
+    function doLoginRedirect($continueURL, $reauthorizeEvenIfLoggedIn = false)
     {
+        $reauthorizeEvenIfLoggedInSuffix = $reauthorizeEvenIfLoggedIn ? "/1" : NULL;
+
         $loginInvocationPath = $this->loginInvocationPath();
         if (WFRequestController::sharedRequestController()->isAjax())
         {
             header("HTTP/1.0 401 Login Required");
-            print WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL);
+            print WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL) . $reauthorizeEvenIfLoggedInSuffix;
         }
         else
         {
-            header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL));
+            header("Location: " . WWW_ROOT . "/{$loginInvocationPath}/" . WFWebApplication::serializeURL($continueURL) . $reauthorizeEvenIfLoggedInSuffix);
         }
         exit;
     }
@@ -704,7 +731,7 @@ class WFAuthorizationManager extends WFObject
 
     /**
      *  The label to use for the "username" field.
-     *  
+     *
      *  Will call the login delegate method.
      *
      *  @return string The label for the username field. DEFAULT: "Username".
@@ -818,7 +845,7 @@ class WFAuthorizationManager extends WFObject
      *  If not, just send your email and that's it. The default implementation will show an appropriate confirmation message.
      *
      *  Alternatively, if you have more complicated reset password logic you want to implement, throw a WFRedirectRequestException.
-     * 
+     *
      *  Will call the login delegate method.
      *
      *  @param string The username that the attempted login was for.

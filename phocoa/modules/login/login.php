@@ -15,7 +15,7 @@ class login extends WFModule
             throw( new WFRequestController_InternalRedirectException($url) );
         }
         else
-        {   
+        {
             throw( new WFRequestController_RedirectException($url) );
         }
     }
@@ -82,7 +82,7 @@ class login extends WFModule
             }
             $this->gotoURL($continueURL);
         }
-        
+
         // continue to normal promptLogin setup
         $page->assign('loginMessage', $ac->loginMessage());
         $page->assign('usernameLabel', $ac->usernameLabel());
@@ -107,7 +107,10 @@ class login extends WFModule
         {
             // login was successful
             // remember me stuff
-            // ...
+            if ($page->outlet('rememberMe')->checked())
+            {
+                $ac->rememberMe();
+            }
 
             // continue to next page
             if ($page->outlet('continueURL')->value())

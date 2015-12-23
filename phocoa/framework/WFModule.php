@@ -6,7 +6,7 @@
  * @subpackage Module
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -21,12 +21,12 @@
  * harness the power of the Module/Page system. This way, components can use bindings, formatters, GUI builder, etc and thus make it much easier
  * for developers to build re-usable components for their applications.
  *
- * The ROOT module always has a skin, and its output will be skinned by default. Sub-modules by default have no skin. Callers may be interested in 
+ * The ROOT module always has a skin, and its output will be skinned by default. Sub-modules by default have no skin. Callers may be interested in
  * either the module's skin {@link skin()} on the "root" skin {@link rootSkin()} of the module.
  *
  * Developers may still want to develop new {@link WFWidget} and {@link WFView} subclasses, but these should be limited to their appropriate scope, which is
  * non-application specific UI widgets.
- * 
+ *
  * @todo Eventually we'd like the ability to have multiple BASE directories containing modules. Mainly the purpose of this is so that the framework could
  *       ship with some modules, and they would be accessible, but in a different place from the user's modules. We have to make the framework easy
  *       to update separately from the user code. We could have some "aliases" inside the path-walking stuff that would shunt over to another dir.
@@ -71,7 +71,7 @@ class WFModuleInvocation extends WFObject
       */
     protected $targetRootModule;
     /**
-     * @var boolean TRUE if this invocation should respond to form submissions, FALSE otherwise. 
+     * @var boolean TRUE if this invocation should respond to form submissions, FALSE otherwise.
      *              This setting is typically used in situations where the module is used from a skin or a compositing situation.
      *              For instance, you may want to use a "search" module in your skin via {@link WFSkinModuleView}. When the user
      *              submits the form, it will automatically target the search module and display the results in the body. However,
@@ -114,7 +114,7 @@ class WFModuleInvocation extends WFObject
         $this->pageName = NULL;
         $this->module = NULL;
         $this->modulesDir = NULL;
-        
+
         // set up default skin as needed
         if ($this->isRootInvocation() and !is_null($skinDelegate))
         {
@@ -275,13 +275,13 @@ class WFModuleInvocation extends WFObject
 
     /**
      *  Should this invocation target the root invocation's module, or the current module?
-     *  
+     *
      *  For modules that target the root module, their forms will always post to the root module.
      *  This will result in keeping the current "compositing" of the root module.
-     *  
+     *
      *  For modules that target the current module, their forms will always post to the current module.
      *  This will result in making the sub-module the root module if a form is submitted.
-     * 
+     *
      *  @param boolean TRUE if it targets the root module, false if it targets the current module.
      */
     function setTargetRootModule($targetRoot)
@@ -597,7 +597,7 @@ class WFModuleInvocation extends WFObject
      *  If you want to pass data to a WFModuleInvocation before executing, you'll need to instantiate WFModuleInvocation
      *  yourself and call execute() manually.
      *
-     *  @param string The {@lin invocationPathk WFModule::__construct()} for the module. 
+     *  @param string The {@lin invocationPathk WFModule::__construct()} for the module.
      *  @param object WFModuleInvocation The parent WFModuleInvocation that is creating this invocation, or NULL if this is the root invocation. Default is NULL (no parent).
      *  @param string The name of the skin delegate to use. Default is NULL (no skin).
      *  @return string The resulting output of module execution.
@@ -626,14 +626,14 @@ class WFModuleInvocation extends WFObject
 
 /**
   * The WFModule represents a single chunk of web application functionality.
-  * 
+  *
   * Each module can have multiple pages, and each page can have multiple actions.
-  * 
-  * Basially there are two types of requests; page load requests, and actions 
+  *
+  * Basially there are two types of requests; page load requests, and actions
   * against loaded pages.
   *
-  * A url like /myModule/myPage will cause the framework to simply load the 
-  * requested page. Extra PATH_INFO data may be used to load particular model 
+  * A url like /myModule/myPage will cause the framework to simply load the
+  * requested page. Extra PATH_INFO data may be used to load particular model
   * data into the page.
   *
   *  Examples:
@@ -642,28 +642,28 @@ class WFModuleInvocation extends WFObject
   *     Show page 2 of the search results with /admin/productSearch/myQuery/2
   *
   * When the ResponsePage finishes initializing / loading the page, your module
-  * will be called back on the method <pageName>_PageDidLoad($page), which is your 
-  * opportunity to provide default information and/or perform changes to the UI 
+  * will be called back on the method <pageName>_PageDidLoad($page), which is your
+  * opportunity to provide default information and/or perform changes to the UI
   * before it is rendered.
   *
-  * A url like /myModule/myPage?__action=myAction will restore the state of the 
-  * myPage UI to the submitted state, then call the myAction handler for that page. 
-  * Of course myAction must be part of the myPage. Also, the myAction handler may 
+  * A url like /myModule/myPage?__action=myAction will restore the state of the
+  * myPage UI to the submitted state, then call the myAction handler for that page.
+  * Of course myAction must be part of the myPage. Also, the myAction handler may
   * decide to CHANGE the current page.
   *
   *  Examples:
   *     Edit a product with /admin/productDetail/123?__action=edit or /admin/productDetail?__action=edit&id=123
   *     Delete a product with /admin/productList?__action=delete&id=123
   *
-  * Action methods have the prototype: <pageName>_<actionName>_Action($requestPage) 
+  * Action methods have the prototype: <pageName>_<actionName>_Action($requestPage)
   * where $requestPage is restored UI state of the calling page (pageName).
   *
-  * Each module has a request and a repsonse page. The framework will restore 
+  * Each module has a request and a repsonse page. The framework will restore
   * the request's UI state before calling your module's action handler so that
   * you can easily access widget values via the framework instead of via the $_REQUEST vars.
   *
-  * Once you decide which WFPage to display as the response, the framework loads 
-  * all of the widgets in the page and allows you to manipulate them from your 
+  * Once you decide which WFPage to display as the response, the framework loads
+  * all of the widgets in the page and allows you to manipulate them from your
   * action handler before rendering the response.
   *
   * WFModule/Page CALLBACK METHODS:
@@ -674,7 +674,7 @@ class WFModuleInvocation extends WFObject
   * void DidRestoreState($page) - called after the page has finished restoring state from all widgets, including ones created dynamically during PageDidLoad.
   * void myPageName_myActionName_Action($page) - called on the page after pushBindings, BUT ONLY IF THERE WERE NO ERRORS.
   * void SetupSkin($skin) - Called just before rendering the template so you can set up title and other head tags.
-  * 
+  *
   * @todo Add a WFModule::willRender() callback called from WFPage::render() to easily allow module-level skin stuff
   */
 abstract class WFModule extends WFObject
@@ -760,7 +760,7 @@ abstract class WFModule extends WFObject
      *  Execute the checking of security clearance for the user and the module.
      *
      *  NOTE: This function may issue an HTTP 302 and redirect the user to the login page, then halt script execution.
-     * 
+     *
      *  @throws WFException if anything unexpected happens.
      */
     private function runSecurityCheck()
@@ -771,7 +771,7 @@ abstract class WFModule extends WFObject
             {
                 $authInfo = WFAuthorizationManager::sharedAuthorizationManager()->authorizationInfo();
                 $access = $this->checkSecurity($authInfo);
-                if (!in_array($access, array(WFAuthorizationManager::ALLOW, WFAuthorizationManager::DENY))) throw( new WFException("Unexpected return code from checkSecurity.") );
+                if (!in_array($access, array(WFAuthorizationManager::ALLOW, WFAuthorizationManager::DENY, WFAuthorizationManager::PROMPT))) throw( new WFException("Unexpected return code from checkSecurity.") );
                 // if access is denied, see if there is a logged in user. If so, then DENY. If not, then allow login.
                 if ($access == WFAuthorizationManager::DENY)
                 {
@@ -786,6 +786,18 @@ abstract class WFModule extends WFObject
                         throw( new WFAuthorizationException("Try logging in.", WFAuthorizationException::TRY_LOGIN) );
                     }
                 }
+                else if ($access == WFAuthorizationManager::PROMPT)
+                {
+                    if (!$authInfo->isLoggedIn())
+                    {
+                        throw new WFException("WFAuthorizationManager::PROMPT is not a valid response when no one is logged in.");
+                    }
+                    else
+                    {
+                        // if no one is logged in, allow login, otherwise deny.
+                        throw new WFAuthorizationException("Please re-login to access this secure area.", WFAuthorizationException::TRY_PROMPT);
+                    }
+                }
             }
         } catch (WFAuthorizationException $e) {
             if (php_sapi_name() === 'cli')
@@ -797,6 +809,9 @@ abstract class WFModule extends WFObject
                 throw new WFRequestController_HTTPException("Not authorized." , 403);
             }
             switch ($e->getCode()) {
+                case WFAuthorizationException::TRY_PROMPT:
+                    WFAuthorizationManager::sharedAuthorizationManager()->doLoginRedirect($_SERVER['REQUEST_URI'], true);
+                    break;
                 case WFAuthorizationException::TRY_LOGIN:
                     WFAuthorizationManager::sharedAuthorizationManager()->doLoginRedirect($_SERVER['REQUEST_URI']);
                     break;
@@ -838,7 +853,7 @@ abstract class WFModule extends WFObject
 
     /**
       * Get the module invocation.
-      * 
+      *
       * @return object The WFModuleInvocation object that owns this module instance.
       */
     function invocation()
@@ -879,7 +894,7 @@ abstract class WFModule extends WFObject
 
     /**
       * Get a module instance for the specified module path.
-      * 
+      *
       * @param string The path to the module.
       * @return object A WFModule subclass instance.
       * @throws WFException if the module subclass or file does not exist.
@@ -935,7 +950,7 @@ abstract class WFModule extends WFObject
      * leave the controllerKey blank, and set the modelKeyPath to "<instanceVarName>.rest.of.key.path".
      *
      * To use a shared instance as a property, .................... NOT YET IMPLEMENTED.
-     * 
+     *
      *
      * @todo Allow properties of page.config files to use shared instances.
      */
