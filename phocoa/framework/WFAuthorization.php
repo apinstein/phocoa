@@ -451,9 +451,10 @@ class WFAuthorizationManager extends WFObject
         // try to load from remember me
         if (isset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]]))
         {
-            $this->clearRememberMe();   // remember me is once-only
-
+            // remember me is once-only; read data from cookie then wipe it from client & superglobals.
             $rememberMeToken = $_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]];
+            $this->clearRememberMe();
+
             $ok = $this->login(NULL, $rememberMeToken, true);
             if ($ok)
             {
