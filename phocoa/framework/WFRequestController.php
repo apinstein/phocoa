@@ -111,7 +111,7 @@ class WFRequestController extends WFObject
       *
       * This is basically the uncaught exception handler for the request cycle.
       * We want to have this in the request object because we want the result to be displayed within our skin system.
-      * This function will display the appropriate error page based on the deployment mode for this machine, then exit.
+      * This function will display the appropriate error page based on the deployment mode for this machine.
       *
       * @param Exception The exception object to handle.
       */
@@ -176,7 +176,7 @@ class WFRequestController extends WFObject
             $exceptionPage->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/app_error_developer.tpl');
         }
 
-        // display the error and exit
+        // display the error
         $body_html = $exceptionPage->render(false);
 
         // output error info
@@ -193,7 +193,6 @@ class WFRequestController extends WFObject
             $skin->setTitle("An error has occurred.");
             $skin->render();
         }
-        exit;
     }
 
     /**
@@ -246,48 +245,41 @@ class WFRequestController extends WFObject
             $this->rootModuleInvocation = new WFModuleInvocation($modInvocationPath, NULL, ($this->isAjax() ? NULL : WFWebApplication::sharedWebApplication()->defaultSkinDelegate()) );
             // get HTML result of the module, and output it
             $html = $this->rootModuleInvocation->execute();
-            
+
             // respond to WFRPC::PARAM_ENABLE_AJAX_IFRAME_RESPONSE_MODE for iframe-targeted XHR. Some XHR requests (ie uploads) must be done by creating an iframe and targeting the form
             // post to the iframe rather than using XHR (since XHR doesn't support uploads methinks). This WFRPC flag makes these such "ajax" requests need to be wrapped slightly differently
             // to prevent the HTML returned in the IFRAME from executing in the IFRAME which would cause errors.
             if (isset($_REQUEST[WFRPC::PARAM_ENABLE_AJAX_IFRAME_RESPONSE_MODE]) && $_REQUEST[WFRPC::PARAM_ENABLE_AJAX_IFRAME_RESPONSE_MODE] == 1)
-            {  
+            {
                 header('Content-Type: text/xml');
                 $html = "<"."?xml version=\"1.0\"?"."><raw><![CDATA[\n{$html}\n]]></raw>";
-            }   
+            }
 
             print $html;
         } catch (WFPaginatorException $e) {
             // paginator fails by default should "route" to bad request. This keeps bots from going crazy.
             header("HTTP/1.0 400 Bad Request");
             print "Bad Request: " . $e->getMessage();
-            exit;
         } catch (WFRequestController_RedirectException $e) {
             header("HTTP/1.1 {$e->getCode()}");
             header("Location: {$e->getRedirectURL()}");
-            exit;
         } catch (WFRequestController_HTTPException $e) {
             header("HTTP/1.0 {$e->getCode()}");
             print $e->getMessage();
-            exit;
         } catch (WFRequestController_BadRequestException $e) {
             header("HTTP/1.0 400 Bad Request");
             print "Bad Request: " . $e->getMessage();
-            exit;
         } catch (WFRequestController_NotFoundException $e) {
             header("HTTP/1.0 404 Not Found");
             print $e->getMessage();
-            exit;
         } catch (WFRequestController_InternalRedirectException $e) {
             // internal redirect are handled without going back to the browser... a little bit of hacking here to process a new invocationPath as a "request"
             // @todo - not sure what consequences this has on $_REQUEST; seems that they'd probably stay intact which could foul things up?
             $_SERVER['REQUEST_URI'] = $e->getRedirectURL();
             WFLog::log("Internal redirect to: {$_SERVER['REQUEST_URI']}");
             self::handleHTTPRequest();
-            exit;
         } catch (WFRedirectRequestException $e) {
             header("Location: " . $e->getRedirectURL());
-            exit;
         } catch (Exception $e) {
             $this->handleException($e);
         }
