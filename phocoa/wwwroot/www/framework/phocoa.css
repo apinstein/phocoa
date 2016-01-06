@@ -131,3 +131,9 @@ input[type=text].phocoaWFSpamHoneypot_input {
     border: none;
     visibility: hidden;
 }
+.phocoaStackTrace {
+  font-family: monospace;
+  white-space: pre;
+  width: 900px;
+  overflow: scroll;
+}

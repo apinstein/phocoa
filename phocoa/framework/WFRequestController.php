@@ -5,7 +5,7 @@
  * @package WebApplication
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -45,36 +45,13 @@ class WFRequestController extends WFObject
      */
     private $handleErrors = 4597;
 
-    private function phpErrorAsString($e)
-    {
-        $el = array(
-            1     => 'E_ERROR',
-            2     => 'E_WARNING',
-            4     => 'E_PARSE',
-            8     => 'E_NOTICE',
-            16    => 'E_CORE_ERROR',
-            32    => 'E_CORE_WARNING',
-            64    => 'E_COMPILE_ERROR',
-            128   => 'E_COMPILE_WARNING',
-            256   => 'E_USER_ERROR',
-            512   => 'E_USER_WARNING',
-            1024  => 'E_USER_NOTICE',
-            2048  => 'E_STRICT',
-            4096  => 'E_RECOVERABLE_ERROR',
-            8192  => 'E_DEPRECATED',
-            16384 => 'E_USER_DEPRECATED',
-        );
-        return $el[$e];
-    }
-
     /**
      * Error handler callback for PHP catchable errors; helps synthesize PHP errors and exceptions into the same handling workflow.
      */
-    function handleError($errNum, $errString, $file, $line, $contextArray)
+    function handleError($severity, $message, $file, $line)
     {
-        $errNum = $this->phpErrorAsString($errNum);
-
-        $this->handleException( new ErrorException("{$errNum}: {$errString}\n\nAt {$file}:{$line}") );
+        $e = new ErrorException($message, 0, $severity, $file, $line);
+        $this->handleException($e);
     }
 
     /**
@@ -82,11 +59,11 @@ class WFRequestController extends WFObject
      */
     function checkShutdownForFatalErrors()
     {
+        // grab error_get_last ASAP so that it cannot get adulterated by other things.
         $last_error = error_get_last();
         if ($last_error['type'] & $this->handleErrors)
         {
-            $last_error['type'] = $this->phpErrorAsString($last_error['type']);
-            $this->handleException( new ErrorException("{$last_error['type']}: {$last_error['message']}\n\nAt {$last_error['file']}:{$last_error['line']}") );
+            $this->handleException( new ErrorException($last_error['message'], 0, $last_error['type'], $last_error['file'], $last_error['line']) );
         }
     }
 
@@ -120,6 +97,10 @@ class WFRequestController extends WFObject
         // give ourselves a little more memory so we can process the exception
         ini_set('memory_limit', memory_get_usage() + 25000000 /* 25MB */);
 
+        // grab error_get_last ASAP so that it cannot get adulterated by other things.
+        // we will inject it into things downstream that want it.
+        $standardErrorData = WFExceptionReporting::generatedStandardizedErrorDataFromException($e);
+
         // let the current module try to handle the exception
         if ($this->rootModuleInvocation)
         {
@@ -133,8 +114,11 @@ class WFRequestController extends WFObject
             if ($handled) return;
         }
 
-        WFExceptionReporting::log($e);
+        WFExceptionReporting::log($standardErrorData);
 
+        $exceptionPage = new WFSmarty();
+
+        // LEGACY tpl var setup (in case there are old .tpl's that expect it
         // build stack of errors (php 5.3+)
         if (method_exists($e, 'getPrevious'))
         {
@@ -148,15 +132,12 @@ class WFRequestController extends WFObject
         {
             $allExceptions = array($e);
         }
-
-
-        $exceptionPage = new WFSmarty();
         $exceptionPage->assign('exceptions', $allExceptions);
         $exceptionPage->assign('exceptionClass', get_class($allExceptions[0]));
         $exceptionPage->assign('home_url', WWW_ROOT . '/');
+        // end LEGACY
 
         // modern format
-        $standardErrorData = WFExceptionReporting::generatedStandardizedErrorDataFromException($e);
         $exceptionPage->assign('location', "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}");
         $exceptionPage->assign('headline', "{$standardErrorData[0]['title']}: {$standardErrorData[0]['message']}");
         $exceptionPage->assign('standardErrorData', $standardErrorData);
@@ -166,7 +147,7 @@ class WFRequestController extends WFObject
             '$_REQUEST' => $_REQUEST,
             '$_SESSION' => $_SESSION,
         )));
-        // @todo refactor these templates to use WFExceptionReporting::generatedStandardizedErrorDataFromException($e)
+
         if (IS_PRODUCTION)
         {
             $exceptionPage->setTemplate(WFWebApplication::appDirPath(WFWebApplication::DIR_SMARTY) . '/app_error_user.tpl');
@@ -314,10 +295,10 @@ class WFRequestController extends WFObject
 
         $this->isMobileBrowser = strpos($ac, 'application/vnd.wap.xhtml+xml') !== false
                     || $op != ''
-                    || strpos($ua, 'sony') !== false 
-                    || strpos($ua, 'symbian') !== false 
-                    || strpos($ua, 'nokia') !== false 
-                    || strpos($ua, 'samsung') !== false 
+                    || strpos($ua, 'sony') !== false
+                    || strpos($ua, 'symbian') !== false
+                    || strpos($ua, 'nokia') !== false
+                    || strpos($ua, 'samsung') !== false
                     || strpos($ua, 'mobile') !== false
                     || strpos($ua, 'windows ce') !== false
                     || strpos($ua, 'epoc') !== false
@@ -427,7 +408,7 @@ class WFRequestController extends WFObject
 
 /**
  * Helper class to allow modules to easily redirect the client to a given URL.
- * 
+ *
  * Modules can throw a WFRedirectRequestException anytime to force the client to redirect.
  *
  * @deprecated
@@ -436,7 +417,7 @@ class WFRequestController extends WFObject
 class WFRedirectRequestException extends WFException
 {
     protected $redirectUrl;
-    
+
     function __construct($message = NULL, $code = 0)
     {
         parent::__construct($message, $code);
