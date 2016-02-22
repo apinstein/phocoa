@@ -247,6 +247,11 @@ class WFRequestController extends WFObject
         } catch (WFRequestController_HTTPException $e) {
             header("HTTP/1.0 {$e->getCode()}");
             print $e->getMessage();
+            // HACK
+            if ($e->getCode() == 403)
+            {
+                WFLog::logToFile('phocoa-403.log', "[{$e->getCode()}] {$_SERVER['REQUEST_METHOD']} {$_SERVER['REQUEST_URI']}: {$e->getMessage()}");
+            }
         } catch (WFRequestController_BadRequestException $e) {
             header("HTTP/1.0 400 Bad Request");
             print "Bad Request: " . $e->getMessage();
