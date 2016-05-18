@@ -5,7 +5,7 @@
  * @subpackage Widgets
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -13,7 +13,7 @@
  *
  * <b>Required:</b><br>
  * - (none)
- * 
+ *
  * <b>Optional:</b><br>
  * - {@link WFTextField::$maxLength maxLength}
  * - {@link WFTextField::$size size}
@@ -27,6 +27,11 @@ class WFTextField extends WFWidget
      * @var string The "placeholder" value to show in the search box if it is empty. Default NULL.
      */
     protected $nullPlaceholder;
+
+    /**
+     * @var boolean Allow html autocomplete? Defaults to true
+     */
+    protected $autocomplete = true;
 
     /**
       * Constructor.
@@ -66,12 +71,13 @@ class WFTextField extends WFWidget
             $this->setOnEvent('blur do j:PHOCOA.widgets.' . $this->id . '.handleBlur()');
         }
         $html = '<input type="text" id="' . $this->id() . '" name="' . $this->valueForKey('name') . '" value="' . htmlspecialchars($this->value) . '"' .
+            ($this->valueForKey('autocomplete') ? '' : ' autocomplete="off" ') .
             ($this->valueForKey('size') ? ' size="' . $this->valueForKey('size') . '" ' : '') .
             ($this->valueForKey('maxLength') ? ' maxLength="' . $this->valueForKey('maxLength') . '" ' : '') .
             ($this->class ? ' class="' . $this->class . '"' : '') .
             ($this->valueForKey('enabled') ? '' : ' disabled readonly ') .
             ($this->nullPlaceholder ? ' placeholder="' . htmlspecialchars($this->nullPlaceholder) . '" ' : NULL) .
-            $this->getJSActions() . 
+            $this->getJSActions() .
             '/>
             <script>'
             . $this->getListenerJS();
@@ -126,6 +132,7 @@ class WFTextField extends WFWidget
         return array_merge($items, array(
             'maxLength',
             'size',
+            'autocomplete',
             ));
     }
     function setupExposedBindings()
