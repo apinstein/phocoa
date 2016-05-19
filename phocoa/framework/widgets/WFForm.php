@@ -5,7 +5,7 @@
  * @subpackage Widgets
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -18,8 +18,8 @@
   *
   * IE on the other hand, does NOT select a default button, yet it still submits the form, WITHOUT ANY SUBMIT INFO. Thus this caused PHOCOA errors since PHOCOA
   * didn't call the expected action. Basically phocoa would have a submitted form, but then no action would be called. This is never supposed to happen, and caused
-  * some phocoa modules to have unexpected results. 
-  * 
+  * some phocoa modules to have unexpected results.
+  *
   * To fix this, WFForm has a concept of a {@link WFForm::$defaultSubmitID defaultSubmitID}. This is the ID of the button that should be used as the default action. If your form
   * has exactly one submit button, the default button will be automatically selected. Otherwise, you'll need to specify it by configuring a defaultSubmitID for your
   * form. What this means in practice is that if you have a form with 2+ buttons, you really should set a {@link WFForm::$defaultSubmitID defaultSubmitID} to avoid
@@ -51,6 +51,11 @@ class WFForm extends WFWidget
      * @var string The target to submit to. Default is ''.
      */
     protected $target;
+
+    /**
+     * @var boolean Allow html autocomplete? Defaults to true
+     */
+    protected $autocomplete;
 
     /**
      * @var boolean TRUE to disable form submission via enter key. Default FALSE.
@@ -103,6 +108,7 @@ class WFForm extends WFWidget
 
         $this->method = WFForm::METHOD_POST;
         $this->target = '';
+        $this->autocomplete = true;
         $this->disableEnterKeySubmit = false;
         $this->defaultSubmitID = $this->calculatedDefaultSubmitID = NULL;
         $this->numberOfSubmitButtons = 0;
@@ -143,6 +149,7 @@ class WFForm extends WFWidget
             'action',
             'method' => array(WFForm::METHOD_GET, WFForm::METHOD_POST),
             'target' => array('', '_top', '_blank', '_parent'),
+            'autocomplete' => array('true', 'false'),
             'defaultSubmitID',
             ));
     }
@@ -153,7 +160,7 @@ class WFForm extends WFWidget
         if ($view instanceof WFSubmit)
         {
             $this->numberOfSubmitButtons++;
-            // if if the FIRST one, save it; otherwise, 
+            // if if the FIRST one, save it; otherwise,
             if ($this->calculatedDefaultSubmitID === WFForm::CALCULATED_DEFAULT_SUBMIT_ID_NONE)
             {
                 $this->calculatedDefaultSubmitID = $view->id();
@@ -207,7 +214,7 @@ class WFForm extends WFWidget
     {
         $this->action = $action;
     }
-    
+
     function setMethod($method)
     {
         $this->method = $method;
@@ -241,11 +248,13 @@ class WFForm extends WFWidget
             if (!isset($this->children[$this->defaultSubmitID])) throw( new WFException("The default button specified: '" . $this->defaultSubmitID . '" does not exist.') );
             $defaultFormButtonHTML = "\n" . $this->children[$this->defaultSubmitID]->renderDefaultButton();
         }
-        $html =  "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $target . ' ' . $encType . '>';
+        $html =  "\n" . '<form id="' . $this->id . '" action="' . $this->action . '" method="' . $this->method . '" ' . $target . ' ' . $encType .
+            ($this->valueForKey('autocomplete') ? '' : ' autocomplete="off" ') .
+            '>';
         foreach ($this->phocoaFormParameters as $k => $v) {
             $html .= "\n" . '<input type="hidden" name="' . $k . '" value="' . $v . '" />';
         }
-        $html .= 
+        $html .=
                $defaultFormButtonHTML .
                "\n" . $blockContent .
                "\n</form>\n" .

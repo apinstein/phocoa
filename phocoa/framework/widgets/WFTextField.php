@@ -31,7 +31,7 @@ class WFTextField extends WFWidget
     /**
      * @var boolean Allow html autocomplete? Defaults to true
      */
-    protected $autocomplete = true;
+    protected $autocomplete;
 
     /**
       * Constructor.
@@ -42,6 +42,7 @@ class WFTextField extends WFWidget
         $this->maxLength = NULL;
         $this->size = NULL;
         $this->nullPlaceholder = NULL;
+        $this->autocomplete = true;
     }
 
     public function setNullPlaceholder($v)
@@ -132,7 +133,7 @@ class WFTextField extends WFWidget
         return array_merge($items, array(
             'maxLength',
             'size',
-            'autocomplete',
+            'autocomplete' => array('true', 'false'),
             ));
     }
     function setupExposedBindings()
