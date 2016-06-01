@@ -220,6 +220,7 @@ PHOCOA.WFRPC = function(url, target, action) {
     this.submitButton = null;
     this.method = 'get';
     this.hideErrorsBeforeExecute = true;
+    this.fieldsToHideFromFormSubmission = [];
     // yui-style callback
     this.callback = {
             success: null,      // http 2xx, no WFErrorsException
@@ -360,11 +361,13 @@ PHOCOA.WFRPC.prototype = {
                     var submitEl = '<input type="hidden" name="' + $(this.submitButton).name + '" value="' + $(this.submitButton).value + '" />';
                     Element.insert(theForm, submitEl);
                 }
+                this.fieldsToHideFromFormSubmission.each(function(el) { $(el).disable(); });
                 theForm.submit();
             }
             else /* ajax form submit */
             {
                 // see Prototype.Form.request()
+                this.fieldsToHideFromFormSubmission.each(function(el) { $(el).disable(); });
                 this.transaction = $(this.form).request(   {
                                             method: this.method,    // @todo should this read this.form.method?
                                             parameters: this.phocoaRPCParameters(this.execute.arguments),
@@ -372,6 +375,7 @@ PHOCOA.WFRPC.prototype = {
                                             onFailure: this.failureCallbackWrapper.bind(this),
                                             onException: this.failureCallbackWrapper.bind(this)
                                         });
+                this.fieldsToHideFromFormSubmission.each(function(el) { $(el).enable(); });
             }
         }
         else

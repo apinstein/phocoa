@@ -6,12 +6,12 @@
 /**
  * The WFRPC class encapsulates a remote procedure call from the client/UI layer.
  *
- * This is the lowest-level of RPC data and is only related to the remote call. 
+ * This is the lowest-level of RPC data and is only related to the remote call.
  *
  * Higher level classes like WFAction are used by widgets to coordinate RPC calls.
  *
  * WFRPC is used mainly by WFAction or low-level programming on the client side that needs lower-level AJAX access, or needs to make an RPC outside of the event model.
- * 
+ *
  * Often custom ajax widgets like YUI TreeView or YUI Autocomplete will need to make calls to the server outside of the event model, and will use WFRPC (or the JS WFRPC)
  * to do that.
  *
@@ -23,8 +23,8 @@
  *
  * (object WFActionResponse) ajaxCallback($page, $params, [$userArg1, $userArg2, ... $userArgN]);
  *
- * Since the prototype is effectively the same as the standard PHOCOA page action callback, you can use the same function for both circumstances. 
- * 
+ * Since the prototype is effectively the same as the standard PHOCOA page action callback, you can use the same function for both circumstances.
+ *
  * Note that you can detect whether or not you're in an ajax callback via {@link WFRequestController::isAjax() WFRequestController::sharedRequestController()->isAjax()} call.
  *
  * Has fluent interface for configuration.
@@ -80,7 +80,7 @@ class WFRPC extends WFObject
      */
     protected $form;
     /**
-     * @var boolean TRUE if the RPC wants the response to be an "ajax" response as opposed to the normal result. 
+     * @var boolean TRUE if the RPC wants the response to be an "ajax" response as opposed to the normal result.
      *              An "AJAX Response" is one where json or xml etc is requested by the client. A "Non-AJAX Response" is one where the client wants back a "web page".
      *              NOTE that this is *not* whether or not the request was made over an AJAX channel. For that, see {@link WFRequestController::isAjax()}
      */
@@ -123,7 +123,7 @@ class WFRPC extends WFObject
     {
         return WWW_ROOT . '/' . $this->invocationPath();
     }
-    
+
     /**
      * Set the target for the rpc. See {@link WFRPC::$target}.
      *
@@ -228,7 +228,7 @@ class WFRPC extends WFObject
         }
         return $params;
     }
-    
+
     /**
      * Are we in AJAX mode?
      *
@@ -309,7 +309,7 @@ class WFRPC extends WFObject
         {
             $targetObj = $targetObj->valueForKeyPath($keyPath);
         }
-        
+
         $rpcCall = array($targetObj, $this->action);
         if (!is_callable($rpcCall))
         {
@@ -370,7 +370,7 @@ class WFRPC extends WFObject
          * If they match, a proper WFRPC should be returned.
          * If not, then NULL should be returned, indicating that there is no rpc info for the given invocationPath.
          *
-         * NOTES: 
+         * NOTES:
          * - invocationPath comes from WFModuleInvocation::invocationPath() which has not been urldecode'd or rawurldecode'd
          *   Of course the browsers may do various things; on the main page this includes URL-bar munging, from js it includes who-knows-what from the AJAX infrastructure
          * - $_REQUEST[self::PARAM_INVOCATION_PATH is typically encodeURIComponent() processed, but due to bugs in client code oftentimes will *not* be encoded.
@@ -766,7 +766,7 @@ class WFAction extends WFObject
                                               '" . $this->rpc->target() . "',
                                               '" . $this->rpc->action() . "');
                 ";
-            
+
             if ($this->event()->widget() instanceof WFSubmit)
             {
                 $script .= "
@@ -785,6 +785,12 @@ class WFAction extends WFObject
                 action.rpc.isAjax = " . ( $this->rpc->isAjax() ? 'true' : 'false') . ";
                 action.rpc.runsIfInvalid = " . ( $this->rpc->runsIfInvalid() ? 'true' : 'false') . ";
                      ";
+            if ($this->rpc->form())
+            {
+                $script .= "
+                action.rpc.fieldsToHideFromFormSubmission = " . json_encode($this->rpc->form()->getFieldsToHideFromFormSubmission()) . ";
+                    ";
+            }
         }
         $script .= "}";
         return "({$script})();";
@@ -811,7 +817,7 @@ class WFAction extends WFObject
 
     /**
      * Create a new JSAction to reponsd to an event.
-     * 
+     *
      * JSAction simply calls a Javascript function in response to an event.
      *
      * @return object WFAction
@@ -824,7 +830,7 @@ class WFAction extends WFObject
     }
     /**
      * Create a new ServerAction to reponsd to an event.
-     * 
+     *
      * Call an action on the server, done via complete page refresh.
      *
      * @return object WFAction
@@ -837,7 +843,7 @@ class WFAction extends WFObject
     }
     /**
      * Create a new AjaxAction to reponsd to an event.
-     * 
+     *
      * Call an action on the server, done via XHR.
      *
      * @return object WFAction

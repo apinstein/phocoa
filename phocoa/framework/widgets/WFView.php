@@ -5,7 +5,7 @@
  * @subpackage Views
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -27,9 +27,9 @@
  *      (etc)</pre>
  *
  * Since we're a web framework, all views eventually know how to render themselves into HTML.
- * 
+ *
  * Views have no maintained state. Anything that needs to maintain state should be a {@link WFWidget} subclass.
- * 
+ *
  * WFView contains the basic infrastructure support the YUI library, which is PHOCOA's Javascript and AJAX layer.
  */
 abstract class WFView extends WFObject
@@ -164,13 +164,13 @@ abstract class WFView extends WFObject
      * You can choose from three processing options, "j" (execute javascript code), "s" (execute a server action via a form submit), or "a" (execute a server action via ajax).
      *
      * For "j" events, it looks like:
-     * 
+     *
      * onEvent: click do j:alert("Somthing was clicked")
      *
      * Your code is actually processed inside of an object function callback; "this" will be the WFAction, and it has a parameter "event". By default, the event is NOT stopped
      * when using "j" events, so if you don't want the default behavior to occur, be sure to use this.stopEvent(event) in your j:javascript.
      *
-     * NOTE: the 's' and 'a' processing options also accept a '!' modifier which turns on runsIfInvalid mode. This is useful in many cases where you need to 
+     * NOTE: the 's' and 'a' processing options also accept a '!' modifier which turns on runsIfInvalid mode. This is useful in many cases where you need to
      * run server-side processing of form data before you even expect the form to be valid (for instance chained WFSelect widgets).
      */
     public function setOnEvent($str)
@@ -291,7 +291,7 @@ abstract class WFView extends WFObject
      *
      *  This will give you a copy of WFView that has been registered with the page.
      *
-     *  @param 
+     *  @param
      *  @return
      *  @throws
      */
@@ -479,9 +479,9 @@ abstract class WFView extends WFObject
 
         return $jsHTML;
     }
-    
+
     /**
-     *  Is the view enabled? 
+     *  Is the view enabled?
      *
      *  @return boolean
      */
@@ -519,7 +519,7 @@ abstract class WFView extends WFObject
     {
         return WFWebApplication::appDirPath(WFWebApplication::DIR_WWW) . '/framework/widgets/' . get_class($this);
     }
-    
+
     /**
       * Get the {@link WFPage} object that this view belongs to.
       */
@@ -597,7 +597,7 @@ abstract class WFView extends WFObject
     /**
      * After WFPage has completed the loading of all config for all widgets, it will call this function on each widget.
      *
-     * This function is particularly useful for widgets that have children. When called, the widget can be sure that all instances and config of its children 
+     * This function is particularly useful for widgets that have children. When called, the widget can be sure that all instances and config of its children
      * have been loaded from the .config file.
      */
     function allConfigFinishedLoading() {}

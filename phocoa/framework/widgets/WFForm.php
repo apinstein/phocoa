@@ -77,6 +77,11 @@ class WFForm extends WFWidget
     protected $phocoaFormParameters;
 
     /**
+     * @var array Fields to suppress from form submission. NOTE: only used by WFAction's with WFRPC's (ServerAction and AjaxAction)
+     */
+    protected $fieldsToHideFromFormSubmission;
+
+    /**
      * @var boolean Set to true to turn this into an ajax-enabled form.
      */
     protected $isAjax;
@@ -113,6 +118,7 @@ class WFForm extends WFWidget
         $this->defaultSubmitID = $this->calculatedDefaultSubmitID = NULL;
         $this->numberOfSubmitButtons = 0;
 
+        $this->fieldsToHideFromFormSubmission = array();
         $this->isAjax = false;
 
         // set up the extra form parameters we need to enable phocoa form detection and processing...
@@ -140,6 +146,19 @@ class WFForm extends WFWidget
     public function phocoaFormParameters()
     {
         return $this->phocoaFormParameters;
+    }
+
+    /**
+     * @param array An array of strings of field names to ignore.
+     */
+    public function setFieldsToHideFromFormSubmission($fields)
+    {
+        $this->fieldsToHideFromFormSubmission = $fields;
+    }
+
+    public function getFieldsToHideFromFormSubmission()
+    {
+        return $this->fieldsToHideFromFormSubmission;
     }
 
     public static function exposedProperties()
