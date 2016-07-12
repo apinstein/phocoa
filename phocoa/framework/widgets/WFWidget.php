@@ -5,7 +5,7 @@
  * @subpackage Widgets
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -231,7 +231,7 @@ abstract class WFWidget extends WFView
         }
         return $theValue;
     }
-    
+
     protected function classHTML()
     {
         if ($this->class)
@@ -301,6 +301,8 @@ abstract class WFWidget extends WFView
         $myBindings[] = $enSetup;
         $tabIndexSetup = new WFBindingSetup('tabIndex', 'The current tabIndex.');
         $myBindings[] = $tabIndexSetup;
+        $dataAttributesBindings = new WFBindingSetup('dataAttributes', 'Data attributes.');
+        $myBindings[] = $dataAttributesBindings;
         return $myBindings;
     }
 
@@ -360,7 +362,7 @@ abstract class WFWidget extends WFView
      *
      * @return mixed The value to use as determined by resolving the binding.
      * @throws Exception under various circumstances if the value cannot be determined.
-     */ 
+     */
     final function valueForBinding($prop, $binding)
     {
         $exposedBindings = $this->exposedBindings();
@@ -725,7 +727,7 @@ abstract class WFWidget extends WFView
      * by re-enabling pushBindings for not enabled widgets.
      *
      * Subclasses that fake their own data should override this function and return true.
-     * 
+     *
      * @return boolean
      */
     function pushBindingsIfNotEnabled()
@@ -781,7 +783,7 @@ abstract class WFWidget extends WFView
       * If the control is non-editable, client should return FALSE.
       *
       * If the control is editable, and you only use the built-in value property, then subclasses should return TRUE.
-      * 
+      *
       * If the control is editable, and the subclass does not make use of the built-in value property, then should return FALSE.
       *
       * NOTE: this callback is used *instead* of the read-only setting of the binding setup for the "value" binding only. This is a special case
@@ -790,7 +792,7 @@ abstract class WFWidget extends WFView
       *
       * NOTE: contrast this with the {@link WFView::$enabled} setting. The canPushValueBinding setting is an inherent property of the widget class; enabled is a setting
       * that is toggleable at runtime.
-      * 
+      *
       * @return boolean Return TRUE to have the base WFWidget class automatically push your 'value' binding. FALSE to skip pushing bindings for the "value" property.
       */
     abstract function canPushValueBinding();
@@ -835,7 +837,7 @@ abstract class WFWidget extends WFView
         // normalize "" string values to NULL. Do this pre-validation; that function can do normalization etc.
         // we simply cover the case of TOTALLY EMPTY STRING is equivalent to NULL here.
         if ($value === '') $value = NULL;
-        
+
         $edited = false;
 
         $func = WFFunction::create('return "propagateValueToBinding() validating value \'$value\' for bound object \'" . $class . "\' for widget id \'{$id}\' binding: \'{$bindingName}\'";')

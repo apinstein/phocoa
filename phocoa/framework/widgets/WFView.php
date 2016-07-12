@@ -75,6 +75,11 @@ abstract class WFView extends WFObject
     protected $jsEvents;
 
     /**
+     * A hash of Key-Value pairs to include as data-* attributes in the HTML rendered for the view.
+     */
+    protected $dataAttributes = array();
+
+    /**
      * @var string The original onEvent script text. This is used internally by advanced applications like WFDynamic.
      */
     protected $originalOnEvent;
@@ -284,6 +289,35 @@ abstract class WFView extends WFObject
     {
         $items = parent::exposedProperties();
         return array_merge($items, array('enabled'));
+    }
+
+    /**
+     * Set a key-value pair in the dataAttributes data set.
+     *
+     * @param string Key -- use only chars safe for use as an HTML attribute name.
+     * @param string Value -- will be HTML-encoded as an attribute.
+     */
+    public function setDataAttribute($k, $v)
+    {
+        $this->dataAttributes[$k] = $v;
+    }
+
+    /**
+     * @return string All key-value pairs of the dataAttributes data set rendered out for inclusion in an HTML entity. All keys are prefixed with 'data-'
+     */
+    protected function renderDataAttributesToHTML()
+    {
+        if (count($this->dataAttributes) === 0)
+        {
+            return '';
+        }
+
+        $html = ' ';
+        foreach ($this->dataAttributes as $k => $v) {
+            $html .= " data-{$k}='" . htmlspecialchars($v, ENT_QUOTES) . "' ";
+        }
+
+        return $html;
     }
 
     /**

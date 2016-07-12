@@ -5,18 +5,18 @@
  * @subpackage Widgets
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
  * A Link widget for our framework.
- * 
+ *
  * <b>PHOCOA Builder Setup:</b>
  *
  * <b>Required:</b><br>
  * - {@link WFWidget::$value value} The URL for the link. Supports ValuePattern binding.
  * - {@link WFLink::$label label} The label for the link. Supports ValuePattern binding.
- * 
+ *
  * <b>Optional:</b><br>
  * - {@link WFLink::$class class} The class of the <a> tag.
  * - {@link WFLink::$title title} The title for the link. Supports ValuePattern binding.
@@ -67,7 +67,7 @@ class WFLink extends WFWidget
     {
         $this->label = $label;
     }
-    
+
     function setupExposedBindings()
     {
         $myBindings = parent::setupExposedBindings();
@@ -114,7 +114,7 @@ class WFLink extends WFWidget
             }
             $label = ($this->label !== NULL ? $this->label : $this->value);
             $title = ($this->title ? " title=\"{$this->title}\" " : NULL);
-            return "<a id=\"{$this->id}\" href=\"{$this->value}\" {$class}{$target}{$title}" . $this->getJSActions() . ">{$label}</a>" . $this->getListenerJSInScriptTag();
+            return "<a id=\"{$this->id}\" href=\"{$this->value}\" {$class}{$target}{$title}" . $this->getJSActions() . " " . $this->renderDataAttributesToHTML() . ">{$label}</a>" . $this->getListenerJSInScriptTag();
         }
     }
 
