@@ -307,12 +307,8 @@ abstract class WFView extends WFObject
      */
     protected function renderDataAttributesToHTML()
     {
-        if (count($this->dataAttributes) === 0)
-        {
-            return '';
-        }
+        $html = '';
 
-        $html = ' ';
         foreach ($this->dataAttributes as $k => $v) {
             $html .= " data-{$k}='" . htmlspecialchars($v, ENT_QUOTES) . "' ";
         }
