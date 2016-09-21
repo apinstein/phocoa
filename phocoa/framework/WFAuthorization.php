@@ -535,11 +535,15 @@ class WFAuthorizationManager extends WFObject
      *
      * @param object WFAuthorizationInfo The new authorization info to set for the current session.
      */
-    function loginAsAuthorizationInfo($authInfo, $authorizeRecentLogin = true)
+    function loginAsAuthorizationInfo($authInfo, $authorizeRecentLogin = true, $temporary = false)
     {
         if (!$authInfo instanceof WFAuthorizationInfo) throw new WFException("WFAuthorizationInfo or subclass required.");
 
         $this->authorizationInfo = $authInfo;
+        
+        if($temporary){
+      			return;
+      		}
 
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_LOGGED_IN] = true;
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_AUTHORIZATION_INFO] = $this->authorizationInfo;
