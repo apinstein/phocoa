@@ -150,6 +150,13 @@ class WFAuthorizationDelegate extends WFObject
      */
     function resetPassword($username) {}
 
+  /**
+   *  Allows delegate to make modifications to the authorization info (whether it is the result of a login or pulled from session) before exposing through API.
+   *
+   *  @param WFAuthorizationInfo The current authorization object
+   *  @return WFAuthorizationInfo The authorization info object to expose to the API
+   */
+  function modifyAuthorizationInfo($current) {}
 }
 
 /**
@@ -424,7 +431,15 @@ class WFAuthorizationManager extends WFObject
       */
     function authorizationInfo()
     {
-        return $this->authorizationInfo;
+    // give delegate a chance to munge current auth-info
+    if (method_exists($this->authorizationDelegate, 'modifyAuthorizationInfo'))
+    {
+      return $this->authorizationDelegate->modifyAuthorizationInfo($this->authorizationInfo);
+    }
+    else
+    {
+      return $this->authorizationInfo;
+    }
     }
 
     /**
@@ -535,15 +550,11 @@ class WFAuthorizationManager extends WFObject
      *
      * @param object WFAuthorizationInfo The new authorization info to set for the current session.
      */
-    function loginAsAuthorizationInfo($authInfo, $authorizeRecentLogin = true, $temporary = false)
+    function loginAsAuthorizationInfo($authInfo, $authorizeRecentLogin = true)
     {
         if (!$authInfo instanceof WFAuthorizationInfo) throw new WFException("WFAuthorizationInfo or subclass required.");
 
         $this->authorizationInfo = $authInfo;
-        
-        if($temporary){
-      			return;
-      		}
 
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_LOGGED_IN] = true;
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_AUTHORIZATION_INFO] = $this->authorizationInfo;
