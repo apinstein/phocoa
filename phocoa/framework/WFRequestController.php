@@ -50,6 +50,18 @@ class WFRequestController extends WFObject
      */
     function handleError($severity, $message, $file, $line)
     {
+        if (isset($this->previousHandler) && call_user_func_array($this->previousHandler, func_get_args()))
+        {
+            // allow non phocoa error handler to swallow
+            return true;
+        }
+
+        if (!($severity & $this->handleErrors))
+        {
+            // only handle exceptions we care about
+            return;
+        }
+
         $e = new ErrorException($message, 0, $severity, $file, $line);
         $this->handleException($e);
     }
@@ -76,8 +88,14 @@ class WFRequestController extends WFObject
      */
     private function registerErrorHandlers()
     {
+        if (isset($this->previousHandler))
+        {
+            // prevent infinite loop
+            return;
+        }
+
         // convert these errors into exceptions
-        set_error_handler(array($this, 'handleError'), $this->handleErrors);
+        $this->previousHandler = set_error_handler(array($this, 'handleError'));
 
         // catch non-catchable errors
         register_shutdown_function(array($this, 'checkShutdownForFatalErrors'));
