@@ -59,7 +59,7 @@ class WFRequestController extends WFObject
         if (!($severity & $this->handleErrors))
         {
             // only handle exceptions we care about
-            return;
+            return false;
         }
 
         $e = new ErrorException($message, 0, $severity, $file, $line);
