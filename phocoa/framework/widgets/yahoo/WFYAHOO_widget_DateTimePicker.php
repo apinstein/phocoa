@@ -97,10 +97,6 @@ class WFYAHOO_widget_DateTimePicker extends WFYAHOO
         $newValBinding->setReadOnly(true);
         $myBindings[] = $newValBinding;
 
-        $newValBinding = new WFBindingSetup('timezone', 'The DateTimeZone object corresponding to the value. This data is always the same as value->getTimezone() but is independently bindable for convenience.');
-        $newValBinding->setReadOnly(true);
-        $myBindings[] = $newValBinding;
-
         return $myBindings;
     }
 
