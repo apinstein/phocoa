@@ -35,7 +35,7 @@ class WFLog extends WFObject
       */
     public static function log($message, $ident = 'general', $level = PEAR_LOG_DEBUG)
     {
-        $logger = self::getLogger();
+        $logger = self::getLogger($ident);
 
         if (!$logger) {
             if (!WFLog::logif($level)) return;   // bail as early as possible if we aren't gonna log this line
@@ -44,7 +44,7 @@ class WFLog extends WFObject
             $logger = Log::singleton('file', $logFileDir . '/wf.log', $ident, array('mode' => 0666), WF_LOG_LEVEL);
         }
 
-        $logger->log(self::buildLogMessage($message), $ident, $level);
+        $logger->log(self::buildLogMessage($message), $level);
     }
 
     /**
@@ -56,25 +56,25 @@ class WFLog extends WFObject
       */
     public static function logToFile($fileName, $message)
     {
-        $logger = self::getLogger();
+        $logger = self::getLogger($fileName);
 
         if (!$logger) {
             $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
             $logger = Log::singleton('file', $logFileDir . '/' . $fileName, 'log', array('mode' => 0666));
         }
 
-        $logger->log(self::buildLogMessage($message), $fileName);
+        $logger->log(self::buildLogMessage($message));
     }
 
     /**
     * Allow web application to define its own logging facade instead of relying on PEAR module.
     */
-    public static function getLogger()
+    public static function getLogger($channel)
     {
         $delegate = WFWebApplication::sharedWebApplication()->delegate();
 
         if (method_exists($delegate, 'logger')) {
-            return $delegate->logger();
+            return $delegate->logger($channel);
         }
 
         return null;
