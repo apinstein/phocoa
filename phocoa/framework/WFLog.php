@@ -35,10 +35,16 @@ class WFLog extends WFObject
       */
     public static function log($message, $ident = 'general', $level = PEAR_LOG_DEBUG)
     {
-        if (!WFLog::logif($level)) return;   // bail as early as possible if we aren't gonna log this line
-        $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
-        $logger = Log::singleton('file', $logFileDir . '/wf.log', $ident, array('mode' => 0666), WF_LOG_LEVEL);
-        $logger->log(self::buildLogMessage($message), $level);
+        $logger = self::getLogger();
+
+        if (!$logger) {
+            if (!WFLog::logif($level)) return;   // bail as early as possible if we aren't gonna log this line
+
+            $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
+            $logger = Log::singleton('file', $logFileDir . '/wf.log', $ident, array('mode' => 0666), WF_LOG_LEVEL);
+        }
+
+        $logger->log(self::buildLogMessage($message), $ident, $level);
     }
 
     /**
@@ -50,9 +56,28 @@ class WFLog extends WFObject
       */
     public static function logToFile($fileName, $message)
     {
-        $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
-        $logger = Log::singleton('file', $logFileDir . '/' . $fileName, 'log', array('mode' => 0666));
-        $logger->log(self::buildLogMessage($message));
+        $logger = self::getLogger();
+
+        if (!$logger) {
+            $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
+            $logger = Log::singleton('file', $logFileDir . '/' . $fileName, 'log', array('mode' => 0666));
+        }
+
+        $logger->log(self::buildLogMessage($message), $fileName);
+    }
+
+    /**
+    * Allow web application to define its own logging facade instead of relying on PEAR module.
+    */
+    public static function getLogger()
+    {
+        $delegate = WFWebApplication::sharedWebApplication()->delegate();
+
+        if (method_exists($delegate, 'logger')) {
+            return $delegate->logger();
+        }
+
+        return null;
     }
 
     public static function logif($level = PEAR_LOG_DEBUG)
