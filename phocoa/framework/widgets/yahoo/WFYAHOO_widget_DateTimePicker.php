@@ -231,7 +231,7 @@ class WFYAHOO_widget_DateTimePicker extends WFYAHOO
                 }
                 else
                 {
-                    $tz = date_default_timezone_get();
+                    $tz = new DateTimeZone(date_default_timezone_get());
                 }
             }
             else
