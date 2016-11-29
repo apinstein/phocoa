@@ -5,7 +5,7 @@
  * @subpackage Log
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 
 /**
@@ -24,34 +24,45 @@ class WFLog extends WFObject
     const WARN_LOG = 'warn';
 
     /**
-      * Log the passed message to the framework's log folder.
-      * @param mixed string Log message to log.
-      *              object WFFunction A WFFunction which will be lazy-evaluated to produce the message to log. This level of decoupling allows the log infrastructure
-      *                                to be much faster when a message won't be logged as the message creation won't occur at all.
-      * @param string The "ident" of the message to log.
-      * @param level The PEAR log level (PEAR_LOG_EMERG, PEAR_LOG_ALERT, PEAR_LOG_CRIT, PEAR_LOG_ERR, PEAR_LOG_WARNING, PEAR_LOG_NOTICE, PEAR_LOG_INFO, and PEAR_LOG_DEBUG)
-      *
-      * The message will be logged to the wf.log file in the web application's log directory, if the log level is less than or equal to the WF_LOG_LEVEL.
-      */
+     * Log the passed message to the framework's log folder.
+     * @param mixed string Log message to log.
+     *              object WFFunction A WFFunction which will be lazy-evaluated to produce the message to log. This level of decoupling allows the log infrastructure
+     *                                to be much faster when a message won't be logged as the message creation won't occur at all.
+     * @param string The "ident" of the message to log.
+     * @param level The PEAR log level (PEAR_LOG_EMERG, PEAR_LOG_ALERT, PEAR_LOG_CRIT, PEAR_LOG_ERR, PEAR_LOG_WARNING, PEAR_LOG_NOTICE, PEAR_LOG_INFO, and PEAR_LOG_DEBUG)
+     *
+     * The message will be logged to the wf.log file in the web application's log directory, if the log level is less than or equal to the WF_LOG_LEVEL.
+     */
     public static function log($message, $ident = 'general', $level = PEAR_LOG_DEBUG)
     {
-        if (!WFLog::logif($level)) return;   // bail as early as possible if we aren't gonna log this line
-        $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
-        $logger = Log::singleton('file', $logFileDir . '/wf.log', $ident, array('mode' => 0666), WF_LOG_LEVEL);
+        $logger = WFWebApplication::sharedWebApplication()->logger($ident);
+
+        if (!$logger) {
+            if (!WFLog::logif($level)) return;   // bail as early as possible if we aren't gonna log this line
+
+            $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
+            $logger = Log::singleton('file', $logFileDir . '/wf.log', $ident, array('mode' => 0666), WF_LOG_LEVEL);
+        }
+
         $logger->log(self::buildLogMessage($message), $level);
     }
 
     /**
-      * Log the passed message to the framework's log folder in the filename specified.
-      * @param string The filename to log the message to. The exact string will be used for the filename; no extension will be appended.
-      * @param mixed string Log message to log.
-      *              object WFFunction A WFFunction which will be lazy-evaluated to produce the message to log. This level of decoupling allows the log infrastructure
-      *                                to be much faster when a message won't be logged as the message creation won't occur at all.
-      */
+     * Log the passed message to the framework's log folder in the filename specified.
+     * @param string The filename to log the message to. The exact string will be used for the filename; no extension will be appended.
+     * @param mixed string Log message to log.
+     *              object WFFunction A WFFunction which will be lazy-evaluated to produce the message to log. This level of decoupling allows the log infrastructure
+     *                                to be much faster when a message won't be logged as the message creation won't occur at all.
+     */
     public static function logToFile($fileName, $message)
     {
-        $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
-        $logger = Log::singleton('file', $logFileDir . '/' . $fileName, 'log', array('mode' => 0666));
+        $logger = WFWebApplication::sharedWebApplication()->logger($fileName);
+
+        if (!$logger) {
+            $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
+            $logger = Log::singleton('file', $logFileDir . '/' . $fileName, 'log', array('mode' => 0666));
+        }
+
         $logger->log(self::buildLogMessage($message));
     }
 
