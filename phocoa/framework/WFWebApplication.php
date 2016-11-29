@@ -303,6 +303,23 @@ class WFWebApplication extends WFObject
     }
 
     /**
+     * Get the log delegate for a channel in the application.
+     *
+     * The logger delegate is provided by the {@link WFWebApplicationDelegate}.
+     *
+     * @param string The channel to scope the logger to
+     * @return object Object implementing the PEAR log interface, or NULL if there is no default delegate.
+     */
+    function logger($channel)
+    {
+        if (is_object($this->delegate) && method_exists($this->delegate, 'logger'))
+        {
+            return $this->delegate->logger($channel);
+        }
+        return NULL;
+    }
+
+    /**
      * Get the default Skin delegate for the application.
      *
      * The default skin delegate is provided by the {@link WFWebApplicationDelegate}.

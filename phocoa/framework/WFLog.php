@@ -35,7 +35,7 @@ class WFLog extends WFObject
       */
     public static function log($message, $ident = 'general', $level = PEAR_LOG_DEBUG)
     {
-        $logger = self::getLogger($ident);
+        $logger = WFWebApplication::logger();
 
         if (!$logger) {
             if (!WFLog::logif($level)) return;   // bail as early as possible if we aren't gonna log this line
@@ -56,7 +56,7 @@ class WFLog extends WFObject
       */
     public static function logToFile($fileName, $message)
     {
-        $logger = self::getLogger($fileName);
+        $logger = WFWebApplication::logger();
 
         if (!$logger) {
             $logFileDir = WFWebApplication::sharedWebApplication()->appDirPath(WFWebApplication::DIR_LOG);
@@ -64,20 +64,6 @@ class WFLog extends WFObject
         }
 
         $logger->log(self::buildLogMessage($message));
-    }
-
-    /**
-    * Allow web application to define its own logging facade instead of relying on PEAR module.
-    */
-    public static function getLogger($channel)
-    {
-        $delegate = WFWebApplication::sharedWebApplication()->delegate();
-
-        if (method_exists($delegate, 'logger')) {
-            return $delegate->logger($channel);
-        }
-
-        return null;
     }
 
     public static function logif($level = PEAR_LOG_DEBUG)
