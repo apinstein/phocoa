@@ -10,22 +10,22 @@
  */
 
 /**
-  * Informal delegate protocol for your web application to handle authentication.
-  *
-  * The WFAuthorizationManager will call your delegate methods to attempt logins.
-  */
+ * Informal delegate protocol for your web application to handle authentication.
+ *
+ * The WFAuthorizationManager will call your delegate methods to attempt logins.
+ */
 class WFAuthorizationDelegate extends WFObject
 {
     /**
-      * Provide the login authentication.
-      *
-      * Your WFAuthorizationDelegate can provide its own login capability. Maybe your app will authenticate against LDAP, a Database, etc.
-      *
-      * @param string The username to use for the authentication.
-      * @param string The password to use for the authentication.
-      * @param boolean TRUE if the password is in "token" form; ie the TOKEN that the application generates for rememberMeToken(). If TRUE, $username will be null.
-      * @return object WFAuthorizationInfo Return an WFAuthorizationInfo with any additional security profile. This of course can be a subclass. Return NULL if login failed.
-      */
+     * Provide the login authentication.
+     *
+     * Your WFAuthorizationDelegate can provide its own login capability. Maybe your app will authenticate against LDAP, a Database, etc.
+     *
+     * @param string The username to use for the authentication.
+     * @param string The password to use for the authentication.
+     * @param boolean TRUE if the password is in "token" form; ie the TOKEN that the application generates for rememberMeToken(). If TRUE, $username will be null.
+     * @return object WFAuthorizationInfo Return an WFAuthorizationInfo with any additional security profile. This of course can be a subclass. Return NULL if login failed.
+     */
     function login($username, $password, $passIsToken) {}
 
     /**
@@ -150,34 +150,34 @@ class WFAuthorizationDelegate extends WFObject
      */
     function resetPassword($username) {}
 
-  /**
-   *  Allows delegate to make modifications to the authorization info (whether it is the result of a login or pulled from session) before exposing through API.
-   *
-   *  @param WFAuthorizationInfo The current authorization object
-   *  @return WFAuthorizationInfo The authorization info object to expose to the API
-   */
-  function modifyAuthorizationInfo($current) {}
+    /**
+     *  Allows delegate to make modifications to the authorization info (whether it is the result of a login or pulled from session) before exposing through API.
+     *
+     *  @param WFAuthorizationInfo The current authorization object
+     *  @return WFAuthorizationInfo The authorization info object to expose to the API
+     */
+    function modifyAuthorizationInfo($current) {}
 }
 
 /**
-  * The WFAuthorizationInfo object stores all access control information for the logged-in user.
-  *
-  * The base class provides the ability to tell if someone is logged in, if they logged in recently, and their userid. For many applications, this is all that's needed.
-  *
-  * For applications requiring more complicated access control, they should subclass WFAuthorizationInfo and provide further access control information and methods to query it.
-  *
-  * NOTE: The WFAuthorizationInfo class is stored in the SESSION at the time of login. The WFAuthorizationInfo is immutable once stored in the session; whatever rights are given
-  * to the user at login remain with him until he logs in again (this includes REMEMBER-ME login).
-  * The WFAuthorizationInfo MUST be easily serializable! No circular references, etc... subclasses be careful!
-  *
-  * NOTE: If you are using a subclass of WFAuthorizationInfo, please note that the authorizationInfo managed by WFAuthorizationManager will only be of your subclass' type if
-  * someone is logged in. Until then, it's always WFAuthorizationInfo. So, always test isLoggedIn() before accessing authorizationInfo as your subclass.
-  */
+ * The WFAuthorizationInfo object stores all access control information for the logged-in user.
+ *
+ * The base class provides the ability to tell if someone is logged in, if they logged in recently, and their userid. For many applications, this is all that's needed.
+ *
+ * For applications requiring more complicated access control, they should subclass WFAuthorizationInfo and provide further access control information and methods to query it.
+ *
+ * NOTE: The WFAuthorizationInfo class is stored in the SESSION at the time of login. The WFAuthorizationInfo is immutable once stored in the session; whatever rights are given
+ * to the user at login remain with him until he logs in again (this includes REMEMBER-ME login).
+ * The WFAuthorizationInfo MUST be easily serializable! No circular references, etc... subclasses be careful!
+ *
+ * NOTE: If you are using a subclass of WFAuthorizationInfo, please note that the authorizationInfo managed by WFAuthorizationManager will only be of your subclass' type if
+ * someone is logged in. Until then, it's always WFAuthorizationInfo. So, always test isLoggedIn() before accessing authorizationInfo as your subclass.
+ */
 class WFAuthorizationInfo extends WFObject
 {
     /**
-      * @var string The userid of the logged in user.
-      */
+     * @var string The userid of the logged in user.
+     */
     protected $userid;
     /**
      * @var boolean TRUE is the user is a super-user. FALSE otherwise.
@@ -185,8 +185,8 @@ class WFAuthorizationInfo extends WFObject
     protected $isSuperUser;
 
     /**
-      * @const Flag for no user logged in.
-      */
+     * @const Flag for no user logged in.
+     */
     const NO_USER = -1;
 
     function __construct()
@@ -216,41 +216,41 @@ class WFAuthorizationInfo extends WFObject
     }
 
     /**
-      * Set the user id of the authorized user.
-      * @param string The user id.
-      */
+     * Set the user id of the authorized user.
+     * @param string The user id.
+     */
     function setUserid($uid)
     {
         $this->userid = $uid;
     }
 
     /**
-      * Is there a user logged in?
-      *
-      * @return boolean TRUE if a user is logged in, false otherwise.
-      */
+     * Is there a user logged in?
+     *
+     * @return boolean TRUE if a user is logged in, false otherwise.
+     */
     final function isLoggedIn()
     {
         return ($_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_LOGGED_IN] === true);
     }
 
     /**
-      * What is the userid of the currently logged in user?
-      *
-      * @return string The userid of the currently logged in user, or WFAuthorizationInfo::NO_USER if no one is logged in.
-      */
+     * What is the userid of the currently logged in user?
+     *
+     * @return string The userid of the currently logged in user, or WFAuthorizationInfo::NO_USER if no one is logged in.
+     */
     final function userid()
     {
         return $this->userid;
     }
 
     /**
-      * Has the user authenticated recently?
-      *
-      * Some sites may wish to keep a user logged in forever, even with "remember me", but then restrict access to extremely sensitive data by requiring that a user is in a "recent" session. That is, they have recently authenticated with username/password and have not been "idle" in that session for more than a short period of time.
-      *
-      * @return boolean TRUE if a user has authenticated recently and not been idle for more than WFAuthorizationManager::RECENT_LOGIN_SECS seconds.
-      */
+     * Has the user authenticated recently?
+     *
+     * Some sites may wish to keep a user logged in forever, even with "remember me", but then restrict access to extremely sensitive data by requiring that a user is in a "recent" session. That is, they have recently authenticated with username/password and have not been "idle" in that session for more than a short period of time.
+     *
+     * @return boolean TRUE if a user has authenticated recently and not been idle for more than WFAuthorizationManager::RECENT_LOGIN_SECS seconds.
+     */
     final function isRecentLogin()
     {
         return ( (time() - $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME]) < WFAuthorizationManager::RECENT_LOGIN_SECS );
@@ -258,40 +258,40 @@ class WFAuthorizationInfo extends WFObject
 }
 
 /**
-  * A specialized exception class for authorization exceptions. Used by the Module subsystem to handle access control.
-  */
+ * A specialized exception class for authorization exceptions. Used by the Module subsystem to handle access control.
+ */
 class WFAuthorizationException extends Exception
 {
     /**
-      * @const Set the exception's CODE to this if access is denied based on the user's WFAuthorizationInfo.
-      */
+     * @const Set the exception's CODE to this if access is denied based on the user's WFAuthorizationInfo.
+     */
     const DENY = 1;
     /**
-      * @const Set the exception's CODE to this if access is denied because no one is logged in. System will bounced to login and return.
-      */
+     * @const Set the exception's CODE to this if access is denied because no one is logged in. System will bounced to login and return.
+     */
     const TRY_LOGIN = 2;
     /**
-      * @const Set the exception's CODE to this if access is denied because no one is logged in recently; System will force a re-authorization.
-      */
+     * @const Set the exception's CODE to this if access is denied because no one is logged in recently; System will force a re-authorization.
+     */
     const TRY_PROMPT = 3;
 }
 
 /**
-  * The WFAuthorizationManager helps the application manage user authentication, login, and access control.
-  *
-  * By default, a web application has no login capabilities and thus all users are unprivileged.
-  *
-  * WFAuthorizationManager works in conjuction with the bundled "login" module. The following is the public interface of the login module (via invocationPath redirects)
-  * - promptLogin/<continueURL:base64>
-  * - doLogout
-  * - notAuthorized
-  *
-  * You can reliably link to the above listed invocationPaths from your application.
-  *
-  * @todo captcha option
-  * @todo Decouple the default WFAuthorizationInfo class from the manager; let applications define this so that if there's no one logged in at least they get back the correct instance type.
-  * @todo Make VERSION accessible externally (maybe through Delegate interface?) so that applications can have phocoa invalidate/re-login automatically when session structures change.
-  */
+ * The WFAuthorizationManager helps the application manage user authentication, login, and access control.
+ *
+ * By default, a web application has no login capabilities and thus all users are unprivileged.
+ *
+ * WFAuthorizationManager works in conjuction with the bundled "login" module. The following is the public interface of the login module (via invocationPath redirects)
+ * - promptLogin/<continueURL:base64>
+ * - doLogout
+ * - notAuthorized
+ *
+ * You can reliably link to the above listed invocationPaths from your application.
+ *
+ * @todo captcha option
+ * @todo Decouple the default WFAuthorizationInfo class from the manager; let applications define this so that if there's no one logged in at least they get back the correct instance type.
+ * @todo Make VERSION accessible externally (maybe through Delegate interface?) so that applications can have phocoa invalidate/re-login automatically when session structures change.
+ */
 class WFAuthorizationManager extends WFObject
 {
     const SESSION_NAMESPACE = 'WFAuthorizationManager';
@@ -309,12 +309,12 @@ class WFAuthorizationManager extends WFObject
     const PROMPT = 3;   // force re-authorization
 
     /**
-      * @var object WFAuthorizationInfo The authorization info for the current session.
-      */
+     * @var object WFAuthorizationInfo The authorization info for the current session.
+     */
     protected $authorizationInfo;
     /**
-      * @var object WFAuthorizationDelegate The delegate object for handling authorization-related things.
-      */
+     * @var object WFAuthorizationDelegate The delegate object for handling authorization-related things.
+     */
     protected $authorizationDelegate;
     /**
      * @var string The class name to use as the {@link WFAuthorizationManager::$authorizationInfo}. Defaults to {@link WFAuthorizationInfo}.
@@ -325,9 +325,9 @@ class WFAuthorizationManager extends WFObject
     {
         parent::__construct();
 
-        $this->authorizationInfoClass = WFWebApplication::sharedWebApplication()->authorizationInfoClass();
+        $this->authorizationInfoClass = \AppUser_AuthorizationInfo::class;
         $this->authorizationInfo = NULL;
-        $this->authorizationDelegate = NULL;
+        $this->authorizationDelegate = new \AppUser_LoginDelegate();
 
 
         // is session authorization info initialized?
@@ -349,6 +349,11 @@ class WFAuthorizationManager extends WFObject
             {
                 $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = time();
             }
+        }
+
+        if (!$this->authorizationInfo->isLoggedIn())
+        {
+            $this->checkRememeberMe();
         }
     }
 
@@ -400,8 +405,8 @@ class WFAuthorizationManager extends WFObject
     }
 
     /**
-      * Initialize the auth manager to the default state.
-      */
+     * Initialize the auth manager to the default state.
+     */
     function init()
     {
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_VERSION] = WFAuthorizationManager::VERSION;
@@ -413,7 +418,7 @@ class WFAuthorizationManager extends WFObject
     /**
      * Get a reference to the shared WFAuthorizationManager object.
      * @static
-     * @return object The WFAuthorizationManager object.
+     * @return WFAuthorizationManager The WFAuthorizationManager object.
      */
     public static function sharedAuthorizationManager()
     {
@@ -425,37 +430,20 @@ class WFAuthorizationManager extends WFObject
     }
 
     /**
-      * Get the current auth info.
-      *
-      * @return object WFAuthorizationInfo The active WFAuthorizationInfo info.
-      */
+     * Get the current auth info.
+     *
+     * @return object WFAuthorizationInfo The active WFAuthorizationInfo info.
+     */
     function authorizationInfo()
     {
-    // give delegate a chance to munge current auth-info
-    if (method_exists($this->authorizationDelegate, 'modifyAuthorizationInfo'))
-    {
-      return $this->authorizationDelegate->modifyAuthorizationInfo($this->authorizationInfo);
-    }
-    else
-    {
-      return $this->authorizationInfo;
-    }
-    }
-
-    /**
-      * Set the WFAuthorizationDelegate to use.
-      *
-      * The WFWebApplication will usually do this for you.
-      *
-      * @param object An object that implements WFAuthorizationDelegate.
-      */
-    function setDelegate($d)
-    {
-        $this->authorizationDelegate = $d;
-
-        if (!$this->authorizationInfo->isLoggedIn())
+        // give delegate a chance to munge current auth-info
+        if (method_exists($this->authorizationDelegate, 'modifyAuthorizationInfo'))
         {
-            $this->checkRememeberMe();
+            return $this->authorizationDelegate->modifyAuthorizationInfo($this->authorizationInfo);
+        }
+        else
+        {
+            return $this->authorizationInfo;
         }
     }
 
@@ -479,18 +467,18 @@ class WFAuthorizationManager extends WFObject
     }
 
     /**
-      * Get the WFAuthorizationDelegate set for the WFAuthorizationManager.
-      *
-      * @return object An object that implements WFAuthorizationDelegate.
-      */
+     * Get the WFAuthorizationDelegate set for the WFAuthorizationManager.
+     *
+     * @return object An object that implements WFAuthorizationDelegate.
+     */
     function delegate()
     {
         return $this->authorizationDelegate;
     }
 
     /**
-      * Logout the current session.
-      */
+     * Logout the current session.
+     */
     function logout()
     {
         $this->init();
@@ -511,16 +499,16 @@ class WFAuthorizationManager extends WFObject
     }
 
     /**
-      * Attempt to authorize the user with the given name/password.
-      *
-      * This will call the delegate's login function to authenticate and get the authorizationInfo.
-      *
-      * @param string The username to use for the authentication.
-      * @param string The password to use for the authentication.
-      * @param boolean TRUE if the password is in "token" form; ie, not the clear-text password. Useful for remember-me logins or single-sign-on (SSO) setups.
-      * @return boolean TRUE if login was successful, FALSE otherwise.
-      * @see WFAuthorizationDelegate::login()
-      */
+     * Attempt to authorize the user with the given name/password.
+     *
+     * This will call the delegate's login function to authenticate and get the authorizationInfo.
+     *
+     * @param string The username to use for the authentication.
+     * @param string The password to use for the authentication.
+     * @param boolean TRUE if the password is in "token" form; ie, not the clear-text password. Useful for remember-me logins or single-sign-on (SSO) setups.
+     * @return boolean TRUE if login was successful, FALSE otherwise.
+     * @see WFAuthorizationDelegate::login()
+     */
     function login($username, $password, $passIsToken = false)
     {
         if (!$this->authorizationDelegate) throw( new Exception("WFAuthorizationDelegate required to attempt login.") );
