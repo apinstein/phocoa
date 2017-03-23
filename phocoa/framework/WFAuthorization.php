@@ -316,16 +316,11 @@ class WFAuthorizationManager extends WFObject
      * @var object WFAuthorizationDelegate The delegate object for handling authorization-related things.
      */
     protected $authorizationDelegate;
-    /**
-     * @var string The class name to use as the {@link WFAuthorizationManager::$authorizationInfo}. Defaults to {@link WFAuthorizationInfo}.
-     */
-    protected $authorizationInfoClass;
 
     function __construct()
     {
         parent::__construct();
 
-        $this->authorizationInfoClass = \AppUser_AuthorizationInfo::class;
         $this->authorizationInfo = NULL;
         $this->authorizationDelegate = new \AppUser_LoginDelegate();
 
@@ -411,7 +406,7 @@ class WFAuthorizationManager extends WFObject
     {
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_VERSION] = WFAuthorizationManager::VERSION;
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_LOGGED_IN] = false;
-        $this->authorizationInfo = $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_AUTHORIZATION_INFO] = new $this->authorizationInfoClass();
+        $this->authorizationInfo = $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_AUTHORIZATION_INFO] = new \WFAuthorizationInfo();
         $_SESSION[WFAuthorizationManager::SESSION_NAMESPACE][WFAuthorizationManager::SESSION_KEY_RECENT_LOGIN_TIME] = 0;
     }
 
