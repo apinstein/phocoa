@@ -5,11 +5,13 @@
  * @subpackage Session
  * @copyright Copyright (c) 2005 Alan Pinstein. All Rights Reserved.
  * @version $Id: kvcoding.php,v 1.3 2004/12/12 02:44:09 alanpinstein Exp $
- * @author Alan Pinstein <apinstein@mac.com>                        
+ * @author Alan Pinstein <apinstein@mac.com>
  */
 if (php_sapi_name() !== 'cli')
 {
-    session_start();
+    if (\PHP_SESSION_DISABLED !== session_status() && \PHP_SESSION_ACTIVE !== session_status()) {
+        session_start();
+    }
 }
 
 // This class is for shit right now; for now just let people access session manually.
