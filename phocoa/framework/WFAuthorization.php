@@ -486,15 +486,12 @@ class WFAuthorizationManager extends WFObject
      */
     function clearRememberMe()
     {
-        if(!isset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]])){
-          return;
-        }
         $options = $this->rememberMeOptions();
-        
+
         if(!isset($_COOKIE[$options[self::REMEMBER_ME_OPT_NAME]])){
           return;
         }
-       
+
         // clear REMEMBER ME state from CLIENT...
         setcookie($options[self::REMEMBER_ME_OPT_NAME], '', strtotime('-1 year'), $options[self::REMEMBER_ME_OPT_PATH], $options[self::REMEMBER_ME_OPT_DOMAIN]);
         // ...and PHP superglobal
