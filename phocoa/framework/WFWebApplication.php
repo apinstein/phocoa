@@ -110,7 +110,7 @@ class WFWebApplication extends WFObject
                 die("WFWebApplicationDelegate class file cannot be found: $delegate_path");
             }
             // include the application's delegate. This file should load any classes needed by the session.
-            require($delegate_path);
+            require_once($delegate_path);
             $delegate_class = WEBAPP_DELEGATE;
             if ( !class_exists($delegate_class) )
             {
