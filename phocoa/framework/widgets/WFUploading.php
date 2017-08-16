@@ -70,11 +70,11 @@ class WFUploadedFile_Basic extends WFObject implements WFUploadedFile
 
 class WFUploaderUtils extends WFObject
 {
-    function getIniSpecifiedUploadMaxFilesizeAsBytes()
+    public static function getIniSpecifiedUploadMaxFilesizeAsBytes()
     {
         return self::convertIniSizeToBytes(ini_get('upload_max_filesize'));
     }
-    function convertIniSizeToBytes($val)
+    public static function convertIniSizeToBytes($val)
     {
         $val = trim($val);
         $last = strtolower($val[strlen($val)-1]);
